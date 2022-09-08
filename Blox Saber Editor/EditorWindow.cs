@@ -139,7 +139,7 @@ namespace Sound_Space_Editor
 			VSync = VSyncMode.On;
 			TargetUpdatePeriod = 1.0 / 20.0;
 
-			//CheckForUpdates();
+			CheckForUpdates();
 
 			//TargetRenderFrequency = 60;
 
