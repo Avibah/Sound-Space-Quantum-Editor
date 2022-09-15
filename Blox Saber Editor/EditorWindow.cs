@@ -3173,12 +3173,9 @@ namespace Sound_Space_Editor
 					if (IsMegaNote(i))
 						_notes[i].Color = MergeColors(EditorSettings.NoteColor1, EditorSettings.NoteColor2);
 					else
-                    {
-						if (i % 2 == 0)
-							_notes[i].Color = EditorSettings.NoteColor2;
-						else
-							_notes[i].Color = EditorSettings.NoteColor1;
-					}
+						_notes[i].Color = i % 2 == 0 ? EditorSettings.NoteColor2 : EditorSettings.NoteColor1;
+
+					_notes[i].GridColor = i % 2 == 0 ? EditorSettings.NoteColor2 : EditorSettings.NoteColor1;
                 }
 			}
 		}

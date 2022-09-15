@@ -145,10 +145,10 @@ namespace Sound_Space_Editor.Gui
 
 				var progress = (float)Math.Pow(1 - Math.Min(1, (note.Ms - audioTime) * ApproachRate / 10.0 / 750.0), 2);
 				var noteRect = new RectangleF(x, y, noteSize, noteSize);
-				OpenTK.Graphics.Color4 colora = new OpenTK.Graphics.Color4(note.Color.R, note.Color.G, note.Color.B, progress * 0.15f);
+				OpenTK.Graphics.Color4 colora = new OpenTK.Graphics.Color4(note.GridColor.R, note.GridColor.G, note.GridColor.B, progress * 0.15f);
 				GL.Color4(colora);
 				Glu.RenderQuad(noteRect);
-				OpenTK.Graphics.Color4 color = new OpenTK.Graphics.Color4(note.Color.R, note.Color.G, note.Color.B, progress);
+				OpenTK.Graphics.Color4 color = new OpenTK.Graphics.Color4(note.GridColor.R, note.GridColor.G, note.GridColor.B, progress);
 				GL.Color4(color);
 				Glu.RenderOutline(noteRect);
 				if (Settings.Default.ApproachSquares)

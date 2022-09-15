@@ -14,6 +14,7 @@ namespace Sound_Space_Editor
 		public bool Anchored;
 
 		public Color4 Color;
+		public Color4 GridColor;
 
 		public Note(float x, float y, long ms)
 		{
