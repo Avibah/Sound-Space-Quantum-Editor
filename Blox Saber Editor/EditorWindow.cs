@@ -139,7 +139,7 @@ namespace Sound_Space_Editor
 			VSync = VSyncMode.On;
 			TargetUpdatePeriod = 1.0 / 20.0;
 
-			//CheckForUpdates();
+			CheckForUpdates();
 
 			//TargetRenderFrequency = 60;
 
@@ -185,6 +185,27 @@ namespace Sound_Space_Editor
 
 			try
             {
+				var request = (HttpWebRequest)WebRequest.Create("https://github.com/Avibah/Sound-Space-Quantum-Editor/releases/latest");
+				request.AllowAutoRedirect = false;
+
+				var response = (HttpWebResponse)request.GetResponse();
+
+				if (response.StatusCode == HttpStatusCode.Redirect)
+                {
+					var location = response.Headers["Location"];
+					var rep = location.LastIndexOf("/") + 1;
+					var version = location.Substring(rep, location.Length - rep);
+
+					if (version != currentEditorVersion)
+                    {
+						var diag = MessageBox.Show($"New Editor version is available ({version}). Would you like to go to the download page for it?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+						if (diag == DialogResult.Yes)
+							Process.Start("https://github.com/Avibah/Sound-Space-Quantum-Editor/releases/latest");
+                    }
+                }
+
+				/*
 				WebClient wc = new WebClient();
 				string reply = wc.DownloadString("https://raw.githubusercontent.com/David20122/SSQEUpdater/main/version");
 				string trimmedReply = reply.TrimEnd();
@@ -229,6 +250,7 @@ namespace Sound_Space_Editor
 						MessageBox.Show("Failed to locate 'SSQEUpdater.exe'\nDid you rename or move the file?", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 					}
 				}
+				*/
 			} 
 			catch
             {
