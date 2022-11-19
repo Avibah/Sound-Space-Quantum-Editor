@@ -7,6 +7,7 @@
      "autosaveInterval": 5,
      "autosavedFile": "",
      "bgDim": 0,
+     "clickToPlace": false,
      "color1": [
           0,
           255,
@@ -158,7 +159,7 @@
                false
           ]
      },
-     "lastFile": "F:\\Sound Space Map Editor\\SUBMITTED\\aimaiitsu - say you like my stuff.txt",
+     "lastFile": "",
      "masterVolume": 0.05,
      "metronome": false,
      "noteColors": "255,0,255|0,255,200",
