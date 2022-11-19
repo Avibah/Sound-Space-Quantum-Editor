@@ -5,7 +5,6 @@ using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
-using Sound_Space_Editor.Properties;
 
 namespace Sound_Space_Editor.Gui
 {
@@ -15,7 +14,7 @@ namespace Sound_Space_Editor.Gui
 
 		private readonly Note _startNote = new Note(1, 1, 0);
 
-		public static int ApproachRate = Settings.Default.ApproachRate + 1;
+		public static int ApproachRate = EditorSettings.ApproachRate + 1;
 
 		public GuiGrid(float sx, float sy) : base(EditorWindow.Instance.ClientSize.Width / 2f - sx / 2, EditorWindow.Instance.ClientSize.Height / 2f - sy / 2, sx, sy)
 		{
@@ -71,7 +70,7 @@ namespace Sound_Space_Editor.Gui
 				Glu.RenderQuad((int)(rect.X + lx), (int)(rect.Y), 1, rect.Height + 1);
 			}
 
-			if (editor.NoteAlign.Value != 1 && Settings.Default.QuantumGridLines)
+			if (editor.NoteAlign.Value != 1 && EditorSettings.QuantumGridLines)
 			{
 				GL.Begin(PrimitiveType.Lines);
 
@@ -94,7 +93,7 @@ namespace Sound_Space_Editor.Gui
 			var fr = EditorWindow.Instance.FontRenderer;
 
 			GL.Color3(0.2f, 0.2f, 0.2f);
-			if (Settings.Default.GridLetters)
+			if (EditorSettings.GridLetters)
             {
 				foreach (var pair in EditorWindow.Instance.KeyMapping)
 				{
@@ -151,7 +150,7 @@ namespace Sound_Space_Editor.Gui
 				OpenTK.Graphics.Color4 color = new OpenTK.Graphics.Color4(note.GridColor.R, note.GridColor.G, note.GridColor.B, progress);
 				GL.Color4(color);
 				Glu.RenderOutline(noteRect);
-				if (Settings.Default.ApproachSquares)
+				if (EditorSettings.ApproachSquares)
 				{
 					var outlineSize = 4 + noteSize + noteSize * (1 - progress) * 2;
 					Glu.RenderOutline(x - outlineSize / 2 + noteSize / 2, y - outlineSize / 2 + noteSize / 2,
@@ -159,7 +158,7 @@ namespace Sound_Space_Editor.Gui
 						outlineSize);
 				}
 
-				if (Settings.Default.GridNumbers)
+				if (EditorSettings.GridNumbers)
 				{
 					GL.Color4(1, 1, 1, progress);
 					var s = $"{(index + 1):#,##}";
@@ -179,7 +178,7 @@ namespace Sound_Space_Editor.Gui
 						outlineSize, outlineSize);
 				}
 
-				if (!mouseOver && noteRect.Contains(mouseX, mouseY) && (!Settings.Default.SeparateClickTools || Settings.Default.SelectTool))
+				if (!mouseOver && noteRect.Contains(mouseX, mouseY) && (!EditorSettings.SeparateClickTools || EditorSettings.SelectTool))
 				{
 					MouseOverNote = note;
 					mouseOver = true;
@@ -195,7 +194,7 @@ namespace Sound_Space_Editor.Gui
 			}
 
 			//RENDER AUTOPLAY
-			if (Settings.Default.Autoplay)
+			if (EditorSettings.Autoplay)
 			{
 				RenderAutoPlay(last, next, cellSize, rect, audioTime);
 			}

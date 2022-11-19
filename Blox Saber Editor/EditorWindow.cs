@@ -167,7 +167,7 @@ namespace Sound_Space_Editor
 
 			EditorSettings.RefreshKeymapping();
 
-			SelectTool = Settings.Default.SelectTool;
+			SelectTool = EditorSettings.SelectTool;
 
 			if (discordEnabled)
 			{
@@ -215,30 +215,30 @@ namespace Sound_Space_Editor
 				if (currentEditorVersion != downloadedVersionString)
 				{
 					object[] settings = {
-						Settings.Default.MasterVolume,
-						Settings.Default.SFXVolume,
-						Settings.Default.GridNumbers,
-						Settings.Default.ApproachSquares,
-						Settings.Default.AnimateBackground,
-						Settings.Default.Autoplay,
-						Settings.Default.BGDim,
-						Settings.Default.Quantum,
-						Settings.Default.AutoAdvance,
-						Settings.Default.SfxOffset,
-						Settings.Default.Numpad,
-						Settings.Default.QuantumGridLines,
-						Settings.Default.QuantumGridSnap,
-						Settings.Default.Metronome,
-						Settings.Default.LegacyBPM,
-						Settings.Default.SeparateClickTools,
-						Settings.Default.AutosavedFile.Replace(',', '&'),
-						Settings.Default.TrackHeight,
-						Settings.Default.CurveBezier,
-						Settings.Default.LastFile.Replace(' ', '>').Replace(',', '<'),
-						Settings.Default.GridLetters,
-						Settings.Default.CursorPos,
-						Settings.Default.SelectTool,
-						Settings.Default.ApproachRate,
+						EditorSettings.MasterVolume,
+						EditorSettings.SFXVolume,
+						EditorSettings.GridNumbers,
+						EditorSettings.ApproachSquares,
+						EditorSettings.AnimateBackground,
+						EditorSettings.Autoplay,
+						EditorSettings.BGDim,
+						EditorSettings.Quantum,
+						EditorSettings.AutoAdvance,
+						EditorSettings.SfxOffset,
+						EditorSettings.Numpad,
+						EditorSettings.QuantumGridLines,
+						EditorSettings.QuantumGridSnap,
+						EditorSettings.Metronome,
+						EditorSettings.LegacyBPM,
+						EditorSettings.SeparateClickTools,
+						EditorSettings.AutosavedFile.Replace(',', '&'),
+						EditorSettings.TrackHeight,
+						EditorSettings.CurveBezier,
+						EditorSettings.LastFile.Replace(' ', '>').Replace(',', '<'),
+						EditorSettings.GridLetters,
+						EditorSettings.CursorPos,
+						EditorSettings.SelectTool,
+						EditorSettings.ApproachRate,
 					};
 
 					try
@@ -389,7 +389,7 @@ namespace Sound_Space_Editor
 
 			if (GuiScreen is GuiScreenEditor editor)
 			{
-				if (_drawPreview && (!Settings.Default.SeparateClickTools || !SelectTool))
+				if (_drawPreview && (!EditorSettings.SeparateClickTools || !SelectTool))
 				{
 					editor.Grid.RenderFakeNote(_previewNote.X, _previewNote.Y, null);
 				}
@@ -495,7 +495,7 @@ namespace Sound_Space_Editor
         {
 			if (GuiScreen is GuiScreenEditor editor)
             {
-				if (Settings.Default.Quantum)
+				if (EditorSettings.EnableQuantum)
 				{
 					var boundxmin = editor.Grid.ClientRectangle.X - editor.Grid.ClientRectangle.Width / 3;
 					var boundxmax = editor.Grid.ClientRectangle.Right + editor.Grid.ClientRectangle.Width / 3;
@@ -528,13 +528,13 @@ namespace Sound_Space_Editor
 
 			if (GuiScreen is GuiScreenEditor editor)
 			{
-				if (_placingNotes || ((!Settings.Default.SeparateClickTools || !SelectTool) && GridContains(e.Position)))
+				if (_placingNotes || ((!EditorSettings.SeparateClickTools || !SelectTool) && GridContains(e.Position)))
 				{
 					var pos = e.Position;
 					var rect = editor.Grid.ClientRectangle;
 					var increment = 1f;
 
-					if (Settings.Default.Quantum)
+					if (EditorSettings.EnableQuantum)
 						increment = (float)(editor.NoteAlign.Value + 1f) / 3f;
 
 					var x = (float)((pos.X - (rect.X + (rect.Width / 2))) / rect.Width * 3) + 1;
@@ -591,7 +591,7 @@ namespace Sound_Space_Editor
 								}
 							}
 						}
-					} else if (!Settings.Default.SeparateClickTools || !SelectTool)
+					} else if (!EditorSettings.SeparateClickTools || !SelectTool)
 					{
 						_drawPreview = true;
 						_previewNote = new PointF(x, y);
@@ -828,7 +828,7 @@ namespace Sound_Space_Editor
 
 						_dragNoteStartMs = tn.Ms;
 					}
-					else if (editor.Grid.MouseOverNote is Note gn && (!Settings.Default.SeparateClickTools || SelectTool))
+					else if (editor.Grid.MouseOverNote is Note gn && (!EditorSettings.SeparateClickTools || SelectTool))
 					{
 						if (MusicPlayer.IsPlaying)
 							MusicPlayer.Pause();
@@ -869,14 +869,14 @@ namespace Sound_Space_Editor
 
 						SelectedNotes = _draggedNotes;
 					}
-					else if (editor.CanClick(e.Position) && GridContains(e.Position) && (!Settings.Default.SeparateClickTools || !SelectTool))
+					else if (editor.CanClick(e.Position) && GridContains(e.Position) && (!EditorSettings.SeparateClickTools || !SelectTool))
 					{
 						_placingNotes = true;
 						var pos = e.Position;
 						var rect = editor.Grid.ClientRectangle;
 						var increment = 1f;
 
-						if (Settings.Default.Quantum)
+						if (EditorSettings.EnableQuantum)
 							increment = (float)(editor.NoteAlign.Value + 1f) / 3f;
 
 						var x = (float)((pos.X - (rect.X + (rect.Width / 2))) / rect.Width * 3) + 1;
@@ -1176,13 +1176,11 @@ namespace Sound_Space_Editor
 			{
 				if (editor.MasterVolume.Dragging || editor.SfxVolume.Dragging || editor.TrackHeight.Dragging || editor.TrackCursorPos.Dragging || editor.ApproachRate.Dragging)
 				{
-					Settings.Default.MasterVolume = (decimal)editor.MasterVolume.Value / editor.MasterVolume.MaxValue;
-					Settings.Default.SFXVolume = (decimal)editor.SfxVolume.Value / editor.SfxVolume.MaxValue;
-					Settings.Default.TrackHeight = editor.TrackHeight.Value;
-					Settings.Default.CursorPos = editor.TrackCursorPos.Value;
-					Settings.Default.ApproachRate = editor.ApproachRate.Value;
-
-					Settings.Default.Save();
+					EditorSettings.MasterVolume = (decimal)editor.MasterVolume.Value / editor.MasterVolume.MaxValue;
+					EditorSettings.SFXVolume = (decimal)editor.SfxVolume.Value / editor.SfxVolume.MaxValue;
+					EditorSettings.TrackHeight = editor.TrackHeight.Value;
+					EditorSettings.CursorPos = editor.TrackCursorPos.Value;
+					EditorSettings.ApproachRate = editor.ApproachRate.Value;
 				}
 
 				editor.BeatSnapDivisor.Dragging = false;
@@ -1377,9 +1375,9 @@ namespace Sound_Space_Editor
 					var k = finalnodes.Count - 1;
 					decimal tdiff = finalnodes[k].Ms - finalnodes[0].Ms;
 					decimal d = 1m / (divisor * k);
-					if (!Settings.Default.CurveBezier)
+					if (!EditorSettings.CurveBezier)
 						d = 1m / divisor;
-					if (Settings.Default.CurveBezier)
+					if (EditorSettings.CurveBezier)
 					{
 						for (decimal t = d; t <= 1; t += d)
 						{
@@ -1720,13 +1718,11 @@ namespace Sound_Space_Editor
 						return;
 					case "SwitchClickTool":
 						SelectTool = !SelectTool;
-						Settings.Default.SelectTool = SelectTool;
-						Settings.Default.Save();
+						EditorSettings.SelectTool = SelectTool;
 						return;
 					case "Quantum":
 						editor.Quantum.Toggle = !editor.Quantum.Toggle;
-						Settings.Default.Quantum = editor.Quantum.Toggle;
-						Settings.Default.Save();
+						EditorSettings.EnableQuantum = editor.Quantum.Toggle;
 						return;
 					case "OpenTimings":
 						if (TimingsWindow.inst != null)
@@ -1775,7 +1771,7 @@ namespace Sound_Space_Editor
 							}
 
 							SelectedNotes.Clear();
-							if (!Settings.Default.CurveBezier)
+							if (!EditorSettings.CurveBezier)
 								finalnodes = new List<Note>();
 							else
 								finalnotes.Add(finalnodes[0]);
@@ -2114,8 +2110,6 @@ namespace Sound_Space_Editor
 			EditorSettings.SaveSettings();
 			if (TimingPoints.Instance != null)
 				TimingPoints.Instance.Close();
-
-			Settings.Default.Save();
 
 			if (GuiScreen is GuiScreenEditor)
 				WriteIniFile();
@@ -2657,8 +2651,7 @@ namespace Sound_Space_Editor
 			if (LoadMap(data, true) && GuiScreen is GuiScreenEditor gse)
 			{
 				_file = file;
-				Settings.Default.LastFile = file;
-				Settings.Default.Save();
+				EditorSettings.LastFile = file;
 
 				GuiSliderTimeline.Bookmarks.Clear();
 				GuiTrack.BPMs.Clear();
@@ -2845,23 +2838,16 @@ namespace Sound_Space_Editor
 
 		public BPM GetCurrentBpm(double currentms, bool draggingbpm)
         {
-			if (!Settings.Default.LegacyBPM)
-            {
-				BPM currentbpm = new BPM(0, 0);
+			BPM currentbpm = new BPM(0, 0);
 
-				foreach (var bpm in GuiTrack.BPMs)
-                {
-					if ((!draggingbpm && bpm.Ms <= currentms) || (draggingbpm && bpm.Ms < currentms))
-						currentbpm = bpm;
-				}
-
-				return currentbpm;
+			foreach (var bpm in GuiTrack.BPMs)
+			{
+				if ((!draggingbpm && bpm.Ms <= currentms) || (draggingbpm && bpm.Ms < currentms))
+					currentbpm = bpm;
 			}
-			else
-            {
-				return new BPM(GuiTrack.Bpm, GuiTrack.BpmOffset);
-            }
-        }
+
+			return currentbpm;
+		}
 
 		private bool PromptSave()
 		{
@@ -2955,8 +2941,7 @@ namespace Sound_Space_Editor
 
 				WriteIniFile();
 
-				Settings.Default.LastFile = file;
-				Settings.Default.Save();
+				EditorSettings.LastFile = file;
 			}
 			catch { return false; }
 
@@ -3053,7 +3038,7 @@ namespace Sound_Space_Editor
 			{
 				if (_file == null)
 				{
-					Settings.Default.AutosavedFile = ParseData(false);
+					EditorSettings.AutosavedFile = ParseData(false);
 
 					editor.ShowToast("AUTOSAVED", Color1);
 				}

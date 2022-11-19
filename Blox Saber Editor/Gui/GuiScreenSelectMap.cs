@@ -40,7 +40,7 @@ namespace Sound_Space_Editor.Gui
 			}
 			 */
 
-			if (File.Exists(Properties.Settings.Default.AutosavedFile))
+			if (File.Exists(EditorSettings.AutosavedFile))
 			{
 				_lastMapButton = new GuiButton(3, 0, 0, 256, 48, "EDIT LAST MAP", false);
 				Buttons.Add(_lastMapButton);
@@ -179,7 +179,7 @@ namespace Sound_Space_Editor.Gui
 					
 					break;
 				case 3:
-					EditorWindow.Instance.LoadFile(Properties.Settings.Default.AutosavedFile);
+					EditorWindow.Instance.LoadFile(EditorSettings.AutosavedFile);
 					break;
 				/*
 				case 4:

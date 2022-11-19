@@ -18,18 +18,47 @@ namespace Sound_Space_Editor
 		public static readonly string file = "settings.txt";
 
 		public static bool Waveform = true;
-		//public static bool BPMForm = true;
+		public static bool EnableAutosave = true;
+		public static bool CorrectOnCopy = true;
+		public static bool GridNumbers = false;
+		public static bool ApproachSquares = false;
+		public static bool AnimateBackground = false;
+		public static bool Autoplay = true;
+		public static bool Numpad = false;
+		public static bool QuantumGridLines = true;
+		public static bool QuantumGridSnap = true;
+		public static bool Metronome = false;
+		public static bool SeparateClickTools = false;
+		public static bool EnableQuantum = false;
+		public static bool AutoAdvance = false;
+		public static bool ClickToPlace = false;
+		public static bool SelectTool = false;
+		public static bool CurveBezier = true;
+		public static bool GridLetters = true;
+
 		public static int EditorBGOpacity = 255;
 		public static int GridOpacity = 255;
 		public static int TrackOpacity = 255;
+		public static int TrackHeight = 16;
+		public static int CursorPos = 40;
+		public static int ApproachRate = 9;
+		public static int AutosaveInterval = 5;
+
+		public static decimal MasterVolume = 0.05m;
+		public static decimal SFXVolume = 0.1m;
+
+		public static float BGDim = 0f;
+
+		public static string AutosavedFile = "";
+		public static string LastFile = "";
+		public static string SFXOffset = "0";
+
 		public static Color Color1 = Color.FromArgb(0, 255, 200);
 		public static Color Color2 = Color.FromArgb(255, 0, 255);
 		public static Color Color3 = Color.FromArgb(255, 0, 100);
-		public static List<Color> NoteColors = new List<Color>() { Color.FromArgb(255, 0, 255), Color.FromArgb(0, 255, 200) };
-		public static bool EnableAutosave = true;
-		public static int AutosaveInterval = 5;
-		public static bool CorrectOnCopy = true;
 
+		public static List<Color> NoteColors = new List<Color>() { Color.FromArgb(255, 0, 255), Color.FromArgb(0, 255, 200) };
+		
 		public static KeyType SelectAll = new KeyType() { Key = Key.A, CTRL = true, SHIFT = false, ALT = false };
 		public static KeyType Save = new KeyType() { Key = Key.S, CTRL = true, SHIFT = false, ALT = false };
 		public static KeyType SaveAs = new KeyType() { Key = Key.S, CTRL = true, SHIFT = true, ALT = false };
@@ -67,27 +96,79 @@ namespace Sound_Space_Editor
 			{
 				Reset();
 				JsonObject result = (JsonObject)JsonValue.Parse(File.ReadAllText(file));
+				JsonValue value;
 
-				if (result.TryGetValue("waveform", out var value))
+				if (result.TryGetValue("waveform", out value))
 					Waveform = value;
+				if (result.TryGetValue("enableAutosave", out value))
+					EnableAutosave = value;
+				if (result.TryGetValue("correctOnCopy", out value))
+					CorrectOnCopy = value;
+				if (result.TryGetValue("gridNumbers", out value))
+					GridNumbers = value;
+				if (result.TryGetValue("approachSquares", out value))
+					ApproachSquares = value;
+				if (result.TryGetValue("animateBackground", out value))
+					AnimateBackground = value;
+				if (result.TryGetValue("autoplay", out value))
+					Autoplay = value;
+				if (result.TryGetValue("numpad", out value))
+					Numpad = value;
+				if (result.TryGetValue("quantumGridLines", out value))
+					QuantumGridLines = value;
+				if (result.TryGetValue("quantumGridSnap", out value))
+					QuantumGridSnap = value;
+				if (result.TryGetValue("metronome", out value))
+					Metronome = value;
+				if (result.TryGetValue("separateClickTools", out value))
+					SeparateClickTools = value;
+				if (result.TryGetValue("enableQuantum", out value))
+					EnableQuantum = value;
+				if (result.TryGetValue("autoAdvance", out value))
+					AutoAdvance = value;
+				if (result.TryGetValue("selectTool", out value))
+					SelectTool = value;
+				if (result.TryGetValue("curveBezier", out value))
+					CurveBezier = value;
+				if (result.TryGetValue("gridLetters", out value))
+					GridLetters = value;
+
 				if (result.TryGetValue("editorBGOpacity", out value))
 					EditorBGOpacity = value;
 				if (result.TryGetValue("gridOpacity", out value))
 					GridOpacity = value;
 				if (result.TryGetValue("trackOpacity", out value))
 					TrackOpacity = value;
+				if (result.TryGetValue("trackHeight", out value))
+					TrackHeight = value;
+				if (result.TryGetValue("cursorPos", out value))
+					CursorPos = value;
+				if (result.TryGetValue("approachRate", out value))
+					ApproachRate = value;
+				if (result.TryGetValue("autosaveInterval", out value))
+					AutosaveInterval = value;
+
+				if (result.TryGetValue("masterVolume", out value))
+					MasterVolume = value;
+				if (result.TryGetValue("sfxVolume", out value))
+					SFXVolume = value;
+
+				if (result.TryGetValue("bgDim", out value))
+					BGDim = value;
+
+				if (result.TryGetValue("autosavedFile", out value))
+					Waveform = value;
+				if (result.TryGetValue("lastFile", out value))
+					Waveform = value;
+				if (result.TryGetValue("sfxOffset", out value))
+					Waveform = value;
+
 				if (result.TryGetValue("color1", out value))
 					Color1 = Color.FromArgb(value[0], value[1], value[2]);
 				if (result.TryGetValue("color2", out value))
 					Color2 = Color.FromArgb(value[0], value[1], value[2]);
 				if (result.TryGetValue("color3", out value))
 					Color3 = Color.FromArgb(value[0], value[1], value[2]);
-				if (result.TryGetValue("enableAutosave", out value))
-					EnableAutosave = value;
-				if (result.TryGetValue("autosaveInterval", out value))
-					AutosaveInterval = value;
-				if (result.TryGetValue("correctOnCopy", out value))
-					CorrectOnCopy = value;
 
 				if (result.TryGetValue("noteColors", out value))
                 {
@@ -214,7 +295,7 @@ namespace Sound_Space_Editor
 		public static void RefreshKeymapping()
         {
 			EditorWindow.Instance.KeyMapping.Clear();
-			if (Settings.Default.Numpad)
+			if (Numpad)
             {
 				EditorWindow.Instance.KeyMapping.Add(Key.Keypad7, new Tuple<int, int>(0, 0));
 				EditorWindow.Instance.KeyMapping.Add(Key.Keypad8, new Tuple<int, int>(1, 0));
@@ -255,16 +336,46 @@ namespace Sound_Space_Editor
 			JsonObject jsonFinal = new JsonObject(Array.Empty<KeyValuePair<string, JsonValue>>())
 			{
 				{"waveform", Waveform},
+				{"enableAutosave", EnableAutosave},
+				{"correctOnCopy", CorrectOnCopy},
+				{"gridNumbers", GridNumbers},
+				{"approachSquares", ApproachSquares},
+				{"animateBackground", AnimateBackground},
+				{"autoplay", Autoplay},
+				{"numpad", Numpad},
+				{"quantumGridLines", QuantumGridLines},
+				{"quantumGridSnap", QuantumGridSnap},
+				{"metronome", Metronome},
+				{"separateClickTools", SeparateClickTools},
+				{"enableQuantum", EnableQuantum},
+				{"autoAdvance", AutoAdvance},
+				{"selectTool", SelectTool},
+				{"curveBezier", CurveBezier},
+				{"gridLetters", GridLetters},
+
 				{"editorBGOpacity", EditorBGOpacity},
 				{"gridOpacity", GridOpacity},
 				{"trackOpacity", TrackOpacity},
+				{"trackHeight", TrackHeight},
+				{"cursorPos", CursorPos},
+				{"approachRate", ApproachRate},
+				{"autosaveInterval", AutosaveInterval},
+
+				{"masterVolume", MasterVolume},
+				{"sfxVolume", SFXVolume},
+
+				{"bgDim", BGDim},
+
+				{"autosavedFile", AutosavedFile},
+				{"lastFile", LastFile},
+				{"sfxOffset", SFXOffset},
+
 				{"color1", new JsonArray(Color1.R, Color1.G, Color1.B)},
 				{"color2", new JsonArray(Color2.R, Color2.G, Color2.B)},
 				{"color3", new JsonArray(Color3.R, Color3.G, Color3.B)},
-				{"enableAutosave", EnableAutosave},
-				{"autosaveInterval", AutosaveInterval},
-				{"correctOnCopy", CorrectOnCopy},
+				
 				{"noteColors", string.Join("|", colors)},
+
 				{"keybinds", new JsonObject(Array.Empty<KeyValuePair<string, JsonValue>>()) {
 					{"selectAll", new JsonArray(SelectAll.Key.ToString(), SelectAll.CTRL, SelectAll.SHIFT, SelectAll.ALT)},
 					{"save", new JsonArray(Save.Key.ToString(), Save.CTRL, Save.SHIFT, Save.ALT)},
@@ -283,7 +394,9 @@ namespace Sound_Space_Editor
 					{"storeNodes", new JsonArray(StoreNodes.Key.ToString(), StoreNodes.CTRL, StoreNodes.SHIFT, StoreNodes.ALT)},
 					{"drawBezier", new JsonArray(DrawBezier.Key.ToString(), DrawBezier.CTRL, DrawBezier.SHIFT, DrawBezier.ALT)},
 					{"anchorNode", new JsonArray(AnchorNode.Key.ToString(), AnchorNode.CTRL, AnchorNode.SHIFT, AnchorNode.ALT)},
+					
 					{"gridKeys", new JsonArray(GridKeys.TL.ToString(), GridKeys.TC.ToString(), GridKeys.TR.ToString(), GridKeys.ML.ToString(), GridKeys.MC.ToString(), GridKeys.MR.ToString(), GridKeys.BL.ToString(), GridKeys.BC.ToString(), GridKeys.BR.ToString())},
+					
 					{"patterns", new JsonArray(Pattern0, Pattern1, Pattern2, Pattern3, Pattern4, Pattern5, Pattern6, Pattern7, Pattern8, Pattern9)},
 				}}
 			};

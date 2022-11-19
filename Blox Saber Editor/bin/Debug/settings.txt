@@ -1,5 +1,12 @@
 {
+     "animateBackground": false,
+     "approachRate": 9,
+     "approachSquares": false,
+     "autoAdvance": false,
+     "autoplay": true,
      "autosaveInterval": 5,
+     "autosavedFile": "",
+     "bgDim": 0,
      "color1": [
           0,
           255,
@@ -16,8 +23,13 @@
           100
      ],
      "correctOnCopy": true,
+     "cursorPos": 40,
+     "curveBezier": true,
      "editorBGOpacity": 255,
      "enableAutosave": true,
+     "enableQuantum": false,
+     "gridLetters": true,
+     "gridNumbers": false,
      "gridOpacity": 255,
      "keybinds": {
           "anchorNode": [
@@ -146,7 +158,18 @@
                false
           ]
      },
+     "lastFile": "F:\\Sound Space Map Editor\\SUBMITTED\\aimaiitsu - say you like my stuff.txt",
+     "masterVolume": 0.05,
+     "metronome": false,
      "noteColors": "255,0,255|0,255,200",
+     "numpad": false,
+     "quantumGridLines": true,
+     "quantumGridSnap": true,
+     "selectTool": false,
+     "separateClickTools": false,
+     "sfxOffset": "0",
+     "sfxVolume": 0.1,
+     "trackHeight": 16,
      "trackOpacity": 255,
      "waveform": true
 }

@@ -251,21 +251,21 @@ namespace Sound_Space_Editor.Gui
 
 			SelectBound = new GuiButton(19, 0, 0, 64, 32, "SELECT", false);
 
-			Autoplay = new GuiCheckBox(5, "Autoplay", 0, 0, 32, 32, Settings.Default.Autoplay);
-			ApproachSquares = new GuiCheckBox(5, "Approach Squares", 0, 0, 32, 32, Settings.Default.ApproachSquares);
-			GridNumbers = new GuiCheckBox(5, "Grid Numbers", 0, 0, 32, 32, Settings.Default.GridNumbers);
-			GridLetters = new GuiCheckBox(5, "Grid Letters", 0, 0, 32, 32, Settings.Default.GridLetters);
-			Quantum = new GuiCheckBox(5, "Quantum", 0, 0, 32, 32, Settings.Default.Quantum);
-			AutoAdvance = new GuiCheckBox(5, "Auto-Advance", 0, 0, 32, 32, Settings.Default.AutoAdvance);
-			Numpad = new GuiCheckBox(5, "Use Numpad", 0, 0, 32, 32, Settings.Default.Numpad);
-			QuantumGridLines = new GuiCheckBox(5, "Quantum Grid Lines", 0, 0, 32, 32, Settings.Default.QuantumGridLines);
-			QuantumGridSnap = new GuiCheckBox(5, "Snap to Grid", 0, 0, 32, 32, Settings.Default.QuantumGridSnap);
-			Metronome = new GuiCheckBox(5, "Metronome", 0, 0, 32, 32, Settings.Default.Metronome);
-			//DynamicBezier = new GuiCheckBox(5, "Show Bezier Preview", 0, 0, 32, 32, Settings.Default.DynamicBezier);
-			CurveBezier = new GuiCheckBox(5, "Curve Bezier", 0, 0, 32, 32, Settings.Default.CurveBezier);
-			//ClickToPlace = new GuiCheckBox(5, "Click to Place", 0, 0, 32, 32, Settings.Default.ClickToPlace);
-			SeparateClickTools = new GuiCheckBox(5, "Separate Click Functions", 0, 0, 32, 32, Settings.Default.SeparateClickTools);
-			//LegacyBPM = new GuiCheckBox(5, "Use Legacy Panel", 0, 0, 24, 24, Settings.Default.LegacyBPM);
+			Autoplay = new GuiCheckBox(5, "Autoplay", 0, 0, 32, 32, EditorSettings.Autoplay);
+			ApproachSquares = new GuiCheckBox(5, "Approach Squares", 0, 0, 32, 32, EditorSettings.ApproachSquares);
+			GridNumbers = new GuiCheckBox(5, "Grid Numbers", 0, 0, 32, 32, EditorSettings.GridNumbers);
+			GridLetters = new GuiCheckBox(5, "Grid Letters", 0, 0, 32, 32, EditorSettings.GridLetters);
+			Quantum = new GuiCheckBox(5, "Quantum", 0, 0, 32, 32, EditorSettings.EnableQuantum);
+			AutoAdvance = new GuiCheckBox(5, "Auto-Advance", 0, 0, 32, 32, EditorSettings.AutoAdvance);
+			Numpad = new GuiCheckBox(5, "Use Numpad", 0, 0, 32, 32, EditorSettings.Numpad);
+			QuantumGridLines = new GuiCheckBox(5, "Quantum Grid Lines", 0, 0, 32, 32, EditorSettings.QuantumGridLines);
+			QuantumGridSnap = new GuiCheckBox(5, "Snap to Grid", 0, 0, 32, 32, EditorSettings.QuantumGridSnap);
+			Metronome = new GuiCheckBox(5, "Metronome", 0, 0, 32, 32, EditorSettings.Metronome);
+			//DynamicBezier = new GuiCheckBox(5, "Show Bezier Preview", 0, 0, 32, 32, EditorSettings.DynamicBezier);
+			CurveBezier = new GuiCheckBox(5, "Curve Bezier", 0, 0, 32, 32, EditorSettings.CurveBezier);
+			//ClickToPlace = new GuiCheckBox(5, "Click to Place", 0, 0, 32, 32, EditorSettings.ClickToPlace);
+			SeparateClickTools = new GuiCheckBox(5, "Separate Click Functions", 0, 0, 32, 32, EditorSettings.SeparateClickTools);
+			//LegacyBPM = new GuiCheckBox(5, "Use Legacy Panel", 0, 0, 24, 24, EditorSettings.LegacyBPM);
 
 			ScaleBox = new GuiTextBox(0, 0, 128, 32)
 			{
@@ -357,21 +357,21 @@ namespace Sound_Space_Editor.Gui
 
 			HideShowElements();
 
-			EditorWindow.Instance.MusicPlayer.Volume = (float)Settings.Default.MasterVolume;
+			EditorWindow.Instance.MusicPlayer.Volume = (float)EditorSettings.MasterVolume;
 
-			SfxOffset.Text = Settings.Default.SfxOffset;
-			MasterVolume.Value = (int)(Settings.Default.MasterVolume * MasterVolume.MaxValue);
-			SfxVolume.Value = (int)(Settings.Default.SFXVolume * SfxVolume.MaxValue);
-			TrackHeight.Value = Settings.Default.TrackHeight;
-			TrackCursorPos.Value = Settings.Default.CursorPos;
-			ApproachRate.Value = Settings.Default.ApproachRate;
-			// NoteAlign.Value = (int)(Settings.Default.NoteAlign * NoteAlign.MaxValue);
+			SfxOffset.Text = EditorSettings.SFXOffset;
+			MasterVolume.Value = (int)(EditorSettings.MasterVolume * MasterVolume.MaxValue);
+			SfxVolume.Value = (int)(EditorSettings.SFXVolume * SfxVolume.MaxValue);
+			TrackHeight.Value = EditorSettings.TrackHeight;
+			TrackCursorPos.Value = EditorSettings.CursorPos;
+			ApproachRate.Value = EditorSettings.ApproachRate;
+			// NoteAlign.Value = (int)(EditorSettings.NoteAlign * NoteAlign.MaxValue);
 
 			OnResize(EditorWindow.Instance.ClientSize);
 
 			SfxOffset.OnChanged += (_, value) =>
 			{
-				Settings.Default.SfxOffset = SfxOffset.Text;
+				EditorSettings.SFXOffset = SfxOffset.Text;
 			};
 		}
 
@@ -450,12 +450,12 @@ namespace Sound_Space_Editor.Gui
 			var th = 64 + (32 - TrackHeight.Value);
 			var ar = ApproachRate.Value + 1;
 
-			if (Settings.Default.SeparateClickTools)
+			if (EditorSettings.SeparateClickTools)
             {
 				if (rl)
-					fr.Render("Cwick Mode~ " + (Settings.Default.SelectTool ? "Sewect" : "Pwace"), (int)BackButton.ClientRectangle.X, (int)BackButton.ClientRectangle.Bottom + 20, 24);
+					fr.Render("Cwick Mode~ " + (EditorSettings.SelectTool ? "Sewect" : "Pwace"), (int)BackButton.ClientRectangle.X, (int)BackButton.ClientRectangle.Bottom + 20, 24);
 				else
-					fr.Render("Click Mode: " + (Settings.Default.SelectTool ? "Select" : "Place"), (int)BackButton.ClientRectangle.X, (int)BackButton.ClientRectangle.Bottom + 20, 24);
+					fr.Render("Click Mode: " + (EditorSettings.SelectTool ? "Select" : "Place"), (int)BackButton.ClientRectangle.X, (int)BackButton.ClientRectangle.Bottom + 20, 24);
 			}
 
 			if (OptionsNavEnabled)
@@ -614,9 +614,9 @@ namespace Sound_Space_Editor.Gui
 				double d = 1f / (bezdivisor * k);
 				float xprev = finalnodes[0].X * Grid.ClientRectangle.Width / 3 + Grid.ClientRectangle.X + Grid.ClientRectangle.Width / 6;
 				float yprev = finalnodes[0].Y * Grid.ClientRectangle.Width / 3 + Grid.ClientRectangle.Y + Grid.ClientRectangle.Width / 6;
-				if (!Settings.Default.CurveBezier)
+				if (!EditorSettings.CurveBezier)
 					d = 1f / bezdivisor;
-				if (Settings.Default.CurveBezier)
+				if (EditorSettings.CurveBezier)
 				{
 					for (double t = 0; t <= 1; t += d)
 					{
@@ -897,23 +897,24 @@ namespace Sound_Space_Editor.Gui
                     }
 					break;
 				case 5:
-					Settings.Default.Autoplay = Autoplay.Toggle;
-					Settings.Default.ApproachSquares = ApproachSquares.Toggle;
-					Settings.Default.GridNumbers = GridNumbers.Toggle;
-					Settings.Default.GridLetters = GridLetters.Toggle;
-					Settings.Default.Quantum = Quantum.Toggle;
-					Settings.Default.AutoAdvance = AutoAdvance.Toggle;
-					Settings.Default.Numpad = Numpad.Toggle;
-					Settings.Default.QuantumGridLines = QuantumGridLines.Toggle;
-					Settings.Default.QuantumGridSnap = QuantumGridSnap.Toggle;
-					Settings.Default.Metronome = Metronome.Toggle;
-					Settings.Default.SfxOffset = SfxOffset.Text;
-					//Settings.Default.DynamicBezier = DynamicBezier.Toggle;
-					Settings.Default.CurveBezier = CurveBezier.Toggle;
-					//Settings.Default.ClickToPlace = ClickToPlace.Toggle;
-					Settings.Default.SeparateClickTools = SeparateClickTools.Toggle;
-					//Settings.Default.LegacyBPM = LegacyBPM.Toggle;
-					Settings.Default.Save();
+					EditorSettings.Autoplay = Autoplay.Toggle;
+					EditorSettings.ApproachSquares = ApproachSquares.Toggle;
+					EditorSettings.GridNumbers = GridNumbers.Toggle;
+					EditorSettings.GridLetters = GridLetters.Toggle;
+					EditorSettings.EnableQuantum = Quantum.Toggle;
+					EditorSettings.AutoAdvance = AutoAdvance.Toggle;
+					EditorSettings.Numpad = Numpad.Toggle;
+					EditorSettings.QuantumGridLines = QuantumGridLines.Toggle;
+					EditorSettings.QuantumGridSnap = QuantumGridSnap.Toggle;
+					EditorSettings.Metronome = Metronome.Toggle;
+					EditorSettings.SFXOffset = SfxOffset.Text;
+					//EditorSettings.DynamicBezier = DynamicBezier.Toggle;
+					EditorSettings.CurveBezier = CurveBezier.Toggle;
+					//EditorSettings.ClickToPlace = ClickToPlace.Toggle;
+					EditorSettings.SeparateClickTools = SeparateClickTools.Toggle;
+					//EditorSettings.LegacyBPM = LegacyBPM.Toggle;
+
+					EditorSettings.SaveSettings();
 					EditorSettings.RefreshKeymapping();
 					break;
 				case 6:
@@ -1022,7 +1023,7 @@ namespace Sound_Space_Editor.Gui
 						}
 
 						EditorWindow.Instance.SelectedNotes.Clear();
-						if (!Settings.Default.CurveBezier)
+						if (!EditorSettings.CurveBezier)
 							finalnodes = new List<Note>();
 						else
 							finalnotes.Add(finalnodes[0]);

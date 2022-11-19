@@ -159,14 +159,6 @@ namespace Sound_Space_Editor.Gui
                 if (offset > 0)
                     OffsetBox.Text = offset.ToString();
             }
-
-            if (Settings.Default.LegacyBPM)
-            {
-                if (float.TryParse(BPMBox.Text, out float bpm))
-                    GuiTrack.Bpm = bpm;
-                if (long.TryParse(OffsetBox.Text, out long offset))
-                    GuiTrack.BpmOffset = offset;
-            }
         }
 
         public override void OnKeyDown(Key key, bool control)

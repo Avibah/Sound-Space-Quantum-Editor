@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using OpenTK.Graphics.OpenGL;
-using Sound_Space_Editor.Properties;
 using OpenTK;
 
 namespace Sound_Space_Editor.Gui
@@ -25,7 +24,7 @@ namespace Sound_Space_Editor.Gui
 		public static float TextBpm = 0;
 		public static bool waveform;
 		public static int BeatDivisor = 4;
-		public static int CursorPos = Settings.Default.CursorPos;
+		public static int CursorPos = EditorSettings.CursorPos;
 
 		public GuiTrack(float y, float sy) : base(0, y, EditorWindow.Instance.ClientSize.Width, sy)
 		{
@@ -272,8 +271,8 @@ namespace Sound_Space_Editor.Gui
 					editor.SoundPlayer.Play(id, gse.SfxVolume.Value / (float)gse.SfxVolume.MaxValue, editor.MusicPlayer.Tempo);
 				}
 			}
-			if (!Settings.Default.LegacyBPM)
-            {
+			/*if (!EditorSettings.LegacyBPM)
+            {*/
 				for (var i = 0; i < BPMs.Count; i++)
 				{
 					var Bpm = BPMs[i];
@@ -393,8 +392,8 @@ namespace Sound_Space_Editor.Gui
 						}
 					}
 				}
-			}
-			/*else
+			/*}
+			else
             {
 				double offsetint = 60000 / Bpm / BeatDivisor;
 

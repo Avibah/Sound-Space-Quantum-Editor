@@ -156,11 +156,11 @@ namespace Sound_Space_Editor.Gui
 			_importButton.ClientRectangle.Location = new PointF(1190 * widthdiff, 410 * heightdiff);
 			_SettingsButton.ClientRectangle.Location = new PointF(1190 * widthdiff, 525 * heightdiff);
 
-			if (Settings.Default.AutosavedFile != "")
+			if (EditorSettings.AutosavedFile != "")
 				_AutosavedButton.ClientRectangle.Location = new PointF(1190 * widthdiff, 640 * heightdiff);
 
-			if (Settings.Default.LastFile != "")
-				_LastButton.ClientRectangle.Location = new PointF(1190 * widthdiff, Settings.Default.AutosavedFile == "" ? 640 * heightdiff : 755 * heightdiff);
+			if (EditorSettings.LastFile != "")
+				_LastButton.ClientRectangle.Location = new PointF(1190 * widthdiff, EditorSettings.AutosavedFile == "" ? 640 * heightdiff : 755 * heightdiff);
 
 			// resizing
 			_createMapButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
@@ -168,10 +168,10 @@ namespace Sound_Space_Editor.Gui
 			_importButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
 			_SettingsButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
 
-			if (Settings.Default.AutosavedFile != "")
+			if (EditorSettings.AutosavedFile != "")
 				_AutosavedButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
 
-			if (Settings.Default.LastFile != "")
+			if (EditorSettings.LastFile != "")
 				_LastButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
 
 			ScrollBar.ClientRectangle.Location = new PointF(950 * widthdiff, 230 * heightdiff);
@@ -294,12 +294,12 @@ namespace Sound_Space_Editor.Gui
 					EditorWindow.Instance.OpenGuiScreen(new GuiScreenSettings());
 					break;
 				case 4:
-					if (Settings.Default.AutosavedFile != "")
-						EditorWindow.Instance.LoadMap(Settings.Default.AutosavedFile, false);
+					if (EditorSettings.AutosavedFile != "")
+						EditorWindow.Instance.LoadMap(EditorSettings.AutosavedFile, false);
 					break;
 				case 5:
-					if (Settings.Default.LastFile != "" && File.Exists(Settings.Default.LastFile))
-						EditorWindow.Instance.LoadFile(Settings.Default.LastFile);
+					if (EditorSettings.LastFile != "" && File.Exists(EditorSettings.LastFile))
+						EditorWindow.Instance.LoadFile(EditorSettings.LastFile);
 					break;
 			}
 			base.OnButtonClicked(id);
