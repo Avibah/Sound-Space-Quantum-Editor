@@ -15,12 +15,7 @@ namespace Sound_Space_Editor
 
 		public ColorSequence()
 		{
-			int bgdim = EditorSettings.EditorBGOpacity;
-
-			Color NoteColor1 = EditorWindow.Instance.NoteColor1;
-			Color NoteColor2 = EditorWindow.Instance.NoteColor2;
-
-			_colors = new Color[] { NoteColor1, NoteColor2 };
+			_colors = EditorWindow.Instance.NoteColors.ToArray();
 		}
 
 		public Color Next()

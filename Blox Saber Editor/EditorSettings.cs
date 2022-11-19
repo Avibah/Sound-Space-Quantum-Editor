@@ -25,8 +25,7 @@ namespace Sound_Space_Editor
 		public static Color Color1 = Color.FromArgb(0, 255, 200);
 		public static Color Color2 = Color.FromArgb(255, 0, 255);
 		public static Color Color3 = Color.FromArgb(255, 0, 100);
-		public static Color NoteColor1 = Color.FromArgb(255, 0, 255);
-		public static Color NoteColor2 = Color.FromArgb(0, 255, 200);
+		public static List<Color> NoteColors = new List<Color>() { Color.FromArgb(255, 0, 255), Color.FromArgb(0, 255, 200) };
 		public static bool EnableAutosave = true;
 		public static int AutosaveInterval = 5;
 		public static bool CorrectOnCopy = true;
@@ -83,16 +82,27 @@ namespace Sound_Space_Editor
 					Color2 = Color.FromArgb(value[0], value[1], value[2]);
 				if (result.TryGetValue("color3", out value))
 					Color3 = Color.FromArgb(value[0], value[1], value[2]);
-				if (result.TryGetValue("noteColor1", out value))
-					NoteColor1 = Color.FromArgb(value[0], value[1], value[2]);
-				if (result.TryGetValue("noteColor2", out value))
-					NoteColor2 = Color.FromArgb(value[0], value[1], value[2]);
 				if (result.TryGetValue("enableAutosave", out value))
 					EnableAutosave = value;
 				if (result.TryGetValue("autosaveInterval", out value))
 					AutosaveInterval = value;
 				if (result.TryGetValue("correctOnCopy", out value))
 					CorrectOnCopy = value;
+
+				if (result.TryGetValue("noteColors", out value))
+                {
+					NoteColors = new List<Color>();
+
+					var valuef = (string)value;
+					var colors = valuef.Split('|');
+
+					foreach (var color in colors)
+                    {
+						var colorf = color.Split(',');
+
+						NoteColors.Add(Color.FromArgb(1, int.Parse(colorf[0]), int.Parse(colorf[1]), int.Parse(colorf[2])));
+                    }
+                }
 
 				if (result.TryGetValue("keybinds", out value))
                 {
@@ -168,7 +178,7 @@ namespace Sound_Space_Editor
 				Console.WriteLine("error while loading settings");
 			}
 
-            Console.WriteLine("Loaded => {0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8} | {9} | {10} | {11}", Waveform, EditorBGOpacity, GridOpacity, TrackOpacity, Color1, Color2, Color3, NoteColor1, NoteColor2, EnableAutosave, AutosaveInterval, CorrectOnCopy);
+            Console.WriteLine("Loaded => {0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8} | {9} | {10}", Waveform, EditorBGOpacity, GridOpacity, TrackOpacity, Color1, Color2, Color3, NoteColors, EnableAutosave, AutosaveInterval, CorrectOnCopy);
 		}
 
 		private static Key ConvertToKey(string key)
@@ -195,8 +205,7 @@ namespace Sound_Space_Editor
 			Color1 = Color.FromArgb(0, 255, 200);
 			Color2 = Color.FromArgb(255, 0, 255);
 			Color3 = Color.FromArgb(255, 0, 100);
-			NoteColor1 = Color.FromArgb(255, 0, 255);
-			NoteColor2 = Color.FromArgb(0, 255, 200);
+			NoteColors = new List<Color>() { Color.FromArgb(255, 0, 255), Color.FromArgb(0, 255, 200) };
 			EnableAutosave = true;
 			AutosaveInterval = 5;
 			CorrectOnCopy = true;
@@ -238,6 +247,11 @@ namespace Sound_Space_Editor
 		public static void SaveSettings()
 		{
 			RefreshKeymapping();
+
+			var colors = new List<string>();
+			foreach (var color in NoteColors)
+				colors.Add($"{color.R},{color.G},{color.B}");
+
 			JsonObject jsonFinal = new JsonObject(Array.Empty<KeyValuePair<string, JsonValue>>())
 			{
 				{"waveform", Waveform},
@@ -247,11 +261,10 @@ namespace Sound_Space_Editor
 				{"color1", new JsonArray(Color1.R, Color1.G, Color1.B)},
 				{"color2", new JsonArray(Color2.R, Color2.G, Color2.B)},
 				{"color3", new JsonArray(Color3.R, Color3.G, Color3.B)},
-				{"noteColor1", new JsonArray(NoteColor1.R, NoteColor1.G, NoteColor1.B)},
-				{"noteColor2", new JsonArray(NoteColor2.R, NoteColor2.G, NoteColor2.B)},
 				{"enableAutosave", EnableAutosave},
-				{"autosaveInterval",AutosaveInterval},
-				{"correctOnCopy",CorrectOnCopy},
+				{"autosaveInterval", AutosaveInterval},
+				{"correctOnCopy", CorrectOnCopy},
+				{"noteColors", string.Join("|", colors)},
 				{"keybinds", new JsonObject(Array.Empty<KeyValuePair<string, JsonValue>>()) {
 					{"selectAll", new JsonArray(SelectAll.Key.ToString(), SelectAll.CTRL, SelectAll.SHIFT, SelectAll.ALT)},
 					{"save", new JsonArray(Save.Key.ToString(), Save.CTRL, Save.SHIFT, Save.ALT)},
@@ -277,7 +290,7 @@ namespace Sound_Space_Editor
 			try
 			{
 				File.WriteAllText(file, FormatJson(jsonFinal.ToString()));
-				Console.WriteLine("Saved => {0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8} | {9} | {10} | {11}", Waveform, EditorBGOpacity, GridOpacity, TrackOpacity, Color1, Color2, Color3, NoteColor1, NoteColor2, EnableAutosave, AutosaveInterval, CorrectOnCopy);
+				Console.WriteLine("Saved => {0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8} | {9} | {10}", Waveform, EditorBGOpacity, GridOpacity, TrackOpacity, Color1, Color2, Color3, NoteColors, EnableAutosave, AutosaveInterval, CorrectOnCopy);
 			}
 			catch
 			{

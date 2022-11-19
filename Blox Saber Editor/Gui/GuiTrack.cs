@@ -9,8 +9,6 @@ namespace Sound_Space_Editor.Gui
 {
 	class GuiTrack : Gui
 	{
-		private readonly ColorSequence _cs = new ColorSequence();
-
 		private Note _lastPlayedNote;
 		public Note MouseOverNote;
 		public BPM MouseOverPoint;
@@ -159,8 +157,6 @@ namespace Sound_Space_Editor.Gui
 			Note closest = null;
 
 			var y = rect.Y + gap / 2;
-
-			_cs.Reset();
 
 			var rendered = new List<int>();
 

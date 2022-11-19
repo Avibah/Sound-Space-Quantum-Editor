@@ -110,8 +110,10 @@ namespace Sound_Space_Editor
 		public Color Color1;
 		public Color Color2;
 		public Color Color3;
-		public Color NoteColor1;
-		public Color NoteColor2;
+
+		public List<Color> NoteColors;
+		public Color MergedColor;
+
 		public float Zoom
 		{
 			get => _zoom;
@@ -123,7 +125,6 @@ namespace Sound_Space_Editor
 		public string LauncherDir;
 		public string cacheFolder;
 		public string currentEditorVersion;
-		public string downloadedVersionString;
 
 		public string currentData;
 
@@ -265,10 +266,10 @@ namespace Sound_Space_Editor
 				Color1 = EditorSettings.Color1;
 				Color2 = EditorSettings.Color2;
 				Color3 = EditorSettings.Color3;
-				NoteColor1 = EditorSettings.NoteColor1;
-				NoteColor2 = EditorSettings.NoteColor2;
+				NoteColors = EditorSettings.NoteColors;
+				MergedColor = MergeColors(NoteColors);
 
-				Console.WriteLine("Updated Colors => {0} | {1} | {2} | {3} | {4}", string.Join(", ", Color1), string.Join(", ", Color2), string.Join(", ", Color3), string.Join(", ", NoteColor1), string.Join(", ", NoteColor2));
+				Console.WriteLine("Updated Colors => {0} | {1} | {2} | {3}", string.Join(", ", Color1), string.Join(", ", Color2), string.Join(", ", Color3), string.Join(", ", NoteColors));
 			}
 			catch
 			{
@@ -3110,6 +3111,24 @@ namespace Sound_Space_Editor
 			if (!Autosaving)
 				RunAutosave();
 		}
+
+		private Color MergeColors(List<Color> Colors)
+		{
+			float r = 0, g = 0, b = 0;
+
+			foreach (var Color in Colors)
+			{
+				r += Color.R;
+				g += Color.G;
+				b += Color.B;
+			}
+
+			r /= Colors.Count;
+			g /= Colors.Count;
+			b /= Colors.Count;
+
+			return Color.FromArgb(1, (int)r, (int)g, (int)b);
+		}
 	}
 
 	class SecureWebClient : WebClient
@@ -3169,15 +3188,6 @@ namespace Sound_Space_Editor
 			}
 		}
 
-		private Color MergeColors(Color c1, Color c2)
-        {
-			var r = (c1.R + c2.R) / 2;
-			var g = (c1.G + c2.G) / 2;
-			var b = (c1.B + c2.B) / 2;
-
-			return Color.FromArgb(1, r, g, b);
-        }
-
 		private bool IsMegaNote(int i)
         {
 			var ms = _notes[i].Ms;
@@ -3193,12 +3203,12 @@ namespace Sound_Space_Editor
 				for (int i = 0; i < _notes.Count; i++)
                 {
 					if (IsMegaNote(i))
-						_notes[i].Color = MergeColors(EditorSettings.NoteColor1, EditorSettings.NoteColor2);
+						_notes[i].Color = EditorWindow.Instance.MergedColor;
 					else
-						_notes[i].Color = i % 2 == 0 ? EditorSettings.NoteColor2 : EditorSettings.NoteColor1;
+						_notes[i].Color = EditorSettings.NoteColors[i % EditorSettings.NoteColors.Count];
 
-					_notes[i].GridColor = i % 2 == 0 ? EditorSettings.NoteColor2 : EditorSettings.NoteColor1;
-                }
+					_notes[i].GridColor = EditorSettings.NoteColors[i % EditorSettings.NoteColors.Count];
+				}
 			}
 		}
 

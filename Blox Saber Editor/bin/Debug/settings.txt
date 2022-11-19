@@ -146,16 +146,7 @@
                false
           ]
      },
-     "noteColor1": [
-          255,
-          0,
-          255
-     ],
-     "noteColor2": [
-          0,
-          255,
-          200
-     ],
+     "noteColors": "255,0,255|0,255,200",
      "trackOpacity": 255,
      "waveform": true
 }
