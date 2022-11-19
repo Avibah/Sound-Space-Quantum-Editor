@@ -25,7 +25,6 @@ namespace Sound_Space_Editor.Gui
 		private GuiButton Color2Picker = new GuiButton(4, 0, 0, 200, 50, "PICK COLOR", "square", 100);
 		private GuiButton Color3Picker = new GuiButton(7, 0, 0, 200, 50, "PICK COLOR", "square", 100);
 		private GuiButton NoteColorPicker = new GuiButton(5, 0, 0, 200, 50, "ADD COLOR", "square", 100);
-		private GuiButton RemoveNoteColor = new GuiButton(6, 0, 0, 200, 50, "REMOVE LAST COLOR", "square", 100);
 
 		private Color color1;
 		private Color color2;
@@ -101,7 +100,6 @@ namespace Sound_Space_Editor.Gui
 			Buttons.Add(Color2Picker);
 			Buttons.Add(Color3Picker);
 			Buttons.Add(NoteColorPicker);
-			Buttons.Add(RemoveNoteColor);
 
 			if (File.Exists(Path.Combine(EditorWindow.Instance.LauncherDir, "background_menu.png")))
 			{
@@ -202,10 +200,7 @@ namespace Sound_Space_Editor.Gui
 			Color3Picker.ClientRectangle.Size = new SizeF(200 * widthdiff, 50 * heightdiff);
 
 			NoteColorPicker.ClientRectangle.Location = new PointF(160 * widthdiff, 660 * heightdiff);
-			RemoveNoteColor.ClientRectangle.Location = new PointF(160 * widthdiff, 730 * heightdiff);
-
 			NoteColorPicker.ClientRectangle.Size = new SizeF(200 * widthdiff, 50 * heightdiff);
-			RemoveNoteColor.ClientRectangle.Size = new SizeF(200 * widthdiff, 50 * heightdiff);
 
 			WaveformCheckbox.ClientRectangle.Location = new PointF(1435 * widthdiff, 195 * heightdiff);
 			EditorBGOpacityTextBox.ClientRectangle.Location = new PointF(1435 * widthdiff, 360 * heightdiff);
@@ -386,6 +381,18 @@ namespace Sound_Space_Editor.Gui
 
 			AutosaveInterval.OnMouseClick(x, y);
 
+			var size = EditorWindow.Instance.ClientSize;
+
+			var widthdiff = size.Width / 1920f;
+			var heightdiff = size.Height / 1080f;
+
+			var Xf = x - (NoteColorPicker.ClientRectangle.X + 210 * widthdiff);
+			var Yf = y - (NoteColorPicker.ClientRectangle.Y - 15 * heightdiff);
+			var Int = Xf / (75 / notecolors.Count);
+
+			if (notecolors.Count > 1 && Int >= 0 && Int < notecolors.Count && Yf >= 0 && Yf < 75)
+				notecolors.RemoveAt((int)Int);
+
 			base.OnMouseClick(x, y);
 		}
 
@@ -452,10 +459,6 @@ namespace Sound_Space_Editor.Gui
 					if (ColorDialog3.ShowDialog() == DialogResult.OK)
 						notecolors.Add(ColorDialog3.Color);
 					
-					break;
-				case 6:
-					if (notecolors.Count > 1)
-						notecolors.RemoveAt(notecolors.Count - 1);
 					break;
 				case 7:
 					var ColorDialog5 = new ColorDialog();
