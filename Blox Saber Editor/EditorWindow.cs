@@ -135,7 +135,7 @@ namespace Sound_Space_Editor
 			LauncherDir = launcherDir;
 			cacheFolder = Path.Combine(launcherDir, "cached/");
 			Instance = this;
-			this.WindowState = OpenTK.WindowState.Maximized;
+			WindowState = WindowState.Maximized;
 			Icon = Resources.icon;
 			VSync = VSyncMode.On;
 			TargetUpdatePeriod = 1.0 / 20.0;
