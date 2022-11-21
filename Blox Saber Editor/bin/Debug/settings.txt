@@ -7,7 +7,6 @@
      "autosaveInterval": 5,
      "autosavedFile": "",
      "bgDim": 0,
-     "clickToPlace": false,
      "color1": [
           0,
           255,
