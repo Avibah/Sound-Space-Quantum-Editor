@@ -201,19 +201,23 @@ namespace Sound_Space_Editor
 
 					var updaterVersion = wc.DownloadString("https://raw.githubusercontent.com/Avibah/Sound-Space-Quantum-Editor/updater/UpdaterVersion");
 
-					if (!File.Exists("SSQE Updater"))
+					if (!File.Exists("SSQE Updater.exe"))
                     {
-						var diag = MessageBox.Show("Auto updater is not present in this directory - would you like to download it?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+						var diag = MessageBox.Show("Auto updater is not present in this directory. Would you like to download it?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
 						if (diag == DialogResult.Yes)
 							wc.DownloadFile("https://github.com/Avibah/Sound-Space-Quantum-Editor/raw/updater/SSQE%20Updater.exe", "SSQE Updater.exe");
                     }
-					else
+
+					if (File.Exists("SSQE Updater.exe"))
                     {
 						var currentUpdaterVersion = FileVersionInfo.GetVersionInfo("SSQE Updater.exe").FileVersion;
 
+						Console.WriteLine(currentUpdaterVersion);
+						Console.WriteLine(updaterVersion);
+
 						if (currentUpdaterVersion != updaterVersion)
-                        {
+						{
 							var diag = MessageBox.Show($"New Updater version is available ({updaterVersion}). Would you like to download the new version?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
 							if (diag == DialogResult.Yes)
@@ -225,7 +229,7 @@ namespace Sound_Space_Editor
 							var diag = MessageBox.Show($"New Editor version is available ({version}). Would you like to download the new version?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
 							if (diag == DialogResult.Yes)
-								Process.Start("SSQE Updater");
+								Process.Start("SSQE Updater.exe");
 						}
 					}
                 }
