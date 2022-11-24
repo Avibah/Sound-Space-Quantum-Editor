@@ -214,9 +214,6 @@ namespace Sound_Space_Editor
                     {
 						var currentUpdaterVersion = FileVersionInfo.GetVersionInfo("SSQE Updater.exe").FileVersion;
 
-						Console.WriteLine(currentUpdaterVersion);
-						Console.WriteLine(updaterVersion);
-
 						if (currentUpdaterVersion != updaterVersion)
 						{
 							var diag = MessageBox.Show($"New Updater version is available ({updaterVersion}). Would you like to download the new version?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
