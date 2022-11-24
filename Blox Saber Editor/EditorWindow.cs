@@ -200,6 +200,7 @@ namespace Sound_Space_Editor
 					var version = location.Substring(rep, location.Length - rep);
 
 					var updaterVersion = wc.DownloadString("https://raw.githubusercontent.com/Avibah/Sound-Space-Quantum-Editor/updater/UpdaterVersion");
+					updaterVersion = updaterVersion.Replace("\n", "");
 
 					if (!File.Exists("SSQE Updater.exe"))
                     {
