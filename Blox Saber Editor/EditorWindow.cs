@@ -193,17 +193,41 @@ namespace Sound_Space_Editor
 
 				if (response.StatusCode == HttpStatusCode.Redirect)
                 {
+					var wc = new WebClient();
+
 					var location = response.Headers["Location"];
 					var rep = location.LastIndexOf("/") + 1;
 					var version = location.Substring(rep, location.Length - rep);
 
-					if (version != currentEditorVersion)
+					var updaterVersion = wc.DownloadString("https://raw.githubusercontent.com/Avibah/Sound-Space-Quantum-Editor/updater/UpdaterVersion");
+
+					if (!File.Exists("SSQE Updater"))
                     {
-						var diag = MessageBox.Show($"New Editor version is available ({version}). Would you like to go to the download page for it?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+						var diag = MessageBox.Show("Auto updater is not present in this directory - would you like to download it?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
 						if (diag == DialogResult.Yes)
-							Process.Start("https://github.com/Avibah/Sound-Space-Quantum-Editor/releases/latest");
+							wc.DownloadFile("https://github.com/Avibah/Sound-Space-Quantum-Editor/raw/updater/SSQE%20Updater.exe", "SSQE Updater.exe");
                     }
+					else
+                    {
+						var currentUpdaterVersion = FileVersionInfo.GetVersionInfo("SSQE Updater.exe").FileVersion;
+
+						if (currentUpdaterVersion != updaterVersion)
+                        {
+							var diag = MessageBox.Show($"New Updater version is available ({updaterVersion}). Would you like to download the new version?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+							if (diag == DialogResult.Yes)
+								wc.DownloadFile("https://github.com/Avibah/Sound-Space-Quantum-Editor/raw/updater/SSQE%20Updater.exe", "SSQE Updater.exe");
+						}
+
+						if (version != currentEditorVersion)
+						{
+							var diag = MessageBox.Show($"New Editor version is available ({version}). Would you like to download the new version?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+							if (diag == DialogResult.Yes)
+								Process.Start("SSQE Updater");
+						}
+					}
                 }
 
 				/*
