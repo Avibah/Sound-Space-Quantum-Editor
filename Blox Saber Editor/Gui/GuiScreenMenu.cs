@@ -58,10 +58,8 @@ namespace Sound_Space_Editor.Gui
             {
 				SecureWebClient wc = new SecureWebClient();
 				ChangelogText = wc.DownloadString("https://raw.githubusercontent.com/Avibah/Sound-Space-Quantum-Editor/master/changelog");
-				Changelog = new GuiLabel(0, 0, ChangelogText, "main", 16);
-
-				ScrollBar.MaxValue = ChangelogText.Split('\n').Length;
-				ScrollBar.Value = ChangelogText.Split('\n').Length;
+				Changelog = new GuiLabel(0, 0, "", "main", 16);
+				AssembleChangelog();
 
 			} catch {
 				Changelog = new GuiLabel(0, 0, "Failed to load changelog", "main", 16);
@@ -83,6 +81,8 @@ namespace Sound_Space_Editor.Gui
 			qeLabelOutline.Color = Color.FromArgb(0, 0, 0);
 
 			Changelog.Color = Color.FromArgb(255,255,255);
+
+			ScrollBar.Value = ScrollBar.MaxValue;
 
 			OnResize(EditorWindow.Instance.ClientSize);
 		}
@@ -120,6 +120,7 @@ namespace Sound_Space_Editor.Gui
 			qeLabel.Render(delta, mouseX, mouseY);
 
 			Changelog.Render(delta, mouseX, mouseY);
+			ScrollBar.Render(delta, mouseX, mouseY);
 
 			base.Render(delta, mouseX, mouseY);
 		}
@@ -224,13 +225,13 @@ namespace Sound_Space_Editor.Gui
 						lines.Add(newline);
 				}
             }
-			ScrollBar.MaxValue = lines.Count;
+
+			ScrollBar.MaxValue = lines.Count - (int)(715 * heightdiff / Changelog.FontSize);
+
 			for (int i = 0; i < lines.Count; i++)
             {
 				if (i >= ScrollBar.MaxValue - ScrollBar.Value && i < ScrollBar.MaxValue - ScrollBar.Value + 715 * heightdiff / Changelog.FontSize - 1)
-                {
 					result += lines[i] + "\n";
-                }
             }
 			Changelog.Text = result;
         }
