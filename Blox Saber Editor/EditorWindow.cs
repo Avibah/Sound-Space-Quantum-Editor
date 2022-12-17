@@ -2176,7 +2176,12 @@ namespace Sound_Space_Editor
 				}
 
 				if (r == DialogResult.Yes)
-					PromptSave();
+                {
+					if (_file == null)
+						PromptSave();
+					else
+						WriteFile(_file);
+                }
 
 				if (r == DialogResult.Cancel)
 				{
