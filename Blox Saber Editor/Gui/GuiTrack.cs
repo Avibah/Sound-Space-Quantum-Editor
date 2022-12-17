@@ -23,7 +23,7 @@ namespace Sound_Space_Editor.Gui
 		public static long BpmOffset = 0;
 		public static float TextBpm = 0;
 		public static bool waveform;
-		public static int BeatDivisor = 4;
+		public static float BeatDivisor = 4;
 		public static int CursorPos = EditorSettings.CursorPos;
 
 		public GuiTrack(float y, float sy) : base(0, y, EditorWindow.Instance.ClientSize.Width, sy)
@@ -294,8 +294,6 @@ namespace Sound_Space_Editor.Gui
 					var stepSmall = lineSpace / BeatDivisor;
 
 					float lineX = ScreenX - posX + Bpm.Ms / 1000f * cubeStep;
-					if (lineX < 0)
-						lineX %= lineSpace;
 
 					if (i + 1 < BPMs.Count)
 						nextLineX = ScreenX - posX + nextoffset / 1000f * cubeStep;
@@ -331,6 +329,17 @@ namespace Sound_Space_Editor.Gui
 
 					var gapf = rect.Height - noteSize - y;
 
+					var div = BeatDivisor;
+
+					if (Math.Round(BeatDivisor) != Math.Round(BeatDivisor, 1))
+                    {
+						div = BeatDivisor * 2f;
+						lineSpace *= 2f;
+					}
+
+					if (lineX < 0)
+						lineX %= lineSpace;
+
 					//render BPM lines
 					while (lineSpace > 0 && lineX < rect.Width && lineX < endLineX && lineX < nextLineX)
 					{
@@ -343,15 +352,14 @@ namespace Sound_Space_Editor.Gui
 						GL.Vertex2(Math.Round(lineF) + 0.5f, rect.Bottom - gapf);
 						GL.End();
 
-						for (int j = 1; j < BeatDivisor; j++)
+						for (int j = 1; j < div; j++)
 						{
 							var xo = Math.Round((lineX + j * stepSmall - ScreenX + posX) / cubeStep * 1000f);
 							xo = xo / 1000f * cubeStep + ScreenX - posX;
 
 							if (xo < endLineX && xo < nextLineX)
 							{
-
-								var half = j == BeatDivisor / 2 && BeatDivisor % 2 == 0;
+								var half = j == div / 2 && div % 2 == 0;
 
 								if (half)
 									GL.Color3(Color3);

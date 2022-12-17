@@ -678,9 +678,12 @@ namespace Sound_Space_Editor
 					var step = (rect.Width - rect.Height) / editor.BeatSnapDivisor.MaxValue;
 
 					var tick = (int)MathHelper.Clamp(Math.Round((e.X - rect.X - rect.Height / 2) / step), 0, editor.BeatSnapDivisor.MaxValue);
-
-					editor.BeatSnapDivisor.Value = tick;
-					GuiTrack.BeatDivisor = tick + 1;
+					var mult = _shiftDown ? 1f : 2f;
+					var tickf = (int)((int)(tick / mult) * mult);
+					tickf = Math.Max(tickf, 0);
+					
+					editor.BeatSnapDivisor.Value = tickf;
+					GuiTrack.BeatDivisor = tickf / 2f + 1;
 				}
 				if (editor.Tempo.Dragging)
 				{
@@ -2071,7 +2074,7 @@ namespace Sound_Space_Editor
 		{
 			if (GuiScreen is GuiScreenEditor editor)
 			{
-				if (_controlDown)
+				if (_controlDown && !_shiftDown)
 				{
 					if (Zoom < 0.1f || (Zoom == 0.1f && e.DeltaPrecise < 0))
 						Zoom += e.DeltaPrecise * 0.01f;
@@ -2083,9 +2086,9 @@ namespace Sound_Space_Editor
 				}
 				else if (_shiftDown)
 				{
-					editor.BeatSnapDivisor.Value += (int)e.DeltaPrecise;
+					editor.BeatSnapDivisor.Value += (int)e.DeltaPrecise * (_controlDown ? 1 : 2 - editor.BeatSnapDivisor.Value % 2);
 					editor.BeatSnapDivisor.Value = MathHelper.Clamp(editor.BeatSnapDivisor.Value, 0, editor.BeatSnapDivisor.MaxValue);
-					GuiTrack.BeatDivisor = editor.BeatSnapDivisor.Value + 1;
+					GuiTrack.BeatDivisor = editor.BeatSnapDivisor.Value / 2f + 1;
 				}
 				else
 				{
@@ -2748,11 +2751,11 @@ namespace Sound_Space_Editor
 									currentTime = TimeSpan.FromMilliseconds(time);
 									AlignTimeline();
 								}
-								else if (property == "divisor" && long.TryParse(value, out var divisor))
+								else if (property == "divisor" && float.TryParse(value, out var divisor))
                                 {
-									gse.BeatSnapDivisor.Value = (int)divisor - 1;
+									gse.BeatSnapDivisor.Value = (int)(divisor * 2) - 1;
 
-									GuiTrack.BeatDivisor = (int)divisor;
+									GuiTrack.BeatDivisor = divisor;
                                 }
 								else if (property == "offset" && long.TryParse(value, out var offset))
                                 {

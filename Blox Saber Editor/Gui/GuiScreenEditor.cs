@@ -199,8 +199,8 @@ namespace Sound_Space_Editor.Gui
 			};
 
 			Timeline.Snap = false;
-			BeatSnapDivisor.Value = GuiTrack.BeatDivisor - 1;
-			BeatSnapDivisor.MaxValue = 31;
+			BeatSnapDivisor.Value = (int)(GuiTrack.BeatDivisor * 2) - 1;
+			BeatSnapDivisor.MaxValue = 62;
 
 			MasterVolume = new GuiSlider(0, 0, 40, 256)
 			{
@@ -508,7 +508,7 @@ namespace Sound_Space_Editor.Gui
 					fr.Render("Scale by Percent:", (int)ScaleBox.ClientRectangle.X, (int)ScaleBox.ClientRectangle.Y - 24, 24);
 				}
 			}
-			var divisor = rl ? $"Beat Divisow~ {BeatSnapDivisor.Value + 1}" : $"Beat Divisor: {BeatSnapDivisor.Value + 1}";
+			var divisor = rl ? $"Beat Divisow~ {GuiTrack.BeatDivisor}" : $"Beat Divisor: {GuiTrack.BeatDivisor}";
 			var divisorW = fr.GetWidth(divisor, 24);
             var align = rl ? $"Snapping~ 3/{(float)(NoteAlign.Value + 1)}" : $"Snapping: 3/{(float)(NoteAlign.Value + 1)}";
             var alignW = fr.GetWidth(align, 24);
