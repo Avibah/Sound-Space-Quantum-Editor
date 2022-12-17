@@ -214,7 +214,9 @@ namespace Sound_Space_Editor.Gui
 				Glu.RenderQuad((int)x, (int)y, (int)noteSize, (int)noteSize);
 				GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult);
 				Glu.RenderOutline((int)x, (int)y, (int)noteSize, (int)noteSize);
-				
+
+				GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult * 0.45);
+
 				var gridGap = 2;
 				for (int j = 0; j < 9; j++)
 				{
@@ -224,16 +226,15 @@ namespace Sound_Space_Editor.Gui
 					var gridX = (int)x + indexX * (9 + gridGap) + 5;
 					var gridY = (int)y + indexY * (9 + gridGap) + 5;
 
-					if (Math.Round(note.X, 3) == indexX && Math.Round(note.Y, 3) == indexY)
-					{
-						GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult);
-						Glu.RenderQuad(gridX, gridY, 9, 9);
-					}
-					else
-					{
-						GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult * 0.45);
-						Glu.RenderOutline(gridX, gridY, 9, 9);
-					}
+					Glu.RenderOutline(gridX, gridY, 9, 9);
+				}
+				//note location on space - supports quantum
+                {
+					var gridX = (int)x + note.X * (9 + gridGap) + 5;
+					var gridY = (int)y + note.Y * (9 + gridGap) + 5;
+
+					GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult);
+					Glu.RenderQuad(gridX, gridY, 9, 9);
 				}
 
 				var textoverlap = false;
