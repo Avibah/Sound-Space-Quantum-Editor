@@ -148,8 +148,8 @@ namespace Sound_Space_Editor.Gui
 
 			var y = rect.Y + gap / 2;
 
-			var rendered = new List<int>();
-			var textrendered = new List<int>();
+			int? lastRendered = null;
+			int? lastTextRendered = null;
 
 			var minms = (posX - ScreenX - noteSize) / cubeStep * 1000f;
 			var maxms = (ClientRectangle.Width - ScreenX + posX) / cubeStep * 1000f;
@@ -173,13 +173,10 @@ namespace Sound_Space_Editor.Gui
 
 				var x = Math.Round(ScreenX - posX + note.Ms / 1000f * cubeStep);
 
-				var overlap = false;
-				for (int j = 0; j < 2; j++)
-					overlap = overlap || rendered.Contains((int)x - j);
-				if (overlap)
+				if (lastRendered != null && (int)x - 1 <= lastRendered)
 					continue;
 
-				rendered.Add((int)x);
+				lastRendered = (int)x;
 
 				var alphaMult = 1f;
 
@@ -237,11 +234,7 @@ namespace Sound_Space_Editor.Gui
 					Glu.RenderQuad(gridX, gridY, 9, 9);
 				}
 
-				var textoverlap = false;
-				for (int j = 0; j < 9; j++)
-					textoverlap = textoverlap || textrendered.Contains((int)x - j);
-
-				if (!textoverlap)
+				if (lastTextRendered == null || (int)x - 8 > lastTextRendered)
                 {
 					var numText = $"{(i + 1):##,###}";
 
@@ -262,7 +255,7 @@ namespace Sound_Space_Editor.Gui
 					GL.Vertex2((int)x + 0.5f, rect.Y + rect.Height + 28);
 					GL.End();
 
-					textrendered.Add((int)x);
+					lastTextRendered = (int)x;
 				}
 			}
 
