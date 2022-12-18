@@ -228,45 +228,31 @@ namespace Sound_Space_Editor.Gui
 			_cursorPos++;
 		}
 
-		private void RemoveWord(bool Backspace)
+		private int IndexOf(string set, string match, int stop, bool onceAfter)
         {
-			var words = _text.Split(' ').ToList();
-			int currentIndex = 0;
-			int posCheck = _cursorPos;
+			int current = -1;
 
-			bool stopped = false;
-
-			for (var i = 0; i < words.Count; i++)
-			{
-				var word = words[i];
-
-				if (posCheck > word.Length + 1 && posCheck - word.Length - 1 > 0 && !stopped)
+			void run(bool next)
+            {
+				if (current + 1 < set.Length)
 				{
-					currentIndex += 1;
-					posCheck -= word.Length + 1;
+					int store = set.IndexOf(match, current + 1);
+
+					if (next && store < 0)
+						store = _text.Length;
+
+					if (store > current && (store < stop || next || (next && stop + 1 == store)))
+                    {
+						current = store;
+						run(onceAfter && (store < stop || stop + 1 == store));
+                    }
 				}
-				else
-					stopped = true;
 			}
 
-			string currentWord = words[currentIndex] + " ";
+			run(onceAfter);
 
-			var start = Backspace ? Math.Max(posCheck, 0) : 0;
-			var length = Backspace ? Math.Max(currentWord.Length - posCheck - 1, 0) : Math.Max(posCheck, 0);
-
-			string newWord = currentWord.Substring(start, length);
-			words[currentIndex] = newWord;
-
-			var final = new List<string>();
-
-			for (var i = 0; i < words.Count; i++)
-				if (!string.IsNullOrWhiteSpace(words[i]))
-					final.Add(words[i]);
-
-			if (Backspace)
-				_cursorPos -= posCheck + (posCheck == currentWord.Length - 1 && currentIndex == words.Count - 1 ? 1 : 0);
-			_text = string.Join(" ", final);
-		}
+			return current;
+        }
 
 		public void OnKeyDown(Key key, bool control)
 		{
@@ -292,51 +278,55 @@ namespace Sound_Space_Editor.Gui
 					}
 					break;
 				case Key.Left:
-					_cursorPos = Math.Max(0, _cursorPos - 1);
+					if (control)
+                    {
+						int index = Math.Max(IndexOf(_text, " ", _cursorPos - 1, false) + 1, 0);
+
+						_cursorPos = MathHelper.Clamp(index, 0, _text.Length);
+                    }
+					else
+						_cursorPos = Math.Max(0, _cursorPos - 1);
 					break;
 				case Key.Right:
-					try
-					{
-						_cursorPos = Math.Min(_text.Length, _cursorPos + 1);
-					}
-					catch //was too lazy
-					{
+					if (control)
+                    {
+						int index = Math.Max(IndexOf(_text, " ", _cursorPos + 1, true), 0);
 
-					}
+						_cursorPos = MathHelper.Clamp(index, 0, _text.Length);
+                    }
+					else
+						_cursorPos = Math.Min(_text.Length, _cursorPos + 1);
 					break;
 				case Key.BackSpace:
 					if (control)
 					{
-						RemoveWord(true);
+						int index = Math.Max(IndexOf(_text, " ", _cursorPos - 1, false), 0);
+						string word = _text.Substring(index, Math.Min(_cursorPos - index, _text.Length - index));
+
+						_text = _text.Remove(index, word.Length);
+						_cursorPos -= word.Length;
 					}
 					else if (_text.Length > 0 && _cursorPos > 0)
 					{
-						try
-						{
-							_cursorPos = Math.Max(0, _cursorPos - 1);
-							_text = _text.Remove(_cursorPos, 1);
-						}
-						catch //was too lazy
-						{
-
-						}
+						_cursorPos = Math.Max(0, _cursorPos - 1);
+						_text = _text.Remove(_cursorPos, 1);
 					}
 					break;
 				case Key.Delete:
 					if (control)
                     {
-						//RemoveWord(false); - may finish later, weird mess
-                    }
+						int index = Math.Max(IndexOf(_text, " ", _cursorPos + 1, true), 0);
+						string word = _text.Substring(MathHelper.Clamp(_cursorPos, 0, _text.Length - 1), Math.Max(index - _cursorPos, 0));
+
+						_text = _text.Remove(_cursorPos, word.Length);
+						_cursorPos = MathHelper.Clamp(_cursorPos, 0, _text.Length);
+
+						Console.WriteLine(index);
+						Console.WriteLine(word);
+					}
 					else if (_text.Length > 0 && _cursorPos < _text.Length)
 					{
-						try
-						{
-							_text = _text.Remove(Math.Min(_cursorPos, _text.Length - 1), 1);
-						}
-						catch //was too lazy
-						{
-
-						}
+						_text = _text.Remove(Math.Min(_cursorPos, _text.Length - 1), 1);
 					}
 					break;
 				case Key.Enter:
