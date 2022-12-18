@@ -139,7 +139,7 @@ namespace Sound_Space_Editor.Gui
 			var QELabelFontSize = 36f * heightdiff;
 			var ChangelogFontSize = 16f;
 
-			CHANGELOGlabel.ClientRectangle.Location = new PointF(60 * widthdiff, 200 * heightdiff);
+			CHANGELOGlabel.ClientRectangle.Location = new PointF(60 * widthdiff, 195 * heightdiff);
 			CHANGELOGlabel.FontSize = (int)CHANGELOGLabelFontSize;
 			//CHANGELOGlabelOutline.ClientRectangle.Location = new PointF(ClientRectangle.Left + 157, ClientRectangle.Top + 210);
 			ssLabel.ClientRectangle.Location = new PointF(35 * widthdiff, 35 * heightdiff);
