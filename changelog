@@ -4,6 +4,10 @@
 - added ctrl delete/left/right support for text boxes
 - slightly raised the "CHANGELOG" label on the menu
 
+   -- U-1.0.1.0 - 12/18/2022 --
+
+- fixed old editor not closing causing update to fail
+
 ----------------------------------
      -- 1.8.6 - 12/17/2022 --
 
