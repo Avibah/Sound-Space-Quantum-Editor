@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using System.Collections.Generic;
 
 namespace Sound_Space_Editor.Gui
 {
@@ -227,6 +228,46 @@ namespace Sound_Space_Editor.Gui
 			_cursorPos++;
 		}
 
+		private void RemoveWord(bool Backspace)
+        {
+			var words = _text.Split(' ').ToList();
+			int currentIndex = 0;
+			int posCheck = _cursorPos;
+
+			bool stopped = false;
+
+			for (var i = 0; i < words.Count; i++)
+			{
+				var word = words[i];
+
+				if (posCheck > word.Length + 1 && posCheck - word.Length - 1 > 0 && !stopped)
+				{
+					currentIndex += 1;
+					posCheck -= word.Length + 1;
+				}
+				else
+					stopped = true;
+			}
+
+			string currentWord = words[currentIndex] + " ";
+
+			var start = Backspace ? Math.Max(posCheck, 0) : 0;
+			var length = Backspace ? Math.Max(currentWord.Length - posCheck - 1, 0) : Math.Max(posCheck, 0);
+
+			string newWord = currentWord.Substring(start, length);
+			words[currentIndex] = newWord;
+
+			var final = new List<string>();
+
+			for (var i = 0; i < words.Count; i++)
+				if (!string.IsNullOrWhiteSpace(words[i]))
+					final.Add(words[i]);
+
+			if (Backspace)
+				_cursorPos -= posCheck + (posCheck == currentWord.Length - 1 && currentIndex == words.Count - 1 ? 1 : 0);
+			_text = string.Join(" ", final);
+		}
+
 		public void OnKeyDown(Key key, bool control)
 		{
 			if (!Focused)
@@ -266,7 +307,7 @@ namespace Sound_Space_Editor.Gui
 				case Key.BackSpace:
 					if (control)
 					{
-						_text = "";
+						RemoveWord(true);
 					}
 					else if (_text.Length > 0 && _cursorPos > 0)
 					{
@@ -282,7 +323,11 @@ namespace Sound_Space_Editor.Gui
 					}
 					break;
 				case Key.Delete:
-					if (_text.Length > 0 && _cursorPos < _text.Length)
+					if (control)
+                    {
+						//RemoveWord(false); - may finish later, weird mess
+                    }
+					else if (_text.Length > 0 && _cursorPos < _text.Length)
 					{
 						try
 						{
