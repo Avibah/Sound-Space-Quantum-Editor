@@ -1,4 +1,16 @@
 ----------------------------------
+     -- 1.8.6 - 12/17/2022 --
+
+- fixed changelog check location
+- fixed changelog scroll bar on menu
+- note previews on the track now support quantum
+- supports half-bpm divisors (hold shift while dragging divisor line to go by 0.5 or ctrl while shift + scrolling)
+- another fps optimization
+- saving on close no longer asks to save as new file if one is open
+- ctrl c while focused in a text box now copies its text
+- fixed functionality of ctrl backspace in text boxes
+
+----------------------------------
      -- 1.8.5 - 11/23/2022 --
 
 - readded auto update
