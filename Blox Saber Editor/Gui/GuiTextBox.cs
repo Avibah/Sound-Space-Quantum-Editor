@@ -209,7 +209,7 @@ namespace Sound_Space_Editor.Gui
 		{
 			if (!Focused)
 				return;
-
+			
 			var keyChar = key.ToString();
 
 			try
@@ -237,7 +237,9 @@ namespace Sound_Space_Editor.Gui
 			switch (key)
 			{
 				case Key.C when control:
-					//TODO maybe? edit: NO
+					if (!string.IsNullOrWhiteSpace(_text))
+						Clipboard.SetText(_text);
+
 					break;
 				case Key.V when control:
 					var clipboard = Clipboard.GetText();
