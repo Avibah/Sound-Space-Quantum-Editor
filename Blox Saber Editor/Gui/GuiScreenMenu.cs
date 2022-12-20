@@ -159,7 +159,7 @@ namespace Sound_Space_Editor.Gui
 
 			if (EditorSettings.AutosavedFile != "")
 				_AutosavedButton.ClientRectangle.Location = new PointF(1190 * widthdiff, 640 * heightdiff);
-
+			
 			if (EditorSettings.LastFile != "")
 				_LastButton.ClientRectangle.Location = new PointF(1190 * widthdiff, EditorSettings.AutosavedFile == "" ? 640 * heightdiff : 755 * heightdiff);
 
@@ -168,12 +168,12 @@ namespace Sound_Space_Editor.Gui
 			_loadMapButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
 			_importButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
 			_SettingsButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
+			_AutosavedButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
+			_LastButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
 
-			if (EditorSettings.AutosavedFile != "")
-				_AutosavedButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
+			_AutosavedButton.Visible = EditorSettings.AutosavedFile != "";
+			_LastButton.Visible = EditorSettings.LastFile != "";
 
-			if (EditorSettings.LastFile != "")
-				_LastButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
 
 			ScrollBar.ClientRectangle.Location = new PointF(950 * widthdiff, 230 * heightdiff);
 			ScrollBar.ClientRectangle.Size = new SizeF(20 * widthdiff, 720 * heightdiff);

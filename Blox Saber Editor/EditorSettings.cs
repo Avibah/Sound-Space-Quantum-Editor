@@ -157,11 +157,11 @@ namespace Sound_Space_Editor
 					BGDim = value;
 
 				if (result.TryGetValue("autosavedFile", out value))
-					Waveform = value;
+					AutosavedFile = value;
 				if (result.TryGetValue("lastFile", out value))
-					Waveform = value;
+					LastFile = value;
 				if (result.TryGetValue("sfxOffset", out value))
-					Waveform = value;
+					SFXOffset = value;
 
 				if (result.TryGetValue("color1", out value))
 					Color1 = Color.FromArgb(value[0], value[1], value[2]);
