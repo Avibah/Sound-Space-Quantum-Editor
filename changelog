@@ -1,4 +1,13 @@
 ----------------------------------
+    -- 1.8.6.2 - 12/20/2022 --
+
+- fixed loading the Edit Last Map, Autosaved Map, and SFX Offset settings
+
+   -- U-1.0.2.0 - 12/20/2022 --
+
+- actual fix to the previous updater issue
+
+----------------------------------
     -- 1.8.6.1 - 12/18/2022 --
 
 - added ctrl delete/left/right support for text boxes
