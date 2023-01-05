@@ -1,4 +1,8 @@
 ----------------------------------
+    -- U-1.0.3.0 - 1/5/2022 --
+
+- added support for overwriting defined files for future updates
+----------------------------------
     -- 1.8.6.2 - 12/20/2022 --
 
 - fixed loading the Edit Last Map, Autosaved Map, and SFX Offset settings
