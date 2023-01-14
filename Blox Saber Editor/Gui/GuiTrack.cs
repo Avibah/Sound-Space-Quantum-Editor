@@ -3,469 +3,583 @@ using System.Collections.Generic;
 using System.Drawing;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
+using Sound_Space_Editor.Misc;
+using System.Linq;
 
-namespace Sound_Space_Editor.Gui
+namespace Sound_Space_Editor.GUI
 {
 	class GuiTrack : Gui
 	{
-		private Note _lastPlayedNote;
-		public Note MouseOverNote;
-		public BPM MouseOverPoint;
+        private float lastPlayedTick;
 
-		private double _lastPlayedMS;
+        public Note lastPlayed;
+        public Note hoveringNote;
+        public Note draggingNote;
 
-		public float ScreenX = 300;
+        public TimingPoint hoveringPoint;
+        public TimingPoint draggingPoint;
 
-		//public static float Bpm = 0;//150;
-		public static List<BPM> BPMs = new List<BPM>();
-		public static float Bpm = 0;
-		public static long NoteOffset = 0; //in ms
-		public static long BpmOffset = 0;
-		public static float TextBpm = 0;
-		public static bool waveform;
-		public static float BeatDivisor = 4;
-		public static int CursorPos = EditorSettings.CursorPos;
+        public bool hovering;
 
-		public GuiTrack(float y, float sy) : base(0, y, EditorWindow.Instance.ClientSize.Width, sy)
-		{
+        public RectangleF originRect;
 
-		}
+        public PointF dragStartPoint;
+        public long dragStartMs;
+
+        public bool draggingTrack;
+        public bool rightDraggingTrack;
+
+        private bool replay;
+
+        private float cellSize = 64f;
+        private float noteSize => cellSize * 0.65f;
+        private float cellGap => (cellSize - noteSize) / 2f;
+
+        public float startPos = 0f;
+        public float endPos = 1f;
 
 
-		public override void Render(float delta, float mouseX, float mouseY)
-		{
-			ScreenX = ClientRectangle.Width * CursorPos / 100f;
-			// track transparency
+        public GuiTrack() : base(0, 0, MainWindow.Instance.ClientSize.Width, 0)
+        {
+            rect.Height = yoffset - 32;
+            originRect = new RectangleF(0, 0, rect.Width, yoffset - 32);
+        }
 
-			var editor = EditorWindow.Instance;
+        public override void Render(float mousex, float mousey, float frametime)
+        {
+            var editor = MainWindow.Instance;
 
-			int trackdim = EditorSettings.TrackOpacity;
+            var color1 = Settings.settings["color1"];
+            var color2 = Settings.settings["color2"];
+            var color3 = Settings.settings["color3"];
 
-			Color Color1 = EditorWindow.Instance.Color1;
-			Color Color2 = EditorWindow.Instance.Color2;
-			Color Color3 = EditorWindow.Instance.Color3;
+            GL.Color4(Color.FromArgb(Settings.settings["trackOpacity"], 36, 35, 33));
+            GLSpecial.Rect(rect);
+            GL.Color3(0.2f, 0.2f, 0.2f);
+            GLSpecial.Rect(rect.X, rect.Y + rect.Height, rect.Width, 1);
 
-			// waveform
+            var noteStep = editor.NoteStep;
 
-			waveform = EditorSettings.Waveform;
+            var currentTime = Settings.settings["currentTime"].Value;
+            var totalTime = Settings.settings["currentTime"].Max;
+            var sfxOffset = Settings.settings["sfxOffset"];
+            var beatDivisor = Settings.settings["beatDivisor"].Value + 1f;
 
-			GL.Color4(Color.FromArgb(trackdim, 36, 35, 33));
+            var posX = currentTime / 1000f * noteStep;
+            var maxX = totalTime / 1000f * noteStep;
+            var cursorX = rect.Width * Settings.settings["cursorPos"].Value / 100f;
+            var endX = cursorX - posX + maxX + 1;
 
-			var rect = ClientRectangle;
+            startPos = Math.Max(0, (-cursorX * 1000f / noteStep + currentTime) / totalTime);
+            endPos = Math.Min(1, ((rect.Width - cursorX) * 1000f / noteStep + currentTime) / totalTime);
 
-			Glu.RenderQuad(rect);
-			GL.Color3(0.2f, 0.2f, 0.2f);
-			Glu.RenderQuad((int)rect.X, (int)rect.Y + rect.Height, (int)rect.Width, 1);
-
-			var fr = editor.FontRenderer;
-
-			float cellSize = 64f;
-			float noteSize = cellSize * 0.65f;
-
-			var gap = cellSize - noteSize;
-
-			double audioTime = editor.currentTime.TotalMilliseconds;
-
-			if (editor.GuiScreen is GuiScreenEditor gsed && gsed.Timeline.Dragging)
-				audioTime = MathHelper.Clamp(editor.totalTime.TotalMilliseconds * gsed.Timeline.Progress, 0, editor.totalTime.TotalMilliseconds - 1);
-
-			float cubeStep = editor.CubeStep;
-			float posX = (float)audioTime / 1000 * cubeStep;
-			float maxX = (float)editor.totalTime.TotalMilliseconds / 1000f * cubeStep;
-			float lineSpace;
-
-			if (waveform)
+            if (Settings.settings["waveform"])
             {
-				GL.Color3(0.35f, 0.35f, 0.35f);
-				GL.PushMatrix();
-				GL.BindVertexArray(editor.MusicPlayer.WaveModel.VaoID);
-				GL.EnableVertexAttribArray(0);
+                GL.Color3(0.35f, 0.35f, 0.35f);
+                GL.PushMatrix();
+                GL.BindVertexArray(editor.MusicPlayer.WaveModel.VaoID);
+                GL.EnableVertexAttribArray(0);
 
-				var waveX = -posX + ScreenX + maxX / 2;
-				var scale = maxX;//;total;
+                var waveX = -posX + cursorX + maxX / 2f;
 
-				GL.Translate(waveX, rect.Height * 0.5, 0);
-				GL.Scale(scale / 100000.0, -rect.Height, 1);
-				GL.Translate(-50000, -0.5, 0);
-				GL.LineWidth(2);
-				editor.MusicPlayer.WaveModel.Render(PrimitiveType.LineStrip);
-				GL.LineWidth(1);
-				GL.Translate(50000 * scale, 0.5, 0);
-				GL.Scale(1 / scale * 100000.0, -1.0 / rect.Height, 1);
-				GL.Translate(-waveX, -rect.Height * 0.5, 0);
+                GL.Translate(waveX, rect.Height * 0.5, 0);
+                GL.Scale(maxX / 100000.0, -rect.Height, 1);
+                GL.Translate(-50000, -0.5, 0);
+                GL.LineWidth(2f);
 
-				GL.DisableVertexAttribArray(0);
-				GL.BindVertexArray(0);
-				GL.PopMatrix();
-			}
-			/*
-			GL.Begin(PrimitiveType.LineStrip);
+                editor.MusicPlayer.WaveModel.Render(PrimitiveType.LineStrip);
 
-			for (double x = 0; x < rect.Width + 4; x += 4)
-			{
-				var peak = editor.MusicPlayer.GetPeak(audioTime + (x - ScreenX) / cubeStep * 1000) * rect.Height;
+                GL.Translate(50000 * maxX, 0.5, 0);
+                GL.Scale(1 / maxX * 100000.0, -1.0 / rect.Height, 1);
+                GL.Translate(-waveX, -rect.Height * 0.5, 0);
 
-				GL.Vertex2(x + 0.5f, rect.Height - peak);
-			}
-			GL.End();*/
+                GL.DisableVertexAttribArray(0);
+                GL.BindVertexArray(0);
+                GL.PopMatrix();
+            }
 
-			//render quarters of a second depending on zoom level
-			/*
-			while (lineSpace > 0 && lineX < rect.Width)
-			{
-				GL.Color3(0.85f, 0.85f, 0.85f);
-				GL.Begin(PrimitiveType.Lines);
-				GL.Vertex2((int)lineX + 0.5f, rect.Y);
-				GL.Vertex2((int)lineX + 0.5f, rect.Y + 5);
-				GL.End();
+            GL.LineWidth(1f);
 
-				lineX += lineSpace;
-			}*/
+            GL.Color4(color2);
+            GLSpecial.Line(cursorX - posX, rect.Y, cursorX - posX, rect.Bottom);
 
-			var mouseOver = false;
+            GL.Color3(1f, 0f, 0f);
+            GLSpecial.Line(endX, rect.Y, endX, rect.Bottom);
 
-			//draw start line
-			GL.LineWidth(2);
-			GL.Color4(Color2);
-			GL.Begin(PrimitiveType.Lines);
-			GL.Vertex2((int)(ScreenX - posX), rect.Y);
-			GL.Vertex2((int)(ScreenX - posX), rect.Y + rect.Height);
-			GL.End();
+            hoveringNote = null;
+            hoveringPoint = null;
+            Note closest = null;
 
-			var endLineX = ScreenX - posX + maxX + 1;
+            int? lastRendered = null;
+            int? lastTextRendered = null;
+            int? lastTickRendered = null;
 
-			//draw end line
-			GL.Color4(1f, 0f, 0f, 1);
-			GL.Begin(PrimitiveType.Lines);
-			GL.Vertex2((int)endLineX, rect.Y);
-			GL.Vertex2((int)endLineX, rect.Y + rect.Height);
-			GL.End();
-			GL.LineWidth(1);
+            var minMs = (posX - cursorX - noteSize) / noteStep * 1000f;
+            var maxMs = (rect.Width - cursorX + posX) / noteStep * 1000f;
 
-			MouseOverNote = null;
-			MouseOverPoint = null;
-			Note closest = null;
+            var textHeight = TextHeight(16);
 
-			var y = rect.Y + gap / 2;
+            //get selected notes
+            if (editor.rightHeld && rightDraggingTrack)
+            {
+                var selected = new List<Note>();
 
-			int? lastRendered = null;
-			int? lastTextRendered = null;
+                var offsetMs = dragStartMs - currentTime;
+                var startX = dragStartPoint.X + offsetMs / 1000f * noteStep;
 
-			var minms = (posX - ScreenX - noteSize) / cubeStep * 1000f;
-			var maxms = (ClientRectangle.Width - ScreenX + posX) / cubeStep * 1000f;
+                var my = MathHelper.Clamp(mousey, 0f, rect.Height);
+                var x = Math.Min(mousex, startX);
+                var y = Math.Min(my, dragStartPoint.Y);
+                var w = Math.Max(mousex, startX) - x;
+                var h = Math.Min(rect.Height, Math.Max(my, dragStartPoint.Y) - y);
 
-			for (int i = 0; i < editor.Notes.Count; i++)
-			{
-				Note note = EditorWindow.Instance.Notes[i];
+                var hitbox = new RectangleF(x, y, w, h);
 
-				if (note.Ms < minms)
-					continue;
-				if (note.Ms > maxms)
-					break;
-
-				if (editor.GuiScreen is GuiScreenEditor gse)
-				{
-					long.TryParse(gse.SfxOffset.Text, out var offset);
-
-					if (note.Ms <= (long)(EditorWindow.Instance.currentTime.TotalMilliseconds - offset))
-						closest = note;
-				}
-
-				var x = Math.Round(ScreenX - posX + note.Ms / 1000f * cubeStep);
-
-				if (lastRendered != null && (int)x - 1 <= lastRendered)
-					continue;
-
-				lastRendered = (int)x;
-
-				var alphaMult = 1f;
-
-				if (audioTime - 1 > note.Ms)//(x <= ScreenX)
-					alphaMult = 0.35f;
-
-
-				var noteRect = new RectangleF((int)x, (int)y, noteSize, noteSize);
-
-				var b = MouseOverNote == null && !mouseOver && noteRect.Contains(mouseX, mouseY);
-
-				if ((b || EditorWindow.Instance.SelectedNotes.Contains(note)) &&
-					!EditorWindow.Instance.IsDraggingNoteOnTimeLine)
-				{
-					if (b)
-					{
-						MouseOverNote = note;
-						mouseOver = true;
-						GL.Color3(0, 1, 0.25f);
-					}
-					else
-					{
-						GL.Color3(0, 0.5f, 1);
-					}
-
-					Glu.RenderOutline((int)(x - 4), (int)(y - 4), (int)(noteSize + 8), (int)(noteSize + 8));
-				}
-
-				var c = Color.FromArgb((int)(15 * alphaMult), (int)note.Color.R, (int)note.Color.G, (int)note.Color.B);
-
-				GL.Color4(c);
-				Glu.RenderQuad((int)x, (int)y, (int)noteSize, (int)noteSize);
-				GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult);
-				Glu.RenderOutline((int)x, (int)y, (int)noteSize, (int)noteSize);
-
-				GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult * 0.45);
-
-				var gridGap = 2;
-				for (int j = 0; j < 9; j++)
-				{
-					var indexX = 2 - j % 3;
-					var indexY = 2 - j / 3;
-
-					var gridX = (int)x + indexX * (9 + gridGap) + 5;
-					var gridY = (int)y + indexY * (9 + gridGap) + 5;
-
-					Glu.RenderOutline(gridX, gridY, 9, 9);
-				}
-				//note location on space - supports quantum
+                for (int i = 0; i < editor.Notes.Count; i++)
                 {
-					var gridX = (int)x + note.X * (9 + gridGap) + 5;
-					var gridY = (int)y + note.Y * (9 + gridGap) + 5;
+                    var note = editor.Notes[i];
 
-					GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult);
-					Glu.RenderQuad(gridX, gridY, 9, 9);
-				}
+                    var noteX = cursorX - posX + note.Ms / 1000f * noteStep;
+                    var noteHitbox = new RectangleF(noteX, cellGap, noteSize, noteSize);
 
-				if (lastTextRendered == null || (int)x - 8 > lastTextRendered)
+                    if (hitbox.IntersectsWith(noteHitbox))
+                        selected.Add(note);
+                }
+
+                editor.SelectedNotes = selected;
+
+                GL.Color4(0f, 1f, 0.2f, 0.2f);
+                GLSpecial.Rect(hitbox);
+                GL.Color4(0f, 1f, 0.2f, 1f);
+                GLSpecial.Outline(hitbox);
+            }
+
+            //render notes
+            for (int i = 0; i < editor.Notes.Count; i++)
+            {
+                var note = editor.Notes[i];
+
+                if (note.Ms < minMs)
+                    continue;
+                if (note.Ms > maxMs)
+                    break;
+
+                if (note.Ms <= currentTime - sfxOffset)
+                    closest = note;
+
+                var x = cursorX - posX + note.Ms / 1000f * noteStep;
+
+                if (lastRendered != null && (int)x - 1 <= lastRendered)
+                    continue;
+
+                lastRendered = (int)x;
+
+                var alpha = currentTime - 1 > note.Ms ? 0.35f : 1f;
+                var alphaC = alpha * 255f;
+
+                var noteRect = new RectangleF(x, cellGap, noteSize, noteSize);
+                var isHovering = hoveringNote == null && draggingNote == null && noteRect.Contains(mousex, mousey);
+
+                if (isHovering || (editor.SelectedNotes.Contains(note) && draggingNote == null))
                 {
-					var numText = $"{(i + 1):##,###}";
-
-					var msText = $"{note.Ms:##,###}";
-					if (msText == "")
-						msText = "0";
-
-					GL.Color3(Color1);
-					fr.Render($"Note {numText}", (int)x + 3, (int)(rect.Y + rect.Height) + 3, 16);
-
-					GL.Color3(Color2);
-					fr.Render($"{msText}ms", (int)x + 3, (int)(rect.Y + rect.Height + fr.GetHeight(16)) + 3 + 2, 16);
-
-					//draw line
-					GL.Color4(1f, 1f, 1f, alphaMult);
-					GL.Begin(PrimitiveType.Lines);
-					GL.Vertex2((int)x + 0.5f, rect.Y + rect.Height + 3);
-					GL.Vertex2((int)x + 0.5f, rect.Y + rect.Height + 28);
-					GL.End();
-
-					lastTextRendered = (int)x;
-				}
-			}
-
-			if (_lastPlayedNote != closest)
-			{
-				_lastPlayedNote = closest;
-
-				if (closest != null && editor.MusicPlayer.IsPlaying && editor.GuiScreen is GuiScreenEditor gse)
-				{
-					var id = editor.inconspicuousvar ? "1091083826" : "hit";
-					editor.SoundPlayer.Play(id, gse.SfxVolume.Value / (float)gse.SfxVolume.MaxValue, editor.MusicPlayer.Tempo);
-				}
-			}
-			
-			for (var i = 0; i < BPMs.Count; i++)
-			{
-				var Bpm = BPMs[i];
-				double nextoffset;
-				double nextLineX = endLineX;
-
-				if (i + 1 < BPMs.Count)
-					nextoffset = BPMs[i + 1].Ms;
-				else
-					nextoffset = editor.totalTime.TotalMilliseconds * 2;
-
-				if (Bpm.bpm > 33)
-				{
-					lineSpace = 60 / Bpm.bpm * cubeStep;
-					var stepSmall = lineSpace / BeatDivisor;
-
-					float lineX = ScreenX - posX + Bpm.Ms / 1000f * cubeStep;
-
-					if (i + 1 < BPMs.Count)
-						nextLineX = ScreenX - posX + nextoffset / 1000f * cubeStep;
-					if (nextLineX < 0)
-						nextLineX %= lineSpace;
-
-					if (lineSpace > 0 && lineX < rect.Width && lineX > 0)
-					{
-						//draw offset start line
-						GL.Color4(Color.FromArgb(255, 0, 0));
-						GL.Begin(PrimitiveType.Lines);
-						GL.Vertex2((int)lineX + 0.5f, 0);
-						GL.Vertex2((int)lineX + 0.5f, rect.Bottom + 56);
-						GL.End();
-					}
-
-					//draw timing point info
-					var x = Math.Round(ScreenX - posX + Bpm.Ms / 1000f * cubeStep);
-
-					var numText = $"{Bpm.bpm:##,###.###}";
-					if (numText == "")
-						numText = "0";
-
-					GL.Color3(Color1);
-					fr.Render($"{numText} BPM", (int)x + 3, (int)(rect.Y + rect.Height) + 3 + 28, 16);
-
-					var msText = $"{Bpm.Ms:##,###}";
-					if (msText == "")
-						msText = "0";
-
-					GL.Color3(Color2);
-					fr.Render($"{msText}ms", (int)x + 3, (int)(rect.Y + rect.Height + fr.GetHeight(16)) + 3 + 2 + 28, 16);
-
-					var gapf = rect.Height - noteSize - y;
-
-					var div = BeatDivisor;
-
-					if (Math.Round(BeatDivisor) != Math.Round(BeatDivisor, 1))
+                    if (isHovering)
                     {
-						div = BeatDivisor * 2f;
-						lineSpace *= 2f;
-					}
+                        hoveringNote = note;
+                        GL.Color3(0f, 1f, 0.25f);
+                    }
+                    else
+                        GL.Color3(0f, 0.5f, 1f);
 
-					if (lineX < 0)
-						lineX %= lineSpace;
+                    GLSpecial.Outline(x - 4, cellGap - 4, noteSize + 8, noteSize + 8);
+                }
 
-					//render BPM lines
-					while (lineSpace > 0 && lineX < rect.Width && lineX < endLineX && lineX < nextLineX)
-					{
-						var lineF = Math.Round((lineX - ScreenX + posX) / cubeStep * 1000f);
-						lineF = lineF / 1000f * cubeStep + ScreenX - posX;
+                GL.Color4(Color.FromArgb((int)(alpha * 15f), note.Color));
+                GLSpecial.Rect(noteRect);
+                GL.Color4(Color.FromArgb((int)alphaC, note.Color));
+                GLSpecial.Outline(noteRect);
 
-						GL.Color3(Color2);
-						GL.Begin(PrimitiveType.Lines);
-						GL.Vertex2(Math.Round(lineF) + 0.5f, rect.Bottom);
-						GL.Vertex2(Math.Round(lineF) + 0.5f, rect.Bottom - gapf);
-						GL.End();
+                GL.Color4(Color.FromArgb((int)(alphaC * 0.45f), note.Color));
 
-						for (int j = 1; j < div; j++)
-						{
-							var xo = Math.Round((lineX + j * stepSmall - ScreenX + posX) / cubeStep * 1000f);
-							xo = xo / 1000f * cubeStep + ScreenX - posX;
+                for (int j = 0; j < 9; j++)
+                {
+                    var indexX = 2 - j % 3;
+                    var indexY = 2 - j / 3;
 
-							if (xo < endLineX && xo < nextLineX)
-							{
-								var half = j == div / 2 && div % 2 == 0;
+                    var gridX = (int)x + indexX * 11 + 5;
+                    var gridY = (int)cellGap + indexY * 11 + 5;
 
-								if (half)
-									GL.Color3(Color3);
-								else
-									GL.Color3(Color1);
+                    GLSpecial.Outline(gridX, gridY, 9, 9);
+                }
 
-								GL.Begin(PrimitiveType.Lines);
-								GL.Vertex2(Math.Round(xo) + 0.5f, rect.Bottom - (half ? 3 * gapf / 5 : 3 * gapf / 10));
-								GL.Vertex2(Math.Round(xo) + 0.5f, rect.Bottom);
-								GL.End();
-							}
-						}
+                {
+                    var gridX = (int)x + note.X * 11 + 5;
+                    var gridY = (int)cellGap + note.Y * 11 + 5;
 
-						lineX += lineSpace;
-					}
+                    GL.Color4(Color.FromArgb((int)alphaC, note.Color));
+                    GLSpecial.Rect(gridX, gridY, 9, 9);
+                }
 
-					var w = Math.Max(fr.GetWidth($"{Bpm.Ms:##,###}ms", 16), fr.GetWidth($"{Bpm.bpm:##,###.###} BPM", 16));
-					var pointRect = new RectangleF((int)x, rect.Bottom, w + 3, 56);
+                if (lastTextRendered == null || (int)x - 8 > lastTextRendered)
+                {
+                    lastTextRendered = (int)x;
 
-					var g = MouseOverPoint == null && pointRect.Contains(mouseX, mouseY);
+                    var numText = $"{i + 1:##,###}";
+                    var msText = $"{note.Ms:##,###}";
+                    if (msText == "")
+                        msText = "0";
 
-					if (g || EditorWindow.Instance._draggedPoint == Bpm &&
-						!EditorWindow.Instance.IsDraggingPointOnTimeline)
-					{
-						if (g)
-						{
-							MouseOverPoint = Bpm;
-							GL.Color3(0, 1, 0.25f);
-						}
-						else
-						{
-							GL.Color3(0, 0.5f, 1);
-						}
+                    GL.Color3(color1);
+                    RenderText($"Note {numText}", x + 3, rect.Height + 3, 16);
+                    GL.Color3(color2);
+                    RenderText($"{msText}ms", x + 3, rect.Height + textHeight + 5, 16);
 
-						Glu.RenderOutline((int)(x - 4), rect.Bottom, w + 3 + 8, 56 + 4);
-					}
-				}
-			}
+                    GL.Color4(1f, 1f, 1f, alpha);
+                    GLSpecial.Line(x + 0.5f, rect.Height + 3, x + 0.5f, rect.Height + 28);
+                }
+            }
 
-			if (editor.GuiScreen is GuiScreenEditor gse1 && gse1.Metronome.Toggle)
-			{
-				double.TryParse(gse1.SfxOffset.Text, out var offset);
+            //render drag lines
+            if (draggingNote != null)
+            {
+                foreach (var note in editor.SelectedNotes)
+                {
+                    var x = cursorX - posX + note.DragStartMs / 1000f * noteStep;
 
-				var ms = editor.currentTime.TotalMilliseconds - offset;
-				var bpm = editor.GetCurrentBpm(editor.currentTime.TotalMilliseconds, false);
-				double interval = 60000 / bpm.bpm / BeatDivisor;
-				double remainder = (ms - bpm.Ms) % interval;
-				double closestMS = ms - remainder;
+                    GL.Color3(0.75f, 0.75f, 0.75f);
+                    GLSpecial.Line(x, 0f, x, rect.Height);
+                }
+            }
 
-				if (_lastPlayedMS != closestMS && remainder >= 0 && editor.MusicPlayer.IsPlaying)
-				{
-					_lastPlayedMS = closestMS;
+            //play hit sound
+            if (lastPlayed != closest)
+            {
+                lastPlayed = closest;
 
-					var id = editor.inconspicuousvar ? "1091083826" : "metronome";
-					editor.SoundPlayer.Play(id, gse1.SfxVolume.Value / (float)gse1.SfxVolume.MaxValue, editor.MusicPlayer.Tempo);
-				}
-			}
+                if (closest != null && editor.MusicPlayer.IsPlaying)
+                    editor.SoundPlayer.Play("hit");
+            }
 
-			//draw screen line
-			GL.Color4(1f, 1, 1, 0.75);
-			GL.Begin(PrimitiveType.Lines);
-			GL.Vertex2((int)(rect.X + ScreenX) + 0.5, rect.Y + 4);
-			GL.Vertex2((int)(rect.X + ScreenX) + 0.5, rect.Y + rect.Height - 4);
-			GL.End();
+            //render points
+            var multiplier = beatDivisor % 1 == 0 ? 1f : 1f / (beatDivisor % 1);
 
-			//GL.Color3(1, 1, 1f);
-			//FontRenderer.Print("HELLO", 0, rect.Y + rect.Height + 8);
-		}
+            for (int i = 0; i < editor.TimingPoints.Count; i++)
+            {
+                var point = editor.TimingPoints[i];
 
-		public override void OnResize(Size size)
-		{
-			ClientRectangle = new RectangleF(0, ClientRectangle.Y, size.Width, ClientRectangle.Height);
-		}
+                if (point.bpm > 0)
+                {
+                    var nextMs = i + 1 < editor.TimingPoints.Count ? editor.TimingPoints[i + 1].Ms : totalTime * 2;
+                    var nextX = i + 1 < editor.TimingPoints.Count ? cursorX - posX + nextMs / 1000f * noteStep : endX;
 
-		public List<Note> GetNotesInRect(RectangleF selectionRect)
-		{
-			var notes = new List<Note>();
+                    var stepX = 60 / point.bpm * noteStep;
+                    var stepXSmall = stepX / beatDivisor;
 
-			var rect = ClientRectangle;
+                    var lineX = cursorX - posX + point.Ms / 1000f * noteStep;
 
-			float cellSize = 64f;
-			float noteSize = cellSize * 0.65f;
+                    if (stepX > 0 && lineX < rect.Width && lineX > 0)
+                    {
+                        GL.Color4(Color.FromArgb(255, 0, 0));
+                        GLSpecial.Line(lineX, 0, lineX, rect.Height + 56);
+                    }
 
-			float gap = cellSize - noteSize;
+                    var numText = $"{point.bpm:##,###.###} BPM";
+                    if (numText == " BPM")
+                        numText = "0 BPM";
+                    var msText = $"{point.Ms:##,###}ms";
+                    if (msText == "ms")
+                        msText = "0ms";
 
-			float audioTime = (float)EditorWindow.Instance.currentTime.TotalMilliseconds;
+                    GL.Color3(color1);
+                    RenderText(numText, lineX + 3, rect.Height + 31, 16);
+                    GL.Color3(color2);
+                    RenderText(msText, lineX + 3, rect.Height + 33 + textHeight, 16);
 
-			float cubeStep = EditorWindow.Instance.CubeStep;
-			float posX = audioTime / 1000 * cubeStep;
+                    var divisor = multiplier * beatDivisor;
+                    stepX *= multiplier;
 
-			for (int i = 0; i < EditorWindow.Instance.Notes.Count; i++)
-			{
-				Note note = EditorWindow.Instance.Notes[i];
+                    if (lineX < 0)
+                        lineX %= stepX;
 
-				//caused flashing
-				//note.Color = _cs.Next();
+                    var width = Math.Max(TextWidth(numText, 16), TextWidth(msText, 16));
+                    var hitbox = new RectangleF(lineX, rect.Height, width + 3, 56);
 
-				float x = ScreenX - posX + note.Ms / 1000f * cubeStep;
+                    var hovering = hoveringNote == null && hitbox.Contains(mousex, mousey);
 
-				/*
-				if (x < rect.X - noteSize || x > rect.Width)
-					continue;
-				*/
+                    if (hovering || editor.SelectedPoint == point)
+                    {
+                        if (hovering)
+                        {
+                            hoveringPoint = point;
+                            GL.Color3(0f, 1f, 0.25f);
+                        }
+                        else
+                            GL.Color3(0f, 0.5f, 1f);
 
-				float y = rect.Y + gap / 2;
+                        GLSpecial.Outline(lineX - 4, rect.Height, width + 11, 60);
+                    }
 
-				var noteRect = new RectangleF(x, y, noteSize, noteSize);
+                    var gapf = rect.Height - noteSize - cellGap;
 
-				if (selectionRect.IntersectsWith(noteRect))
-					notes.Add(note);
-			}
+                    //render bpm lines
+                    while (stepX > 0 && lineX < rect.Width && lineX < nextX && lineX < endX)
+                    {
+                        var lineF = Math.Round((lineX - cursorX + posX) / noteStep * 1000f);
+                        lineF = lineF / 1000f * noteStep + cursorX - posX;
 
-			return notes;
-		}
-	}
+                        GL.Color3(color2);
+                        GLSpecial.Line((float)lineF, rect.Height, (float)lineF, rect.Height - gapf);
+
+                        for (int j = 1; j < divisor; j++)
+                        {
+                            var x = Math.Round((lineX + j * stepXSmall - cursorX + posX) / noteStep * 1000f);
+                            x = x / 1000f * noteStep + cursorX - posX;
+
+                            if (x < nextX && x < endX && (lastTickRendered == null || (int)x - 1 > lastTickRendered))
+                            {
+                                var half = j == divisor / 2 && divisor % 2 == 0;
+
+                                GL.Color3(half ? color3 : color1);
+                                GLSpecial.Line((float)x, rect.Height - 3 * gapf / (half ? 5 : 10), (float)x, rect.Height);
+
+                                lastTickRendered = (int)x;
+                            }
+                        }
+
+                        lineX += stepX;
+                    }
+                }
+            }
+
+            //play metronome
+            if (Settings.settings["metronome"])
+            {
+                var ms = currentTime - sfxOffset;
+                var bpm = editor.GetCurrentBpm(currentTime);
+                var interval = 60000f / bpm.bpm / beatDivisor;
+                var remainder = (ms - bpm.Ms) % interval;
+                var closestMs = ms - remainder;
+
+                if (lastPlayedTick != closestMs && remainder >= 0 && editor.MusicPlayer.IsPlaying)
+                {
+                    lastPlayedTick = closestMs;
+
+                    editor.SoundPlayer.Play("metronome");
+                }
+            }
+
+            GL.Color4(1f, 1f, 1f, 0.75f);
+            GLSpecial.Line(cursorX, 4, cursorX, rect.Height - 4);
+        }
+
+        public override void OnMouseClick(Point pos, bool right = false)
+        {
+            if (right)
+                OnMouseUp(pos);
+
+            var startMs = (long)Settings.settings["currentTime"].Value;
+            var editor = MainWindow.Instance;
+
+            var replayf = editor.MusicPlayer.IsPlaying && !right;
+            replay = false;
+
+            if (replayf)
+                editor.MusicPlayer.Pause();
+
+            if (hoveringNote != null && !right)
+            {
+                draggingNote = hoveringNote;
+
+                dragStartPoint = pos;
+                dragStartMs = startMs;
+
+                var selected = editor.SelectedNotes.ToList();
+
+                if (editor.shiftHeld)
+                {
+                    selected = new List<Note> { selected[0] };
+
+                    var first = selected[0];
+                    var last = hoveringNote;
+                    var min = Math.Min(first.Ms, last.Ms);
+                    var max = Math.Max(first.Ms, last.Ms);
+
+                    foreach (var note in editor.Notes)
+                        if (note.Ms >= min && note.Ms <= max && !selected.Contains(note))
+                            selected.Add(note);
+                }
+                else if (editor.ctrlHeld)
+                {
+                    if (selected.Contains(hoveringNote))
+                        selected.Remove(hoveringNote);
+                    else
+                        selected.Add(hoveringNote);
+                }
+                else if (!selected.Contains(hoveringNote))
+                    selected = new List<Note>() { hoveringNote };
+
+                editor.SelectedNotes = selected.ToList();
+
+                foreach (var note in editor.SelectedNotes)
+                    note.DragStartMs = note.Ms;
+            }
+            else if (hoveringPoint != null && !right)
+            {
+                draggingPoint = hoveringPoint;
+
+                dragStartPoint = pos;
+                dragStartMs = startMs;
+
+                editor.SelectedPoint = hoveringPoint;
+
+                draggingPoint.DragStartMs = draggingPoint.Ms;
+            }
+            else
+            {
+                replay = replayf;
+
+                dragStartPoint = pos;
+                dragStartMs = startMs;
+            }
+
+            rightDraggingTrack = rightDraggingTrack || right;
+            draggingTrack = draggingTrack || !right;
+        }
+
+        public override void OnMouseMove(Point pos)
+        {
+            if (draggingTrack)
+            {
+                var editor = MainWindow.Instance;
+                var currentTime = Settings.settings["currentTime"];
+                var divisor = Settings.settings["beatDivisor"].Value;
+                var cursorPos = Settings.settings["cursorPos"].Value;
+
+                var cellStep = editor.NoteStep;
+
+                var x = Math.Abs(pos.X - dragStartPoint.X) >= 5 ? pos.X : dragStartPoint.X;
+                var offset = (x - dragStartPoint.X) / cellStep * 1000f;
+                var cursorms = (x - rect.Width * cursorPos / 100f - noteSize / 2f) / cellStep * 1000f + currentTime.Value;
+
+                if (draggingNote != null)
+                {
+                    offset = draggingNote.DragStartMs - cursorms;
+                    var currentBpm = editor.GetCurrentBpm(cursorms).bpm;
+
+                    if (currentBpm > 0)
+                    {
+                        var stepX = 60f / currentBpm * cellStep;
+                        var stepXSmall = stepX / divisor;
+
+                        var threshold = MathHelper.Clamp(stepXSmall / 1.75f, 1f, 12f);
+                        var snappedMs = editor.GetClosestBeat(draggingNote.Ms);
+
+                        if (Math.Abs(snappedMs - cursorms) / 1000f * cellStep <= threshold)
+                            offset = draggingNote.DragStartMs - snappedMs;
+                    }
+
+                    foreach (var note in editor.SelectedNotes)
+                        note.Ms = (long)MathHelper.Clamp(note.DragStartMs - offset, 0f, currentTime.Max);
+
+                    editor.SortNotes();
+                }
+                else if (draggingPoint != null)
+                {
+                    offset = draggingPoint.DragStartMs - cursorms;
+                    var currentBpm = editor.GetCurrentBpm(cursorms).bpm;
+
+                    var stepX = 60f / currentBpm * cellStep;
+                    var stepXSmall = stepX / divisor;
+
+                    var threshold = MathHelper.Clamp(stepXSmall / 1.75f, 1f, 12f);
+                    var snappedMs = editor.GetClosestBeat(draggingPoint.Ms, true);
+                    var snappedNote = editor.GetClosestNote(draggingPoint.Ms);
+
+                    if (Math.Abs(snappedNote - cursorms) < Math.Abs(snappedMs - cursorms))
+                        snappedMs = snappedNote;
+                    if (Math.Abs(snappedMs - cursorms) / 1000f * cellStep <= threshold)
+                        offset = draggingPoint.DragStartMs - snappedMs;
+                    if (Math.Abs(cursorms) / 1000f * cellStep <= threshold)
+                        offset = draggingPoint.DragStartMs;
+
+                    draggingPoint.Ms = (long)Math.Min(draggingPoint.DragStartMs - offset, currentTime.Max);
+
+                    editor.SortTimings(false);
+                }
+                else
+                {
+                    var finalTime = dragStartMs - offset;
+
+                    if (editor.GetCurrentBpm(finalTime).bpm > 0)
+                        finalTime = editor.GetClosestBeat(finalTime);
+
+                    finalTime = MathHelper.Clamp(finalTime, 0f, currentTime.Max);
+
+                    currentTime.Value = finalTime;
+                }
+            }
+        }
+
+        public override void OnMouseUp(Point pos, bool right = false)
+        {
+            if (draggingTrack)
+            {
+                var editor = MainWindow.Instance;
+
+                if (draggingNote != null && draggingNote.DragStartMs != draggingNote.Ms)
+                {
+                    var selected = editor.SelectedNotes.ToList();
+                    var startList = new List<long>();
+                    var msList = new List<long>();
+
+                    for (int i = 0; i < selected.Count; i++)
+                    {
+                        startList.Add(selected[i].DragStartMs);
+                        msList.Add(selected[i].Ms);
+                    }
+
+                    editor.UndoRedoManager.Add($"MOVE NOTE{(selected.Count > 1 ? "S" : "")}", () =>
+                    {
+                        for (int i = 0; i < selected.Count; i++)
+                            selected[i].Ms = startList[i];
+
+                        editor.SortNotes();
+                    }, () =>
+                    {
+                        for (int i = 0; i < selected.Count; i++)
+                            selected[i].Ms = msList[i];
+
+                        editor.SortNotes();
+                    }, false);
+                }
+                else if (draggingPoint != null && draggingPoint.DragStartMs != draggingPoint.Ms)
+                {
+                    var point = draggingPoint;
+                    var ms = point.Ms;
+                    var msStart = point.DragStartMs;
+
+                    editor.UndoRedoManager.Add("MOVE POINT", () =>
+                    {
+                        point.Ms = msStart;
+
+                        editor.SortTimings();
+                    }, () =>
+                    {
+                        point.Ms = ms;
+
+                        editor.SortTimings();
+                    }, false);
+                }
+
+                draggingTrack = false;
+                draggingNote = null;
+                draggingPoint = null;
+
+                if (replay)
+                    editor.MusicPlayer.Play();
+            }
+
+            if (rightDraggingTrack)
+                rightDraggingTrack = false;
+        }
+    }
 }

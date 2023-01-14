@@ -1,241 +1,405 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using System.Linq;
+using Sound_Space_Editor.Misc;
 
-namespace Sound_Space_Editor.Gui
+namespace Sound_Space_Editor.GUI
 {
 	class GuiGrid : Gui
 	{
-		public Note MouseOverNote;
+        public Note hoveringNote;
+        public Note draggingNote;
 
-		private readonly Note _startNote = new Note(1, 1, 0);
+        public bool hovering;
+        public bool dragging;
 
-		public static int ApproachRate = EditorSettings.ApproachRate + 1;
+        public RectangleF originRect;
 
-		public GuiGrid(float sx, float sy) : base(EditorWindow.Instance.ClientSize.Width / 2f - sx / 2, EditorWindow.Instance.ClientSize.Height / 2f - sy / 2, sx, sy)
-		{
+        private readonly Note startNote = new Note(1f, 1f, 0);
 
-		}
+        private PointF lastPlaced;
+        private PointF lastPos;
+        private Vector2 startPos;
 
-		public void RenderFakeNote(float x, float y, Color? color)
-		{
-			var rect = ClientRectangle;
-			var cellSize = rect.Width / 3f;
-			var noteSize = cellSize * 0.65f;
-			var gap = cellSize - noteSize;
-			x = rect.X + x * cellSize + gap / 2;
-			y = rect.Y + y * cellSize + gap / 2;
-			var noteRect = new RectangleF(x, y, noteSize, noteSize);
-			GL.Color4(color != null ? Color.FromArgb(24, (Color)color) : Color.FromArgb(24, 128, 128, 128));
-			Glu.RenderQuad(noteRect);
-			GL.Color4(color != null ? Color.FromArgb(32, (Color)color) : Color.FromArgb(32, 128, 128, 128));
-			Glu.RenderOutline(noteRect);
-		}
-		public override void Render(float delta, float mouseX, float mouseY)
-		{
-			var editor = (GuiScreenEditor)EditorWindow.Instance.GuiScreen;
+        public GuiGrid(float sizex, float sizey) : base(0f, 0f, sizex, sizey)
+        {
+            originRect = new RectangleF(0, 0, sizex, sizey);
+        }
 
-			var rect = ClientRectangle;
-			var mouseOver = false;
-			// grid transparency
-			int griddim = EditorSettings.GridOpacity;
+        public override void Render(float mousex, float mousey, float frametime)
+        {
+            var approachRate = Settings.settings["approachRate"].Value / 10f;
+            var gridDim = Settings.settings["gridOpacity"];
 
-			GL.Color4(Color.FromArgb(griddim, 36, 35, 33));
-			Glu.RenderQuad(rect.X, rect.Y, rect.Width, rect.Height);
+            var approachSquares = Settings.settings["approachSquares"];
+            var gridNumbers = Settings.settings["gridNumbers"];
+            var separateClickTools = Settings.settings["separateClickTools"];
+            var selectTool = Settings.settings["selectTool"];
 
-			var cellSize = rect.Width / 3f;
-			var noteSize = cellSize * 0.75f;
+            GL.Color4(Color.FromArgb(gridDim, 36, 35, 33));
+            GLSpecial.Rect(rect);
 
-			var gap = cellSize - noteSize;
+            var cellSize = rect.Width / 3f;
+            var noteSize = cellSize * 0.75f;
+            var cellGap = (cellSize - noteSize) / 2f;
 
-			var audioTime = EditorWindow.Instance.currentTime.TotalMilliseconds;
+            var currentTime = Settings.settings["currentTime"].Value;
 
-			GL.Color3(0.2, 0.2, 0.2f);
+            GL.Color3(0.2f, 0.2f, 0.2f);
 
-			for (float y = 0; y <= 3; y++)
-			{
-				var ly = y * cellSize;
+            for (int x = 0; x < 4; x++)
+                GLSpecial.Rect(rect.X + x * cellSize, rect.Y, 1, rect.Height + 1);
+            for (int y = 0; y < 4; y++)
+                GLSpecial.Rect(rect.X, rect.Y + y * cellSize, rect.Width + 1, 1);
 
-				Glu.RenderQuad((int)(rect.X), (int)(rect.Y + ly), rect.Width + 1, 1);
-			}
-
-			for (float x = 0; x <= 3; x++)
-			{
-				var lx = x * cellSize;
-
-				Glu.RenderQuad((int)(rect.X + lx), (int)(rect.Y), 1, rect.Height + 1);
-			}
-
-			if (editor.NoteAlign.Value != 1 && EditorSettings.QuantumGridLines)
-			{
-				GL.Begin(PrimitiveType.Lines);
-
-				var div = editor.NoteAlign.Value + 1;
-
-				for (int i = 1; i < div; i++)
-				{
-					//GL.Vertex2(rect.X + rect.Width / div * i, rect.Y);
-					//GL.Vertex2(rect.X + rect.Width / div * i, rect.Y + rect.Height / div * i);
-
-					GL.Vertex2(rect.X + rect.Width / div * i, rect.Y);
-					GL.Vertex2(rect.X + rect.Width / div * i, rect.Y + rect.Height);
-
-					GL.Vertex2(rect.X, rect.Y + rect.Height / div * i);
-					GL.Vertex2(rect.X + rect.Width, rect.Y + rect.Height / div * i);
-				}
-				GL.End();
-			}
-
-			var fr = EditorWindow.Instance.FontRenderer;
-
-			GL.Color3(0.2f, 0.2f, 0.2f);
-			if (EditorSettings.GridLetters)
+            //render grid lines
+            if (Settings.settings["quantumGridLines"])
             {
-				foreach (var pair in EditorWindow.Instance.KeyMapping)
-				{
-					var letter = pair.Key.ToString().Replace("Keypad", "");
+                var divisor = Settings.settings["quantumSnapping"].Value + 1f;
 
-					var tuple = pair.Value;
+                for (int i = 1; i < divisor; i++)
+                {
+                    GLSpecial.Line(rect.X + rect.Width / divisor * i, rect.Y, rect.X + rect.Width / divisor * i, rect.Y + rect.Height);
+                    GLSpecial.Line(rect.X, rect.Y + rect.Height / divisor * i, rect.X + rect.Width, rect.Y + rect.Height / divisor * i);
+                }
+            }
 
-					var x = rect.X + tuple.Item1 * cellSize + cellSize / 2;
-					var y = rect.Y + tuple.Item2 * cellSize + cellSize / 2;
+            //render grid letters
+            if (Settings.settings["gridLetters"])
+            {
+                var copy = new Dictionary<Key, Tuple<int, int>>(MainWindow.Instance.KeyMapping);
 
-					var width = fr.GetWidth(letter, 38);
-					var height = fr.GetHeight(38);
+                foreach (var key in copy)
+                {
+                    var letter = key.Key.ToString().Replace("Keypad", "");
+                    var tuple = key.Value;
 
-					fr.Render(letter, (int)(x - width / 2f), (int)(y - height / 2), 38);
-				}
-			}
+                    var x = rect.X + tuple.Item1 * cellSize + cellSize / 2f;
+                    var y = rect.Y + tuple.Item2 * cellSize + cellSize / 2f;
 
-			Note last = null;
-			Note next = null;
+                    var width = TextWidth(letter, 38);
+                    var height = TextHeight(38);
 
-			for (var index = 0; index < EditorWindow.Instance.Notes.Count; index++)
-			{
-				var note = EditorWindow.Instance.Notes[index];
-				var passed = audioTime > note.Ms + 1;
-				var visible = !passed && note.Ms - audioTime <= 1000 / (ApproachRate / 10.0);
+                    RenderText(letter, x - width / 2f, y - height / 2f, 38);
+                }
+            }
 
-				if (passed)
-				{
-					last = note;
-				}
-				else if (next == null)
-				{
-					next = note;
-				}
+            //render notes
+            GL.LineWidth(2f);
 
-				if (!visible)
-				{
-					if (passed && next != null)
-					{
-						break;
-					}
+            Note last = null;
+            Note next = null;
 
-					continue;
-				}
+            bool isHoveringNote = false;
 
-				var x = rect.X + note.X * cellSize + gap / 2;
-				var y = rect.Y + note.Y * cellSize + gap / 2;
+            for (var i = 0; i < MainWindow.Instance.Notes.Count; i++)
+            {
+                var note = MainWindow.Instance.Notes[i];
+                var passed = currentTime > note.Ms + 1;
+                var visible = !passed && note.Ms - currentTime <= 1000f / approachRate;
 
-				var progress = (float)Math.Pow(1 - Math.Min(1, (note.Ms - audioTime) * ApproachRate / 10.0 / 750.0), 2);
-				var noteRect = new RectangleF(x, y, noteSize, noteSize);
-				OpenTK.Graphics.Color4 colora = new OpenTK.Graphics.Color4(note.GridColor.R, note.GridColor.G, note.GridColor.B, progress * 0.15f);
-				GL.Color4(colora);
-				Glu.RenderQuad(noteRect);
-				OpenTK.Graphics.Color4 color = new OpenTK.Graphics.Color4(note.GridColor.R, note.GridColor.G, note.GridColor.B, progress);
-				GL.Color4(color);
-				Glu.RenderOutline(noteRect);
-				if (EditorSettings.ApproachSquares)
-				{
-					var outlineSize = 4 + noteSize + noteSize * (1 - progress) * 2;
-					Glu.RenderOutline(x - outlineSize / 2 + noteSize / 2, y - outlineSize / 2 + noteSize / 2,
-						outlineSize,
-						outlineSize);
-				}
+                if (passed)
+                    last = note;
+                else if (next == null)
+                    next = note;
 
-				if (EditorSettings.GridNumbers)
-				{
-					GL.Color4(1, 1, 1, progress);
-					var s = $"{(index + 1):#,##}";
-					var w = fr.GetWidth(s, 24);
-					var h = fr.GetHeight(24);
+                if (!visible)
+                {
+                    if (passed && next != null)
+                        break;
+                    continue;
+                }
 
-					fr.Render(s, (int)(noteRect.X + noteRect.Width / 2 - w / 2f),
-						(int)(noteRect.Y + noteRect.Height / 2 - h / 2f), 24);
-				}
+                var x = rect.X + note.X * cellSize + cellGap;
+                var y = rect.Y + note.Y * cellSize + cellGap;
 
-				if (EditorWindow.Instance.SelectedNotes.Contains(note))
-				{
-					var outlineSize = noteSize + 8;
+                var progress = Math.Min(1f, (float)Math.Pow(1 - Math.Min(1f, (note.Ms - currentTime) * approachRate / 750f), 2f));
+                var noteRect = new RectangleF(x, y, noteSize, noteSize);
 
-					GL.Color4(0, 0.5f, 1f, progress);
-					Glu.RenderOutline(x - outlineSize / 2 + noteSize / 2, y - outlineSize / 2 + noteSize / 2,
-						outlineSize, outlineSize);
-				}
+                GL.Color4(Color.FromArgb((int)(progress * 0.15f * 255f), note.GridColor));
+                GLSpecial.Rect(noteRect);
+                GL.Color4(Color.FromArgb((int)(progress * 255f), note.GridColor));
+                GLSpecial.Outline(noteRect);
 
-				if (!mouseOver && noteRect.Contains(mouseX, mouseY) && (!EditorSettings.SeparateClickTools || EditorSettings.SelectTool))
-				{
-					MouseOverNote = note;
-					mouseOver = true;
+                if (approachSquares)
+                {
+                    var outlineSize = 4 + noteSize + noteSize * (1 - progress) * 2;
 
-					GL.Color3(0, 1, 0.25f);
-					Glu.RenderOutline(x - 4, y - 4, noteSize + 8, noteSize + 8);
-				}
-			}
+                    GLSpecial.Outline(x - outlineSize / 2f + noteSize / 2f, y - outlineSize / 2f + noteSize / 2f, outlineSize, outlineSize);
+                }
 
-			if (!mouseOver)
-			{
-				MouseOverNote = null;
-			}
+                if (gridNumbers)
+                {
+                    GL.Color4(1f, 1f, 1f, progress);
 
-			//RENDER AUTOPLAY
-			if (EditorSettings.Autoplay)
-			{
-				RenderAutoPlay(last, next, cellSize, rect, audioTime);
-			}
-		}
+                    var numText = $"{i + 1:##,###}";
+                    var width = TextWidth(numText, 24);
+                    var height = TextHeight(24);
 
-		private void RenderAutoPlay(Note last, Note next, float cellSize, RectangleF rect, double audioTime)
-		{
-			if (last == null)
-				last = _startNote;
+                    RenderText(numText, noteRect.X + noteRect.Width / 2f - width / 2f, noteRect.Y + noteRect.Height / 2f - height / 2f, 24);
+                }
 
-			if (next == null)
-				next = last;
+                if (MainWindow.Instance.SelectedNotes.Contains(note))
+                {
+                    var outlineSize = noteSize + 8f;
 
-			var timeDiff = next.Ms - last.Ms;
-			var timePos = audioTime - last.Ms;
+                    GL.Color4(0f, 0.5f, 1f, progress);
+                    GLSpecial.Outline(x - outlineSize / 2f + noteSize / 2f, y - outlineSize / 2f + noteSize / 2f, outlineSize, outlineSize);
+                }
 
-			var progress = timeDiff == 0 ? 1 : (float)timePos / timeDiff;
+                if (!isHoveringNote && noteRect.Contains(mousex, mousey) && (!separateClickTools || selectTool))
+                {
+                    hoveringNote = note;
+                    isHoveringNote = true;
 
-			progress = (float)Math.Sin(progress * MathHelper.PiOver2);
+                    GL.Color3(0f, 1f, 0.25f);
+                    GLSpecial.Outline(x - 4, y - 4, noteSize + 8, noteSize + 8);
+                }
+            }
 
-			var s = (float)Math.Sin(progress * MathHelper.Pi) * 8 + 16;
+            if (!isHoveringNote)
+                hoveringNote = null;
 
-			var lx = rect.X + last.X * cellSize;
-			var ly = rect.Y + last.Y * cellSize;
+            //render autoplay cursor
+            if (Settings.settings["autoplay"])
+            {
+                if (last == null)
+                    last = startNote;
+                if (next == null)
+                    next = last;
 
-			var nx = rect.X + next.X * cellSize;
-			var ny = rect.Y + next.Y * cellSize;
+                var timeDiff = next.Ms - last.Ms;
+                var timePos = currentTime - last.Ms;
 
-			var x = cellSize / 2 + lx + (nx - lx) * progress;
-			var y = cellSize / 2 + ly + (ny - ly) * progress;
+                var progress = timeDiff == 0 ? 1 : (float)timePos / timeDiff;
+                progress = (float)Math.Sin(progress * MathHelper.PiOver2);
 
-			var cx = x - s / 2;
-			var cy = y - s / 2;
+                var width = (float)Math.Sin(progress * MathHelper.Pi) * 8f + 16;
 
-			//something here is the autoplay cursor
-			GL.Color4(1, 1, 1, 0.25f);
-			Glu.RenderQuad(cx, cy, s, s);
-			GL.Color4(1, 1, 1, 1f);
-			GL.LineWidth(2);
-			Glu.RenderOutline(cx, cy, s, s);
-			GL.LineWidth(1);
-		}
-	}
+                var lx = rect.X + last.X * cellSize;
+                var ly = rect.Y + last.Y * cellSize;
+
+                var nx = rect.X + next.X * cellSize;
+                var ny = rect.Y + next.Y * cellSize;
+
+                var x = cellSize / 2f + lx + (nx - lx) * progress;
+                var y = cellSize / 2f + ly + (ny - ly) * progress;
+
+                var cx = x - width / 2f;
+                var cy = y - width / 2f;
+
+                GL.Color4(1f, 1f, 1f, 0.25f);
+                GLSpecial.Rect(cx, cy, width, width);
+
+                GL.Color4(1f, 1f, 1f, 1f);
+                GLSpecial.Outline(cx, cy, width, width);
+            }
+
+            //render fake note
+            if (hovering && (!separateClickTools || !selectTool) && (!isHoveringNote || separateClickTools))
+                RenderPreviewNote(mousex, mousey, null, true);
+        }
+
+        public override void OnMouseClick(Point pos, bool right = false)
+        {
+            var separateClickTools = Settings.settings["separateClickTools"];
+            var selectTool = Settings.settings["selectTool"];
+
+            dragging = hovering && (hoveringNote != null || (!separateClickTools || !selectTool));
+
+            if (dragging)
+            {
+                var editor = MainWindow.Instance;
+
+                if (hoveringNote == null || (separateClickTools && !selectTool))
+                {
+                    var gridPos = editor.PointToGridSpace(pos.X, pos.Y);
+                    var note = new Note(gridPos.X, gridPos.Y, (long)Settings.settings["currentTime"].Value);
+
+                    editor.UndoRedoManager.Add("PLACE NOTE", () =>
+                    {
+                        editor.Notes.Remove(note);
+                    }, () =>
+                    {
+                        editor.Notes.Add(note);
+
+                        editor.SortNotes();
+                    });
+
+                    if (Settings.settings["autoAdvance"])
+                        editor.Advance();
+
+                    lastPlaced = gridPos;
+                }
+                else if (hoveringNote != null)
+                {
+                    draggingNote = hoveringNote;
+                    lastPos = new PointF(hoveringNote.X, hoveringNote.Y);
+                    startPos = new Vector2(hoveringNote.X, hoveringNote.Y);
+
+                    var selected = editor.SelectedNotes.ToList();
+
+                    if (editor.shiftHeld)
+                    {
+                        selected = new List<Note> { selected[0] };
+
+                        var first = selected[0];
+                        var last = hoveringNote;
+                        var min = Math.Min(first.Ms, last.Ms);
+                        var max = Math.Max(first.Ms, last.Ms);
+
+                        foreach (var note in editor.Notes)
+                            if (note.Ms >= min && note.Ms <= max && !selected.Contains(note))
+                                selected.Add(note);
+                    }
+                    else if (editor.ctrlHeld)
+                    {
+                        if (selected.Contains(hoveringNote))
+                            selected.Remove(hoveringNote);
+                        else
+                            selected.Add(hoveringNote);
+                    }
+                    else if (!selected.Contains(hoveringNote))
+                        selected = new List<Note>() { hoveringNote };
+
+                    editor.SelectedNotes = selected.ToList();
+                }
+            }
+        }
+
+        public override void OnMouseMove(Point pos)
+        {
+            if (dragging)
+            {
+                var editor = MainWindow.Instance;
+
+                if (draggingNote == null)
+                {
+                    var gridPos = editor.PointToGridSpace(pos.X, pos.Y);
+
+                    if (gridPos != lastPlaced)
+                    {
+                        var note = new Note(gridPos.X, gridPos.Y, (long)Settings.settings["currentTime"].Value);
+
+                        editor.UndoRedoManager.Add("PLACE NOTE", () =>
+                        {
+                            editor.Notes.Remove(note);
+                        }, () =>
+                        {
+                            editor.Notes.Add(note);
+
+                            editor.SortNotes();
+                        });
+
+                        if (Settings.settings["autoAdvance"])
+                            editor.Advance();
+
+                        lastPlaced = gridPos;
+                    }
+                }
+                else
+                {
+                    var newPos = editor.PointToGridSpace(pos.X, pos.Y);
+
+                    if (newPos != lastPos)
+                    {
+                        var bounds = Settings.settings["enableQuantum"] ? new Vector2(-0.85f, 2.85f) : new Vector2(0, 2);
+
+                        var xDiff = newPos.X - draggingNote.X;
+                        var yDiff = newPos.Y - draggingNote.Y;
+
+                        var maxX = draggingNote.X;
+                        var minX = draggingNote.X;
+                        var maxY = draggingNote.Y;
+                        var minY = draggingNote.Y;
+
+                        foreach (var note in editor.SelectedNotes)
+                        {
+                            maxX = Math.Max(note.X, maxX);
+                            minX = Math.Min(note.X, minX);
+                            maxY = Math.Max(note.Y, maxY);
+                            minY = Math.Min(note.Y, minY);
+                        }
+
+                        xDiff = Math.Max(bounds.X, minX + xDiff) - minX;
+                        xDiff = Math.Min(bounds.Y, maxX + xDiff) - maxX;
+                        yDiff = Math.Max(bounds.X, minY + yDiff) - minY;
+                        yDiff = Math.Min(bounds.Y, maxY + yDiff) - maxY;
+
+                        foreach (var note in editor.SelectedNotes)
+                        {
+                            note.X += xDiff;
+                            note.Y += yDiff;
+                        }
+
+                        lastPos = newPos;
+                    }
+                }
+            }
+        }
+
+        public override void OnMouseUp(Point pos, bool right = false)
+        {
+            if (draggingNote != null && new Vector2(draggingNote.X, draggingNote.Y) != startPos)
+            {
+                var editor = MainWindow.Instance;
+                var selected = editor.SelectedNotes.ToList();
+                var oldPos = new List<Vector2>();
+                var newPos = new List<Vector2>();
+
+                var posDiff = new Vector2(draggingNote.X, draggingNote.Y) - startPos;
+
+                for (int i = 0; i < selected.Count; i++)
+                {
+                    var xy = new Vector2(selected[i].X, selected[i].Y);
+
+                    oldPos.Add(xy - posDiff);
+                    newPos.Add(xy);
+                }
+
+                editor.UndoRedoManager.Add($"MOVE NOTE{(selected.Count > 1 ? "S" : "")}", () =>
+                {
+                    for (int i = 0; i < selected.Count; i++)
+                    {
+                        selected[i].X = oldPos[i].X;
+                        selected[i].Y = oldPos[i].Y;
+                    }
+                }, () =>
+                {
+                    for (int i = 0; i < selected.Count; i++)
+                    {
+                        selected[i].X = newPos[i].X;
+                        selected[i].Y = newPos[i].Y;
+                    }
+                }, false);
+            }
+
+            dragging = false;
+            draggingNote = null;
+            lastPlaced = new PointF();
+        }
+
+        public void RenderPreviewNote(float x, float y, Color? color, bool Mouse = false)
+        {
+            color = color ?? Color.FromArgb(128, 128, 128);
+            var cellSize = rect.Width / 3f;
+            var noteSize = cellSize * 0.65f;
+            var cellGap = (cellSize - noteSize) / 2f;
+
+            var pos = Mouse ? MainWindow.Instance.PointToGridSpace(x, y) : new PointF(x, y);
+            x = rect.X + pos.X * cellSize + cellGap;
+            y = rect.Y + pos.Y * cellSize + cellGap;
+
+            var noteRect = new RectangleF(x, y, noteSize, noteSize);
+
+            GL.Color4(Color.FromArgb(24, (Color)color));
+            GLSpecial.Rect(noteRect);
+            GL.Color4(Color.FromArgb(32, (Color)color));
+            GLSpecial.Outline(noteRect);
+        }
+    }
 }

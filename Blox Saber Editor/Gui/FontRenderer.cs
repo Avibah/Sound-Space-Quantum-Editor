@@ -1,59 +1,49 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System;
 
-namespace Sound_Space_Editor.Gui
+namespace Sound_Space_Editor.GUI
 {
 	class FontRenderer
 	{
-		private readonly Dictionary<int, FtFont> _cached = new Dictionary<int, FtFont>();
+        private readonly Dictionary<int, FreeTypeFont> cached = new Dictionary<int, FreeTypeFont>();
+        private readonly string Path;
 
-		private readonly string _fontPath = "";
+        public FontRenderer(string font)
+        {
+            Path = $"assets/fonts/{font}.ttf";
 
-		public FontRenderer(string fontName)
-		{
-			_fontPath = $"assets/fonts/{fontName}.ttf";
+            if (!File.Exists(Path))
+                throw new FileNotFoundException($"Couldn't find file '{Path}'", Path);
+        }
 
-			if (!File.Exists(_fontPath))
-				throw new FileNotFoundException($"Couldn't find file '{_fontPath}'", _fontPath);
-		}
+        private FreeTypeFont GetFont(int size)
+        {
+            if (!cached.TryGetValue(size, out var font))
+                cached.Add(size, new FreeTypeFont(Path, size));
+            return cached[size];
+        }
 
-		public void Render(string text, int x, int y, int size)
-		{
-			try
-            {
-				if (!_cached.TryGetValue(size, out var font))
-					_cached.Add(size, font = new FtFont(_fontPath, size));
-				font.Print(text, x, y);
-			}
-			catch
-            {
+        public void Render(string text, int posx, int posy, int size)
+        {
+            GetFont(size).Print(text, posx, posy);
+        }
 
-            }
-		}
+        public int GetWidth(string text, int size)
+        {
+            var font = GetFont(size);
+            string[] lines = text.Split('\n');
+            int max = 0;
 
-		public int GetWidth(string text, int size)
-		{
-			if (_cached.TryGetValue(size, out var font))
-            {
-				var max = 0;
-				var lines = text.Split('\n');
-				foreach (var line in lines)
-                {
-					if (font.Extent(line) > max)
-						max = font.Extent(line);
-                }
-				return max;
-			}
+            foreach (var line in lines)
+                max = Math.Max(max, font.Extent(line));
 
-			return 0;
-		}
+            return max;
+        }
 
-		public float GetHeight(int size)
-		{
-			if (_cached.TryGetValue(size, out var font))
-				return font.BaseLine;
-
-			return 0;
-		}
-	}
+        public int GetHeight(int size)
+        {
+            return (int)GetFont(size).BaseLine;
+        }
+    }
 }

@@ -2,99 +2,90 @@
 using System.Drawing;
 using OpenTK.Graphics.OpenGL;
 
-namespace Sound_Space_Editor.Gui
+namespace Sound_Space_Editor.GUI
 {
-	class GuiCheckBox : GuiButton
+	class GuiCheckbox : Gui
 	{
-		public bool Toggle { get; set; }
+        public string text;
+        public int textSize;
+        public string font;
 
-		private float _alpha;
-		public int FontSize;
-		public Color Color1;
-		public Color Color2;
+        public bool Visible = true;
+        public bool lockSize;
+        public bool moveWithOffset;
 
-		public GuiCheckBox(int id, float x, float y, float sx, float sy, bool toggle) : base(id, x, y, sx, sy)
-		{
-			Id = id;
+        private string setting;
+        public bool? Toggle = null;
 
-			Toggle = toggle;
-		}
+        public RectangleF originRect;
+        public int originTextSize;
 
-		public GuiCheckBox(int id, string text, float x, float y, float sx, float sy, bool toggle) : this(id, x, y, sx, sy, toggle)
-		{
-			Text = text;
-			FontSize = 24;
-		}
+        private float alpha;
 
-		public GuiCheckBox(int id, string text, float x, float y, float sx, float sy, int fontsize, bool toggle) : this(id, x, y, sx, sy, toggle)
-		{
-			Text = text;
-			FontSize = fontsize;
-		}
+        public GuiCheckbox(float posx, float posy, float sizex, float sizey, string Setting, string Text, int TextSize, bool LockSize = false, bool MoveWithOffset = false, string Font = "main") : base(posx, posy, sizex, sizey)
+        {
+            setting = Setting;
 
+            text = Text;
+            textSize = TextSize;
+            font = Font;
 
-		public override void Render(float delta, float mouseX, float mouseY)
-		{
+            lockSize = LockSize;
+            moveWithOffset = MoveWithOffset;
 
-			if (EditorWindow.Instance.GuiScreen is GuiScreenSettings settings)
-			{
+            originRect = new RectangleF(posx, posy, sizex, sizey);
+            originTextSize = textSize;
+        }
 
-				Color1 = Color.FromArgb(255, 255, 255);
-				Color2 = Color.FromArgb(50, 50, 50);
+        public override void Render(float mousex, float mousey, float frametime)
+        {
+            if (Visible)
+            {
+                var colored = MainWindow.Instance.CurrentWindow is GuiWindowEditor || MainWindow.Instance.CurrentWindow is GuiWindowKeybinds;
 
-			}
-			else
-			{
+                var color1 = colored ? Settings.settings["color1"] : Color.FromArgb(255, 255, 255);
+                var color2 = colored ? Settings.settings["color2"] : Color.FromArgb(50, 50, 50);
 
-				Color1 = EditorWindow.Instance.Color1;
-				Color2 = EditorWindow.Instance.Color2;
+                GL.Color3(0.05f, 0.05f, 0.05f);
+                GLSpecial.Rect(rect);
+                GL.Color3(0.2f, 0.2f, 0.2f);
+                GLSpecial.Outline(rect);
 
-			}
+                alpha = (Toggle ?? Settings.settings[setting]) ? Math.Min(1, alpha + frametime * 8) : Math.Max(0, alpha - frametime * 8);
 
-			var rect = ClientRectangle;
+                var checkSizeX = rect.Width * 0.75f * alpha;
+                var checkSizeY = rect.Height * 0.75f * alpha;
+                var gapX = (rect.Width - checkSizeX) / 2;
+                var gapY = (rect.Height - checkSizeY) / 2;
 
-			IsMouseOver = rect.Contains(mouseX, mouseY);
+                if (checkSizeX > 0)
+                {
+                    GL.Color3(color2);
+                    GLSpecial.Rect(rect.X + gapX, rect.Y + gapY, checkSizeX, checkSizeY);
+                }
 
-			GL.Color3(0.05f, 0.05f, 0.05f);
-			Glu.RenderQuad(rect);
-			GL.Color3(0.2f, 0.2f, 0.2f);
-			Glu.RenderOutline(rect);
+                GL.Color3(color1);
+                RenderText(text, (int)(rect.Right + rect.Height / 4), (int)(rect.Y + rect.Height / 2 - TextHeight(textSize) / 2f), textSize);
+            }
+        }
 
-			_alpha = Toggle ? Math.Min(1, _alpha + delta * 8) : Math.Max(0, _alpha - delta * 8);
+        public override void OnMouseClick(Point pos, bool right = false)
+        {
+            if (setting != "")
+            {
+                var current = Settings.settings[setting];
 
-			var checkSizeX = rect.Width * 0.75f * _alpha;
-			var checkSizeY = rect.Height * 0.75f * _alpha;
-			var gapX = (rect.Width - checkSizeX) / 2;
-			var gapY = (rect.Height - checkSizeY) / 2;
+                Settings.settings[setting] = !current;
 
-			if (checkSizeX > 0 && checkSizeY > 0)
-			{
-				GL.Color4(Color2);
-				Glu.RenderQuad(rect.X + gapX, rect.Y + gapY, checkSizeX, checkSizeY);
-			}
+                switch (setting)
+                {
+                    case "numpad":
+                        Settings.RefreshKeymapping();
+                        break;
+                }
 
-			var fr = EditorWindow.Instance.FontRenderer;
-			var height = fr.GetHeight(FontSize);
-
-			var finaltext = Text;
-
-			if (EditorWindow.Instance.inconspicuousvar)
-			{
-				finaltext = finaltext.Replace('r', 'w');
-				finaltext = finaltext.Replace('R', 'W');
-				finaltext = finaltext.Replace('l', 'w');
-				finaltext = finaltext.Replace('L', 'W');
-				finaltext = finaltext.Replace(':', '~');
-			}
-
-			GL.Color3(Color1);
-			fr.Render(finaltext, (int)(rect.Right + rect.Height / 4), (int)(rect.Y + rect.Height / 2 - height / 2f), FontSize);
-		}
-
-		public override void OnMouseClick(float x, float y)
-		{
-			if (Id >= 0)
-				Toggle = !Toggle;
-		}
-	}
+                MainWindow.Instance.SoundPlayer.Play(Settings.settings["clickSound"]);
+            }
+        }
+    }
 }

@@ -1,95 +1,55 @@
 ﻿using System.Drawing;
 using OpenTK.Graphics.OpenGL;
 
-namespace Sound_Space_Editor.Gui
+namespace Sound_Space_Editor.GUI
 {
 	class GuiLabel : Gui
 	{
-		public string Text;
-		public string Font;
-		public int FontSize;
-		public FontRenderer fr;
-		public bool Centered = false;
-		public bool Timings = false;
+        public string text;
+        public int textSize;
+        public string font;
+        public Color color = Color.White;
 
-		public Color Color = Color.White;
+        public bool Visible = true;
+        public bool lockSize;
+        public bool moveWithOffset;
 
-		public GuiLabel(float x, float y, string text, bool timings) : base(x, y, 0, 0)
-		{
-			Text = text;
-			Timings = timings;
-			Font = "main";
-			FontSize = 24;
-		}
+        public bool centered;
 
-		public GuiLabel(float x, float y, string text) : base(x, y, 0, 0)
-		{
-			Text = text;
-			Font = "main";
-			FontSize = 24;
-		}
+        public RectangleF originRect;
+        public int originTextSize;
 
-		public GuiLabel(float x, float y, string text, int size) : base(x, y, 0, 0)
-		{
-			Text = text;
-			Font = "main";
-			FontSize = size;
-		}
+        public GuiLabel(float posx, float posy, float sizex, float sizey, string Text, int TextSize, bool LockSize = false, bool MoveWithOffset = false, string Font = "main", bool Centered = true) : base(posx, posy, sizex, sizey)
+        {
+            text = Text;
+            textSize = TextSize;
+            font = Font;
 
-		public GuiLabel(float x, float y, string text, string font) : base(x, y, 0, 0)
-		{
-			Text = text;
-			Font = font;
-			FontSize = 24;
-		}
+            lockSize = LockSize;
+            moveWithOffset = MoveWithOffset;
 
-		public GuiLabel(float x, float y, string text, string font, int size) : base(x, y, 0, 0)
-		{
-			Text = text;
-			Font = font;
-			FontSize = size;
-		}
+            centered = Centered;
 
-		public override void Render(float delta, float mouseX, float mouseY)
-		{
-			GL.Color4(Color);
+            originRect = new RectangleF(posx, posy, sizex, sizey);
+            originTextSize = textSize;
+        }
 
-			if (Font == "squareo")
-			{
-				fr = EditorWindow.Instance.SquareOFontRenderer;
-			}
-			else if (Font == "square")
-			{
-				fr = EditorWindow.Instance.SquareFontRenderer;
-			}
-			else if (Font == "main")
-			{
-				fr = EditorWindow.Instance.FontRenderer;
-			}
-
-			if (Timings)
-				fr = TimingPoints.Instance.FontRenderer;
-
-			var finaltext = Text;
-
-			if (EditorWindow.Instance.inconspicuousvar)
+        public override void Render(float mousex, float mousey, float frametime)
+        {
+            if (Visible)
             {
-				finaltext = finaltext.Replace('r', 'w');
-				finaltext = finaltext.Replace('R', 'W');
-				finaltext = finaltext.Replace('l', 'w');
-				finaltext = finaltext.Replace('L', 'W');
-				finaltext = finaltext.Replace(':', '~');
-			}
+                GL.Color4(color);
 
-			if (Centered)
-			{
-				var w = fr.GetWidth(finaltext, FontSize);
-				var h = fr.GetHeight(FontSize);
+                if (centered)
+                {
+                    var width = TextWidth(text, textSize);
+                    var height = TextHeight(textSize);
 
-				fr.Render(finaltext, (int)(ClientRectangle.X - w / 2f), (int)(ClientRectangle.Y - h / 2f), FontSize);
-			}
-			else
-				fr.Render(finaltext, (int)ClientRectangle.X, (int)ClientRectangle.Y, FontSize);
-		}
-	}
+                    RenderText(text, rect.X + rect.Width / 2f - width / 2f, rect.Y + rect.Height / 2f - height / 2f, textSize, font);
+                }
+                else
+                    RenderText(text, rect.X, rect.Y, textSize, font);
+            }
+        }
+    }
 }

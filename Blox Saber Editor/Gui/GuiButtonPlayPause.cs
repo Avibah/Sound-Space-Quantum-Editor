@@ -1,25 +1,20 @@
 ﻿using OpenTK.Graphics.OpenGL;
 
-namespace Sound_Space_Editor.Gui
+namespace Sound_Space_Editor.GUI
 {
 	class GuiButtonPlayPause : GuiButton
 	{
-		public GuiButtonPlayPause(int id, float x, float y, float sx, float sy) : base(id, x, y, sx, sy)
-		{
-			Texture = TextureManager.GetOrRegister("widgets");
-		}
+        public GuiButtonPlayPause(float posx, float posy, float sizex, float sizey, int id) : base(posx, posy, sizex, sizey, id, "", 0, true)
+        {
+            texture = TextureManager.GetOrRegister("widgets");
+        }
 
-		public override void Render(float delta, float mouseX, float mouseY)
-		{
-			var rect = ClientRectangle;
+        public override void Render(float mousex, float mousey, float frametime)
+        {
+            var x = MainWindow.Instance.MusicPlayer.IsPlaying ? 0.5f : 0;
 
-			IsMouseOver = rect.Contains(mouseX, mouseY);
-			var b = EditorWindow.Instance.MusicPlayer.IsPlaying;
-
-			float us = b ? 0.5f : 0;
-			
-			GL.Color3(1, 1, 1f);
-			Glu.RenderTexturedQuad(rect.X, rect.Y, rect.Width, rect.Height, us, 0, us + 0.5f, 0.5f, Texture);
-		}
-	}
+            GL.Color3(1f, 1f, 1f);
+            GLSpecial.TexturedQuad(rect, x, 0, x + 0.5f, 0.5f, texture);
+        }
+    }
 }

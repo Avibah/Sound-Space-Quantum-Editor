@@ -1,343 +1,278 @@
 ﻿using System;
 using System.Drawing;
 using System.Globalization;
-using System.Linq;
-using System.Numerics;
 using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
-using System.Collections.Generic;
 
-namespace Sound_Space_Editor.Gui
+namespace Sound_Space_Editor.GUI
 {
-	class GuiTextBox : Gui
+	class GuiTextbox : Gui
 	{
-		public bool Numeric;
-		public bool Centered;
-		public bool CanBeNegative;
-		public bool Timings;
-		public Color Color1;
-		public Color Color2;
-		private bool _focused;
-		private string _text = "";
-		private int _cursorPos;
+        public string text;
+        public int textSize;
+        public string font;
 
-		private float _timer;
+        public string setting;
+        public bool isKeybind;
 
-		public event EventHandler<string> OnChanged;
+        public int cursorPos;
+        public float timer;
 
-		public string Text
-		{
-			get => _text;
+        public bool numeric;
+        public bool focused;
 
-			set
-			{
-				var last = _text;
+        public bool Visible = true;
+        public bool lockSize;
+        public bool moveWithOffset;
 
-				if (last != value)
-					OnChanged?.Invoke(null, Text);
+        public RectangleF originRect;
+        public int originTextSize;
 
-				_cursorPos = Math.Min(_cursorPos, (_text = value).Length);
-				
-			}
-		}
-
-		public bool Focused
-		{
-			get => _focused;
-			set
-			{
-				var last = _focused;
-				_focused = value;
-
-				OnFocus(value);
-
-				if (last != value)
-					OnChanged?.Invoke(null, Text);
-			}
-		}
-
-		public GuiTextBox(float x, float y, float sx, float sy) : base(x, y, sx, sy)
-		{
-		}
-
-		private void OnFocus(bool flag)
-		{
-			if (flag)
-				return;
-
-			var hasDecimalPoint = _text.Contains(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
-
-			if (Numeric)
-			{
-				if (string.IsNullOrWhiteSpace(_text))
-				{
-					Text = "0";
-					return;
-				}
-				if (hasDecimalPoint)
-				{
-					var text = Text;
-
-					if (text.Length > 0 && text[text.Length - 1].ToString() == CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)
-					{
-						text += 0;
-					}
-
-					if (decimal.TryParse(text, out var parsed))
-					{
-						var old = Text;
-
-						Text = parsed.ToString();
-					}
-
-				}
-				if (decimal.TryParse(_text, out var num) && num == (long)num)
-				{
-					var old = Text;
-
-					Text = ((long)num).ToString();
-				}
-			}
-		}
-
-
-		public override void Render(float delta, float mouseX, float mouseY)
-		{
-			if (Visible)
-            {
-				if (EditorWindow.Instance.GuiScreen is GuiScreenSettings settings)
-				{
-					Color1 = Color.FromArgb(50, 50, 50);
-					Color2 = Color.FromArgb(255, 255, 255);
-
-				}
-				else
-				{
-
-					Color1 = EditorWindow.Instance.Color1;
-					Color2 = EditorWindow.Instance.Color2;
-				}
-
-				var rect = ClientRectangle;
-
-				var x = rect.X + rect.Height / 4;
-				var y = rect.Y + rect.Height / 2;
-
-				GL.Color3(0.1f, 0.1f, 0.1f);
-				Glu.RenderQuad(rect);
-				GL.Color3(0.5f, 0.5f, 0.5f);
-				Glu.RenderOutline(rect);
-
-				var fr = EditorWindow.Instance.FontRenderer;
-				if (Timings)
-					fr = TimingPoints.Instance.FontRenderer;
-
-				var renderedText = _text;
-
-				var txwidthratio = Math.Max(0, fr.GetWidth(renderedText, 24) / (rect.Width - 4));
-				var txheight = (int)Math.Min(24, Math.Min(rect.Height, 24 / txwidthratio));
-
-				/*while (fr.GetWidth(renderedText, 24) != null && fr.GetWidth(renderedText, 24) > rect.Width - rect.Height / 2)
-				{
-					renderedText = renderedText.Substring(1, renderedText.Length - 1);
-				}*/
-
-				var offX = (int)(ClientRectangle.Width / 2 - fr.GetWidth(renderedText, txheight) / 2f - rect.Height / 4);
-
-				if (Centered)
-					GL.Translate(offX, 0, 0);
-
-				GL.Color3(Color2);
-				fr.Render(renderedText, (int)x, (int)(y - fr.GetHeight(txheight) / 2f), txheight);
-
-				if (Focused)
-				{
-					var textToCursor = renderedText.Substring(0,
-						Math.Max(0, Math.Min(renderedText.Length, renderedText.Length - (_text.Length - _cursorPos))));
-					var textToCursorSize = fr.GetWidth(textToCursor, txheight);
-
-					var cursorHeight = fr.GetHeight(txheight) * 1.4f;
-
-					var alpha = (float)(Math.Sin(_timer * MathHelper.TwoPi) + 1) / 2;
-
-					GL.Color4(Color2);
-
-					if ((int)_timer % 2 == 0)
-						Glu.RenderQuad(x + textToCursorSize, y - cursorHeight / 2, 1, cursorHeight);
-
-					_timer += delta * 2f;
-				}
-				else
-				{
-					_timer = 0;
-				}
-				if (Centered)
-					GL.Translate(-offX, 0, 0);
-			}
-		}
-
-		public void OnMouseClick(float x, float y)
-		{
-			if (!ClientRectangle.Contains(x, y))
-			{
-				Focused = false;
-				return;
-			}
-
-			if (_text.Length > 0)
-            {
-				var txwidthratio = Math.Max(0, EditorWindow.Instance.FontRenderer.GetWidth(_text, 24) / (ClientRectangle.Width - 4));
-				var txheight = (int)Math.Min(24, Math.Min(ClientRectangle.Height, 24 / txwidthratio));
-
-				var textwidth = EditorWindow.Instance.FontRenderer.GetWidth(_text, txheight);
-				var posX = x - ClientRectangle.X - (ClientRectangle.Width - textwidth) / 2;
-				var letterwidth = textwidth / _text.Length;
-
-				posX = Math.Max(0, posX);
-				posX = Math.Min(textwidth, posX);
-				posX = (float)Math.Floor(posX / letterwidth + 0.3);
-
-				_cursorPos = (int)posX;
-			}
-
-			_timer = 0;
-			Focused = true;
-		}
-
-		public void OnKeyTyped(char key)
-		{
-			if (!Focused)
-				return;
-			
-			var keyChar = key.ToString();
-
-			try
-			{
-				if (Numeric)
-                {
-					if (int.TryParse(key.ToString(), out var num) || (key.ToString() == CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator && !Text.Contains(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)) || (key == '-' && !Text.Contains("-") && _cursorPos == 0))
-						_text = _text.Insert(_cursorPos, keyChar);
-				}
-				else
-					_text = _text.Insert(_cursorPos, keyChar);
-			}
-			catch { }
-
-			_cursorPos++;
-		}
-
-		private int IndexOf(string set, string match, int stop, bool onceAfter)
+        public GuiTextbox(float posx, float posy, float sizex, float sizey, string Text, int TextSize, bool Numeric, bool LockSize = false, bool MoveWithOffset = false, string Setting = "", string Font = "main", bool IsKeybind = false) : base(posx, posy, sizex, sizey)
         {
-			int current = -1;
+            text = Text;
+            textSize = TextSize;
+            font = Font;
 
-			void run(bool next)
+            setting = Setting;
+            isKeybind = IsKeybind;
+
+            if (isKeybind)
             {
-				if (current + 1 < set.Length)
-				{
-					int store = set.IndexOf(match, current + 1);
+                if (setting.Contains("gridKey"))
+                    text = Settings.settings["gridKeys"][int.Parse(setting.Replace("gridKey", ""))].ToString().ToUpper();
+                else
+                    text = Settings.settings[setting].Key.ToString().ToUpper();
+            }
+            else if (setting != "")
+                text = Settings.settings[setting].ToString();
 
-					if (next && store < 0)
-						store = _text.Length;
 
-					if (store > current && (store < stop || next || (next && stop + 1 == store)))
-                    {
-						current = store;
-						run(onceAfter && (store < stop || stop + 1 == store));
-                    }
-				}
-			}
+            numeric = Numeric;
 
-			run(onceAfter);
+            lockSize = LockSize;
+            moveWithOffset = MoveWithOffset;
 
-			return current;
+            originRect = new RectangleF(posx, posy, sizex, sizey);
+            originTextSize = textSize;
         }
 
-		public void OnKeyDown(Key key, bool control)
-		{
-			if (!Focused)
-				return;
+        public override void Render(float mousex, float mousey, float frametime)
+        {
+            if (Visible)
+            {
+                var colored = !(MainWindow.Instance.CurrentWindow is GuiWindowSettings);
 
-			_timer = 0;
+                var color2 = colored ? Settings.settings["color2"] : Color.FromArgb(255, 255, 255);
 
-			switch (key)
-			{
-				case Key.C when control:
-					if (!string.IsNullOrWhiteSpace(_text))
-						Clipboard.SetText(_text);
+                var x = rect.X + rect.Width / 2f;
+                var y = rect.Y + rect.Height / 2f;
 
-					break;
-				case Key.V when control:
-					var clipboard = Clipboard.GetText();
+                GL.Color3(0.1f, 0.1f, 0.1f);
+                GLSpecial.Rect(rect);
+                GL.Color3(0.5f, 0.5f, 0.5f);
+                GLSpecial.Outline(rect);
 
-					if (!string.IsNullOrWhiteSpace(clipboard))
-					{
-						_text += clipboard;
-						_cursorPos += clipboard.Length;
-					}
-					break;
-				case Key.Left:
-					if (control)
+                var shiftx = -TextWidth(text, textSize, font) / 2f;
+
+                GL.Color3(color2);
+                RenderText(text, x + shiftx, y - TextHeight(textSize, font) / 2f, textSize, font);
+
+                if (focused && (int)timer % 2 == 0)
+                {
+                    var textBeforeCursor = text.Substring(0, cursorPos);
+                    var textBeforeCursorWidth = TextWidth(textBeforeCursor, textSize, font);
+                    var height = TextHeight(textSize, font) * 1.4f;
+
+                    var xf = x + shiftx + textBeforeCursorWidth;
+
+                    GL.LineWidth(2f);
+                    GLSpecial.Line(xf, y - height / 2f, xf, y + height / 2f);
+                }
+
+                timer += frametime * 2f;
+            }
+        }
+
+        public override void OnMouseClick(Point pos, bool right = false)
+        {
+            if (text.Length > 0)
+            {
+                var textwidth = TextWidth(text, textSize, font);
+                var posX = pos.X - rect.X - (rect.Width - textwidth) / 2f;
+                var letterwidth = textwidth / text.Length;
+
+                posX = MathHelper.Clamp(posX, 0, textwidth);
+                posX = (float)Math.Floor(posX / letterwidth + 0.3);
+
+                cursorPos = (int)posX;
+            }
+
+            timer = 0f;
+            focused = true;
+        }
+
+        public override void OnKeyTyped(char key)
+        {
+            if (isKeybind || !focused)
+                return;
+
+            var str = key.ToString();
+
+            if (numeric)
+            {
+                var separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+
+                if (int.TryParse(str, out _) || (str == separator && !text.Contains(str)) || (str == "-" && !text.Contains("-") && cursorPos == 0))
+                {
+                    text = text.Insert(cursorPos, str);
+                    cursorPos++;
+                }
+            }
+            else
+            {
+                text = text.Insert(cursorPos, str);
+                cursorPos++;
+            }
+
+            if (setting != "" && int.TryParse(text, out var num))
+                Settings.settings[setting] = num;
+
+            timer = 0f;
+        }
+
+        public override void OnKeyDown(Key key, bool control)
+        {
+            if (!focused || key == Key.LControl || key == Key.RControl || key == Key.LAlt || key == Key.RAlt || key == Key.LShift || key == Key.RShift)
+                return;
+
+            timer = 0f;
+
+            if (isKeybind)
+            {
+                if (key == Key.BackSpace)
+                    key = Key.Delete;
+
+                if (setting.Contains("gridKey"))
+                    Settings.settings["gridKeys"][int.Parse(setting.Replace("gridKey", ""))] = key;
+                else
+                    Settings.settings[setting] = new Keybind(key, MainWindow.Instance.ctrlHeld, MainWindow.Instance.altHeld, MainWindow.Instance.shiftHeld);
+
+                text = key.ToString().ToUpper();
+                cursorPos = text.Length;
+                return;
+            }
+
+            switch (key)
+            {
+                case Key.C when control:
+                    if (!string.IsNullOrWhiteSpace(text))
+                        Clipboard.SetText(text);
+
+                    break;
+
+                case Key.V when control:
+                    var clipboard = Clipboard.GetText();
+
+                    if (!string.IsNullOrWhiteSpace(clipboard))
                     {
-						int index = Math.Max(IndexOf(_text, " ", _cursorPos - 1, false) + 1, 0);
-
-						_cursorPos = MathHelper.Clamp(index, 0, _text.Length);
+                        text = text.Insert(cursorPos, clipboard);
+                        cursorPos += clipboard.Length;
                     }
-					else
-						_cursorPos = Math.Max(0, _cursorPos - 1);
-					break;
-				case Key.Right:
-					if (control)
-                    {
-						int index = Math.Max(IndexOf(_text, " ", _cursorPos + 1, true), 0);
 
-						_cursorPos = MathHelper.Clamp(index, 0, _text.Length);
+                    break;
+
+                case Key.X when control:
+                    if (!string.IsNullOrWhiteSpace(text))
+                    {
+                        Clipboard.SetText(text);
+                        text = "";
                     }
-					else
-						_cursorPos = Math.Min(_text.Length, _cursorPos + 1);
-					break;
-				case Key.BackSpace:
-					if (control)
-					{
-						int index = Math.Max(IndexOf(_text, " ", _cursorPos - 1, false), 0);
-						string word = _text.Substring(index, Math.Min(_cursorPos - index, _text.Length - index));
 
-						_text = _text.Remove(index, word.Length);
-						_cursorPos -= word.Length;
-					}
-					else if (_text.Length > 0 && _cursorPos > 0)
-					{
-						_cursorPos = Math.Max(0, _cursorPos - 1);
-						_text = _text.Remove(_cursorPos, 1);
-					}
-					break;
-				case Key.Delete:
-					if (control)
+                    break;
+
+                case Key.Left:
+                    if (control)
+                        cursorPos = Math.Max(IndexOf(text, " ", cursorPos - 1, false) + 1, 0);
+                    else
+                        cursorPos--;
+
+                    break;
+
+                case Key.Right:
+                    if (control)
+                        cursorPos = Math.Max(IndexOf(text, " ", cursorPos + 1, true), 0);
+                    else
+                        cursorPos++;
+
+                    break;
+
+                case Key.BackSpace:
+                    if (control)
                     {
-						int index = Math.Max(IndexOf(_text, " ", _cursorPos + 1, true), 0);
-						string word = _text.Substring(MathHelper.Clamp(_cursorPos, 0, _text.Length - 1), Math.Max(index - _cursorPos, 0));
+                        int index = Math.Max(IndexOf(text, " ", cursorPos - 1, false), 0);
+                        string word = text.Substring(index, Math.Min(cursorPos - index, text.Length - index));
 
-						_text = _text.Remove(_cursorPos, word.Length);
-						_cursorPos = MathHelper.Clamp(_cursorPos, 0, _text.Length);
+                        text = text.Remove(index, word.Length);
+                        cursorPos -= word.Length;
+                    }
+                    else if (text.Length > 0 && cursorPos > 0)
+                    {
+                        cursorPos--;
+                        text = text.Remove(cursorPos, 1);
+                    }
 
-						Console.WriteLine(index);
-						Console.WriteLine(word);
-					}
-					else if (_text.Length > 0 && _cursorPos < _text.Length)
-					{
-						_text = _text.Remove(Math.Min(_cursorPos, _text.Length - 1), 1);
-					}
-					break;
-				case Key.Enter:
-				case Key.KeypadEnter:
-					if (!Focused)
-						OnChanged?.Invoke(null, Text);
-					else
-						Focused = false;
+                    break;
 
-					break;
-			}
-		}
-	}
+                case Key.Delete:
+                    if (control)
+                    {
+                        int index = Math.Max(IndexOf(text, " ", cursorPos + 1, true), 0);
+                        string word = text.Substring(MathHelper.Clamp(cursorPos, 0, text.Length - 1), Math.Max(index - cursorPos, 0));
+
+                        text = text.Remove(cursorPos, word.Length);
+                    }
+                    else if (text.Length > 0 && cursorPos < text.Length)
+                        text = text.Remove(Math.Min(cursorPos, text.Length - 1), 1);
+
+                    break;
+
+                case Key.Enter:
+                case Key.KeypadEnter:
+                    focused = false;
+
+                    break;
+            }
+
+            cursorPos = MathHelper.Clamp(cursorPos, 0, text.Length);
+        }
+
+        private int IndexOf(string set, string match, int stop, bool onceAfter)
+        {
+            int current = -1;
+
+            void run(bool next)
+            {
+                if (current + 1 < set.Length)
+                {
+                    int store = set.IndexOf(match, current + 1);
+
+                    if (next && store < 0)
+                        store = text.Length;
+
+                    if (store > current && (store < stop || next || (next && stop + 1 == store)))
+                    {
+                        current = store;
+                        run(onceAfter && (store < stop || stop + 1 == store));
+                    }
+                }
+            }
+
+            run(onceAfter);
+
+            return current;
+        }
+    }
 }

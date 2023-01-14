@@ -21,7 +21,7 @@ namespace Sound_Space_Editor
 
 			if (img == null)
 			{
-				var file = "assets\\textures\\" + textureName + ".png";
+				var file = $"assets\\textures\\{textureName}.png";
 
 				if (!File.Exists(file))
 				{

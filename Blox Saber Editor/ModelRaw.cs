@@ -2,7 +2,7 @@
 
 namespace Sound_Space_Editor
 {
-    public class ModelRaw : IModelRaw
+    public class ModelRaw
     {
         public int VaoID { get; }
         public int[] BufferIDs { get; }
@@ -33,8 +33,8 @@ namespace Sound_Space_Editor
         public void Render(PrimitiveType pt) => GL.DrawArrays(pt, 0, VertexCount);
 
         public void Dispose()
-		{
+        {
             ModelManager.DisposeOf(this);
-		}
+        }
     }
 }

@@ -1,194 +1,71 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace Sound_Space_Editor.Gui
+namespace Sound_Space_Editor.GUI
 {
 	class GuiButton : Gui
 	{
-		public bool IsMouseOver { get; protected set; }
-		public int Id;
-		public float color1;
-		public float color2;
-		public float color3;
-		public string Text = " ";
-		public string Font;
-		public FontRenderer fr;
-		public bool Timings;
-		public int Alpha;
+        public int ID;
 
-		protected int Texture;
+        public string text;
+        public int textSize;
+        public string font;
 
-		private float _alpha;
+        public bool Visible = true;
+        public bool lockSize;
+        public bool moveWithOffset;
 
-		public GuiButton(int id, float x, float y, float sx, float sy) : base(x, y, sx, sy)
-		{
-			color1 = 1f;
-			color2 = 1;
-			color3 = 1;
+        public bool hovering;
 
-			Id = id;
-		}
+        public RectangleF originRect;
+        public int originTextSize;
 
-		public GuiButton(int id, float x, float y, float sx, float sy, int texture) : this(id, x, y, sx, sy)
-		{
-			color1 = 1f;
-			color2 = 1;
-			color3 = 1;
+        protected int texture = -1;
+        private float alpha;
 
-			Texture = texture;
-		}
+        public GuiButton(float posx, float posy, float sizex, float sizey, int id, string Text, int TextSize, bool LockSize = false, bool MoveWithOffset = false, string Font = "main") : base(posx, posy, sizex, sizey)
+        {
+            ID = id;
 
-		public GuiButton(int id, float x, float y, float sx, float sy, string text) : this(id, x, y, sx, sy)
-		{
-			color1 = 1f;
-			color2 = 1;
-			color3 = 1;
+            text = Text;
+            textSize = TextSize;
+            font = Font;
 
-			Text = text;
-			Font = "main";
-		}
+            lockSize = LockSize;
+            moveWithOffset = MoveWithOffset;
 
-		public GuiButton(int id, float x, float y, float sx, float sy, string text, bool timings) : this(id, x, y, sx, sy)
-		{
-			color1 = 1f;
-			color2 = 1;
-			color3 = 1;
+            originRect = new RectangleF(posx, posy, sizex, sizey);
+            originTextSize = textSize;
+        }
 
-			Text = text;
-			Timings = timings;
-			Font = "main";
-		}
+        public override void Render(float mousex, float mousey, float frametime)
+        {
+            if (Visible && texture <= 0)
+            {
+                hovering = rect.Contains(mousex, mousey);
 
-		public GuiButton(int id, float x, float y, float sx, float sy, string text, string font) : this(id, x, y, sx, sy)
-		{
-			color1 = 1f;
-			color2 = 1;
-			color3 = 1;
+                alpha = MathHelper.Clamp(alpha + (hovering ? 10 : -10) * frametime, 0, 1) * 0.075f;
 
-			Text = text;
-			Font = font;
-		}
+                GL.Color3(0.1f + alpha, 0.1f + alpha, 0.1f + alpha);
+                GLSpecial.Rect(rect);
 
-		public GuiButton(int id, float x, float y, float sx, float sy, string text, string font, int alpha) : this(id, x, y, sx, sy)
-		{
-			color1 = 1f;
-			color2 = 1;
-			color3 = 1;
-			Alpha = alpha;
+                GL.LineWidth(2f);
 
-			Text = text;
-			Font = font;
-		}
+                GL.Color3(0.2f + alpha, 0.2f + alpha, 0.2f + alpha);
+                GLSpecial.Outline(rect);
 
-		public GuiButton(int id, float x, float y, float sx, float sy, string text, float cr, float cg, float cb) : this(id, x, y, sx, sy)
-		{
-			color1 = cr;
-			color2 = cg;
-			color3 = cb;
+                var width = TextWidth(text, textSize, font);
+                var height = TextHeight(textSize, font);
 
-			Text = text;
-			Font = "main";
-		}
+                GL.Color3(1f, 1f, 1f);
+                RenderText(text, rect.X + rect.Width / 2f - width / 2f, rect.Y + rect.Height / 2f - height / 2f, textSize, font);
+            }
+        }
 
-		public GuiButton(int id, float x, float y, float sx, float sy, string text, string font, float cr, float cg, float cb) : this(id, x, y, sx, sy)
-		{
-			color1 = cr;
-			color2 = cg;
-			color3 = cb;
-
-			Text = text;
-			Font = font;
-		}
-
-		public override void Render(float delta, float mouseX, float mouseY)
-		{
-			var IsMouseOverr = ClientRectangle.Contains(mouseX, mouseY);
-			if (IsMouseOver && !IsMouseOverr)
-			{
-				OnMouseLeave(mouseX, mouseY);
-			}
-			else if (!IsMouseOver && IsMouseOverr)
-			{
-				OnMouseEnter(mouseX, mouseY);
-			}
-			IsMouseOver = IsMouseOverr;
-
-			_alpha = MathHelper.Clamp(_alpha + (IsMouseOver ? 10 : -10) * delta, 0, 1);
-			
-			if (Texture > 0)
-			{
-				if (IsMouseOver)
-					GL.Color3(0.75f, 0.75f, 0.75f);
-				else
-					GL.Color3(1f, 1, 1);
-
-				Glu.RenderTexturedQuad(ClientRectangle, 0, 0, 1, 1, Texture);
-			}
-			else
-			{
-				if (Alpha != 0)
-                {
-					if (IsMouseOver)
-						GL.Color4(Color.FromArgb(130, 0, 0, 0));
-					else
-						GL.Color4(Color.FromArgb(Alpha, 0, 0, 0));
-
-					Glu.RenderQuad(ClientRectangle);
-
-					GL.Color4(Color.FromArgb(Alpha, 0, 0, 0));
-					Glu.RenderOutline(ClientRectangle);
-
-				} else {
-
-					var d = 0.075f * _alpha;
-
-					GL.Color3(0.1f + d, 0.1f + d, 0.1f + d);
-					Glu.RenderQuad(ClientRectangle);
-
-					GL.Color3(0.2f + d, 0.2f + d, 0.2f + d);
-					Glu.RenderOutline(ClientRectangle);
-				}
-			}
-
-			if (Font == "squareo")
-			{
-				fr = EditorWindow.Instance.SquareOFontRenderer;
-			}
-			else if (Font == "square")
-			{
-				fr = EditorWindow.Instance.SquareFontRenderer;
-			}
-			else if (Font == "main")
-			{
-				fr = EditorWindow.Instance.FontRenderer;
-			}
-
-			var width = fr.GetWidth(Text, (int)ClientRectangle.Height / 2);
-			var height = fr.GetHeight((int)ClientRectangle.Height / 2);
-
-			var finaltext = Text;
-
-			if (EditorWindow.Instance.inconspicuousvar)
-			{
-				finaltext = finaltext.Replace('r', 'w');
-				finaltext = finaltext.Replace('R', 'W');
-				finaltext = finaltext.Replace('l', 'w');
-				finaltext = finaltext.Replace('L', 'W');
-				finaltext = finaltext.Replace(':', '~');
-			}
-
-			GL.Color3(color1,color2,color3);
-			if (!Timings)
-				fr.Render(finaltext, (int)(ClientRectangle.X + ClientRectangle.Width / 2 - width / 2f), (int)(ClientRectangle.Y + ClientRectangle.Height / 2 - height / 2f), (int)ClientRectangle.Height / 2);
-			else
-				TimingPoints.Instance.FontRenderer.Render(finaltext, (int)(ClientRectangle.X + ClientRectangle.Width / 2 - width / 2f), (int)(ClientRectangle.Y + ClientRectangle.Height / 2 - height / 2f), (int)ClientRectangle.Height / 2);
-		}
-
-
-		public virtual void OnMouseClick(float x, float y) { }
-		public virtual void OnMouseEnter(float x, float y) { }
-		public virtual void OnMouseLeave(float x, float y) { }
-	}
+        public override void OnMouseClick(Point pos, bool right = false)
+        {
+            MainWindow.Instance.SoundPlayer.Play(Settings.settings["clickSound"]);
+        }
+    }
 }

@@ -1,55 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Sound_Space_Editor
 {
     public partial class BPMTapper : Form
     {
-        public static BPMTapper inst;
+        public static BPMTapper Instance;
 
-        private double Bpm = 0;
+        private DateTime startTime;
 
-        private DateTime StartTime;
-        private int Taps = 0;
-        private bool Tapping = false;
+        private float bpm = 0;
+
+        private int taps = 0;
+        private bool tapping = false;
 
         public BPMTapper()
         {
-            inst = this;
             InitializeComponent();
-        }
-
-        private void TapButton_Click(object sender, EventArgs e)
-        {
-            Taps += 1;
-            if (!Tapping)
-            {
-                Tapping = true;
-                StartTime = DateTime.Now;
-                BPM.Text = "0";
-                BPMDecimals.Text = "0";
-            }
-            else
-            {
-                var mins = (DateTime.Now - StartTime).TotalMilliseconds / 60000;
-                Bpm = (Taps - 1) / mins;
-                BPM.Text = ((int)(Bpm + 0.5d)).ToString();
-                BPMDecimals.Text = Math.Round(Bpm, (int)DecimalPlaces.Value).ToString();
-            }
         }
 
         private void ResetButton_Click(object sender, EventArgs e)
         {
-            Tapping = false;
-            Taps = 0;
-            Bpm = 0;
+            tapping = false;
+            taps = 0;
+            bpm = 0;
+
             BPM.Text = "";
             BPMDecimals.Text = "";
         }
@@ -59,26 +34,38 @@ namespace Sound_Space_Editor
             return TapButton.Focused || ResetButton.Focused;
         }
 
+        private void IncrementBPM()
+        {
+            taps++;
+
+            if (!tapping)
+            {
+                tapping = true;
+                startTime = DateTime.Now;
+
+                BPM.Text = "0";
+                BPMDecimals.Text = "0";
+            }
+            else
+            {
+                var mins = (float)(DateTime.Now - startTime).TotalMilliseconds / 60000f;
+
+                bpm = (taps - 1f) / mins;
+
+                BPM.Text = Math.Round(bpm).ToString();
+                BPMDecimals.Text = Math.Round(bpm, (int)DecimalPlaces.Value).ToString();
+            }
+        }
+
+        private void TapButton_Click(object sender, EventArgs e)
+        {
+            IncrementBPM();
+        }
+
         private void BPMTapper_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (!DecimalPlaces.Focused && (e.KeyChar != ' ' || !ButtonsFocused()))
-            {
-                Taps += 1;
-                if (!Tapping)
-                {
-                    Tapping = true;
-                    StartTime = DateTime.Now;
-                    BPM.Text = "0";
-                    BPMDecimals.Text = "0";
-                }
-                else
-                {
-                    var mins = (DateTime.Now - StartTime).TotalMilliseconds / 60000;
-                    Bpm = (Taps - 1) / mins;
-                    BPM.Text = ((int)(Bpm + 0.5d)).ToString();
-                    BPMDecimals.Text = Math.Round(Bpm, (int)DecimalPlaces.Value).ToString();
-                }
-            }
+                IncrementBPM();
         }
     }
 }

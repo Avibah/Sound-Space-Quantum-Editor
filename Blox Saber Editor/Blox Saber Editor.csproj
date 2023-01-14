@@ -104,11 +104,12 @@
     <Reference Include="Bass.Net, Version=2.4.12.3, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
       <HintPath>..\packages\Bass.NetWrapper.2.4.12.5\lib\net45\Bass.Net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="NCalc, Version=1.3.8.0, Culture=neutral, PublicKeyToken=973cde3f1cafed03, processorArchitecture=MSIL">
       <HintPath>..\packages\ncalc.1.3.8\lib\NCalc.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK, Version=3.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.3.1.0\lib\net20\OpenTK.dll</HintPath>
+    <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -123,33 +124,37 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BassManager.cs" />
-    <Compile Include="Bookmark.cs" />
-    <Compile Include="BookmarkSetup.cs">
+    <Compile Include="BookmarksWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="BookmarkSetup.Designer.cs">
-      <DependentUpon>BookmarkSetup.cs</DependentUpon>
+    <Compile Include="BookmarksWindow.Designer.cs">
+      <DependentUpon>BookmarksWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="BPM.cs" />
     <Compile Include="BPMTapper.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="BPMTapper.Designer.cs">
       <DependentUpon>BPMTapper.cs</DependentUpon>
     </Compile>
-    <Compile Include="EditorSettings.cs" />
-    <Compile Include="Gui\GuiScreenKeybinds.cs" />
-    <Compile Include="Gui\GuiScreenSettings.cs" />
-    <Compile Include="Gui\GuiScreenTimings.cs" />
-    <Compile Include="Timing Setup Panel.cs">
+    <Compile Include="ExportSSPM.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Timing Setup Panel.Designer.cs">
-      <DependentUpon>Timing Setup Panel.cs</DependentUpon>
+    <Compile Include="ExportSSPM.Designer.cs">
+      <DependentUpon>ExportSSPM.cs</DependentUpon>
     </Compile>
-    <Compile Include="TimingPoints.cs" />
-    <Compile Include="ColorSequence.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="GUI\GuiWindowKeybinds.cs" />
+    <Compile Include="GUI\GuiWindowSettings.cs" />
+    <Compile Include="Misc\Bookmark.cs" />
+    <Compile Include="Misc\Note.cs" />
+    <Compile Include="Misc\TimingPoint.cs" />
+    <Compile Include="Misc\UndoRedoAction.cs" />
+    <Compile Include="TimingsWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TimingsWindow.Designer.cs">
+      <DependentUpon>TimingsWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="DiscordGameSDK\ActivityManager.cs" />
     <Compile Include="DiscordGameSDK\Constants.cs" />
     <Compile Include="DiscordGameSDK\Core.cs" />
@@ -157,31 +162,27 @@
     <Compile Include="DiscordGameSDK\LobbyManager.cs" />
     <Compile Include="DiscordGameSDK\StorageManager.cs" />
     <Compile Include="DiscordGameSDK\StoreManager.cs" />
-    <Compile Include="EditorWindow.cs" />
+    <Compile Include="MainWindow.cs" />
     <Compile Include="FreeType.cs" />
-    <Compile Include="FtFont.cs" />
-    <Compile Include="GLU.cs" />
-    <Compile Include="Gui\FontRenderer.cs" />
-    <Compile Include="Gui\Gui.cs" />
-    <Compile Include="Gui\GuiCheckBox.cs" />
-    <Compile Include="Gui\GuiButton.cs" />
-    <Compile Include="Gui\GuiButtonPlayPause.cs" />
-    <Compile Include="Gui\GuiGrid.cs" />
-    <Compile Include="Gui\GuiLabel.cs" />
-    <Compile Include="Gui\GuiScreen.cs" />
-    <Compile Include="Gui\GuiScreenCreate.cs" />
-    <Compile Include="Gui\GuiScreenEditor.cs" />
-    <Compile Include="Gui\GuiScreenMenu.cs" />
-    <Compile Include="Gui\GuiScreenSelectMap.cs" />
-    <Compile Include="Gui\GuiSliderTimeline.cs" />
-    <Compile Include="Gui\GuiSlider.cs" />
-    <Compile Include="Gui\GuiTextBox.cs" />
-    <Compile Include="Gui\GuiTrack.cs" />
-    <Compile Include="IModelRaw.cs" />
+    <Compile Include="FreeTypeFont.cs" />
+    <Compile Include="GLSpecial.cs" />
+    <Compile Include="GUI\FontRenderer.cs" />
+    <Compile Include="GUI\Gui.cs" />
+    <Compile Include="GUI\GuiCheckbox.cs" />
+    <Compile Include="GUI\GuiButton.cs" />
+    <Compile Include="GUI\GuiButtonPlayPause.cs" />
+    <Compile Include="GUI\GuiGrid.cs" />
+    <Compile Include="GUI\GuiLabel.cs" />
+    <Compile Include="GUI\GuiWindowCreate.cs" />
+    <Compile Include="GUI\GuiWindowEditor.cs" />
+    <Compile Include="GUI\GuiWindowMenu.cs" />
+    <Compile Include="GUI\GuiSliderTimeline.cs" />
+    <Compile Include="GUI\GuiSlider.cs" />
+    <Compile Include="GUI\GuiTextbox.cs" />
+    <Compile Include="GUI\GuiTrack.cs" />
     <Compile Include="ModelManager.cs" />
     <Compile Include="ModelRaw.cs" />
     <Compile Include="MusicPlayer.cs" />
-    <Compile Include="Note.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -191,21 +192,23 @@
     </Compile>
     <Compile Include="SoundPlayer.cs" />
     <Compile Include="TextureManager.cs" />
-    <Compile Include="UndoRedo.cs" />
-    <Compile Include="UndoRedoAction.cs" />
-    <EmbeddedResource Include="BookmarkSetup.resx">
-      <DependentUpon>BookmarkSetup.cs</DependentUpon>
+    <Compile Include="UndoRedoManager.cs" />
+    <EmbeddedResource Include="BookmarksWindow.resx">
+      <DependentUpon>BookmarksWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="BPMTapper.resx">
       <DependentUpon>BPMTapper.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExportSSPM.resx">
+      <DependentUpon>ExportSSPM.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Timing Setup Panel.resx">
-      <DependentUpon>Timing Setup Panel.cs</DependentUpon>
+    <EmbeddedResource Include="TimingsWindow.resx">
+      <DependentUpon>TimingsWindow.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Help\BassNet.chm" />
     <None Include="OpenTK.dll.config" />

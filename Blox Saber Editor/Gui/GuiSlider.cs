@@ -3,99 +3,139 @@ using System.Drawing;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace Sound_Space_Editor.Gui
+namespace Sound_Space_Editor.GUI
 {
-	class GuiSlider : GuiButton
+	class GuiSlider : Gui
 	{
-		public int MaxValue = 7;
+        public bool Visible = true;
+        public bool lockSize;
+        public bool moveWithOffset;
 
-		public int Value = 0;
+        public bool hovering;
+        public bool dragging;
 
-		public float Progress;
+        public RectangleF originRect;
 
-		public bool Dragging;
+        public string settingName;
+        public bool reverse;
 
-		public bool Snap = true;
+        public float alpha;
 
-		private readonly bool _vertical;
+        public GuiSlider(float posx, float posy, float sizex, float sizey, string Setting, bool Reverse, bool LockSize = false, bool MoveWithOffset = false) : base(posx, posy, sizex, sizey)
+        {
+            settingName = Setting;
 
-		private float _alpha;
+            reverse = Reverse;
+            lockSize = LockSize;
+            moveWithOffset = MoveWithOffset;
 
-		public Color Color1;
-		public Color Color2;
+            originRect = new RectangleF(posx, posy, sizex, sizey);
+        }
 
-		public GuiSlider(float x, float y, float sx, float sy) : base(int.MinValue, x, y, sx, sy, "", false)
-		{
-			_vertical = sx < sy;
-		}
-
-		public override void Render(float delta, float mouseX, float mouseY)
-		{
-			if (EditorWindow.Instance.GuiScreen is GuiScreenMenu menu)
-			{
-				Color1 = Color.FromArgb(255, 255, 255);
-				Color2 = Color.FromArgb(50, 50, 50);
-
-			}
-			else
-			{
-
-				Color1 = EditorWindow.Instance.Color1;
-				Color2 = EditorWindow.Instance.Color2;
-			}
-
-			if (MaxValue > 0)
+        public override void Render(float mousex, float mousey, float frametime)
+        {
+            if (Visible)
             {
-				var rect = ClientRectangle;
+                var editor = MainWindow.Instance.CurrentWindow;
+                var colored = editor is GuiWindowEditor;
 
-				IsMouseOver = rect.Contains(mouseX, mouseY);
+                var color1 = colored ? Settings.settings["color1"] : Color.FromArgb(255, 255, 255);
+                var color2 = colored ? Settings.settings["color2"] : Color.FromArgb(50, 50, 50);
 
-				var lineSize = _vertical ? rect.Height - rect.Width : rect.Width - rect.Height;
+                var setting = Settings.settings[settingName];
 
-				var step = lineSize / MaxValue;
-				var pos = Snap ? step * Value : Progress * lineSize;
-				var lineRect = new RectangleF(rect.X + (_vertical ? rect.Width / 2 - 1 : rect.Height / 2), rect.Y + (_vertical ? rect.Width / 2 : rect.Height / 2 - 1), _vertical ? 2 : lineSize, _vertical ? lineSize : 2);
-				var cursorPos = new PointF(rect.X + (_vertical ? rect.Width / 2 : rect.Height / 2 + pos), _vertical ? rect.Bottom - rect.Width / 2 - pos : rect.Y + rect.Height / 2);
+                var horizontal = rect.Width > rect.Height;
+                var width = horizontal ? rect.Width - rect.Height : rect.Height - rect.Width;
 
-				var mouseClose = Dragging || Math.Sqrt(Math.Pow(mouseX - cursorPos.X, 2) + Math.Pow(mouseY - cursorPos.Y, 2)) <= 12;
+                if (dragging)
+                {
+                    float stepf = setting.Step / setting.Max;
+                    if (settingName == "beatDivisor" && !MainWindow.Instance.shiftHeld)
+                        stepf *= 2;
 
-				_alpha = MathHelper.Clamp(_alpha + (mouseClose ? 10 : -10) * delta, 0, 1);
+                    var pos = horizontal ? rect.X + rect.Height / 2f : rect.Y + rect.Width / 2f;
+                    var mouse = horizontal ? mousex : mousey;
 
-				RenderTimeline(lineRect);
+                    var prog = (float)Math.Round((horizontal ? mouse - pos : reverse ? (width - (mouse - pos)) : (mouse - pos)) / width / stepf) * stepf;
 
-				//cursor
-				GL.Translate(cursorPos.X, cursorPos.Y, 0);
-				GL.Rotate(_alpha * 90, 0, 0, 1);
+                    setting.Value = MathHelper.Clamp(setting.Max * prog, 0, setting.Max);
 
-				if (_alpha > 0)
-				{
-					GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
-					GL.Color4(Color1);
-					Glu.RenderCircle(0, 0, 12 * _alpha);
-				}
+                    switch (settingName)
+                    {
+                        case "trackHeight":
+                            editor.yoffset = 64 + setting.Value;
+                            editor.OnResize(MainWindow.Instance.ClientSize);
 
-				GL.Rotate(-_alpha * 90, 0, 0, 1);
-				GL.Translate(-cursorPos.X, -cursorPos.Y, 0);
+                            break;
 
-				GL.PolygonMode(MaterialFace.Front, PolygonMode.Fill);
-				GL.Color4(Color1);
-				Glu.RenderCircle(cursorPos.X, cursorPos.Y, 4, 16);
-				//GL.LineWidth(1);
-			}
+                        case "sfxVolume":
+                            MainWindow.Instance.SoundPlayer.Volume = setting.Value;
 
-		}
-		protected virtual void RenderTimeline(RectangleF rect)
-		{
+                            break;
 
-			GL.Color4(Color2);
-			Glu.RenderQuad(rect);
-			GL.Color4(Color2);
-			Glu.RenderOutline(rect);
-		}
+                        case "masterVolume":
+                            MainWindow.Instance.MusicPlayer.Volume = setting.Value;
 
-		public override void OnResize(Size size)
-		{
-			ClientRectangle = new RectangleF(size.Width - ClientRectangle.Size.Width, size.Height - ClientRectangle.Size.Height - 64, ClientRectangle.Size.Width, ClientRectangle.Size.Height);
-		}
-	}
+                            break;
+
+                        case "tempo":
+                            MainWindow.Instance.SetTempo(setting.Value);
+
+                            break;
+                    }
+                }
+
+                var progress = setting.Value / setting.Max;
+
+                var pos1 = new Vector2(horizontal ? rect.X + rect.Height / 2f + width * progress : rect.X + rect.Width / 2f, horizontal ? rect.Y + rect.Height / 2f : rect.Y + rect.Width / 2f + width * (reverse ? (1f - progress) : progress));
+                var pos2 = new Vector2(mousex, mousey);
+
+                var hover = dragging || (pos1 - pos2).Length <= 12f;
+
+                alpha = MathHelper.Clamp(alpha + (hover ? 10 : -10) * frametime, 0, 1);
+
+                GL.LineWidth(3f);
+                GL.Color3(color2);
+
+                if (horizontal)
+                    GLSpecial.Line(rect.X + rect.Height / 2f, rect.Y + rect.Height / 2f, rect.Right - rect.Height / 2f, rect.Y + rect.Height / 2f);
+                else
+                    GLSpecial.Line(rect.X + rect.Width / 2f, rect.Y + rect.Width / 2f, rect.X + rect.Width / 2f, rect.Bottom - rect.Width / 2f);
+
+                //visible portion on timeline
+                if (settingName == "currentTime")
+                {
+                    var Track = editor.track;
+                    var start = Track.startPos;
+                    var end = Track.endPos;
+
+                    var lineRect = new RectangleF(rect.X + rect.Height / 2f, rect.Y + rect.Height / 2f - 1.5f, rect.Width - rect.Height, 3f);
+                    var spRect = new RectangleF(lineRect.X + lineRect.Width * start, lineRect.Y, lineRect.Width * (end - start), lineRect.Height);
+
+                    GL.Color3(Settings.settings["color3"]);
+                    GLSpecial.Rect(spRect);
+                }
+
+                GL.LineWidth(2f);
+                GL.Color3(color1);
+                GLSpecial.Circle(pos1.X, pos1.Y, 4f, 16);
+
+                if (hover)
+                {
+                    var rotate = alpha * 90f;
+
+                    GL.Translate(pos1.X, pos1.Y, 0);
+                    GL.Rotate(rotate, 0, 0, 1);
+                    GLSpecial.Circle(0, 0, 12f * alpha, 6, true);
+                    GL.Rotate(-rotate, 0, 0, 1);
+                    GL.Translate(-pos1.X, -pos1.Y, 0);
+                }
+            }
+        }
+
+        public override void OnMouseClick(Point pos, bool right = false)
+        {
+            MainWindow.Instance.SoundPlayer.Play(Settings.settings["clickSound"]);
+        }
+    }
 }

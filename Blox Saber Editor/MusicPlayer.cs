@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Fx;
 using Un4seen.Bass.Misc;
@@ -10,8 +9,6 @@ namespace Sound_Space_Editor
 {
 	class MusicPlayer
 	{
-		private object locker = new object();
-
 		private int streamFileID;
 		private int streamID;
 		private string lastFile;
@@ -25,6 +22,7 @@ namespace Sound_Space_Editor
 
 		public MusicPlayer()
 		{
+			Init();
 			Sync = new SYNCPROC(OnEnded);
 		}
 
@@ -33,7 +31,10 @@ namespace Sound_Space_Editor
 		/// </summary>
 		private void CheckDevice()
 		{
-			if (!BassManager.CheckDevice(streamID))
+			var device = Bass.BASS_ChannelGetDevice(streamID);
+			var info = Bass.BASS_GetDeviceInfo(device);
+
+			if (info != null && (!info.IsDefault || !info.IsEnabled))
 			{
 				var pos = Bass.BASS_ChannelGetPosition(streamID, BASSMode.BASS_POS_BYTES);
 				var secs = TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, pos));
@@ -43,7 +44,7 @@ namespace Sound_Space_Editor
 
 				Bass.BASS_ChannelGetAttribute(streamID, BASSAttribute.BASS_ATTRIB_VOL, ref volume);
 
-				BassManager.Reload();
+				Reload();
 
 				Load(lastFile);
 
@@ -81,7 +82,7 @@ namespace Sound_Space_Editor
 
 				var wf = new WaveForm(file);
 				wf.FrameResolution = 0.005;
-				
+
 				if (wf.RenderStart(false, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_STREAM_PRESCAN | BASSFlag.BASS_FX_FREESOURCE))
 				{
 					var samples = new float[wf.Wave.data.Length];
@@ -129,7 +130,7 @@ namespace Sound_Space_Editor
 			streamID = BassFx.BASS_FX_TempoCreate(streamFileID, BASSFlag.BASS_STREAM_PRESCAN);
 
 			Tempo = tempo;
-			
+
 			Bass.BASS_ChannelGetAttribute(streamID, BASSAttribute.BASS_ATTRIB_TEMPO_FREQ, ref originval);
 			Bass.BASS_ChannelSetSync(streamID, BASSSync.BASS_SYNC_END, 0, Sync, IntPtr.Zero);
 
@@ -164,17 +165,16 @@ namespace Sound_Space_Editor
 		}*/
 
 		private void OnEnded(int handle, int channel, int data, IntPtr user)
-        {
+		{
 			Pause();
-			CurrentTime = TimeSpan.FromMilliseconds(TotalTime.TotalMilliseconds - 1);
-			EditorWindow.Instance.currentTime = TimeSpan.FromMilliseconds(CurrentTime.TotalMilliseconds + 0.0375 * (EditorWindow.Instance.tempo - 0.2f));
-			EditorWindow.Instance.AlignTimeline();
-        }
+			CurrentTime = TotalTime;
+			Settings.settings["currentTime"].Value = (float)(CurrentTime.TotalMilliseconds + 0.03 * MainWindow.Instance.tempo);
+		}
 
 		public void Play()
 		{
-			CurrentTime = EditorWindow.Instance.currentTime;
-			if (CurrentTime != EditorWindow.Instance.currentTime)
+			CurrentTime = TimeSpan.FromMilliseconds(Settings.settings["currentTime"].Value);
+			if (CurrentTime != TimeSpan.FromMilliseconds(Settings.settings["currentTime"].Value))
 				Reset();
 			CheckDevice();
 
@@ -189,7 +189,7 @@ namespace Sound_Space_Editor
 
 			Bass.BASS_ChannelPause(streamID);
 			Bass.BASS_ChannelSetPosition(streamID, pos, BASSMode.BASS_POS_BYTES);
-			EditorWindow.Instance.currentTime = CurrentTime;
+			Settings.settings["currentTime"].Value = (float)CurrentTime.TotalMilliseconds;
 		}
 
 		public void Stop()
@@ -273,7 +273,7 @@ namespace Sound_Space_Editor
 				CheckDevice();
 
 				long len = Bass.BASS_ChannelGetLength(streamID, BASSMode.BASS_POS_BYTES);
-				var time = TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, len));
+				var time = TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, len) - 0.001);
 
 				return time;
 			}
@@ -287,13 +287,13 @@ namespace Sound_Space_Editor
 
 				var pos = Bass.BASS_ChannelGetPosition(streamID, BASSMode.BASS_POS_BYTES);
 
-				return TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, pos) + 0.03 * EditorWindow.Instance.tempo);
+				return TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, pos) + 0.03 * MainWindow.Instance.tempo);
 			}
 			set
 			{
 				CheckDevice();
 
-				var pos = Bass.BASS_ChannelSeconds2Bytes(streamID, value.TotalSeconds - 0.03 * EditorWindow.Instance.tempo);
+				var pos = Bass.BASS_ChannelSeconds2Bytes(streamID, value.TotalSeconds - 0.03 * MainWindow.Instance.tempo);
 
 				Bass.BASS_ChannelSetPosition(streamID, pos, BASSMode.BASS_POS_BYTES);
 			}
@@ -310,6 +310,25 @@ namespace Sound_Space_Editor
 
 				return pos / (decimal)length;
 			}
+		}
+
+		private static void Init()
+		{
+			Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
+
+			Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_BUFFER, 250);
+			Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATEPERIOD, 5);
+		}
+
+		public static void Reload()
+		{
+			Dispose();
+			Init();
+		}
+
+		public static void Dispose()
+		{
+			Bass.BASS_Free();
 		}
 	}
 }
