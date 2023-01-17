@@ -88,6 +88,8 @@ namespace Sound_Space_Editor
             Settings.Load();
 
             SwitchWindow(new GuiWindowMenu());
+
+            RunAutosave();
         }
 
         protected override void OnLoad(EventArgs e)
@@ -496,6 +498,11 @@ namespace Sound_Space_Editor
 
                         case "openDirectory":
                             Process.Start(Directory.GetCurrentDirectory());
+
+                            break;
+
+                        case "exportSSPM":
+                            new ExportSSPM().Show();
 
                             break;
                     }
@@ -1093,8 +1100,6 @@ namespace Sound_Space_Editor
                 CurrentWindow = window;
 
                 Settings.Save();
-                if (!Autosaving)
-                    RunAutosave();
             }
         }
 
@@ -1120,22 +1125,13 @@ namespace Sound_Space_Editor
             return final;
         }
 
-        private bool Autosaving = false;
-
         private void RunAutosave()
         {
-            Autosaving = true;
-
-            if (Settings.settings["enableAutosave"] && CurrentWindow is GuiWindowEditor)
+            var delay = Task.Delay((int)(Settings.settings["autosaveInterval"] * 60000f)).ContinueWith(_ =>
             {
-                var delay = Task.Delay((int)(Settings.settings["autosaveInterval"] * 60000)).ContinueWith(_ =>
-                {
-                    RunAutosave();
-                    AttemptAutosave();
-                });
-            }
-            else
-                Autosaving = false;
+                RunAutosave();
+                AttemptAutosave();
+            });
         }
 
         private void AttemptAutosave()
@@ -1167,7 +1163,17 @@ namespace Sound_Space_Editor
                 var result = DialogResult.No;
 
                 if (!forced)
+                {
+                    //debug
+                    if (fileName != null)
+                    {
+                        File.WriteAllText("tempmap.txt", data);
+                        File.WriteAllText("tempmapcopied.txt", File.ReadAllText(fileName));
+                        ShowMessageBox("debug pre-save message: if youre unsure why this box is showing, send me tempmap.txt and tempmapcopied.txt from the editor's directory so i can see why its asking to save", (data != File.ReadAllText(fileName)).ToString());
+                    }
+                    
                     result = ShowMessageBox("Would you like to save before closing?", "", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+                }
 
                 if (forced || result == DialogResult.Yes)
                 {
@@ -1668,7 +1674,7 @@ namespace Sound_Space_Editor
             var mapNamef = BitConverter.GetBytes((ushort)mapName.Count()).Concat(mapName).ToArray(); // map name array with length
             var songNamef = mapNamef.ToArray(); // song name copied from map name
 
-            var mappers = info["mappers"].Split('\n'); // list of provided valid mappers or "SSQE Export" if empty
+            var mappers = info["mappers"].Split('\n'); // list of provided valid mappers or "None" if empty
             var mapperCount = BitConverter.GetBytes((ushort)mappers.Count()); // number of provided valid mappers
             var mappersf = new List<byte>(); // final list of mappers as bytes
 

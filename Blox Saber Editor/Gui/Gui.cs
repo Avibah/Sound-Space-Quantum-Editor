@@ -220,7 +220,7 @@ namespace Sound_Space_Editor.GUI
         {
             var renderer = MainWindow.Instance.Fonts[font];
 
-            renderer.Render(text, (int)posx, (int)posy, size);
+            renderer.Render(text, posx, posy, size);
         }
 
         public int TextWidth(string text, int size, string font = "main")

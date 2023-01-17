@@ -30,7 +30,7 @@ namespace Sound_Space_Editor.GUI
         private readonly GuiTextbox EditorBGOpacityTextbox = new GuiTextbox(1435, 360, 200, 50, "", 28, true, false, false, "editorBGOpacity");
         private readonly GuiTextbox GridOpacityTextbox = new GuiTextbox(1435, 510, 200, 50, "", 28, true, false, false, "gridOpacity");
         private readonly GuiTextbox TrackOpacityTextbox = new GuiTextbox(1435, 660, 200, 50, "", 28, true, false, false, "trackOpacity");
-        private readonly GuiTextbox AutosaveIntervalTextbox = new GuiTextbox(800, 360, 200, 50, "", 28, true, false, false, "autosaveInterval");
+        private readonly GuiTextbox AutosaveIntervalTextbox = new GuiTextbox(800, 360, 200, 50, "", 28, true, false, false, "autosaveInterval", "main", false, true);
 
         private readonly List<GuiButton> ColorPickers = new List<GuiButton>();
         private readonly List<GuiTextbox> Opacities = new List<GuiTextbox>();

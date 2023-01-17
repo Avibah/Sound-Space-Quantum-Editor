@@ -16,6 +16,7 @@ namespace Sound_Space_Editor.GUI
 
         public string setting;
         public bool isKeybind;
+        public bool isFloat;
 
         public int cursorPos;
         public float timer;
@@ -30,7 +31,7 @@ namespace Sound_Space_Editor.GUI
         public RectangleF originRect;
         public int originTextSize;
 
-        public GuiTextbox(float posx, float posy, float sizex, float sizey, string Text, int TextSize, bool Numeric, bool LockSize = false, bool MoveWithOffset = false, string Setting = "", string Font = "main", bool IsKeybind = false) : base(posx, posy, sizex, sizey)
+        public GuiTextbox(float posx, float posy, float sizex, float sizey, string Text, int TextSize, bool Numeric, bool LockSize = false, bool MoveWithOffset = false, string Setting = "", string Font = "main", bool IsKeybind = false, bool IsFloat = false) : base(posx, posy, sizex, sizey)
         {
             text = Text;
             textSize = TextSize;
@@ -38,6 +39,7 @@ namespace Sound_Space_Editor.GUI
 
             setting = Setting;
             isKeybind = IsKeybind;
+            isFloat = IsFloat;
 
             if (isKeybind)
             {
@@ -137,8 +139,8 @@ namespace Sound_Space_Editor.GUI
                 cursorPos++;
             }
 
-            if (setting != "" && int.TryParse(text, out var num))
-                Settings.settings[setting] = num;
+            if (setting != "" && (isFloat ? float.TryParse(text, out _) : int.TryParse(text, out _)))
+                Settings.settings[setting] = float.Parse(text);
 
             timer = 0f;
         }

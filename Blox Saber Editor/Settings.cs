@@ -90,6 +90,7 @@ namespace Sound_Space_Editor
             {"drawBezier", new Keybind(Key.D, false, false, true) },
             {"anchorNode", new Keybind(Key.A, false, false, true) },
             {"openDirectory", new Keybind(Key.D, true, false, true) },
+            {"exportSSPM", new Keybind(Key.E, true, true, false) },
 
             {"gridKeys", new List<Key> {Key.Q, Key.W, Key.E, Key.A, Key.S, Key.D, Key.Z, Key.X, Key.C } },
 

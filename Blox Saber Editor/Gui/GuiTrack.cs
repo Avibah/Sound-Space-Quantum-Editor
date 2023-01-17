@@ -110,20 +110,22 @@ namespace Sound_Space_Editor.GUI
             hoveringPoint = null;
             Note closest = null;
 
-            int? lastRendered = null;
-            int? lastTextRendered = null;
-            int? lastTickRendered = null;
+            float? lastRendered = null;
+            float? lastTextRendered = null;
+            float? lastTickRendered = null;
 
             var minMs = (posX - cursorX - noteSize) / noteStep * 1000f;
             var maxMs = (rect.Width - cursorX + posX) / noteStep * 1000f;
 
             var textHeight = TextHeight(16);
 
-            //get selected notes
-            if (editor.rightHeld && rightDraggingTrack)
-            {
-                var selected = new List<Note>();
+            var selecting = editor.rightHeld && rightDraggingTrack;
+            var selected = selecting ? new List<Note>() : editor.SelectedNotes;
 
+            var selectHitbox = new RectangleF();
+
+            if (selecting)
+            {
                 var offsetMs = dragStartMs - currentTime;
                 var startX = dragStartPoint.X + offsetMs / 1000f * noteStep;
 
@@ -133,25 +135,12 @@ namespace Sound_Space_Editor.GUI
                 var w = Math.Max(mousex, startX) - x;
                 var h = Math.Min(rect.Height, Math.Max(my, dragStartPoint.Y) - y);
 
-                var hitbox = new RectangleF(x, y, w, h);
-
-                for (int i = 0; i < editor.Notes.Count; i++)
-                {
-                    var note = editor.Notes[i];
-
-                    var noteX = cursorX - posX + note.Ms / 1000f * noteStep;
-                    var noteHitbox = new RectangleF(noteX, cellGap, noteSize, noteSize);
-
-                    if (hitbox.IntersectsWith(noteHitbox))
-                        selected.Add(note);
-                }
-
-                editor.SelectedNotes = selected;
+                selectHitbox = new RectangleF(x, y, w, h);
 
                 GL.Color4(0f, 1f, 0.2f, 0.2f);
-                GLSpecial.Rect(hitbox);
+                GLSpecial.Rect(selectHitbox);
                 GL.Color4(0f, 1f, 0.2f, 1f);
-                GLSpecial.Outline(hitbox);
+                GLSpecial.Outline(selectHitbox);
             }
 
             //render notes
@@ -159,28 +148,30 @@ namespace Sound_Space_Editor.GUI
             {
                 var note = editor.Notes[i];
 
-                if (note.Ms < minMs)
+                var x = cursorX - posX + note.Ms / 1000f * noteStep;
+                var noteRect = new RectangleF(x, cellGap, noteSize, noteSize);
+
+                var noteSelected = selecting ? selectHitbox.IntersectsWith(noteRect) : editor.SelectedNotes.Contains(note);
+                if (selecting && noteSelected)
+                    selected.Add(note);
+
+                if (note.Ms < minMs || note.Ms > maxMs)
                     continue;
-                if (note.Ms > maxMs)
-                    break;
 
                 if (note.Ms <= currentTime - sfxOffset)
                     closest = note;
 
-                var x = cursorX - posX + note.Ms / 1000f * noteStep;
-
-                if (lastRendered != null && (int)x - 1 <= lastRendered)
+                if (lastRendered != null && x - 1 <= lastRendered)
                     continue;
-
-                lastRendered = (int)x;
+                
+                lastRendered = x;
 
                 var alpha = currentTime - 1 > note.Ms ? 0.35f : 1f;
                 var alphaC = alpha * 255f;
 
-                var noteRect = new RectangleF(x, cellGap, noteSize, noteSize);
                 var isHovering = hoveringNote == null && draggingNote == null && noteRect.Contains(mousex, mousey);
 
-                if (isHovering || (editor.SelectedNotes.Contains(note) && draggingNote == null))
+                if (isHovering || (noteSelected && draggingNote == null))
                 {
                     if (isHovering)
                     {
@@ -205,23 +196,23 @@ namespace Sound_Space_Editor.GUI
                     var indexX = 2 - j % 3;
                     var indexY = 2 - j / 3;
 
-                    var gridX = (int)x + indexX * 11 + 5;
-                    var gridY = (int)cellGap + indexY * 11 + 5;
+                    var gridX = x + indexX * 11 + 5.5f;
+                    var gridY = cellGap + indexY * 11 + 5.5f;
 
                     GLSpecial.Outline(gridX, gridY, 9, 9);
                 }
 
                 {
-                    var gridX = (int)x + note.X * 11 + 5;
-                    var gridY = (int)cellGap + note.Y * 11 + 5;
+                    var gridX = x + note.X * 11 + 5.5f;
+                    var gridY = cellGap + note.Y * 11 + 5.5f;
 
                     GL.Color4(Color.FromArgb((int)alphaC, note.Color));
                     GLSpecial.Rect(gridX, gridY, 9, 9);
                 }
 
-                if (lastTextRendered == null || (int)x - 8 > lastTextRendered)
+                if (lastTextRendered == null || x - 8 > lastTextRendered)
                 {
-                    lastTextRendered = (int)x;
+                    lastTextRendered = x;
 
                     var numText = $"{i + 1:##,###}";
                     var msText = $"{note.Ms:##,###}";
@@ -237,6 +228,9 @@ namespace Sound_Space_Editor.GUI
                     GLSpecial.Line(x + 0.5f, rect.Height + 3, x + 0.5f, rect.Height + 28);
                 }
             }
+
+            if (selecting)
+                editor.SelectedNotes = selected;
 
             //render drag lines
             if (draggingNote != null)
@@ -283,8 +277,6 @@ namespace Sound_Space_Editor.GUI
                     }
 
                     var numText = $"{point.bpm:##,###.###} BPM";
-                    if (numText == " BPM")
-                        numText = "0 BPM";
                     var msText = $"{point.Ms:##,###}ms";
                     if (msText == "ms")
                         msText = "0ms";
@@ -323,25 +315,21 @@ namespace Sound_Space_Editor.GUI
                     //render bpm lines
                     while (stepX > 0 && lineX < rect.Width && lineX < nextX && lineX < endX)
                     {
-                        var lineF = Math.Round((lineX - cursorX + posX) / noteStep * 1000f);
-                        lineF = lineF / 1000f * noteStep + cursorX - posX;
-
                         GL.Color3(color2);
-                        GLSpecial.Line((float)lineF, rect.Height, (float)lineF, rect.Height - gapf);
+                        GLSpecial.Line(lineX, rect.Height, lineX, rect.Height - gapf);
 
                         for (int j = 1; j < divisor; j++)
                         {
-                            var x = Math.Round((lineX + j * stepXSmall - cursorX + posX) / noteStep * 1000f);
-                            x = x / 1000f * noteStep + cursorX - posX;
+                            var x = lineX + j * stepXSmall;
 
-                            if (x < nextX && x < endX && (lastTickRendered == null || (int)x - 1 > lastTickRendered))
+                            if (x < nextX && x < endX && (lastTickRendered == null || x - 1 > lastTickRendered))
                             {
                                 var half = j == divisor / 2 && divisor % 2 == 0;
 
                                 GL.Color3(half ? color3 : color1);
-                                GLSpecial.Line((float)x, rect.Height - 3 * gapf / (half ? 5 : 10), (float)x, rect.Height);
+                                GLSpecial.Line(x, rect.Height - 3 * gapf / (half ? 5 : 10), x, rect.Height);
 
-                                lastTickRendered = (int)x;
+                                lastTickRendered = x;
                             }
                         }
 

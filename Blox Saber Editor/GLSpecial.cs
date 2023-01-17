@@ -29,8 +29,8 @@ namespace Sound_Space_Editor
         {
             GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
 
-            posx = (int)posx + 0.5f;
-            posy = (int)posy + 0.5f;
+            posx += 0.5f;
+            posy += 0.5f;
 
             var xf = posx + sizex - 1;
             var yf = posy + sizey - 1;

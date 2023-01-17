@@ -55,6 +55,7 @@ namespace Sound_Space_Editor
         public void Clear()
         {
             actions.Clear();
+            index = -1;
         }
     }
 }

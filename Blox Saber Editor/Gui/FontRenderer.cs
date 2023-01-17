@@ -19,12 +19,12 @@ namespace Sound_Space_Editor.GUI
 
         private FreeTypeFont GetFont(int size)
         {
-            if (!cached.TryGetValue(size, out var font))
+            if (!cached.ContainsKey(size))
                 cached.Add(size, new FreeTypeFont(Path, size));
             return cached[size];
         }
 
-        public void Render(string text, int posx, int posy, int size)
+        public void Render(string text, float posx, float posy, int size)
         {
             GetFont(size).Print(text, posx, posy);
         }

@@ -16,7 +16,6 @@ namespace Sound_Space_Editor.GUI
         private readonly GuiTrack Track = new GuiTrack();
         private readonly GuiButton CopyButton = new GuiButton(0, 0, 301, 42, 0, "COPY MAP DATA", 21, true);
         private readonly GuiButton BackButton = new GuiButton(0, 0, 301, 42, 1, "BACK TO MENU", 21, true);
-        private readonly GuiButton ExportButton = new GuiButton(0, 0, 301, 42, 17, "EXPORT TO SSPM", 21, true);
 
         private readonly GuiSlider Tempo = new GuiSlider(0, 0, 0, 0, "tempo", false);
         private readonly GuiSlider MasterVolume = new GuiSlider(0, 0, 0, 0, "masterVolume", true);
@@ -75,7 +74,7 @@ namespace Sound_Space_Editor.GUI
 
         public GuiWindowEditor() : base(0, 0, MainWindow.Instance.ClientSize.Width, MainWindow.Instance.ClientSize.Height)
         {
-            buttons = new List<GuiButton> { CopyButton, BackButton, ExportButton, PlayPause, OptionsNav, TimingNav, UseCurrentMs, OpenTimings, OpenBookmarks, ImportIni, PatternsNav, HFlip, VFlip,
+            buttons = new List<GuiButton> { CopyButton, BackButton, PlayPause, OptionsNav, TimingNav, UseCurrentMs, OpenTimings, OpenBookmarks, ImportIni, PatternsNav, HFlip, VFlip,
                 StoreNodes, ClearNodes, BezierButton, RotateButton, ScaleButton };
             checkboxes = new List<GuiCheckbox> { AutoAdvance, Autoplay, ApproachSquares, GridNumbers, GridLetters, Quantum, Numpad, QuantumGridLines, QuantumGridSnap, Metronome, SeparateClickTools,
             CurveBezier };
@@ -188,7 +187,7 @@ namespace Sound_Space_Editor.GUI
             var approachRate = Settings.settings["approachRate"].Value + 1f;
 
             if (Settings.settings["separateClickTools"])
-                RenderText($"Click Mode: {(Settings.settings["selectTool"] ? "Select" : "Place")}", Grid.rect.X, ExportButton.rect.Bottom + 10f, 24);
+                RenderText($"Click Mode: {(Settings.settings["selectTool"] ? "Select" : "Place")}", Grid.rect.X, BackButton.rect.Bottom + 10f, 24);
 
             if (navEnabled == "Options")
             {
@@ -421,7 +420,7 @@ namespace Sound_Space_Editor.GUI
                 case 14:
                     var selectedR = editor.SelectedNotes.ToList();
 
-                    if (int.TryParse(RotateBox.text, out var deg) && selectedR.Count > 0)
+                    if (float.TryParse(RotateBox.text, out var deg) && selectedR.Count > 0)
                     {
                         var undodeg = 360 - deg;
 
@@ -455,7 +454,7 @@ namespace Sound_Space_Editor.GUI
                 case 15:
                     var selectedS = editor.SelectedNotes.ToList();
 
-                    if (int.TryParse(ScaleBox.text, out int scale) && selectedS.Count > 0)
+                    if (float.TryParse(ScaleBox.text, out var scale) && selectedS.Count > 0)
                     {
                         var scalef = scale / 100f;
 
@@ -480,11 +479,6 @@ namespace Sound_Space_Editor.GUI
 
                 case 16:
                     MainWindow.Instance.ImportProperties();
-
-                    break;
-
-                case 17:
-                    new ExportSSPM().Show();
 
                     break;
             }
@@ -557,7 +551,6 @@ namespace Sound_Space_Editor.GUI
 
             CopyButton.rect.Location = new PointF(Grid.rect.X, Grid.rect.Y - 42 - 75 * heightdiff);
             BackButton.rect.Location = new PointF(Grid.rect.X, Grid.rect.Bottom + 84 * heightdiff);
-            ExportButton.rect.Location = new PointF(Grid.rect.X, BackButton.rect.Bottom + 10 * heightdiff);
 
             Timeline.rect = new RectangleF(0, rect.Height - 64f, rect.Width - 576f, 64f);
             PlayPause.rect = new RectangleF(rect.Width - 576f, rect.Height - 64f, 64f, 64f);
