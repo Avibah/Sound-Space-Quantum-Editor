@@ -146,7 +146,22 @@ namespace Sound_Space_Editor.GUI
             var xint = x / (75f * widthdiff / setting.Count);
 
             if (setting.Count > 1 && xint >= 0 && xint < setting.Count && y >= 0 && y < 75 * heightdiff)
-                setting.RemoveAt((int)xint);
+            {
+                var xintf = (int)xint;
+
+                if (!right)
+                    setting.RemoveAt(xintf);
+                else
+                {
+                    if (xintf > 0)
+                    {
+                        var old = setting[xintf - 1];
+
+                        setting[xintf - 1] = setting[xintf];
+                        setting[xintf] = old;
+                    }
+                }
+            }
 
             base.OnMouseClick(pos, right);
         }
