@@ -151,15 +151,12 @@ namespace Sound_Space_Editor.GUI
 
                 if (!right)
                     setting.RemoveAt(xintf);
-                else
+                else if (xintf > 0)
                 {
-                    if (xintf > 0)
-                    {
-                        var old = setting[xintf - 1];
+                    var old = setting[xintf - 1];
 
-                        setting[xintf - 1] = setting[xintf];
-                        setting[xintf] = old;
-                    }
+                    setting[xintf - 1] = setting[xintf];
+                    setting[xintf] = old;
                 }
             }
 
