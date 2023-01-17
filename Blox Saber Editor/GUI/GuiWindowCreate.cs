@@ -55,23 +55,25 @@ namespace Sound_Space_Editor.GUI
 
         protected override void OnButtonClicked(int id)
         {
+            var audioId = IDBox.text.Trim();
+            var editor = MainWindow.Instance;
+
             switch (id)
             {
                 case 0:
-                    MainWindow.Instance.LoadMap(IDBox.text.Trim());
+                    if (!string.IsNullOrWhiteSpace(audioId))
+                        editor.LoadMap(audioId);
 
                     break;
 
                 case 1:
-                    var audioId = IDBox.text.Trim();
-
-                    if (MainWindow.Instance.PromptImport(audioId))
-                        MainWindow.Instance.LoadMap(audioId);
+                    if (editor.PromptImport(audioId, true))
+                        editor.LoadMap(MainWindow.Instance.soundId);
 
                     break;
 
                 case 2:
-                    MainWindow.Instance.SwitchWindow(new GuiWindowMenu());
+                    editor.SwitchWindow(new GuiWindowMenu());
 
                     break;
             }

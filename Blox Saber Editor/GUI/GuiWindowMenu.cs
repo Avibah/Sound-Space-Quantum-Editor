@@ -168,13 +168,17 @@ namespace Sound_Space_Editor.GUI
                 case 2:
                     try
                     {
-                        var wc = new WebClient();
                         var clipboard = Clipboard.GetText();
 
-                        if (clipboard.Contains("github"))
-                            clipboard = wc.DownloadString(clipboard);
+                        if (!string.IsNullOrWhiteSpace(clipboard))
+                        {
+                            var wc = new WebClient();
 
-                        MainWindow.Instance.LoadMap(clipboard);
+                            if (clipboard.Contains("github"))
+                                clipboard = wc.DownloadString(clipboard);
+
+                            MainWindow.Instance.LoadMap(clipboard);
+                        }
                     }
                     catch { MainWindow.Instance.ShowMessageBox("Failed to load map data - is it valid?"); }
 

@@ -795,7 +795,7 @@ namespace Sound_Space_Editor
             });
         }
 
-        public bool PromptImport(string ID)
+        public bool PromptImport(string ID, bool create = false)
         {
             using (var dialog = new OpenFileDialog
             {
@@ -809,9 +809,14 @@ namespace Sound_Space_Editor
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
                     Settings.settings["defaultPath"] = Path.GetDirectoryName(dialog.FileName);
+                    if (string.IsNullOrWhiteSpace(ID))
+                        ID = Path.GetFileNameWithoutExtension(dialog.FileName);
 
                     File.Copy(dialog.FileName, $"cached/{ID}.asset", true);
                     MusicPlayer.Load($"cached/{ID}.asset");
+                    if (create)
+                        soundId = ID;
+
                     return true;
                 }
             }
