@@ -228,8 +228,9 @@ namespace Sound_Space_Editor
 
                         var x = int.Parse(xy[0]);
                         var y = int.Parse(xy[1]);
+                        var ms = GetClosestBeat(Settings.settings["currentTime"].Value);
 
-                        var note = new Note(x, y, (long)Settings.settings["currentTime"].Value);
+                        var note = new Note(x, y, (long)(ms >= 0 ? ms : Settings.settings["currentTime"].Value));
 
                         UndoRedoManager.Add("ADD NOTE", () =>
                         {

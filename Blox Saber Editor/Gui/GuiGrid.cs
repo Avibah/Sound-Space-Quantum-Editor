@@ -218,9 +218,10 @@ namespace Sound_Space_Editor.GUI
                 if (hoveringNote == null || (separateClickTools && !selectTool))
                 {
                     var gridPos = editor.PointToGridSpace(pos.X, pos.Y);
-                    var note = new Note(gridPos.X, gridPos.Y, (long)Settings.settings["currentTime"].Value);
+                    var ms = editor.GetClosestBeat(Settings.settings["currentTime"].Value);
+                    var note = new Note(gridPos.X, gridPos.Y, (long)(ms >= 0 ? ms : Settings.settings["currentTime"].Value));
 
-                    editor.UndoRedoManager.Add("PLACE NOTE", () =>
+                    editor.UndoRedoManager.Add("ADD NOTE", () =>
                     {
                         editor.Notes.Remove(note);
                     }, () =>
@@ -283,9 +284,10 @@ namespace Sound_Space_Editor.GUI
 
                     if (gridPos != lastPlaced)
                     {
-                        var note = new Note(gridPos.X, gridPos.Y, (long)Settings.settings["currentTime"].Value);
+                        var ms = editor.GetClosestBeat(Settings.settings["currentTime"].Value);
+                        var note = new Note(gridPos.X, gridPos.Y, (long)(ms >= 0 ? ms : Settings.settings["currentTime"].Value));
 
-                        editor.UndoRedoManager.Add("PLACE NOTE", () =>
+                        editor.UndoRedoManager.Add("ADD NOTE", () =>
                         {
                             editor.Notes.Remove(note);
                         }, () =>
