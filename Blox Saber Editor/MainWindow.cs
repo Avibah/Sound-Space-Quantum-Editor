@@ -88,8 +88,6 @@ namespace Sound_Space_Editor
             Settings.Load();
 
             SwitchWindow(new GuiWindowMenu());
-
-            RunAutosave();
         }
 
         protected override void OnLoad(EventArgs e)
@@ -1083,9 +1081,6 @@ namespace Sound_Space_Editor
             {
                 if (CurrentWindow is GuiWindowEditor)
                 {
-                    if (fileName != null)
-                        Settings.settings["lastFile"] = fileName;
-
                     soundId = "-1";
                     fileName = null;
 
@@ -1096,6 +1091,9 @@ namespace Sound_Space_Editor
 
                     MusicPlayer.Reset();
                 }
+
+                if (window is GuiWindowEditor)
+                    RunAutosave(DateTime.Now.Millisecond);
 
                 CurrentWindow = window;
 
@@ -1125,12 +1123,19 @@ namespace Sound_Space_Editor
             return final;
         }
 
-        private void RunAutosave()
+        private int currentAutosave;
+
+        private void RunAutosave(int time)
         {
+            currentAutosave = time;
+
             var delay = Task.Delay((int)(Settings.settings["autosaveInterval"] * 60000f)).ContinueWith(_ =>
             {
-                RunAutosave();
-                AttemptAutosave();
+                if (currentAutosave == time)
+                {
+                    RunAutosave(time);
+                    AttemptAutosave();
+                }
             });
         }
 
@@ -1163,17 +1168,7 @@ namespace Sound_Space_Editor
                 var result = DialogResult.No;
 
                 if (!forced)
-                {
-                    //debug
-                    if (fileName != null)
-                    {
-                        File.WriteAllText("tempmap.txt", data);
-                        File.WriteAllText("tempmapcopied.txt", File.ReadAllText(fileName));
-                        ShowMessageBox("debug pre-save message: if youre unsure why this box is showing, send me tempmap.txt and tempmapcopied.txt from the editor's directory so i can see why its asking to save", (data != File.ReadAllText(fileName)).ToString());
-                    }
-                    
                     result = ShowMessageBox("Would you like to save before closing?", "", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
-                }
 
                 if (forced || result == DialogResult.Yes)
                 {
