@@ -73,7 +73,7 @@ namespace Sound_Space_Editor.GUI
                 var divisor = Settings.settings["quantumSnapping"].Value + 1f;
                 var offset = Math.Round(divisor) % 2 == 0 ? 0.5f : 1f;
 
-                for (int i = 1; i <= divisor; i++)
+                for (int i = (int)(2 * offset); i <= divisor; i++)
                 {
                     var x = rect.X + rect.Width / divisor * (i - offset);
                     var y = rect.Y + rect.Height / divisor * (i - offset);
