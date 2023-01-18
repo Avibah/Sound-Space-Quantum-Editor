@@ -803,12 +803,12 @@ namespace Sound_Space_Editor
                 Filter = "Audio Files (*.mp3;*.ogg;*.wav;*.flac;*.egg;*.asset)|*.mp3;*.ogg;*.wav;*.flac;*.egg;*.asset"
             })
             {
-                if (Settings.settings["defaultPath"] != "")
-                    dialog.InitialDirectory = Settings.settings["defaultPath"];
+                if (Settings.settings["audioPath"] != "")
+                    dialog.InitialDirectory = Settings.settings["audioPath"];
 
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    Settings.settings["defaultPath"] = Path.GetDirectoryName(dialog.FileName);
+                    Settings.settings["audioPath"] = Path.GetDirectoryName(dialog.FileName);
                     if (string.IsNullOrWhiteSpace(ID))
                         ID = Path.GetFileNameWithoutExtension(dialog.FileName);
 

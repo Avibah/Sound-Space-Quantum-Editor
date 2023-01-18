@@ -47,6 +47,7 @@ namespace Sound_Space_Editor
             {"clickSound", "click" },
             {"hitSound", "hit" },
             {"defaultPath", "" },
+            {"audioPath", "" },
             {"exportPath" , "" },
             {"coverPath", "" },
             {"importPath", "" },

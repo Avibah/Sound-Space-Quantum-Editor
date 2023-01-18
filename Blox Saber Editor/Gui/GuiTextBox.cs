@@ -116,6 +116,12 @@ namespace Sound_Space_Editor.GUI
             focused = true;
         }
 
+        private void SetSetting()
+        {
+            if (setting != "" && (isFloat ? float.TryParse(text, out _) : int.TryParse(text, out _)))
+                Settings.settings[setting] = float.Parse(text);
+        }
+
         public override void OnKeyTyped(char key)
         {
             if (isKeybind || !focused)
@@ -139,8 +145,7 @@ namespace Sound_Space_Editor.GUI
                 cursorPos++;
             }
 
-            if (setting != "" && (isFloat ? float.TryParse(text, out _) : int.TryParse(text, out _)))
-                Settings.settings[setting] = float.Parse(text);
+            SetSetting();
 
             timer = 0f;
         }
@@ -247,6 +252,8 @@ namespace Sound_Space_Editor.GUI
 
                     break;
             }
+
+            SetSetting();
 
             cursorPos = MathHelper.Clamp(cursorPos, 0, text.Length);
         }
