@@ -26,7 +26,7 @@ namespace Sound_Space_Editor.GUI
 
         public void Render(string text, float posx, float posy, int size)
         {
-            GetFont(size).Print(text, (float)Math.Round(posx), posy);
+            GetFont(size).Print(text, (int)(posx + 0.5f), posy);
         }
 
         public int GetWidth(string text, int size)

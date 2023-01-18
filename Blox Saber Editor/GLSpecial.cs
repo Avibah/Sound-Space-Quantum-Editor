@@ -29,8 +29,8 @@ namespace Sound_Space_Editor
         {
             GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
 
-            posx += 0.5f;
-            posy += 0.5f;
+            posx = (int)(posx + 0.5f) + 0.5f;
+            posy = (int)(posy + 0.5f) + 0.5f;
 
             var xf = posx + sizex - 1;
             var yf = posy + sizey - 1;
@@ -52,6 +52,11 @@ namespace Sound_Space_Editor
 
         public static void Line(float pos1x, float pos1y, float pos2x, float pos2y)
         {
+            pos1x = (int)(pos1x + 0.5f);
+            pos2x = (int)(pos2x + 0.5f);
+            pos1y = (int)(pos1y + 0.5f);
+            pos2y = (int)(pos2y + 0.5f);
+
             GL.Begin(PrimitiveType.Lines);
             GL.Vertex2(pos1x, pos1y);
             GL.Vertex2(pos2x, pos2y);

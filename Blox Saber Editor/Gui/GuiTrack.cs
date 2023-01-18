@@ -164,8 +164,6 @@ namespace Sound_Space_Editor.GUI
                 if (lastRendered != null && x - 1 <= lastRendered)
                     continue;
                 
-                lastRendered = x;
-
                 var alpha = currentTime - 1 > note.Ms ? 0.35f : 1f;
                 var alphaC = alpha * 255f;
 
@@ -191,23 +189,26 @@ namespace Sound_Space_Editor.GUI
 
                 GL.Color4(Color.FromArgb((int)(alphaC * 0.45f), note.Color));
 
-                for (int j = 0; j < 9; j++)
+                if (lastRendered == null || x - 4 > lastRendered)
                 {
-                    var indexX = 2 - j % 3;
-                    var indexY = 2 - j / 3;
+                    for (int j = 0; j < 9; j++)
+                    {
+                        var indexX = 2 - j % 3;
+                        var indexY = 2 - j / 3;
 
-                    var gridX = x + indexX * 11 + 5.5f;
-                    var gridY = cellGap + indexY * 11 + 5.5f;
+                        var gridX = x + indexX * 11 + 5.5f;
+                        var gridY = cellGap + indexY * 11 + 5.5f;
 
-                    GLSpecial.Outline(gridX, gridY, 9, 9);
-                }
+                        GLSpecial.Outline(gridX, gridY, 9, 9);
+                    }
 
-                {
-                    var gridX = x + note.X * 11 + 5.5f;
-                    var gridY = cellGap + note.Y * 11 + 5.5f;
+                    {
+                        var gridX = x + note.X * 11 + 5.5f;
+                        var gridY = cellGap + note.Y * 11 + 5.5f;
 
-                    GL.Color4(Color.FromArgb((int)alphaC, note.Color));
-                    GLSpecial.Rect(gridX, gridY, 9, 9);
+                        GL.Color4(Color.FromArgb((int)alphaC, note.Color));
+                        GLSpecial.Rect(gridX, gridY, 9, 9);
+                    }
                 }
 
                 if (lastTextRendered == null || x - 8 > lastTextRendered)
@@ -227,6 +228,8 @@ namespace Sound_Space_Editor.GUI
                     GL.Color4(1f, 1f, 1f, alpha);
                     GLSpecial.Line(x + 0.5f, rect.Height + 3, x + 0.5f, rect.Height + 28);
                 }
+
+                lastRendered = x;
             }
 
             if (selecting)
