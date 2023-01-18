@@ -48,23 +48,38 @@ namespace Sound_Space_Editor.GUI
             var cellGap = (cellSize - noteSize) / 2f;
 
             var currentTime = Settings.settings["currentTime"].Value;
+            var quantumLines = Settings.settings["quantumGridLines"];
 
             GL.Color3(0.2f, 0.2f, 0.2f);
+            GLSpecial.Outline(rect);
 
-            for (int x = 0; x < 4; x++)
-                GLSpecial.Rect(rect.X + x * cellSize, rect.Y, 1, rect.Height + 1);
-            for (int y = 0; y < 4; y++)
-                GLSpecial.Rect(rect.X, rect.Y + y * cellSize, rect.Width + 1, 1);
+            if (quantumLines)
+                GL.Color3(0.05f, 0.05f, 0.05f);
+
+            for (int i = 1; i < 3; i++)
+            {
+                var x = rect.X + rect.Width / 3f * i;
+                var y = rect.Y + rect.Height / 3f * i;
+
+                GLSpecial.Line(x, rect.Y, x, rect.Y + rect.Height);
+                GLSpecial.Line(rect.X, y, rect.X + rect.Width, y);
+            }
 
             //render grid lines
-            if (Settings.settings["quantumGridLines"])
+            if (quantumLines)
             {
-                var divisor = Settings.settings["quantumSnapping"].Value + 1f;
+                GL.Color3(0.2f, 0.2f, 0.2f);
 
-                for (int i = 1; i < divisor; i++)
+                var divisor = Settings.settings["quantumSnapping"].Value + 1f;
+                var offset = Math.Round(divisor) % 2 == 0 ? 0.5f : 1f;
+
+                for (int i = 1; i <= divisor; i++)
                 {
-                    GLSpecial.Line(rect.X + rect.Width / divisor * i, rect.Y, rect.X + rect.Width / divisor * i, rect.Y + rect.Height);
-                    GLSpecial.Line(rect.X, rect.Y + rect.Height / divisor * i, rect.X + rect.Width, rect.Y + rect.Height / divisor * i);
+                    var x = rect.X + rect.Width / divisor * (i - offset);
+                    var y = rect.Y + rect.Height / divisor * (i - offset);
+
+                    GLSpecial.Line(x, rect.Y, x, rect.Y + rect.Height);
+                    GLSpecial.Line(rect.X, y, rect.X + rect.Width, y);
                 }
             }
 
@@ -224,10 +239,10 @@ namespace Sound_Space_Editor.GUI
                     editor.UndoRedoManager.Add("ADD NOTE", () =>
                     {
                         editor.Notes.Remove(note);
+                        editor.SortNotes();
                     }, () =>
                     {
                         editor.Notes.Add(note);
-
                         editor.SortNotes();
                     });
 
@@ -290,10 +305,10 @@ namespace Sound_Space_Editor.GUI
                         editor.UndoRedoManager.Add("ADD NOTE", () =>
                         {
                             editor.Notes.Remove(note);
+                            editor.SortNotes();
                         }, () =>
                         {
                             editor.Notes.Add(note);
-
                             editor.SortNotes();
                         });
 

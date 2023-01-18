@@ -602,17 +602,17 @@ namespace Sound_Space_Editor
                 var bounds = quantum ? new Vector2(-0.85f, 2.85f) : new Vector2(0, 2);
 
                 var increment = quantum ? (Settings.settings["quantumSnapping"].Value + 1f) / 3f : 1f;
-                var x = (mousex - rect.X - rect.Width / 2f) / rect.Width * 3f + 1f;
-                var y = (mousey - rect.Y - rect.Width / 2f) / rect.Height * 3f + 1f;
+                var x = (mousex - rect.X - rect.Width / 2f) / rect.Width * 3f + 1 / increment;
+                var y = (mousey - rect.Y - rect.Width / 2f) / rect.Height * 3f + 1 / increment;
 
                 if (Settings.settings["quantumGridSnap"])
                 {
-                    x = (float)Math.Floor((x + 1f / increment / 2f) * increment) / increment;
-                    y = (float)Math.Floor((y + 1f / increment / 2f) * increment) / increment;
+                    x = (float)Math.Floor((x + 1 / increment / 2) * increment) / increment;
+                    y = (float)Math.Floor((y + 1 / increment / 2) * increment) / increment;
                 }
 
-                x = MathHelper.Clamp(x, bounds.X, bounds.Y);
-                y = MathHelper.Clamp(y, bounds.X, bounds.Y);
+                x = MathHelper.Clamp(x - 1 / increment + 1, bounds.X, bounds.Y);
+                y = MathHelper.Clamp(y - 1 / increment + 1, bounds.X, bounds.Y);
 
                 pos = new PointF(x, y);
             }
