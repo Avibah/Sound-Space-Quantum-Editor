@@ -87,7 +87,7 @@ namespace Sound_Space_Editor.GUI
             rect = new RectangleF(0, 0, size.Width, size.Height);
 
             AutosavedButton.Visible = Settings.settings["autosavedFile"] != "";
-            LastMapButton.Visible = Settings.settings["lastFile"] != "";
+            LastMapButton.Visible = Settings.settings["lastFile"] != "" && File.Exists(Settings.settings["lastFile"]);
 
             base.OnResize(size);
 
