@@ -821,7 +821,9 @@ namespace Sound_Space_Editor
                     if (string.IsNullOrWhiteSpace(ID))
                         ID = Path.GetFileNameWithoutExtension(dialog.FileName);
 
-                    File.Copy(dialog.FileName, $"cached/{ID}.asset", true);
+                    if (dialog.FileName != $"{Path.GetDirectoryName(Application.ExecutablePath)}\\cached\\{ID}.asset")
+                        File.Copy(dialog.FileName, $"cached/{ID}.asset", true);
+
                     MusicPlayer.Load($"cached/{ID}.asset");
                     if (create)
                         soundId = ID;
