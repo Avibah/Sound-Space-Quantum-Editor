@@ -1129,6 +1129,30 @@ namespace Sound_Space_Editor
             return final;
         }
 
+        public string ParseProperties()
+        {
+            var timingfinal = new JsonArray();
+
+            foreach (var point in TimingPoints)
+                timingfinal.Add(new JsonArray() { point.bpm, point.Ms });
+
+            var bookmarkfinal = new JsonArray();
+
+            foreach (var bookmark in Bookmarks)
+                bookmarkfinal.Add(new JsonArray() { bookmark.Text, bookmark.Ms });
+
+            var json = new JsonObject(Array.Empty<KeyValuePair<string, JsonValue>>())
+            {
+                {"timings", timingfinal },
+                {"bookmarks", bookmarkfinal },
+                {"currentTime", Settings.settings["currentTime"].Value },
+                {"beatDivisor", Settings.settings["beatDivisor"].Value },
+                {"exportOffset", Settings.settings["exportOffset"] },
+            };
+
+            return json.ToString();
+        }
+
         private int currentAutosave;
 
         private void RunAutosave(int time)
@@ -1152,6 +1176,7 @@ namespace Sound_Space_Editor
                 if (fileName == null)
                 {
                     Settings.settings["autosavedFile"] = ParseData();
+                    Settings.settings["autosavedProperties"] = ParseProperties();
                     Settings.Save();
 
                     editor.ShowToast("AUTOSAVED", Settings.settings["color1"]);
@@ -1216,32 +1241,13 @@ namespace Sound_Space_Editor
 
         public void SaveProperties(string filepath)
         {
-            var timingfinal = new JsonArray();
-
-            foreach (var point in TimingPoints)
-                timingfinal.Add(new JsonArray() { point.bpm, point.Ms });
-
-            var bookmarkfinal = new JsonArray();
-
-            foreach (var bookmark in Bookmarks)
-                bookmarkfinal.Add(new JsonArray() { bookmark.Text, bookmark.Ms });
-
             var file = Path.ChangeExtension(filepath, ".ini");
 
-            var json = new JsonObject(Array.Empty<KeyValuePair<string, JsonValue>>())
-            {
-                {"timings", timingfinal },
-                {"bookmarks", bookmarkfinal },
-                {"currentTime", Settings.settings["currentTime"].Value },
-                {"beatDivisor", Settings.settings["beatDivisor"].Value },
-                {"exportOffset", Settings.settings["exportOffset"] },
-            };
-
-            File.WriteAllText(file, json.ToString());
+            File.WriteAllText(file, ParseProperties());
             Settings.settings["lastFile"] = filepath;
         }
 
-        public bool LoadMap(string pathordata, bool file = false)
+        public bool LoadMap(string pathordata, bool file = false, bool autosave = false)
         {
             fileName = file ? pathordata : null;
 
@@ -1291,7 +1297,14 @@ namespace Sound_Space_Editor
                     zoom = 1f;
 
                     if (file)
-                        LoadProperties(fileName);
+                    {
+                        var propertyFile = Path.ChangeExtension(fileName, ".ini");
+
+                        if (File.Exists(propertyFile))
+                            LoadProperties(File.ReadAllText(propertyFile));
+                    }
+                    else if (autosave)
+                        LoadProperties(Settings.settings["autosavedProperties"]);
 
                     SortTimings();
                     SortBookmarks();
@@ -1390,65 +1403,58 @@ namespace Sound_Space_Editor
             }
         }
 
-        public void LoadProperties(string filepath)
+        public void LoadProperties(string text)
         {
-            var file = Path.ChangeExtension(filepath, ".ini");
-
-            if (File.Exists(file))
+            try
             {
-                var text = File.ReadAllText(file);
+                var result = (JsonObject)JsonValue.Parse(text);
 
+                foreach (var key in result)
+                {
+                    switch (key.Key)
+                    {
+                        case "timings":
+                            foreach (JsonArray timing in key.Value)
+                                TimingPoints.Add(new TimingPoint(timing[0], timing[1]));
+
+                            break;
+
+                        case "bookmarks":
+                            foreach (JsonArray bookmark in key.Value)
+                                Bookmarks.Add(new Bookmark(bookmark[0], bookmark[1]));
+
+                            break;
+
+                        case "currentTime":
+                            Settings.settings["currentTime"].Value = key.Value;
+
+                            break;
+
+                        case "beatDivisor":
+                            Settings.settings["beatDivisor"].Value = key.Value;
+
+                            break;
+
+                        case "exportOffset":
+                            foreach (var note in Notes)
+                                note.Ms += (long)Settings.settings["exportOffset"];
+
+                            Settings.settings["exportOffset"] = key.Value;
+
+                            foreach (var note in Notes)
+                                note.Ms -= (long)Settings.settings["exportOffset"];
+
+                            break;
+                    }
+                }
+            }
+            catch
+            {
                 try
                 {
-                    var result = (JsonObject)JsonValue.Parse(text);
-
-                    foreach (var key in result)
-                    {
-                        switch (key.Key)
-                        {
-                            case "timings":
-                                foreach (JsonArray timing in key.Value)
-                                    TimingPoints.Add(new TimingPoint(timing[0], timing[1]));
-
-                                break;
-
-                            case "bookmarks":
-                                foreach (JsonArray bookmark in key.Value)
-                                    Bookmarks.Add(new Bookmark(bookmark[0], bookmark[1]));
-
-                                break;
-
-                            case "currentTime":
-                                Settings.settings["currentTime"].Value = key.Value;
-
-                                break;
-
-                            case "beatDivisor":
-                                Settings.settings["beatDivisor"].Value = key.Value;
-
-                                break;
-
-                            case "exportOffset":
-                                foreach (var note in Notes)
-                                    note.Ms += (long)Settings.settings["exportOffset"];
-
-                                Settings.settings["exportOffset"] = key.Value;
-
-                                foreach (var note in Notes)
-                                    note.Ms -= (long)Settings.settings["exportOffset"];
-
-                                break;
-                        }
-                    }
+                    LoadLegacyProperties(text);
                 }
-                catch
-                {
-                    try
-                    {
-                        LoadLegacyProperties(text);
-                    }
-                    catch { }
-                }
+                catch { }
             }
         }
 
@@ -1476,7 +1482,7 @@ namespace Sound_Space_Editor
 
                         File.Copy(dialog.FileName, newfile, true);
 
-                        LoadProperties(fileName);
+                        LoadProperties(File.ReadAllText(newfile));
                     }
                 }
             }
@@ -1725,9 +1731,10 @@ namespace Sound_Space_Editor
             offset += markerDefinitions.Count();
 
             var markers = new List<byte>(); // note data
+            var exportOffset = (long)Settings.settings["exportOffset"];
             foreach (var note in Notes)
             {
-                var ms = BitConverter.GetBytes((uint)note.Ms);
+                var ms = BitConverter.GetBytes((uint)(note.Ms + exportOffset));
                 var markerType = new byte[1];
 
                 var xyInt = Math.Round(note.X) == Math.Round(note.X, 2) && Math.Round(note.Y) == Math.Round(note.Y, 2);

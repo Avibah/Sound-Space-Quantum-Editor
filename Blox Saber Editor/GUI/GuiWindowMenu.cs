@@ -193,7 +193,7 @@ namespace Sound_Space_Editor.GUI
                     var autosavedFile = Settings.settings["autosavedFile"];
 
                     if (autosavedFile != "")
-                        MainWindow.Instance.LoadMap(autosavedFile);
+                        MainWindow.Instance.LoadMap(autosavedFile, false, true);
 
                     break;
 

@@ -336,6 +336,7 @@ namespace Sound_Space_Editor.GUI
 
                 case 5:
                     ExportOffset.text = ((long)currentTime.Value).ToString();
+                    Settings.settings["exportOffset"] = currentTime.Value;
 
                     break;
 

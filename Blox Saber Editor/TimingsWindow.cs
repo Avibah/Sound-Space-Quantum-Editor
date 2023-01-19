@@ -173,13 +173,13 @@ namespace Sound_Space_Editor
 
                     switch (ext)
                     {
-                        case "osu":
+                        case ".osu":
                             ParseOSU(data);
                             break;
-                        case "adofai":
+                        case ".adofai":
                             ParseADOFAI(data);
                             break;
-                        case "chart":
+                        case ".chart":
                             ParseCH(data);
                             break;
                     }
@@ -261,7 +261,7 @@ namespace Sound_Space_Editor
                 var st = new StackTrace(ex, true);
                 var frame = st.GetFrame(st.FrameCount - 1);
                 var line = frame.GetFileLineNumber();
-                MessageBox.Show($"Failed to parse beatmap [OSU | {ex.GetType().Name} | {line}]", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"Failed to parse beatmap\n[OSU | {ex.GetType().Name} | {line}]", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 ResetList();
             }
         }
@@ -410,7 +410,7 @@ namespace Sound_Space_Editor
                 var st = new StackTrace(ex, true);
                 var frame = st.GetFrame(st.FrameCount - 1);
                 var line = frame.GetFileLineNumber();
-                MessageBox.Show($"Failed to parse beatmap [ADOFAI | {ex.GetType().Name} | {line}]", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"Failed to parse beatmap\n[ADOFAI | {ex.GetType().Name} | {line}]", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 ResetList();
             }
         }
@@ -492,7 +492,7 @@ namespace Sound_Space_Editor
                 var st = new StackTrace(ex, true);
                 var frame = st.GetFrame(st.FrameCount - 1);
                 var line = frame.GetFileLineNumber();
-                MessageBox.Show($"Failed to parse beatmap [CH | {ex.GetType().Name} | {line}]", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"Failed to parse beatmap\n[CH | {ex.GetType().Name} | {line}]", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 ResetList();
             }
         }

@@ -41,6 +41,7 @@ namespace Sound_Space_Editor
             {"bezierDivisor", 4 },
 
             {"autosavedFile", "" },
+            {"autosavedProperties", "" },
             {"lastFile", "" },
             {"clickSound", "click" },
             {"hitSound", "hit" },

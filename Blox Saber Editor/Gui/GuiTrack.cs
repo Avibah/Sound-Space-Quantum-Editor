@@ -292,9 +292,6 @@ namespace Sound_Space_Editor.GUI
                     var divisor = multiplier * beatDivisor;
                     stepX *= multiplier;
 
-                    if (lineX < 0)
-                        lineX %= stepX;
-
                     var width = Math.Max(TextWidth(numText, 16), TextWidth(msText, 16));
                     var hitbox = new RectangleF(lineX, rect.Height, width + 3, 56);
 
@@ -312,6 +309,9 @@ namespace Sound_Space_Editor.GUI
 
                         GLSpecial.Outline(lineX - 4, rect.Height, width + 11, 60);
                     }
+
+                    if (lineX < 0)
+                        lineX %= stepX;
 
                     var gapf = rect.Height - noteSize - cellGap;
 
