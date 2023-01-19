@@ -40,8 +40,6 @@ namespace Sound_Space_Editor
             {"exportOffset", 0 },
             {"bezierDivisor", 4 },
 
-            {"bgDim", 0f },
-
             {"autosavedFile", "" },
             {"lastFile", "" },
             {"clickSound", "click" },
