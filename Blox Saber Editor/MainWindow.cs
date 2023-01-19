@@ -1317,7 +1317,7 @@ namespace Sound_Space_Editor
             foreach (var line in lines)
             {
                 var split = line.Split('=');
-
+                
                 switch (split[0])
                 {
                     case "BPM":
@@ -1364,13 +1364,13 @@ namespace Sound_Space_Editor
                         else
                         {
                             foreach (var note in Notes)
-                                note.Ms += Settings.settings["exportOffset"];
-
+                                note.Ms += (long)Settings.settings["exportOffset"];
+                            
                             if (long.TryParse(split[1], out var offset))
                                 Settings.settings["exportOffset"] = offset;
 
                             foreach (var note in Notes)
-                                note.Ms -= Settings.settings["exportOffset"];
+                                note.Ms -= (long)Settings.settings["exportOffset"];
                         }
 
                         break;
@@ -1430,12 +1430,12 @@ namespace Sound_Space_Editor
 
                             case "exportOffset":
                                 foreach (var note in Notes)
-                                    note.Ms += Settings.settings["exportOffset"];
+                                    note.Ms += (long)Settings.settings["exportOffset"];
 
                                 Settings.settings["exportOffset"] = key.Value;
 
                                 foreach (var note in Notes)
-                                    note.Ms -= Settings.settings["exportOffset"];
+                                    note.Ms -= (long)Settings.settings["exportOffset"];
 
                                 break;
                         }
@@ -1465,12 +1465,19 @@ namespace Sound_Space_Editor
 
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    Settings.settings["defaultPath"] = Path.GetDirectoryName(dialog.FileName);
-
                     var newfile = Path.ChangeExtension(fileName, ".ini");
-                    File.Copy(dialog.FileName, newfile, true);
 
-                    LoadProperties(fileName);
+                    if (dialog.FileName != newfile)
+                    {
+                        TimingPoints.Clear();
+                        Bookmarks.Clear();
+
+                        Settings.settings["defaultPath"] = Path.GetDirectoryName(dialog.FileName);
+
+                        File.Copy(dialog.FileName, newfile, true);
+
+                        LoadProperties(fileName);
+                    }
                 }
             }
         }
