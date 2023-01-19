@@ -32,7 +32,7 @@ namespace Sound_Space_Editor.GUI
 
         public override void Render(float mousex, float mousey, float frametime)
         {
-            var approachRate = Settings.settings["approachRate"].Value / 10f;
+            var approachRate = (Settings.settings["approachRate"].Value + 1f) / 10f;
             var gridDim = Settings.settings["gridOpacity"];
 
             var approachSquares = Settings.settings["approachSquares"];
