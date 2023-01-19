@@ -39,7 +39,7 @@ namespace Sound_Space_Editor.GUI
         private readonly GuiCheckbox SeparateClickTools = new GuiCheckbox(10, 580, 40, 40, "separateClickTools", "Separate Click Tools", 25, false, true);
         private readonly GuiSlider TrackHeight = new GuiSlider(378, 414, 32, 256, "trackHeight", false, false, true);
         private readonly GuiSlider TrackCursorPos = new GuiSlider(10, 656, 400, 32, "cursorPos", false, false, true);
-        private readonly GuiSlider ApproachRate = new GuiSlider(378, 124, 32, 256, "approachRate", false, false, true);
+        private readonly GuiSlider ApproachRate = new GuiSlider(378, 124, 32, 256, "approachRate", true, false, true);
 
         private readonly GuiButton TimingNav = new GuiButton(10, 120, 400, 50, 4, "TIMING >", 25, false, true);
         private readonly GuiTextbox ExportOffset = new GuiTextbox(10, 210, 128, 40, "0", 25, true, false, true, "exportOffset");

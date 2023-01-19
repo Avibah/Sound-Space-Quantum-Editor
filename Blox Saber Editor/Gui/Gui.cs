@@ -67,18 +67,21 @@ namespace Sound_Space_Editor.GUI
                     if (checkbox.Visible && checkbox.rect.Contains(pos))
                         checkbox.OnMouseClick(pos);
 
-                foreach (var slider in sliders)
+                if (!buttonClicked)
                 {
-                    var horizontal = slider.rect.Width > slider.rect.Height;
-                    var xdiff = horizontal ? 12f : 0f;
-                    var ydiff = horizontal ? 0f : 12f;
-
-                    var hitbox = new RectangleF(slider.rect.X - xdiff, slider.rect.Y - ydiff, slider.rect.Width + xdiff * 2f, slider.rect.Height + ydiff * 2f);
-
-                    if (slider.Visible && hitbox.Contains(pos))
+                    foreach (var slider in sliders)
                     {
-                        slider.OnMouseClick(pos);
-                        slider.dragging = !(slider is GuiSliderTimeline s) || s.hoveringBookmark == null;
+                        var horizontal = slider.rect.Width > slider.rect.Height;
+                        var xdiff = horizontal ? 12f : 0f;
+                        var ydiff = horizontal ? 0f : 12f;
+
+                        var hitbox = new RectangleF(slider.rect.X - xdiff, slider.rect.Y - ydiff, slider.rect.Width + xdiff * 2f, slider.rect.Height + ydiff * 2f);
+
+                        if (slider.Visible && hitbox.Contains(pos))
+                        {
+                            slider.OnMouseClick(pos);
+                            slider.dragging = !(slider is GuiSliderTimeline s) || s.hoveringBookmark == null;
+                        }
                     }
                 }
 
