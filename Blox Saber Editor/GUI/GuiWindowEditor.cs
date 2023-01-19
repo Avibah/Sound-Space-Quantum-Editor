@@ -110,6 +110,9 @@ namespace Sound_Space_Editor.GUI
                 decimal tdiff = finalnodes[k].Ms - finalnodes[0].Ms;
                 decimal d = 1m / (divisor * k);
 
+                if (!Settings.settings["curveBezier"])
+                    d = 1m / divisor;
+
                 if (Settings.settings["curveBezier"])
                 {
                     for (decimal t = d; t <= 1; t += d)
@@ -137,6 +140,34 @@ namespace Sound_Space_Editor.GUI
 
                         xprev = xg;
                         yprev = yg;
+                    }
+                }
+                else
+                {
+                    for (int v = 0; v < k; v++)
+                    {
+                        var note = finalnodes[v];
+                        var nextNote = finalnodes[v + 1];
+
+                        var xDist = nextNote.X - note.X;
+                        var yDist = nextNote.Y - note.Y;
+
+                        for (decimal t = d; t <= 1; t += d)
+                        {
+                            var xf = note.X + xDist * (float)t;
+                            var yf = note.Y + yDist * (float)t;
+
+                            var xg = (xf + 0.5f) * grid.rect.Width / 3f + grid.rect.X;
+                            var yg = (yf + 0.5f) * grid.rect.Width / 3f + grid.rect.Y;
+
+                            GL.Color3(1f, 1f, 1f);
+                            GLSpecial.Line(xprev, yprev, xg, yg);
+
+                            grid.RenderPreviewNote(xf, yf, color3);
+
+                            xprev = xg;
+                            yprev = yg;
+                        }
                     }
                 }
             }
@@ -257,7 +288,7 @@ namespace Sound_Space_Editor.GUI
             //bezier preview
             GL.LineWidth(2f);
 
-            var bezierDivisor = Settings.settings["bezierDivisor"];
+            var bezierDivisor = (float)Settings.settings["bezierDivisor"];
 
             if (bezierDivisor > 0 && editor.BezierNodes.Count > 1)
             {
@@ -277,7 +308,7 @@ namespace Sound_Space_Editor.GUI
                     for (int j = anchored[i - 1]; j <= anchored[i]; j++)
                         newnodes.Add(editor.BezierNodes[j]);
 
-                    ShowBezier(newnodes, bezierDivisor);
+                    ShowBezier(newnodes, (int)(bezierDivisor + 0.5f));
                 }
             }
 

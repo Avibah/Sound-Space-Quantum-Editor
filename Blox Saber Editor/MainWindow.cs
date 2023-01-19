@@ -490,8 +490,17 @@ namespace Sound_Space_Editor
                             break;
 
                         case "anchorNode":
-                            foreach (var note in SelectedNotes)
-                                note.Anchored = !note.Anchored;
+                            var selectedA = SelectedNotes.ToList();
+
+                            UndoRedoManager.Add($"ANCHOR NODE{(selectedA.Count > 1 ? "S" : "")}", () =>
+                            {
+                                foreach (var note in selectedA)
+                                    note.Anchored = !note.Anchored;
+                            }, () =>
+                            {
+                                foreach (var note in selectedA)
+                                    note.Anchored = !note.Anchored;
+                            });
 
                             break;
 
@@ -868,7 +877,7 @@ namespace Sound_Space_Editor
                 if (divisor > 0 && ((BezierNodes != null && BezierNodes.Count > 1) || SelectedNotes.Count > 1))
                 {
                     var success = true;
-                    var finalnodes = BezierNodes != null && BezierNodes.Count > 1 ? BezierNodes : SelectedNotes.ToList();
+                    var finalnodes = BezierNodes != null && BezierNodes.Count > 1 ? BezierNodes.ToList() : SelectedNotes.ToList();
                     var finalnotes = new List<Note>();
 
                     var anchored = new List<int>() { 0 };
