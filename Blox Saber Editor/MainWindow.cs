@@ -1041,17 +1041,6 @@ namespace Sound_Space_Editor
             return false;
         }
 
-        public bool FileExists(string filetype, string filename)
-        {
-            var files = Directory.GetFiles(filetype);
-
-            foreach (var file in files)
-                if (Path.GetFileNameWithoutExtension(file) == filename)
-                    return true;
-
-            return false;
-        }
-
         public bool IsMegaNote(int i)
         {
             var ms = Notes[i].Ms;
