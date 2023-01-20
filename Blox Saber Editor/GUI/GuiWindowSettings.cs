@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Sound_Space_Editor.GUI
 {
@@ -38,6 +39,9 @@ namespace Sound_Space_Editor.GUI
 
         private int txid;
         private bool bgImg;
+
+        private int resetQueryTime;
+        private bool resetQuery;
 
         public GuiWindowSettings() : base(0, 0, MainWindow.Instance.ClientSize.Width, MainWindow.Instance.ClientSize.Height)
         {
@@ -163,6 +167,20 @@ namespace Sound_Space_Editor.GUI
             base.OnMouseClick(pos, right);
         }
 
+        private void RunQueryReset(int time)
+        {
+            resetQueryTime = time;
+
+            var delay = Task.Delay(5000).ContinueWith(_ =>
+            {
+                if (resetQueryTime == time)
+                {
+                    resetQuery = false;
+                    ResetButton.text = "RESET TO DEFAULT";
+                }
+            });
+        }
+
         protected override void OnButtonClicked(int id)
         {
             switch (id)
@@ -174,7 +192,20 @@ namespace Sound_Space_Editor.GUI
                     break;
 
                 case 1:
-                    Settings.Reset();
+                    if (resetQuery)
+                    {
+                        Settings.Reset();
+
+                        resetQuery = false;
+                        ResetButton.text = "RESET TO DEFAULT";
+                    }
+                    else
+                    {
+                        resetQuery = true;
+                        RunQueryReset(DateTime.Now.Millisecond);
+
+                        ResetButton.text = "ARE YOU SURE?";
+                    }
 
                     break;
 

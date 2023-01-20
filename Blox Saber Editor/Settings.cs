@@ -105,8 +105,17 @@ namespace Sound_Space_Editor
 
         public static void Reset()
         {
+            var keptSet = new List<string> { "autosavedFile", "autosavedProperties", "lastFile", "defaultPath", "audioPath", "exportPath", "coverPath", "importPath", "patterns" };
+            var kept = new Dictionary<string, dynamic>();
+
+            foreach (var item in keptSet)
+                kept.Add(item, settings[item]);
+
             settings = new Dictionary<string, dynamic>(settingsCloned);
             settings["mergedColor"] = MergeColors();
+
+            foreach (var key in kept)
+                settings[key.Key] = key.Value;
         }
 
         public static void RefreshKeymapping()
