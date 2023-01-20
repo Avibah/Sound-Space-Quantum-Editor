@@ -1282,7 +1282,7 @@ namespace Sound_Space_Editor
             {
                 var id = split[0];
 
-                for (int i = 1; i < split.Count(); i++)
+                for (int i = 1; i < split.Length; i++)
                 {
                     var subsplit = split[i].Split('|');
 
@@ -1350,13 +1350,13 @@ namespace Sound_Space_Editor
                         foreach (var point in points)
                         {
                             var pointsplit = point.Split('|');
-                            if (pointsplit.Count() == 1)
+                            if (pointsplit.Length == 1)
                             {
                                 pointsplit = new string[] { pointsplit[0], "0" };
                                 oldVer = true;
                             }
 
-                            if (pointsplit.Count() == 2 && float.TryParse(pointsplit[0], out var bpm) && long.TryParse(pointsplit[1], out var ms))
+                            if (pointsplit.Length == 2 && float.TryParse(pointsplit[0], out var bpm) && long.TryParse(pointsplit[1], out var ms))
                                 TimingPoints.Add(new TimingPoint(bpm, ms));
                         }
 
@@ -1371,7 +1371,7 @@ namespace Sound_Space_Editor
                         {
                             var bookmarksplit = bookmark.Split('|');
 
-                            if (bookmarksplit.Count() == 2 && long.TryParse(bookmarksplit[1], out var ms))
+                            if (bookmarksplit.Length == 2 && long.TryParse(bookmarksplit[1], out var ms))
                                 Bookmarks.Add(new Bookmark(bookmarksplit[0], ms));
                         }
 
@@ -1652,7 +1652,7 @@ namespace Sound_Space_Editor
                             var data = ParseSSPM();
 
                             using (FileStream fs = File.Create(dialog.FileName))
-                                fs.Write(data, 0, data.Count());
+                                fs.Write(data, 0, data.Length);
 
                             editor.ShowToast("SUCCESSFULLY EXPORTED", Settings.settings["color1"]);
                         }
@@ -1694,52 +1694,52 @@ namespace Sound_Space_Editor
             };
 
             var songID = Encoding.ASCII.GetBytes(info["songId"]); // song ID from form
-            var songIDf = BitConverter.GetBytes((ushort)songID.Count()).Concat(songID).ToArray(); // song ID array with length
+            var songIDf = BitConverter.GetBytes((ushort)songID.Length).Concat(songID).ToArray(); // song ID array with length
             var mapName = Encoding.ASCII.GetBytes(info["mapName"]); // map name from form
-            var mapNamef = BitConverter.GetBytes((ushort)mapName.Count()).Concat(mapName).ToArray(); // map name array with length
+            var mapNamef = BitConverter.GetBytes((ushort)mapName.Length).Concat(mapName).ToArray(); // map name array with length
             var songNamef = mapNamef.ToArray(); // song name copied from map name
 
             var mappers = info["mappers"].Split('\n'); // list of provided valid mappers or "None" if empty
-            var mapperCount = BitConverter.GetBytes((ushort)mappers.Count()); // number of provided valid mappers
+            var mapperCount = BitConverter.GetBytes((ushort)mappers.Length); // number of provided valid mappers
             var mappersf = new List<byte>(); // final list of mappers as bytes
 
             foreach (var mapper in mappers)
             {
                 var mapperf = Encoding.ASCII.GetBytes(mapper);
-                var mapperFinal = BitConverter.GetBytes((ushort)mapperf.Count()).Concat(mapperf).ToArray(); // mapper array with length
+                var mapperFinal = BitConverter.GetBytes((ushort)mapperf.Length).Concat(mapperf).ToArray(); // mapper array with length
 
                 mappersf.AddRange(mapperFinal);
             }
 
             var strings = songIDf.Concat(mapNamef).Concat(songNamef).Concat(mapperCount).Concat(mappersf).ToArray(); // merged string data
 
-            var offset = header.Count() + 20 + metadata.Count() + 80 + strings.Count(); // for pointers
+            var offset = header.Length + 20 + metadata.Length + 80 + strings.Length; // for pointers
 
             var customData = new byte[] { 0x00, 0x00 }; // no custom data
             var customDataOffset = BitConverter.GetBytes((ulong)offset);
-            var customDataLength = BitConverter.GetBytes((ulong)customData.Count());
-            offset += customData.Count();
+            var customDataLength = BitConverter.GetBytes((ulong)customData.Length);
+            offset += customData.Length;
 
             var audio = File.ReadAllBytes($"cached/{soundId}.asset"); // audio in bytes
             var audioOffset = BitConverter.GetBytes((ulong)offset);
-            var audioLength = BitConverter.GetBytes((ulong)audio.Count());
-            offset += audio.Count();
+            var audioLength = BitConverter.GetBytes((ulong)audio.Length);
+            offset += audio.Length;
 
             var path = info["coverPath"];
             var cover = hasCover ? (path == "Default" || !File.Exists(path) ? BitmapToByteArray(Resources.logo) : File.ReadAllBytes(path)) : new byte[0]; // cover in bytes
             var coverOffset = BitConverter.GetBytes((ulong)(hasCover ? offset : 0));
-            var coverLength = BitConverter.GetBytes((ulong)cover.Count());
-            offset += cover.Count();
+            var coverLength = BitConverter.GetBytes((ulong)cover.Length);
+            offset += cover.Length;
 
             var noteDefinition = Encoding.ASCII.GetBytes("ssp_note");
-            var noteDefinitionf = BitConverter.GetBytes((ushort)noteDefinition.Count()).Concat(noteDefinition).ToArray();
+            var noteDefinitionf = BitConverter.GetBytes((ushort)noteDefinition.Length).Concat(noteDefinition).ToArray();
             var markerDefStart = new byte[] { 0x01 /* one definition */ };
             var markerDefEnd = new byte[] { 0x01, /* one value */ 0x07, /* data type 07 - note */ 0x00 /* end of definition */ };
 
             var markerDefinitions = markerDefStart.Concat(noteDefinitionf).Concat(markerDefEnd).ToArray(); // defines how to process notes
             var markerDefinitionsOffset = BitConverter.GetBytes((ulong)offset);
-            var markerDefinitionsLength = BitConverter.GetBytes((ulong)markerDefinitions.Count());
-            offset += markerDefinitions.Count();
+            var markerDefinitionsLength = BitConverter.GetBytes((ulong)markerDefinitions.Length);
+            offset += markerDefinitions.Length;
 
             var markers = new List<byte>(); // note data
             var exportOffset = (long)Settings.settings["exportOffset"];
