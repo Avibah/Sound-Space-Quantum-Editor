@@ -243,7 +243,7 @@ namespace Sound_Space_Editor.GUI
 
             var divisor = $"Beat Divisor: {Math.Round(Settings.settings["beatDivisor"].Value * 10) / 10 + 1f}";
             var divisorWidth = TextWidth(divisor, 24);
-            var snapping = $"Snapping: 3/{Settings.settings["quantumSnapping"].Value + 1f}";
+            var snapping = $"Snapping: 3/{Settings.settings["quantumSnapping"].Value + 3f}";
             var snappingWidth = TextWidth(snapping, 24);
 
             RenderText(divisor, BeatSnapDivisor.rect.X + BeatSnapDivisor.rect.Width / 2f - divisorWidth / 2f, BeatSnapDivisor.rect.Y - 20f, 24);

@@ -70,7 +70,7 @@ namespace Sound_Space_Editor.GUI
             {
                 GL.Color3(0.2f, 0.2f, 0.2f);
 
-                var divisor = Settings.settings["quantumSnapping"].Value + 1f;
+                var divisor = Settings.settings["quantumSnapping"].Value + 3f;
                 var offset = Math.Round(divisor) % 2 == 0 ? 0.5f : 1f;
 
                 for (int i = (int)(2 * offset); i <= divisor; i++)

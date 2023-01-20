@@ -610,7 +610,7 @@ namespace Sound_Space_Editor
 
                 var bounds = quantum ? new Vector2(-0.85f, 2.85f) : new Vector2(0, 2);
 
-                var increment = quantum ? (Settings.settings["quantumSnapping"].Value + 1f) / 3f : 1f;
+                var increment = quantum ? (Settings.settings["quantumSnapping"].Value + 3f) / 3f : 1f;
                 var x = (mousex - rect.X - rect.Width / 2f) / rect.Width * 3f + 1 / increment;
                 var y = (mousey - rect.Y - rect.Width / 2f) / rect.Height * 3f + 1 / increment;
 

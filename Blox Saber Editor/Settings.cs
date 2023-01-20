@@ -67,7 +67,7 @@ namespace Sound_Space_Editor
             {"currentTime", new SliderSetting(0f, 0f, 0f) },
             {"beatDivisor", new SliderSetting(3f, 31f, 0.5f) },
             {"tempo", new SliderSetting(0.9f, 1.4f, 0.05f) },
-            {"quantumSnapping", new SliderSetting(2f, 59f, 1f) },
+            {"quantumSnapping", new SliderSetting(0f, 57f, 1f) },
 
             {"changelogPosition", new SliderSetting(0f, 0f, 1f) },
 
