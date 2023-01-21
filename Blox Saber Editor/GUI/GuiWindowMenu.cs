@@ -64,6 +64,9 @@ namespace Sound_Space_Editor.GUI
                 lastAssembled = (int)Settings.settings["changelogPosition"].Value;
             }
 
+            AutosavedButton.Visible = Settings.settings["autosavedFile"] != "";
+            LastMapButton.Visible = Settings.settings["lastFile"] != "" && File.Exists(Settings.settings["lastFile"]);
+
             var widthdiff = rect.Width / 1920f;
             var heightdiff = rect.Height / 1080f;
 
@@ -85,9 +88,6 @@ namespace Sound_Space_Editor.GUI
         public override void OnResize(Size size)
         {
             rect = new RectangleF(0, 0, size.Width, size.Height);
-
-            AutosavedButton.Visible = Settings.settings["autosavedFile"] != "";
-            LastMapButton.Visible = Settings.settings["lastFile"] != "" && File.Exists(Settings.settings["lastFile"]);
 
             base.OnResize(size);
 
