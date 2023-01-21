@@ -874,7 +874,7 @@ namespace Sound_Space_Editor
         {
             if (CurrentWindow is GuiWindowEditor editor)
             {
-                var divisor = Settings.settings["bezierDivisor"];
+                var divisor = (int)((float)Settings.settings["bezierDivisor"] + 0.5f);
 
                 if (divisor > 0 && ((BezierNodes != null && BezierNodes.Count > 1) || SelectedNotes.Count > 1))
                 {
