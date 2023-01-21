@@ -909,10 +909,7 @@ namespace Sound_Space_Editor
                     SelectedNotes.Clear();
                     SelectedPoint = null;
 
-                    if (!Settings.settings["curveBezier"])
-                        finalnodes = new List<Note>();
-                    else
-                        finalnotes.Add(finalnodes[0]);
+                    finalnotes.Add(finalnodes[0]);
 
                     if (success)
                     {
@@ -973,7 +970,7 @@ namespace Sound_Space_Editor
 
                     if (Settings.settings["curveBezier"])
                     {
-                        for (decimal t = d; t <= 1; t += d)
+                        for (decimal t = d; t <= 1 + d / 2m; t += d)
                         {
                             float xf = 0;
                             float yf = 0;
@@ -1003,7 +1000,7 @@ namespace Sound_Space_Editor
                             decimal ydist = (decimal)(nextnote.Y - note.Y);
                             decimal tdist = nextnote.Ms - note.Ms;
 
-                            for (decimal t = 0; t < 1; t += d)
+                            for (decimal t = 0; t < 1 + d / 2m; t += d)
                             {
                                 if (t > 0)
                                 {
