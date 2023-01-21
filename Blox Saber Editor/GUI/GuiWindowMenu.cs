@@ -119,7 +119,7 @@ namespace Sound_Space_Editor.GUI
                         lineedit = lineedit.Remove(index, 1).Insert(index, "\\");
                 }
 
-                lineedit = lineedit.Replace("\\", "");
+                lineedit = lineedit.Replace("\\", " ");
 
                 foreach (var newline in lineedit.Split('\n'))
                     lines.Add(newline);
