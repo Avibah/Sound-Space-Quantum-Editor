@@ -1,4 +1,9 @@
 ----------------------------------
+    -- 1.9.0.2 - 1/22/2023 --
+
+- fixed correct on copy causing copied data to be flipped
+
+----------------------------------
     -- 1.9.0.1 - 1/21/2023 --
 
 - fixed releasing of ctrl/alt/shift not being detected in some situations
