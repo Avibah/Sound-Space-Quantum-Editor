@@ -111,13 +111,13 @@ namespace Sound_Space_Editor
             if (MusicPlayer.IsPlaying && CurrentWindow is GuiWindowEditor)
                 Settings.settings["currentTime"].Value = (float)MusicPlayer.CurrentTime.TotalMilliseconds;
 
-            CurrentWindow?.Render(mouse.X, mouse.Y, (float)e.Time);
-
             if (mouse != lastMouse)
             {
                 CurrentWindow?.OnMouseMove(mouse);
                 lastMouse = mouse;
             }
+
+            CurrentWindow?.Render(mouse.X, mouse.Y, (float)e.Time);
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
             GL.PopMatrix();
