@@ -1,4 +1,9 @@
 ----------------------------------
+    -- 1.9.0.1 - 1/21/2023 --
+
+- fixed releasing of ctrl/alt/shift not being detected in some situations
+
+----------------------------------
       -- 1.9 - 1/21/2023 --
 
 - the editor has been nearly completely rewritten, trying to keep to the old layout with hopefully more room for improvements later on
