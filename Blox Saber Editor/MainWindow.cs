@@ -1120,7 +1120,7 @@ namespace Sound_Space_Editor
 
             foreach (var note in Notes)
             {
-                var clone = copy ? new Note(MathHelper.Clamp(2 - note.X, -0.85f, 2.85f), MathHelper.Clamp(2 - note.Y, -0.85f, 2.85f), (long)MathHelper.Clamp(note.Ms, 0, Settings.settings["currentTime"].Max)) : note;
+                var clone = copy ? new Note(MathHelper.Clamp(note.X, -0.85f, 2.85f), MathHelper.Clamp(note.Y, -0.85f, 2.85f), (long)MathHelper.Clamp(note.Ms, 0, Settings.settings["currentTime"].Max)) : note;
 
                 var x = Math.Round(2 - clone.X, 2).ToString(culture);
                 var y = Math.Round(2 - clone.Y, 2).ToString(culture);
