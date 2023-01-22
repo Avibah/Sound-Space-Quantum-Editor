@@ -522,6 +522,12 @@ namespace Sound_Space_Editor
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
+            var keyboard = Keyboard.GetState();
+
+            ctrlHeld = keyboard.IsKeyDown(Key.LControl) || keyboard.IsKeyDown(Key.RControl);
+            altHeld = keyboard.IsKeyDown(Key.LAlt) || keyboard.IsKeyDown(Key.RAlt);
+            shiftHeld = keyboard.IsKeyDown(Key.LShift) || keyboard.IsKeyDown(Key.RShift);
+
             if (CurrentWindow is GuiWindowEditor)
             {
                 if (shiftHeld)
