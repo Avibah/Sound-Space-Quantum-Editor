@@ -186,6 +186,9 @@ namespace Sound_Space_Editor
                 return;
             }
 
+            if (e.Key == Key.F4 && altHeld)
+                Close();
+
             if (!FocusingBox())
             {
                 if (CurrentWindow is GuiWindowEditor editor)
