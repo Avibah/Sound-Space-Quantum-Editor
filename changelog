@@ -1,4 +1,10 @@
 ----------------------------------
+     -- 1.9.1 - 1/24/2023 --
+
+- added map player
+- readded alt f4 support
+
+----------------------------------
     -- 1.9.0.2 - 1/22/2023 --
 
 - fixed correct on copy causing copied data to be flipped
