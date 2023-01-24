@@ -7,6 +7,7 @@ using OpenTK.Graphics.OpenGL;
 using System.IO;
 using System.Collections.Generic;
 using Sound_Space_Editor.Misc;
+using System.Diagnostics;
 
 namespace Sound_Space_Editor.GUI
 {
@@ -62,6 +63,15 @@ namespace Sound_Space_Editor.GUI
         private readonly GuiTextbox ScaleBox = new GuiTextbox(10, 682, 128, 40, "150", 25, true, false, true);
         private readonly GuiButton ScaleButton = new GuiButton(143, 682, 128, 40, 15, "SCALE", 21, false, true);
 
+        private readonly GuiButton PlayerNav = new GuiButton(10, 240, 400, 50, 17, "PLAYER >", 25, false, true);
+        private readonly GuiButtonList CameraMode = new GuiButtonList(10, 335, 256, 40, "cameraMode", 21, false, true);
+        private readonly GuiCheckbox LockCursor = new GuiCheckbox(10, 385, 40, 40, "lockCursor", "Lock Cursor Within Grid", 25, false, true);
+        private readonly GuiTextbox Sensitivity = new GuiTextbox(10, 460, 128, 40, "1", 25, true, false, true, "sensitivity", "main", false, true);
+        private readonly GuiTextbox Parallax = new GuiTextbox(10, 535, 128, 40, "1", 25, true, false, true, "parallax", "main", false, true);
+        private readonly GuiSlider PlayerApproachRate = new GuiSlider(10, 610, 400, 32, "playerApproachRate", false, false, true);
+        private readonly GuiCheckbox FromStart = new GuiCheckbox(10, 650, 40, 40, "fromStart", "Play From Start", 25, false, true);
+        private readonly GuiButton PlayMap = new GuiButton(10, 700, 256, 40, 18, "PLAY MAP", 21, false, true);
+
         private readonly GuiLabel ToastLabel = new GuiLabel(0, 0, 0, 0, "", 36);
 
         private float toastTime = 0f;
@@ -75,11 +85,11 @@ namespace Sound_Space_Editor.GUI
         public GuiWindowEditor() : base(0, 0, MainWindow.Instance.ClientSize.Width, MainWindow.Instance.ClientSize.Height)
         {
             buttons = new List<GuiButton> { CopyButton, BackButton, PlayPause, OptionsNav, TimingNav, UseCurrentMs, OpenTimings, OpenBookmarks, ImportIni, PatternsNav, HFlip, VFlip,
-                StoreNodes, ClearNodes, BezierButton, RotateButton, ScaleButton };
+                StoreNodes, ClearNodes, BezierButton, RotateButton, ScaleButton, PlayerNav, CameraMode, PlayMap };
             checkboxes = new List<GuiCheckbox> { AutoAdvance, Autoplay, ApproachSquares, GridNumbers, GridLetters, Quantum, Numpad, QuantumGridLines, QuantumGridSnap, Metronome, SeparateClickTools,
-            CurveBezier };
-            sliders = new List<GuiSlider> { Tempo, MasterVolume, SfxVolume, BeatSnapDivisor, QuantumSnapDivisor, Timeline, TrackHeight, TrackCursorPos, ApproachRate };
-            boxes = new List<GuiTextbox> { ExportOffset, SfxOffset, BezierBox, RotateBox, ScaleBox };
+            CurveBezier, LockCursor, FromStart };
+            sliders = new List<GuiSlider> { Tempo, MasterVolume, SfxVolume, BeatSnapDivisor, QuantumSnapDivisor, Timeline, TrackHeight, TrackCursorPos, ApproachRate, PlayerApproachRate };
+            boxes = new List<GuiTextbox> { ExportOffset, SfxOffset, BezierBox, RotateBox, ScaleBox, Sensitivity, Parallax };
             labels = new List<GuiLabel> { ToastLabel };
             track = Track;
             grid = Grid;
@@ -216,29 +226,39 @@ namespace Sound_Space_Editor.GUI
 
             var trackHeight = 64f + Settings.settings["trackHeight"].Value;
             var approachRate = Settings.settings["approachRate"].Value + 1f;
+            var playerApproachRate = Settings.settings["playerApproachRate"].Value + 1f;
 
             if (Settings.settings["separateClickTools"])
                 RenderText($"Click Mode: {(Settings.settings["selectTool"] ? "Select" : "Place")}", Grid.rect.X, BackButton.rect.Bottom + 10f, 24);
 
-            if (navEnabled == "Options")
+            switch  (navEnabled)
             {
-                var trackHeightWidth = TextWidth("Track Height: 00", textScale);
-                var approachRateWidth = TextWidth("Approach Rate: 00", textScale);
+                case "Options":
+                    var trackHeightWidth = TextWidth("Track Height: 00", textScale);
+                    var approachRateWidth = TextWidth("Approach Rate: 00", textScale);
 
-                RenderText($"Track Height: {trackHeight}", TrackHeight.rect.X - trackHeightWidth, SeparateClickTools.rect.Bottom + 10 * heightdiff, textScale);
-                RenderText($"Cursor Pos: {Math.Round(Settings.settings["cursorPos"].Value)}%", TrackCursorPos.rect.X, SeparateClickTools.rect.Bottom + 10 * heightdiff, textScale);
-                RenderText($"Approach Rate: {approachRate}", ApproachRate.rect.X - approachRateWidth, Quantum.rect.Y + 10 * heightdiff, textScale);
-            }
-            else if (navEnabled == "Timing")
-            {
-                RenderText("Export Offset[ms]:", ExportOffset.rect.X, ExportOffset.rect.Y - 24f, 24);
-                RenderText("SFX Offset[ms]:", SfxOffset.rect.X, SfxOffset.rect.Y - 24f, 24);
-            }
-            else if (navEnabled == "Patterns")
-            {
-                RenderText("Draw Bezier with Divisor:", BezierBox.rect.X, BezierBox.rect.Y - 24f, 24);
-                RenderText("Rotate by Degrees:", RotateBox.rect.X, RotateBox.rect.Y - 24f, 24);
-                RenderText("Scale by Percent:", ScaleBox.rect.X, ScaleBox.rect.Y - 24f, 24);
+                    RenderText($"Track Height: {trackHeight}", TrackHeight.rect.X - trackHeightWidth, SeparateClickTools.rect.Bottom + 10 * heightdiff, textScale);
+                    RenderText($"Cursor Pos: {Math.Round(Settings.settings["cursorPos"].Value)}%", TrackCursorPos.rect.X, SeparateClickTools.rect.Bottom + 10 * heightdiff, textScale);
+                    RenderText($"Approach Rate: {approachRate}", ApproachRate.rect.X - approachRateWidth, Quantum.rect.Y + 10 * heightdiff, textScale);
+                    break;
+
+                case "Timing":
+                    RenderText("Export Offset[ms]:", ExportOffset.rect.X, ExportOffset.rect.Y - 24f, 24);
+                    RenderText("SFX Offset[ms]:", SfxOffset.rect.X, SfxOffset.rect.Y - 24f, 24);
+                    break;
+
+                case "Patterns":
+                    RenderText("Draw Bezier with Divisor:", BezierBox.rect.X, BezierBox.rect.Y - 24f, 24);
+                    RenderText("Rotate by Degrees:", RotateBox.rect.X, RotateBox.rect.Y - 24f, 24);
+                    RenderText("Scale by Percent:", ScaleBox.rect.X, ScaleBox.rect.Y - 24f, 24);
+                    break;
+
+                case "Player":
+                    RenderText("Camera Mode:", CameraMode.rect.X, CameraMode.rect.Y - 24f, 24);
+                    RenderText("Sensitivity:", Sensitivity.rect.X, Sensitivity.rect.Y - 24f, 24);
+                    RenderText("Parallax:", Parallax.rect.X, Parallax.rect.Y - 24f, 24);
+                    RenderText($"Player Approach Rate: {playerApproachRate}", PlayerApproachRate.rect.X, PlayerApproachRate.rect.Y - 24f, 24);
+                    break;
             }
 
             var divisor = $"Beat Divisor: {Math.Round(Settings.settings["beatDivisor"].Value * 10) / 10 + 1f}";
@@ -510,7 +530,30 @@ namespace Sound_Space_Editor.GUI
                     break;
 
                 case 16:
-                    MainWindow.Instance.ImportProperties();
+                    editor.ImportProperties();
+
+                    break;
+
+                case 17:
+                    navEnabled = navEnabled == "Player" ? "" : "Player";
+                    UpdateNav();
+
+                    break;
+
+                case 18:
+                    if (editor.MusicPlayer.IsPlaying)
+                        editor.MusicPlayer.Pause();
+
+                    if (File.Exists("SSQE Player.exe"))
+                    {
+                        if (!Directory.Exists("assets/temp"))
+                            Directory.CreateDirectory("assets/temp");
+
+                        Settings.Save();
+
+                        File.WriteAllText($"assets/temp/tempmap.txt", editor.ParseData());
+                        Process.Start("SSQE Player.exe", Settings.settings["fromStart"].ToString());
+                    }
 
                     break;
             }
@@ -529,10 +572,12 @@ namespace Sound_Space_Editor.GUI
             var optionsNav = navEnabled == "Options";
             var timingNav = navEnabled == "Timing";
             var patternsNav = navEnabled == "Patterns";
+            var playerNav = navEnabled == "Player";
 
             OptionsNav.text = $"OPTIONS {(optionsNav ? "<" : ">")}";
             TimingNav.text = $"TIMING {(timingNav ? "<" : ">")}";
             PatternsNav.text = $"PATTERNS {(patternsNav ? "<" : ">")}";
+            PlayerNav.text = $"PLAYER {(playerNav ? "<" : ">")}";
 
             Autoplay.Visible = optionsNav;
             ApproachSquares.Visible = optionsNav;
@@ -567,6 +612,14 @@ namespace Sound_Space_Editor.GUI
             ScaleBox.Visible = patternsNav;
             ScaleButton.Visible = patternsNav;
 
+            CameraMode.Visible = playerNav;
+            LockCursor.Visible = playerNav;
+            Sensitivity.Visible = playerNav;
+            Parallax.Visible = playerNav;
+            PlayerApproachRate.Visible = playerNav;
+            FromStart.Visible = playerNav;
+            PlayMap.Visible = playerNav;
+
             OnResize(new Size((int)rect.Width, (int)rect.Height));
         }
 
@@ -576,10 +629,28 @@ namespace Sound_Space_Editor.GUI
 
             base.OnResize(size);
 
+            PlayerNav.Visible = File.Exists("SSQE Player.exe");
+
             var heightdiff = size.Height / 1080f;
 
-            TimingNav.rect.Y = navEnabled == "Options" ? TrackCursorPos.rect.Bottom + 20 * heightdiff : TimingNav.rect.Y;
-            PatternsNav.rect.Y = navEnabled == "Options" ? TimingNav.rect.Bottom + 10 * heightdiff : (navEnabled == "Timing" ? ImportIni.rect.Bottom + 20 * heightdiff : PatternsNav.rect.Y);
+            switch (navEnabled)
+            {
+                case "Options":
+                    TimingNav.rect.Y = TrackCursorPos.rect.Bottom + 20 * heightdiff;
+                    PatternsNav.rect.Y = TimingNav.rect.Bottom + 10 * heightdiff;
+                    PlayerNav.rect.Y = PatternsNav.rect.Bottom + 10 * heightdiff;
+                    break;
+
+                case "Timing":
+                    PatternsNav.rect.Y = ImportIni.rect.Bottom + 20 * heightdiff;
+                    PlayerNav.rect.Y = PatternsNav.rect.Bottom + 10 * heightdiff;
+                    break;
+
+                case "Patterns":
+                    PlayerNav.rect.Y = ScaleButton.rect.Bottom + 20 * heightdiff;
+                    break;
+            }
+
 
             CopyButton.rect.Location = new PointF(Grid.rect.X, Grid.rect.Y - 42 - 75 * heightdiff);
             BackButton.rect.Location = new PointF(Grid.rect.X, Grid.rect.Bottom + 84 * heightdiff);

@@ -31,6 +31,8 @@ namespace Sound_Space_Editor
             {"gridLetters", true },
             {"exportWarningShown", false },
             {"skipDownload", false },
+            {"lockCursor", true },
+            {"fromStart", false },
 
             {"editorBGOpacity", 255 },
             {"gridOpacity", 255 },
@@ -39,6 +41,8 @@ namespace Sound_Space_Editor
             {"sfxOffset", 0 },
             {"exportOffset", 0 },
             {"bezierDivisor", 4 },
+            {"sensitivity", 1 },
+            {"parallax", 1 },
 
             {"autosavedFile", "" },
             {"autosavedProperties", "" },
@@ -50,6 +54,7 @@ namespace Sound_Space_Editor
             {"exportPath" , "" },
             {"coverPath", "" },
             {"importPath", "" },
+            {"cameraMode", new ListSetting("half lock", "half lock", "full lock", "spin") },
 
             {"color1", Color.FromArgb(0, 255, 200) },
             {"color2", Color.FromArgb(255, 0, 255) },
@@ -61,6 +66,7 @@ namespace Sound_Space_Editor
             {"trackHeight", new SliderSetting(16, 32, 1) },
             {"cursorPos", new SliderSetting(40, 100, 1) },
             {"approachRate", new SliderSetting(9, 29, 1) },
+            {"playerApproachRate", new SliderSetting(9, 29, 1) },
             {"masterVolume", new SliderSetting(0.05f, 1, 0.01f) },
             {"sfxVolume", new SliderSetting(0.1f, 1, 0.01f) },
 
@@ -147,6 +153,8 @@ namespace Sound_Space_Editor
                                 settings[setting.Key] = ConvertToKeybind(value);
                             else if (setting.Value.GetType() == typeof(SliderSetting))
                                 settings[setting.Key] = ConvertToSliderSetting(value);
+                            else if (setting.Value.GetType() == typeof(ListSetting))
+                                settings[setting.Key].Current = value;
                             else if (setting.Key == "noteColors")
                             {
                                 var colors = new List<Color>();
@@ -208,6 +216,8 @@ namespace Sound_Space_Editor
                     finaljson.Add(setting.Key, new JsonArray(setting.Value.Key.ToString(), setting.Value.CTRL, setting.Value.SHIFT, setting.Value.ALT));
                 else if (setting.Value.GetType() == typeof(SliderSetting))
                     finaljson.Add(setting.Key, new JsonArray(setting.Value.Value, setting.Value.Max, setting.Value.Step));
+                else if (setting.Value.GetType() == typeof(ListSetting))
+                    finaljson.Add(setting.Key, setting.Value.Current);
                 else if (setting.Key == "noteColors")
                 {
                     var notecolorsfinal = new JsonArray();
@@ -361,6 +371,19 @@ namespace Sound_Space_Editor
             CTRL = ctrl;
             ALT = alt;
             SHIFT = shift;
+        }
+    }
+
+    [Serializable]
+    class ListSetting
+    {
+        public string Current;
+        public List<string> Possible;
+
+        public ListSetting(string current, params string[] possible)
+        {
+            Current = current;
+            Possible = possible.ToList();
         }
     }
 }

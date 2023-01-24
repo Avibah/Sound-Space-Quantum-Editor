@@ -142,6 +142,7 @@
     <Compile Include="ExportSSPM.Designer.cs">
       <DependentUpon>ExportSSPM.cs</DependentUpon>
     </Compile>
+    <Compile Include="GUI\GuiButtonList.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="GUI\GuiWindowKeybinds.cs" />
     <Compile Include="GUI\GuiWindowSettings.cs" />
