@@ -164,7 +164,7 @@ namespace Sound_Space_Editor.GUI
                 if (lastRendered != null && x - 1 <= lastRendered)
                     continue;
 
-                noteSelected = noteSelected || selected.IndexOf(note) >= 0;
+                noteSelected |= selected.IndexOf(note) >= 0;
                 
                 var alpha = currentTime - 1 > note.Ms ? 0.35f : 1f;
                 var alphaC = alpha * 255f;
