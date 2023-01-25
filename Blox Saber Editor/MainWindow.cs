@@ -23,6 +23,8 @@ using Vector2 = System.Numerics.Vector2;
 using System.Text;
 using System.Security.Cryptography;
 using System.Drawing.Imaging;
+using Discord;
+using MouseButton = OpenTK.Input.MouseButton;
 
 //god
 
@@ -68,12 +70,18 @@ namespace Sound_Space_Editor
 
         public readonly Dictionary<string, FontRenderer> Fonts = new Dictionary<string, FontRenderer>();
 
+        private Discord.Discord discord;
+        private ActivityManager activityManager;
+        private bool discordEnabled = File.Exists("discord_game_sdk.dll");
+
 
         public MainWindow() : base(1280, 720, new GraphicsMode(32, 8, 0, 8), $"Sound Space Quantum Editor {Application.ProductVersion}")
         {
             VSync = VSyncMode.On;
             WindowState = WindowState.Maximized;
             LastWindowRect = new Rectangle(Location, Size);
+
+            TargetUpdateFrequency = 1 / 20.0;
 
             Icon = Resources.icon;
 
@@ -85,9 +93,18 @@ namespace Sound_Space_Editor
             Fonts.Add("square", new FontRenderer("square"));
             Fonts.Add("squareo", new FontRenderer("squareo"));
 
+            DiscordInit();
+            SetActivity("Sitting in the menu");
+
             Settings.Load();
 
             SwitchWindow(new GuiWindowMenu());
+        }
+
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+            if (discordEnabled)
+                try { discord.RunCallbacks(); } catch { }
         }
 
         protected override void OnLoad(EventArgs e)
@@ -1105,7 +1122,12 @@ namespace Sound_Space_Editor
                 }
 
                 if (window is GuiWindowEditor)
+                {
+                    SetActivity("Editing a map");
                     RunAutosave(DateTime.Now.Millisecond);
+                }
+                else if (window is GuiWindowMenu)
+                    SetActivity("Sitting in the menu");
 
                 CurrentWindow = window;
 
@@ -1822,6 +1844,37 @@ namespace Sound_Space_Editor
             File.Delete("ssqe_export_temp.png");
 
             return final;
+        }
+
+
+
+        public void DiscordInit()
+        {
+            if (!discordEnabled)
+                return;
+
+            discord = new Discord.Discord(1067849747710345346, (ulong)CreateFlags.NoRequireDiscord);
+            activityManager = discord.GetActivityManager();
+        }
+
+        public void SetActivity(string status)
+        {
+            if (!discordEnabled)
+                return;
+
+            var activity = new Activity
+            {
+                State = status,
+                Details = $"Version {Application.ProductVersion}",
+                Timestamps = { Start = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() },
+                Assets = { LargeImage = "logo" },
+                Instance = true,
+            };
+
+            activityManager.UpdateActivity(activity, (result) =>
+            {
+                Console.WriteLine($"{(result == Result.Ok ? "Success" : "Failed")}");
+            });
         }
     }
 
