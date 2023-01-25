@@ -37,6 +37,8 @@ namespace Sound_Space_Editor.GUI
         private readonly List<GuiTextbox> Opacities = new List<GuiTextbox>();
         private readonly List<string> OpacityLabels = new List<string> { "Editor BG Opacity:", "Grid Opacity:", "Track Opacity:" };
 
+        private int hoveringColor;
+
         private int txid;
         private bool bgImg;
 
@@ -102,9 +104,21 @@ namespace Sound_Space_Editor.GUI
             //note colors
             for (int i = 0; i < noteColors.Count; i++)
             {
+                var colorRect = new RectangleF(NoteColorPicker.rect.X + 210 * widthdiff + colorWidth * i, NoteColorPicker.rect.Y - 15 * heightdiff, colorWidth * widthdiff, 75 * heightdiff);
+
                 GL.Color3(noteColors[i]);
-                GLSpecial.Rect(NoteColorPicker.rect.X + 210 * widthdiff + colorWidth * i, NoteColorPicker.rect.Y - 15 * heightdiff, colorWidth * widthdiff, 75 * heightdiff);
+                GLSpecial.Rect(colorRect);
+
+                if (hoveringColor == i)
+                {
+                    GL.LineWidth(2f);
+                    GL.Color3(0f, 0.5f, 1f);
+                    GLSpecial.Outline(colorRect);
+                }
             }
+
+            GL.Color3(1f, 1f, 1f);
+            RenderText("LMB: Remove\nRMB: Move left", NoteColorPicker.rect.X + 5f * widthdiff, NoteColorPicker.rect.Bottom + 10f * heightdiff, 24);
 
             //opacities
             for (int i = 0; i < 3; i++)
@@ -140,6 +154,27 @@ namespace Sound_Space_Editor.GUI
 
         public override void OnMouseClick(Point pos, bool right = false)
         {
+            var setting = Settings.settings["noteColors"];
+
+            if (hoveringColor >= 0)
+            {
+                if (!right)
+                    setting.RemoveAt(hoveringColor);
+                else if (hoveringColor > 0)
+                {
+                    var old = setting[hoveringColor - 1];
+
+                    setting[hoveringColor - 1] = setting[hoveringColor];
+                    setting[hoveringColor] = old;
+                }
+
+            }
+
+            base.OnMouseClick(pos, right);
+        }
+
+        public override void OnMouseMove(Point pos)
+        {
             var widthdiff = rect.Width / 1920f;
             var heightdiff = rect.Height / 1080f;
 
@@ -150,21 +185,11 @@ namespace Sound_Space_Editor.GUI
             var xint = x / (75f * widthdiff / setting.Count);
 
             if (setting.Count > 1 && xint >= 0 && xint < setting.Count && y >= 0 && y < 75 * heightdiff)
-            {
-                var xintf = (int)xint;
+                hoveringColor = (int)xint;
+            else
+                hoveringColor = -1;
 
-                if (!right)
-                    setting.RemoveAt(xintf);
-                else if (xintf > 0)
-                {
-                    var old = setting[xintf - 1];
-
-                    setting[xintf - 1] = setting[xintf];
-                    setting[xintf] = old;
-                }
-            }
-
-            base.OnMouseClick(pos, right);
+            base.OnMouseMove(pos);
         }
 
         private void RunQueryReset(int time)
