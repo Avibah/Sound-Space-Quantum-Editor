@@ -151,8 +151,8 @@ namespace Sound_Space_Editor.GUI
                 var x = cursorX - posX + note.Ms / 1000f * noteStep;
                 var noteRect = new RectangleF(x, cellGap, noteSize, noteSize);
 
-                var noteSelected = selecting ? selectHitbox.IntersectsWith(noteRect) : editor.SelectedNotes.Contains(note);
-                if (selecting && noteSelected)
+                bool noteSelected = selecting && selectHitbox.IntersectsWith(noteRect);
+                if (noteSelected)
                     selected.Add(note);
 
                 if (note.Ms < minMs || note.Ms > maxMs)
@@ -163,6 +163,8 @@ namespace Sound_Space_Editor.GUI
 
                 if (lastRendered != null && x - 1 <= lastRendered)
                     continue;
+
+                noteSelected = noteSelected || selected.IndexOf(note) >= 0;
                 
                 var alpha = currentTime - 1 > note.Ms ? 0.35f : 1f;
                 var alphaC = alpha * 255f;
