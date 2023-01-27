@@ -1565,6 +1565,29 @@ namespace Sound_Space_Editor
                 var wc = new WebClient();
                 var playerVersion = wc.DownloadString("https://raw.githubusercontent.com/Avibah/Sound-Space-Quantum-Editor/map_player/PlayerVersion").Replace("\n", "");
 
+                // player exists check
+                if (!File.Exists("SSQE Player.exe"))
+                {
+                    var diag = ShowMessageBox("Map player is not present in this directory. Would you like to download it?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                    if (diag == DialogResult.Yes)
+                        wc.DownloadFile("https://github.com/Avibah/Sound-Space-Quantum-Editor/raw/map_player/SSQE%20Player.exe", "SSQE Player.exe");
+                }
+
+                // player version check
+                if (File.Exists("SSQE Player.exe"))
+                {
+                    var currentPlayerVersion = FileVersionInfo.GetVersionInfo("SSQE Player.exe").FileVersion;
+
+                    if (currentPlayerVersion != playerVersion)
+                    {
+                        var diag = ShowMessageBox($"New Player version is available ({playerVersion}). Would you like to download the new version?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                        if (diag == DialogResult.Yes)
+                            wc.DownloadFile("https://github.com/Avibah/Sound-Space-Quantum-Editor/raw/map_player/SSQE%20Player.exe", "SSQE Player.exe");
+                    }
+                }
+
                 var request = (HttpWebRequest)WebRequest.Create("https://github.com/Avibah/Sound-Space-Quantum-Editor/releases/latest");
                 request.AllowAutoRedirect = false;
 
@@ -1609,29 +1632,6 @@ namespace Sound_Space_Editor
                             if (diag == DialogResult.Yes)
                                 Process.Start("SSQE Updater.exe");
                         }
-                    }
-                }
-
-                // player exists check
-                if (!File.Exists("SSQE Player.exe"))
-                {
-                    var diag = ShowMessageBox("Map player is not present in this directory. Would you like to download it?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-                    if (diag == DialogResult.Yes)
-                        wc.DownloadFile("https://github.com/Avibah/Sound-Space-Quantum-Editor/raw/map_player/SSQE%20Player.exe", "SSQE Player.exe");
-                }
-
-                // player version check
-                if (File.Exists("SSQE Player.exe"))
-                {
-                    var currentPlayerVersion = FileVersionInfo.GetVersionInfo("SSQE Player.exe").FileVersion;
-
-                    if (currentPlayerVersion != playerVersion)
-                    {
-                        var diag = ShowMessageBox($"New Player version is available ({playerVersion}). Would you like to download the new version?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-                        if (diag == DialogResult.Yes)
-                            wc.DownloadFile("https://github.com/Avibah/Sound-Space-Quantum-Editor/raw/map_player/SSQE%20Player.exe", "SSQE Player.exe");
                     }
                 }
             }
