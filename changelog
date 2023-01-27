@@ -1,5 +1,20 @@
 ----------------------------------
-    -- 1.9.1.1 - 1/22/2023 --
+    -- 1.9.1.2 - 1/27/2023 --
+
+- improved note color ui
+- readded support for discord rich presence
+- added approach distance setting for map player
+
+   -- P-1.1.0.0 - 1/27/2023 --
+
+- added an orange line on the progress bar indicating the start position
+- added a combo count between accuracy and misses
+- added support for a variable approach distance
+- split the note and cursor meshes for more customizability
+- adjusted approach method to not depend on framerate
+
+----------------------------------
+    -- 1.9.1.1 - 1/24/2023 --
 
 - improved fps while notes are selected
 
