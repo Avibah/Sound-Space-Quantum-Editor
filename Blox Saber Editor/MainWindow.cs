@@ -1873,7 +1873,7 @@ namespace Sound_Space_Editor
 
             activityManager.UpdateActivity(activity, (result) =>
             {
-                Console.WriteLine($"{(result == Result.Ok ? "Success" : "Failed")}");
+                Console.WriteLine($"{(result == Result.Ok ? "Activity success" : "Activity failed")}");
             });
         }
     }
