@@ -43,6 +43,7 @@ namespace Sound_Space_Editor
             {"bezierDivisor", 4 },
             {"sensitivity", 1 },
             {"parallax", 1 },
+            {"approachDistance", 1 },
 
             {"autosavedFile", "" },
             {"autosavedProperties", "" },

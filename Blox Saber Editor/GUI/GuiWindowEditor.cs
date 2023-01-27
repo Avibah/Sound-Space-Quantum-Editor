@@ -68,9 +68,10 @@ namespace Sound_Space_Editor.GUI
         private readonly GuiCheckbox LockCursor = new GuiCheckbox(10, 385, 40, 40, "lockCursor", "Lock Cursor Within Grid", 25, false, true);
         private readonly GuiTextbox Sensitivity = new GuiTextbox(10, 460, 128, 40, "1", 25, true, false, true, "sensitivity", "main", false, true);
         private readonly GuiTextbox Parallax = new GuiTextbox(10, 535, 128, 40, "1", 25, true, false, true, "parallax", "main", false, true);
-        private readonly GuiSlider PlayerApproachRate = new GuiSlider(10, 610, 400, 32, "playerApproachRate", false, false, true);
-        private readonly GuiCheckbox FromStart = new GuiCheckbox(10, 650, 40, 40, "fromStart", "Play From Start", 25, false, true);
-        private readonly GuiButton PlayMap = new GuiButton(10, 700, 256, 40, 18, "PLAY MAP", 21, false, true);
+        private readonly GuiTextbox ApproachDistance = new GuiTextbox(10, 610, 128, 40, "1", 25, true, false, true, "approachDistance", "main", false, true);
+        private readonly GuiSlider PlayerApproachRate = new GuiSlider(10, 685, 400, 32, "playerApproachRate", false, false, true);
+        private readonly GuiCheckbox FromStart = new GuiCheckbox(10, 725, 40, 40, "fromStart", "Play From Start", 25, false, true);
+        private readonly GuiButton PlayMap = new GuiButton(10, 775, 256, 40, 18, "PLAY MAP", 21, false, true);
 
         private readonly GuiLabel ToastLabel = new GuiLabel(0, 0, 0, 0, "", 36);
 
@@ -89,7 +90,7 @@ namespace Sound_Space_Editor.GUI
             checkboxes = new List<GuiCheckbox> { AutoAdvance, Autoplay, ApproachSquares, GridNumbers, GridLetters, Quantum, Numpad, QuantumGridLines, QuantumGridSnap, Metronome, SeparateClickTools,
             CurveBezier, LockCursor, FromStart };
             sliders = new List<GuiSlider> { Tempo, MasterVolume, SfxVolume, BeatSnapDivisor, QuantumSnapDivisor, Timeline, TrackHeight, TrackCursorPos, ApproachRate, PlayerApproachRate };
-            boxes = new List<GuiTextbox> { ExportOffset, SfxOffset, BezierBox, RotateBox, ScaleBox, Sensitivity, Parallax };
+            boxes = new List<GuiTextbox> { ExportOffset, SfxOffset, BezierBox, RotateBox, ScaleBox, Sensitivity, Parallax, ApproachDistance };
             labels = new List<GuiLabel> { ToastLabel };
             track = Track;
             grid = Grid;
@@ -257,6 +258,7 @@ namespace Sound_Space_Editor.GUI
                     RenderText("Camera Mode:", CameraMode.rect.X, CameraMode.rect.Y - 24f, 24);
                     RenderText("Sensitivity:", Sensitivity.rect.X, Sensitivity.rect.Y - 24f, 24);
                     RenderText("Parallax:", Parallax.rect.X, Parallax.rect.Y - 24f, 24);
+                    RenderText("Approach Distance:", ApproachDistance.rect.X, ApproachDistance.rect.Y - 24f, 24);
                     RenderText($"Player Approach Rate: {playerApproachRate}", PlayerApproachRate.rect.X, PlayerApproachRate.rect.Y - 24f, 24);
                     break;
             }
@@ -616,6 +618,7 @@ namespace Sound_Space_Editor.GUI
             LockCursor.Visible = playerNav;
             Sensitivity.Visible = playerNav;
             Parallax.Visible = playerNav;
+            ApproachDistance.Visible = playerNav;
             PlayerApproachRate.Visible = playerNav;
             FromStart.Visible = playerNav;
             PlayMap.Visible = playerNav;
