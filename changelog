@@ -1,4 +1,9 @@
 ----------------------------------
+    -- 1.9.1.4 - 1/28/2023 --
+
+- fixed crashing if the discord rich presence feature fails to initialize
+
+----------------------------------
    -- 1.9.1.2/3 - 1/27/2023 --
 
 - improved note color ui
