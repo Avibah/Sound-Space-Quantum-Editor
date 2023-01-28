@@ -1,9 +1,11 @@
 ----------------------------------
-    -- 1.9.1.2 - 1/27/2023 --
+   -- 1.9.1.2/3 - 1/27/2023 --
 
 - improved note color ui
 - readded support for discord rich presence
 - added approach distance setting for map player
+
+- fixed an odd rare crash during rendering
 
    -- P-1.1.0.0 - 1/27/2023 --
 
