@@ -86,21 +86,26 @@ namespace Sound_Space_Editor.GUI
             //render grid letters
             if (Settings.settings["gridLetters"])
             {
-                var copy = new Dictionary<Key, Tuple<int, int>>(MainWindow.Instance.KeyMapping);
-
-                foreach (var key in copy)
+                // kept breaking for some reason
+                try
                 {
-                    var letter = key.Key.ToString().Replace("Keypad", "");
-                    var tuple = key.Value;
+                    var copy = new Dictionary<Key, Tuple<int, int>>(MainWindow.Instance.KeyMapping);
 
-                    var x = rect.X + tuple.Item1 * cellSize + cellSize / 2f;
-                    var y = rect.Y + tuple.Item2 * cellSize + cellSize / 2f;
+                    foreach (var key in copy)
+                    {
+                        var letter = key.Key.ToString().Replace("Keypad", "");
+                        var tuple = key.Value;
 
-                    var width = TextWidth(letter, 38);
-                    var height = TextHeight(38);
+                        var x = rect.X + tuple.Item1 * cellSize + cellSize / 2f;
+                        var y = rect.Y + tuple.Item2 * cellSize + cellSize / 2f;
 
-                    RenderText(letter, x - width / 2f, y - height / 2f, 38);
+                        var width = TextWidth(letter, 38);
+                        var height = TextHeight(38);
+
+                        RenderText(letter, x - width / 2f, y - height / 2f, 38);
+                    }
                 }
+                catch { }
             }
 
             //render notes
