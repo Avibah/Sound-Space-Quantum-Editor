@@ -1853,8 +1853,12 @@ namespace Sound_Space_Editor
             if (!discordEnabled)
                 return;
 
-            discord = new Discord.Discord(1067849747710345346, (ulong)CreateFlags.NoRequireDiscord);
-            activityManager = discord.GetActivityManager();
+            try
+            {
+                discord = new Discord.Discord(1067849747710345346, (ulong)CreateFlags.NoRequireDiscord);
+                activityManager = discord.GetActivityManager();
+            }
+            catch { discordEnabled = false; }
         }
 
         public void SetActivity(string status)
