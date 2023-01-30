@@ -297,24 +297,34 @@ namespace Sound_Space_Editor
 
         public static string CompareKeybind(Key key, bool ctrl, bool alt, bool shift)
         {
-            if (key == Key.BackSpace)
-                key = Key.Delete;
+            try
+            {
+                if (key == Key.BackSpace)
+                    key = Key.Delete;
 
-            var cloned = new Dictionary<string, dynamic>(settings);
-            var keycloned = new Dictionary<Key, Tuple<int, int>>(MainWindow.Instance.KeyMapping);
+                var keycloned = new List<Key>(MainWindow.Instance.KeyMapping.Keys);
 
-            foreach (var setting in cloned)
-                if (setting.Value.GetType() == typeof(Keybind) && setting.Value.Key == key && setting.Value.CTRL == ctrl && setting.Value.ALT == alt && setting.Value.SHIFT == shift)
-                    return setting.Key;
+                foreach (var setting in settings.Keys)
+                {
+                    var value = settings[setting];
 
+                    if (value.GetType() == typeof(Keybind) && value.Key == key && value.CTRL == ctrl && value.ALT == alt && value.SHIFT == shift)
+                        return setting;
+                }
 
-            foreach (var gridkey in keycloned)
-                if (gridkey.Key == key)
-                    return $"gridKey{gridkey.Value.Item1}|{gridkey.Value.Item2}";
+                foreach (var gridkey in keycloned)
+                {
+                    var value = MainWindow.Instance.KeyMapping[gridkey];
 
-            for (int i = 0; i < patternKeys.Count; i++)
-                if (patternKeys[i] == key)
-                    return $"pattern{i}";
+                    if (gridkey == key)
+                        return $"gridKey{value.Item1}|{value.Item2}";
+                }
+
+                for (int i = 0; i < patternKeys.Count; i++)
+                    if (patternKeys[i] == key)
+                        return $"pattern{i}";
+            }
+            catch { }
 
             return "";
         }
