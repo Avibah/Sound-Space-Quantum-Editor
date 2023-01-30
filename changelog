@@ -1,4 +1,9 @@
 ----------------------------------
+    -- 1.9.1.5 - 1/29/2023 --
+
+- fixed random crash
+
+----------------------------------
    -- P-1.1.1.0 - 1/29/2023 --
 
 - pressing tab now resets the player back to the start for quick replaying
