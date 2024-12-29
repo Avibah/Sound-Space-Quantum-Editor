@@ -1,4 +1,12 @@
 ----------------------------------
+    -- 2.3.0.1 - 12/28/2024 --
+
+- fixed "ghost beats" caused by dragging them around the track
+- fixed bezier nodes not updating properly when adjusting their corresponding notes
+- fixed ini importing not clearing map objects before adding new ones
+- importing map objects from an ini can now be undone
+
+----------------------------------
     -- 2.3.0.0 - 12/28/2024 --
 
 - updated to .NET 8.0
