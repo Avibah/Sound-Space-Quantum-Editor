@@ -1,5 +1,6 @@
 ﻿using New_SSQE.Maps;
 using New_SSQE.Objects;
+using New_SSQE.Objects.Managers;
 using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
 using System.Text.Json;
@@ -132,25 +133,33 @@ namespace New_SSQE.FileParsing.Formats
 
                         case "vfxObjects":
                             List<string> vfx = value.Deserialize<List<string>>() ?? new();
+                            List<MapObject> vfxObjects = new();
 
                             foreach (string obj in vfx)
                             {
                                 MapObject? final = MOParser.Parse(null, obj.Split('|'));
                                 if (final != null)
-                                    CurrentMap.VfxObjects.Add(final);
+                                    vfxObjects.Add(final);
                             }
+
+                            if (CurrentMap.VfxObjects.Count + vfxObjects.Count > 0)
+                                VfxObjectManager.Replace("IMPORT VFX", CurrentMap.VfxObjects, vfxObjects);
 
                             break;
 
                         case "specialObjects":
                             List<string> special = value.Deserialize<List<string>>() ?? new();
+                            List<MapObject> specialObjects = new();
 
                             foreach (string obj in special)
                             {
                                 MapObject? final = MOParser.Parse(null, obj.Split('|'));
                                 if (final != null)
-                                    CurrentMap.SpecialObjects.Add(final);
+                                    specialObjects.Add(final);
                             }
+
+                            if (CurrentMap.SpecialObjects.Count + specialObjects.Count > 0)
+                                SpecialObjectManager.Replace("IMPORT EXTRA", CurrentMap.SpecialObjects, specialObjects);
 
                             break;
 
