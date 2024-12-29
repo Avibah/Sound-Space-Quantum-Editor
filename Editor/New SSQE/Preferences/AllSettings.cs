@@ -39,6 +39,7 @@ namespace New_SSQE.Preferences
         public static readonly Setting<bool> pasteReversed = false;
         public static readonly Setting<bool> adjustNotes = false;
         public static readonly Setting<bool> notePushback = false;
+        public static readonly Setting<bool> lowerBackgroundFPS = true;
 
         public static readonly Setting<float> editorBGOpacity = 255;
         public static readonly Setting<float> gridOpacity = 255;

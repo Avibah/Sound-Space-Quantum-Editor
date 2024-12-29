@@ -5,6 +5,7 @@
 - fixed bezier nodes not updating properly when adjusting their corresponding notes
 - fixed ini importing not clearing map objects before adding new ones
 - importing map objects from an ini can now be undone
+- made capping the fps in the background optional via Settings (enabled by default)
 
 ----------------------------------
     -- 2.3.0.0 - 12/28/2024 --

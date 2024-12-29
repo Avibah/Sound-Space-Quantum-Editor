@@ -570,9 +570,9 @@ namespace New_SSQE
 
         protected override void OnFocusedChanged(FocusedChangedEventArgs e)
         {
-            Focused = e.IsFocused;
+            Focused = e.IsFocused || !Settings.lowerBackgroundFPS.Value;
 
-            if (e.IsFocused)
+            if (Focused)
                 UpdateFPS(Settings.useVSync.Value ? VSyncMode.On : VSyncMode.Off, Settings.fpsLimit.Value.Value);
             else
                 UpdateFPS(VSyncMode.Off, -45f);

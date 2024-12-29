@@ -56,6 +56,7 @@ namespace New_SSQE.GUI
         private readonly GuiCheckbox LimitPlayerFPSCheckbox = new(630, 440, 45, 45, Settings.limitPlayerFPS, "Limit Player FPS", 34);
         private readonly GuiSlider FPSLimitSlider = new(630, 490, 400, 55, Settings.fpsLimit, false);
         private readonly GuiLabel FPSLimitLabel = new(630, 540, 400, 55, "FPS Limit: ", 34, "main", false);
+        private readonly GuiCheckbox LowerFPSInBackground = new(630, 590, 45, 45, Settings.lowerBackgroundFPS, "Lower FPS in Background", 34);
 
         private readonly GuiCheckbox WaveformCheckbox = new(630, 80, 45, 45, Settings.waveform, "Enable Waveform", 34);
         private readonly GuiCheckbox ClassicWaveformCheckbox = new(630, 140, 45, 45, Settings.classicWaveform, "Use Classic Waveform", 34);
@@ -107,7 +108,7 @@ namespace New_SSQE.GUI
                 BackButton, ResetButton, OpenDirectoryButton, KeybindsButton, Color1Picker, Color2Picker, Color3Picker, Color4Picker, NoteColorPicker, RhythiaPath, Color5Picker,
                 // Checkboxes
                 WaveformCheckbox, ClassicWaveformCheckbox, AutosaveCheckbox, CorrectOnCopyCheckbox, SkipDownloadCheckbox, ReverseScrollCheckbox, UseVSyncCheckbox,
-                CheckForUpdatesCheckbox, FullscreenPlayerCheckbox, LimitPlayerFPSCheckbox, UseRhythia, MSAACheckbox,
+                CheckForUpdatesCheckbox, FullscreenPlayerCheckbox, LimitPlayerFPSCheckbox, UseRhythia, MSAACheckbox, LowerFPSInBackground,
                 // Sliders
                 FPSLimitSlider,
                 // Boxes
