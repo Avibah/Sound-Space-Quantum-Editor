@@ -4,13 +4,11 @@ using OpenTK.Mathematics;
 using OpenTK.Graphics;
 using System.Buffers;
 using New_SSQE.Objects;
-using System;
 using New_SSQE.GUI.Font;
 using New_SSQE.Audio;
 using New_SSQE.GUI.Shaders;
 using New_SSQE.Preferences;
 using New_SSQE.Objects.Managers;
-using System.Linq;
 using New_SSQE.Maps;
 
 namespace New_SSQE.GUI

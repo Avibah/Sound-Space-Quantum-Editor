@@ -6,5 +6,10 @@
         {
 
         }
+
+        public override Beat Clone()
+        {
+            return new(Ms);
+        }
     }
 }
