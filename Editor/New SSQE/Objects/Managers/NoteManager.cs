@@ -6,9 +6,11 @@ namespace New_SSQE.Objects.Managers
     internal class NoteManager
     {
         private static ObjectList<Note> Notes => CurrentMap.Notes;
+        private static List<Note> BezierNodes => CurrentMap.BezierNodes;
 
         public static void Replace(string label, List<Note> oldNotes, List<Note> newNotes)
         {
+            bool bezier = CurrentMap.BezierNodes.Count > 0;
             label = label.Replace("[S]", Math.Max(oldNotes.Count, newNotes.Count) > 1 ? "S" : "");
 
             oldNotes = oldNotes.ToList();
@@ -21,6 +23,17 @@ namespace New_SSQE.Objects.Managers
 
                 Notes.Sort();
                 Notes.Selected = new(oldNotes);
+
+                if (bezier)
+                {
+                    for (int i = 0; i < newNotes.Count; i++)
+                    {
+                        if (BezierNodes.Remove(newNotes[i]))
+                            BezierNodes.Add(oldNotes[i]);
+                    }
+
+                    CurrentMap.BezierNodes = BezierNodes.OrderBy(n => n.Ms).ToList();
+                }
             }, () =>
             {
                 Notes.RemoveAll(oldNotes);
@@ -28,6 +41,17 @@ namespace New_SSQE.Objects.Managers
 
                 Notes.Sort();
                 Notes.Selected = new(newNotes);
+
+                if (bezier)
+                {
+                    for (int i = 0; i < oldNotes.Count; i++)
+                    {
+                        if (BezierNodes.Remove(oldNotes[i]))
+                            BezierNodes.Add(newNotes[i]);
+                    }
+
+                    CurrentMap.BezierNodes = BezierNodes.OrderBy(n => n.Ms).ToList();
+                }
             });
         }
 
