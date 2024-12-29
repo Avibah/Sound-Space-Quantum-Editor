@@ -10,10 +10,10 @@ namespace New_SSQE.Misc.Static
         public static readonly string EXE = Path.Combine(THIS, FILE_NAME);
 
         public static readonly string CACHED = Path.Combine(THIS, "cached");
-        public static readonly string FONTS = Path.Combine(THIS, "assets\\fonts");
-        public static readonly string SOUNDS = Path.Combine(THIS, "assets\\sounds");
-        public static readonly string TEMP = Path.Combine(THIS, "assets\\temp");
-        public static readonly string TEXTURES = Path.Combine(THIS, "assets\\textures");
+        public static readonly string FONTS = Path.Combine(THIS, "assets", "fonts");
+        public static readonly string SOUNDS = Path.Combine(THIS, "assets", "sounds");
+        public static readonly string TEMP = Path.Combine(THIS, "assets", "temp");
+        public static readonly string TEXTURES = Path.Combine(THIS, "assets", "textures");
 
         private static readonly string[] Dependencies = { "bass", "bass_fx", "bassenc", "bassflac" };
 

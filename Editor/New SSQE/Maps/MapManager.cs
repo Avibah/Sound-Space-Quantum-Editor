@@ -15,7 +15,7 @@ namespace New_SSQE.Maps
     internal static class MapManager
     {
         public static List<Map> Cache = new();
-        private static readonly string cacheFile = $"{Assets.TEMP}\\cache.txt";
+        private static readonly string cacheFile = Path.Combine(Assets.TEMP, "cache.txt");
 
         public static Map? FromCache(string data)
         {
@@ -162,19 +162,19 @@ namespace New_SSQE.Maps
                         pathOrData = Parser.ParseNOVA(pathOrData);
                         break;
                     case ".npk":
-                        string tempNPK = $"{Assets.TEMP}\\nova";
+                        string tempNPK = Path.Combine(Assets.TEMP, "nova");
                         Directory.CreateDirectory(tempNPK);
                         foreach (string temp in Directory.GetFiles(tempNPK))
                             File.Delete(temp);
                         ZipFile.ExtractToDirectory(pathOrData, tempNPK);
 
-                        pathOrData = Parser.ParseNOVA($"{tempNPK}\\chart.nch");
+                        pathOrData = Parser.ParseNOVA(Path.Combine(tempNPK, "chart.nch"));
                         break;
                     case ".phxm":
                         pathOrData = Parser.ParsePHXM(pathOrData);
                         break;
                     case ".phz":
-                        string tempPHZ = $"{Assets.TEMP}\\pulsus";
+                        string tempPHZ = Path.Combine(Assets.TEMP, "pulsus");
                         Directory.CreateDirectory(tempPHZ);
                         foreach (string temp in Directory.GetFiles(tempPHZ))
                             File.Delete(temp);
@@ -210,7 +210,7 @@ namespace New_SSQE.Maps
                 }
                 else
                 {
-                    string path = $"{Assets.TEMP}\\tempdownload.sspm";
+                    string path = Path.Combine(Assets.TEMP, "tempdownload.sspm");
 
                     WebClient.DownloadFile(data, path);
                     data = Parser.ParseSSPM(path);
@@ -382,13 +382,13 @@ namespace New_SSQE.Maps
                     id = Path.GetFileNameWithoutExtension(fileName);
                 id = Exporting.FixID(id);
 
-                if (fileName != $"{Assets.CACHED}\\{id}.asset")
-                    File.Copy(fileName, $"{Assets.CACHED}\\{id}.asset", true);
+                if (fileName != Path.Combine(Assets.CACHED, $"{id}.asset"))
+                    File.Copy(fileName, Path.Combine(Assets.CACHED, $"{id}.asset"), true);
 
                 if (create)
                     CurrentMap.SoundID = id;
 
-                return MusicPlayer.Load($"{Assets.CACHED}\\{id}.asset");
+                return MusicPlayer.Load(Path.Combine(Assets.CACHED, $"{id}.asset"));
             }
 
             return false;
@@ -398,7 +398,7 @@ namespace New_SSQE.Maps
         {
             try
             {
-                if (!File.Exists($"{Assets.CACHED}\\{id}.asset"))
+                if (!File.Exists(Path.Combine(Assets.CACHED, $"{id}.asset")))
                 {
                     if (Settings.skipDownload.Value)
                     {
@@ -407,10 +407,10 @@ namespace New_SSQE.Maps
                         return message == DialogResult.OK && ImportAudio(id);
                     }
                     else
-                        WebClient.DownloadFile($"https://assetdelivery.roblox.com/v1/asset/?id={id}", $"{Assets.CACHED}\\{id}.asset", FileSource.Roblox);
+                        WebClient.DownloadFile($"https://assetdelivery.roblox.com/v1/asset/?id={id}", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Roblox);
                 }
 
-                return MusicPlayer.Load($"{Assets.CACHED}\\{id}.asset");
+                return MusicPlayer.Load(Path.Combine(Assets.CACHED, $"{id}.asset"));
             }
             catch (Exception e)
             {

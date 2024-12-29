@@ -58,7 +58,7 @@ namespace New_SSQE.GUI.Font
 
             AtlasMetrics = new Vector4[CharRange];
 
-            fontInfo = StbTrueType.CreateFont(File.ReadAllBytes($"{Assets.FONTS}\\{font}.ttf"), 0);
+            fontInfo = StbTrueType.CreateFont(File.ReadAllBytes(Path.Combine(Assets.FONTS, $"{font}.ttf")), 0);
             scale = StbTrueType.stbtt_ScaleForPixelHeight(fontInfo, OriginSize);
 
             int ascent, descent, lineGap;

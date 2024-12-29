@@ -35,7 +35,7 @@ namespace New_SSQE.FileParsing.Formats
                         string idPath = subsplit[1].Trim();
                         id = Path.GetFileNameWithoutExtension(idPath);
 
-                        File.Copy($"{Path.GetDirectoryName(path)}\\{idPath}", $"{Assets.CACHED}\\{id}.asset", true);
+                        File.Copy(Path.Combine(Path.GetDirectoryName(path) ?? "", idPath), Path.Combine(Assets.CACHED, $"{id}.asset"), true);
                     }
 
                     if (timing && !string.IsNullOrWhiteSpace(line))

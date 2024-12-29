@@ -155,7 +155,7 @@ namespace New_SSQE.Preferences
             try
             {
                 Reset();
-                Dictionary<string, JsonElement> result = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText($"{Assets.THIS}\\settings.txt")) ?? new();
+                Dictionary<string, JsonElement> result = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(Path.Combine(Assets.THIS, "settings.txt"))) ?? new();
 
                 foreach (SettingBase setting in settings)
                 {
@@ -288,7 +288,7 @@ namespace New_SSQE.Preferences
 
             try
             {
-                File.WriteAllText($"{Assets.THIS}\\settings.txt", JsonSerializer.Serialize(finaljson));
+                File.WriteAllText(Path.Combine(Assets.THIS, "settings.txt"), JsonSerializer.Serialize(finaljson));
             }
             catch { Console.WriteLine("Failed to save settings"); }
 

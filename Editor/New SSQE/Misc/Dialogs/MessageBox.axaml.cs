@@ -31,8 +31,8 @@ namespace New_SSQE
             Instance = this;
             Result = DialogResult.Cancel;
 
-            Icon = new WindowIcon(new Bitmap($"{Assets.TEXTURES}\\Empty.png"));
-            Resources["iconPath"] = $"{Assets.TEXTURES}\\{iconPath}.png";
+            Icon = new WindowIcon(new Bitmap(Path.Combine(Assets.TEXTURES, "Empty.png")));
+            Resources["iconPath"] = Path.Combine(Assets.TEXTURES, $"{iconPath}.png");
 
             InitializeComponent();
         }

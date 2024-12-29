@@ -30,7 +30,7 @@ namespace New_SSQE.Audio
 
         private static void RunMP3Convert()
         {
-            if (!File.Exists($"{Assets.THIS}\\lame.exe"))
+            if (!File.Exists(Path.Combine(Assets.THIS, "lame.exe")))
             {
                 MessageBox.Show("MP3 encoder not present from latest release", MBoxIcon.Warning, MBoxButtons.OK);
                 return;
@@ -40,11 +40,11 @@ namespace New_SSQE.Audio
             {
                 Pause();
                 EncoderLAME encoder = new(0) { LAME_Bitrate = 192 };
-                bool success = BaseEncoder.EncodeFile(lastFile, $"{Assets.TEMP}\\tempaudio.mp3", encoder, null, true, true);
+                bool success = BaseEncoder.EncodeFile(lastFile, Path.Combine(Assets.TEMP, "tempaudio.mp3"), encoder, null, true, true);
 
                 if (success)
                 {
-                    File.Move($"{Assets.TEMP}\\tempaudio.mp3", lastFile);
+                    File.Move(Path.Combine(Assets.TEMP, "tempaudio.mp3"), lastFile);
 
                     streamFileID = Bass.BASS_StreamCreateFile(lastFile, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_STREAM_PRESCAN | BASSFlag.BASS_FX_FREESOURCE);
                 }

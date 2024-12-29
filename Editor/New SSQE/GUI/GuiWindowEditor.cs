@@ -259,7 +259,7 @@ namespace New_SSQE.GUI
                 VFXDegreesLabel, VFXFactorLabel, VFXStringLabel, VFXToast, VFXStrengthLabel
             };
 
-            using FileStream fs = File.OpenRead($"{Assets.TEXTURES}\\Sprites.png");
+            using FileStream fs = File.OpenRead(Path.Combine(Assets.TEXTURES, "Sprites.png"));
             SKBitmap img = SKBitmap.Decode(fs);
 
             Vector2 size = (img.Width / MainWindow.SpriteSize.X, img.Height / MainWindow.SpriteSize.Y);
@@ -543,12 +543,12 @@ namespace New_SSQE.GUI
 
                                 Settings.Save();
 
-                                File.WriteAllText($"{Assets.TEMP}\\tempmap.txt", Parser.SaveLegacy(CurrentMap.SoundID, false, false));
+                                File.WriteAllText(Path.Combine(Assets.TEMP, "tempmap.txt"), Parser.SaveLegacy(CurrentMap.SoundID, false, false));
 
                                 string[] args =
                                 {
-                                    $"--a=\"{Path.GetFullPath($"{Assets.CACHED}\\{CurrentMap.SoundID}.asset").Replace("\\", "/")}\"",
-                                    $"--t=\"{Path.GetFullPath($"{Assets.TEMP}\\tempmap.txt").Replace("\\", "/")}\""
+                                    $"--a=\"{Path.GetFullPath(Path.Combine(Assets.CACHED, $"{CurrentMap.SoundID}.asset")).Replace("\\", "/")}\"",
+                                    $"--t=\"{Path.GetFullPath(Path.Combine(Assets.TEMP, "tempmap.txt")).Replace("\\", "/")}\""
                                 };
 
                                 Process.Start(Settings.rhythiaPath.Value, string.Join(" ", args));
@@ -577,7 +577,7 @@ namespace New_SSQE.GUI
                         Settings.Save();
                         bool replay = editor.CtrlHeld && editor.AltHeld && GetReplayFile();
 
-                        File.WriteAllText($"{Assets.TEMP}\\tempmap.txt", Parser.SaveLegacy(CurrentMap.SoundID, false, false));
+                        File.WriteAllText(Path.Combine(Assets.TEMP, "tempmap.txt"), Parser.SaveLegacy(CurrentMap.SoundID, false, false));
 
                         Process process = Platform.RunExecutable("SSQE Player", $"true {replay} {editor.AltHeld}");
                         playerRunning = process != null;
@@ -616,7 +616,7 @@ namespace New_SSQE.GUI
                         Settings.Save();
                         bool replay = editor.CtrlHeld && editor.AltHeld && GetReplayFile();
 
-                        File.WriteAllText($"{Assets.TEMP}\\tempmap.txt", Parser.SaveLegacy(CurrentMap.SoundID, false, false));
+                        File.WriteAllText(Path.Combine(Assets.TEMP, "tempmap.txt"), Parser.SaveLegacy(CurrentMap.SoundID, false, false));
 
                         Process process = Platform.RunExecutable("SSQE Player", $"false {replay} {editor.AltHeld}");
                         playerRunning = process != null;
@@ -671,7 +671,7 @@ namespace New_SSQE.GUI
                             string newID = ReplaceIDBox.Text;
                             MusicPlayer.Reset();
 
-                            File.Move($"{Assets.CACHED}\\{CurrentMap.SoundID}.asset", $"{Assets.CACHED}\\{newID}.asset", true);
+                            File.Move(Path.Combine(Assets.CACHED, $"{CurrentMap.SoundID}.asset"), Path.Combine(Assets.CACHED, $"{newID}.asset"), true);
                             CurrentMap.SoundID = newID;
 
                             MapManager.LoadAudio(newID);
@@ -1053,7 +1053,7 @@ namespace New_SSQE.GUI
                 }
                 catch { return false; }
 
-                Parser.SaveQER($"{Assets.TEMP}\\tempreplay.qer", tempo, nodes);
+                Parser.SaveQER(Path.Combine(Assets.TEMP, "tempreplay.qer"), tempo, nodes);
                 return nodes.Count > 0;
             }
 

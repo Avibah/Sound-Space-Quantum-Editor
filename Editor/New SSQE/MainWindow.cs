@@ -117,7 +117,7 @@ namespace New_SSQE
 
         private static WindowIcon GetWindowIcon()
         {
-            byte[] bytes = File.ReadAllBytes($"{Assets.TEXTURES}\\Icon.ico");
+            byte[] bytes = File.ReadAllBytes(Path.Combine(Assets.TEXTURES, "Icon.ico"));
             SKBitmap bmp = SKBitmap.Decode(bytes, new SKImageInfo(256, 256, SKColorType.Rgba8888));
             OpenTK.Windowing.Common.Input.Image image = new(bmp.Width, bmp.Height, bmp.Bytes);
 
@@ -444,8 +444,8 @@ namespace New_SSQE
                     else if (MusicPlayer.SupportedExtensions.Contains(Path.GetExtension(file)))
                     {
                         string id = Exporting.FixID(Path.GetFileNameWithoutExtension(file));
-                        if (file != $"{Assets.CACHED}\\{id}.asset")
-                            File.Copy(file, $"{Assets.CACHED}\\{id}.asset", true);
+                        if (file != Path.Combine(Assets.CACHED, $"{id}.asset"))
+                            File.Copy(file, Path.Combine(Assets.CACHED, $"{id}.asset"), true);
 
                         loaded = MapManager.Load(id);
                     }
@@ -652,8 +652,8 @@ namespace New_SSQE
             void Download(string file)
             {
                 Logging.Register($"Attempting to download file '{file}'");
-                WebClient.DownloadFile(Links.ALL[$"{file} Zip"], $"{Assets.THIS}\\{file}.zip");
-                ExtractFile($"{Assets.THIS}\\{file}.zip");
+                WebClient.DownloadFile(Links.ALL[$"{file} Zip"], Path.Combine(Assets.THIS, $"{file}.zip"));
+                ExtractFile(Path.Combine(Assets.THIS, $"{file}.zip"));
             }
 
             void Run(string file, string tag, Setting<string> setting)

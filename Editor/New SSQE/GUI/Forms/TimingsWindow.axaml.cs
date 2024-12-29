@@ -23,7 +23,7 @@ namespace New_SSQE
         public TimingsWindow()
         {
             Instance = this;
-            Icon = new(new Bitmap($"{Assets.TEXTURES}\\Empty.png"));
+            Icon = new(new Bitmap(Path.Combine(Assets.TEXTURES, "Empty.png")));
 
             InitializeComponent();
             PointList.Items = Dataset;

@@ -7,18 +7,8 @@ namespace New_SSQE.ExternalUtils
     {
         public static void SetText(string text)
         {
-            try
-            {
-                Task result = Task.Run(async () =>
-                {
-                    await ClipboardService.SetTextAsync(text);
-                });
-            }
-            catch (AggregateException ex) when (Platform.IsLinux)
-            {
-                Logging.Register("Failed to set text of clipboard", LogSeverity.WARN, ex);
-                MessageBox.Show("Clipboard functions require 'xsel' to be installed and accessible\nhttps://github.com/kfish/xsel", MBoxIcon.Warning, MBoxButtons.OK);
-            }
+            if (MainWindow.Instance != null)
+                MainWindow.Instance.ClipboardString = text;
         }
 
         public static void SetData(List<MapObject> mapObjects)
@@ -52,22 +42,7 @@ namespace New_SSQE.ExternalUtils
 
         public static string GetText()
         {
-            try
-            {
-                Task<string?> result = Task.Run(async () =>
-                {
-                    return await ClipboardService.GetTextAsync();
-                });
-
-                return result.Result ?? "";
-            }
-            catch (AggregateException ex) when (Platform.IsLinux)
-            {
-                Logging.Register("Failed to get text of clipboard", LogSeverity.WARN, ex);
-                MessageBox.Show("Clipboard functions require 'xsel' to be installed and accessible\nhttps://github.com/kfish/xsel", MBoxIcon.Warning, MBoxButtons.OK);
-            }
-
-            return "";
+            return MainWindow.Instance.ClipboardString ?? "";
         }
 
         public static List<MapObject> GetData()

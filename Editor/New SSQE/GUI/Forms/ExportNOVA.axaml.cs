@@ -17,7 +17,7 @@ namespace New_SSQE
         public ExportNOVA()
         {
             Instance = this;
-            Icon = new(new Bitmap($"{Assets.TEXTURES}\\empty.png"));
+            Icon = new(new Bitmap(Path.Combine(Assets.TEXTURES, "Empty.png")));
 
             InitializeComponent();
 

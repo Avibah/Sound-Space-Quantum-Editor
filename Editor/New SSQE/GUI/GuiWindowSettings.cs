@@ -84,7 +84,7 @@ namespace New_SSQE.GUI
 
 
         //private readonly GuiButton LanguageButton = new(10);
-        //private readonly GuiSquare LanguageIcon = new(Color.FromArgb(255, 0, 0, 0), false, $"{Assets.Textures}\\Translate.png", "translate");
+        //private readonly GuiSquare LanguageIcon = new(Color.FromArgb(255, 0, 0, 0), false, Path.Combine(Assets.TEXTURES), "Translate.png"), "translate");
 
 
         private readonly List<GuiSquare> ColorPickerSquares = new();

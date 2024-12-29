@@ -32,7 +32,6 @@
     <PackageReference Include="OpenTK" Version="5.0.0-pre.8" />
     <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
     <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
-    <PackageReference Include="TextCopy" Version="6.2.1" />
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
   </ItemGroup>
 

@@ -62,8 +62,8 @@ namespace New_SSQE.FileParsing.Formats
                 }
             }
 
-            if (!File.Exists($"{Assets.CACHED}\\{id}.asset"))
-                WebClient.DownloadFile($"https://pulsus.cc/play/client/s/{id}.mp3", $"{Assets.CACHED}\\{id}.asset", FileSource.Pulsus);
+            if (!File.Exists(Path.Combine(Assets.CACHED, $"{id}.asset")))
+                WebClient.DownloadFile($"https://pulsus.cc/play/client/s/{id}.mp3", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Pulsus);
 
             return $"{id},{string.Join(',', data)}";
         }

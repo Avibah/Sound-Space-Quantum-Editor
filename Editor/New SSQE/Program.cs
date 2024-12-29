@@ -64,7 +64,7 @@ namespace New_SSQE
                             return;
                         case not "registerProtocol" when args[0].StartsWith("ssqe://"):
                             string[] final = args[0].Replace("%20", " ").Replace("%5C", "\\").Split('/')[2..];
-                            string file = $"{Assets.TEMP}\\tempargs.txt";
+                            string file = Path.Combine(Assets.TEMP, "tempargs.txt");
 
                             if (File.Exists(file))
                                 File.Delete(file);
@@ -115,7 +115,7 @@ namespace New_SSQE
                 Logging.Register("[Normal application exit]");
                 string logs = string.Join('\n', Logging.Logs);
 
-                File.WriteAllText($"{Assets.THIS}\\logs.txt", logs);
+                File.WriteAllText(Path.Combine(Assets.THIS, "logs.txt"), logs);
             }
             catch (Exception e)
             {
@@ -151,7 +151,7 @@ If none of these work or aren't applicable, report the error in the official Sou
 {logs}
                 ";
 
-                File.WriteAllText($"{Assets.THIS}\\crash-report.txt", text);
+                File.WriteAllText(Path.Combine(Assets.THIS, "crash-report.txt"), text);
 
                 DialogResult result = MessageBox.Show(@"Fatal error encountered while running this application
 A crash report has been created at '*\crash-report.txt'

@@ -147,21 +147,21 @@ namespace New_SSQE.FileParsing.Formats
                     case ".ogg":
                     case ".wav":
                         id = filename;
-                        File.Copy(file, $"{Assets.CACHED}\\{filename}.asset", true);
+                        File.Copy(file, Path.Combine(Assets.CACHED, $"{filename}.asset"), true);
                         break;
                 }
             }
 
             if (!string.IsNullOrWhiteSpace(profile))
             {
-                string temp = $"{Assets.CACHED}\\{id}-profile{Path.GetExtension(profile)}";
+                string temp = Path.Combine(Assets.CACHED, $"{id}-profile{Path.GetExtension(profile)}");
                 File.Copy(profile, temp, true);
                 Settings.novaIcon.Value = temp;
             }
 
             if (!string.IsNullOrWhiteSpace(icon))
             {
-                string temp = $"{Assets.CACHED}\\{id}-icon{Path.GetExtension(icon)}";
+                string temp = Path.Combine(Assets.CACHED, $"{id}-icon{Path.GetExtension(icon)}");
                 File.Copy(icon, temp, true);
                 Settings.novaCover.Value = temp;
                 Settings.cover.Value = temp;
@@ -179,7 +179,7 @@ namespace New_SSQE.FileParsing.Formats
             string id = CurrentMap.SoundID;
             Dictionary<string, string> info = Exporting.NovaInfo;
 
-            string temp = $"{Assets.TEMP}\\nova";
+            string temp = Path.Combine(Assets.TEMP, "nova");
             Directory.CreateDirectory(temp);
             foreach (string file in Directory.GetFiles(temp))
                 File.Delete(file);
@@ -191,9 +191,9 @@ namespace New_SSQE.FileParsing.Formats
                 _ => throw new FormatException($"AUDIO - not MP3/OGG ({MusicPlayer.ctype})"),
             };
 
-            File.Copy(info["coverPath"], $"{temp}\\{id}{Path.GetExtension(info["coverPath"])}", true);
-            File.Copy(info["iconPath"], $"{temp}\\profile{Path.GetExtension(info["iconPath"])}", true);
-            File.Copy($"{Assets.CACHED}\\{id}.asset", $"{temp}\\{id}{extension}", true);
+            File.Copy(info["coverPath"], Path.Combine(temp, $"{id}{Path.GetExtension(info["coverPath"])}"), true);
+            File.Copy(info["iconPath"], Path.Combine(temp, $"profile{Path.GetExtension(info["iconPath"])}"), true);
+            File.Copy(Path.Combine(Assets.CACHED, $"{id}.asset"), Path.Combine(temp, $"{id}{extension}"), true);
 
             Dictionary<string, object>[] notes = new Dictionary<string, object>[CurrentMap.Notes.Count];
             for (int i = 0; i < CurrentMap.Notes.Count; i++)
@@ -227,7 +227,7 @@ namespace New_SSQE.FileParsing.Formats
                 {"beats", beats }
             };
 
-            File.WriteAllText($"{temp}\\chart.nch", JsonSerializer.Serialize(chart, Program.JsonOptions));
+            File.WriteAllText(Path.Combine(temp, "chart.nch"), JsonSerializer.Serialize(chart, Program.JsonOptions));
 
             Dictionary<string, object> metadata = new()
             {
@@ -239,7 +239,7 @@ namespace New_SSQE.FileParsing.Formats
                 {"previewDuration", long.Parse(info["previewDuration"]) / 1000f }
             };
 
-            File.WriteAllText($"{temp}\\metadata.json", JsonSerializer.Serialize(metadata, Program.JsonOptions));
+            File.WriteAllText(Path.Combine(temp, "metadata.json"), JsonSerializer.Serialize(metadata, Program.JsonOptions));
 
             if (File.Exists(path))
                 File.Delete(path);

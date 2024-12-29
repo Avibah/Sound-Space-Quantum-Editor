@@ -74,8 +74,8 @@ namespace New_SSQE.FileParsing.Formats
                     ulong coverLength = reader.ReadUInt64();
                     byte[] cover = reader.ReadBytes((int)coverLength);
 
-                    File.WriteAllBytes($"{Assets.CACHED}\\{mapID}.png", cover);
-                    Settings.cover.Value = $"{Assets.CACHED}\\{mapID}.png";
+                    File.WriteAllBytes(Path.Combine(Assets.CACHED, $"{mapID}.png"), cover);
+                    Settings.cover.Value = Path.Combine(Assets.CACHED, $"{mapID}.png");
                 }
 
                 // read audio
@@ -86,7 +86,7 @@ namespace New_SSQE.FileParsing.Formats
                     ulong audioLength = reader.ReadUInt64();
                     byte[] audio = reader.ReadBytes((int)audioLength);
 
-                    File.WriteAllBytes($"{Assets.CACHED}\\{mapID}.asset", audio);
+                    File.WriteAllBytes(Path.Combine(Assets.CACHED, $"{mapID}.asset"), audio);
                 }
 
                 mapData = mapID;
@@ -255,7 +255,7 @@ namespace New_SSQE.FileParsing.Formats
                 if (containsAudio)
                 {
                     byte[] audio = reader.ReadBytes((int)audioLength);
-                    File.WriteAllBytes($"{Assets.CACHED}\\{mapID}.asset", audio);
+                    File.WriteAllBytes(Path.Combine(Assets.CACHED, $"{mapID}.asset"), audio);
                 }
 
                 Settings.useCover.Value = containsCover;
@@ -264,8 +264,8 @@ namespace New_SSQE.FileParsing.Formats
                 if (containsCover)
                 {
                     byte[] cover = reader.ReadBytes((int)coverLength);
-                    File.WriteAllBytes($"{Assets.CACHED}\\{mapID}.png", cover);
-                    Settings.cover.Value = $"{Assets.CACHED}\\{mapID}.png";
+                    File.WriteAllBytes(Path.Combine(Assets.CACHED, $"{mapID}.png"), cover);
+                    Settings.cover.Value = Path.Combine(Assets.CACHED, $"{mapID}.png");
                 }
 
                 mapData = mapID;
@@ -395,7 +395,7 @@ namespace New_SSQE.FileParsing.Formats
 
             // audio
             long audioOffset = writer.BaseStream.Position;
-            writer.Write(File.ReadAllBytes($"{Assets.CACHED}\\{CurrentMap.SoundID}.asset")); // audio in bytes
+            writer.Write(File.ReadAllBytes(Path.Combine(Assets.CACHED, $"{CurrentMap.SoundID}.asset"))); // audio in bytes
             long audioLength = writer.BaseStream.Position - audioOffset;
 
             // cover
@@ -406,7 +406,7 @@ namespace New_SSQE.FileParsing.Formats
             {
                 coverOffset = writer.BaseStream.Position;
 
-                string coverPath = info["coverPath"] == "Default" || !File.Exists(info["coverPath"]) ? $"{Assets.TEXTURES}\\Cover.png" : info["coverPath"];
+                string coverPath = info["coverPath"] == "Default" || !File.Exists(info["coverPath"]) ? Path.Combine(Assets.TEXTURES, "Cover.png") : info["coverPath"];
                 writer.Write(File.ReadAllBytes(coverPath)); // cover in bytes
 
                 coverLength = writer.BaseStream.Position - coverOffset;

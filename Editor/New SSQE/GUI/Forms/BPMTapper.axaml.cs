@@ -20,7 +20,7 @@ namespace New_SSQE
         public BPMTapper()
         {
             Instance = this;
-            Icon = new(new Bitmap($"{Assets.TEXTURES}\\Empty.png"));
+            Icon = new(new Bitmap(Path.Combine(Assets.TEXTURES, "Empty.png")));
 
             InitializeComponent();
         }

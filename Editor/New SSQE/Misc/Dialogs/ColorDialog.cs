@@ -20,7 +20,7 @@ namespace New_SSQE.Misc.Dialogs
             ColorPickerDialog dialog = new()
             {
                 Color = Avalonia.Media.Color.FromArgb(255, Color.R, Color.G, Color.B),
-                Icon = new(new Bitmap($"{Assets.TEXTURES}\\Empty.png")),
+                Icon = new(new Bitmap(Path.Combine(Assets.TEXTURES, "Empty.png"))),
                 Topmost = true
             };
 

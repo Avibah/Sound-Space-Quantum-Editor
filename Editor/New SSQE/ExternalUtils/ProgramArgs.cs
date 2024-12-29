@@ -12,7 +12,7 @@ namespace New_SSQE.ExternalUtils
         {
             if (writeFile)
             {
-                string file = $"{Assets.TEMP}\\tempargs.txt";
+                string file = Path.Combine(Assets.TEMP, "tempargs.txt");
 
                 if (File.Exists(file))
                     File.Delete(file);

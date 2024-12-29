@@ -10,7 +10,7 @@ namespace New_SSQE.FileParsing.Formats
     {
         public static string Parse(string path)
         {
-            string temp = $"{Assets.TEMP}\\phxm";
+            string temp = Path.Combine(Assets.TEMP, "phxm");
             Directory.CreateDirectory(temp);
             foreach (string file in Directory.GetFiles(temp))
                 File.Delete(file);
@@ -20,7 +20,7 @@ namespace New_SSQE.FileParsing.Formats
             string audioId = "";
 
             ZipFile.ExtractToDirectory(path, temp, true);
-            Dictionary<string, JsonElement> metadata = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText($"{temp}\\metadata.json")) ?? new();
+            Dictionary<string, JsonElement> metadata = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(Path.Combine(temp, "metadata.json"))) ?? new();
 
             foreach (string key in metadata.Keys)
             {
@@ -68,12 +68,12 @@ namespace New_SSQE.FileParsing.Formats
             }
 
             if (hasAudio)
-                File.Copy($"{temp}\\audio.{audioExt}", $"{Assets.CACHED}\\{audioId}.asset", true);
+                File.Copy(Path.Combine(temp, $"audio.{audioExt}"), Path.Combine(Assets.CACHED, $"{audioId}.asset"), true);
 
             if (Settings.useCover.Value)
             {
-                string cover = $"{Assets.CACHED}\\{audioId}-cover.png";
-                File.Copy($"{temp}\\cover.png", cover, true);
+                string cover = Path.Combine(Assets.CACHED, $"{audioId}-cover.png");
+                File.Copy(Path.Combine(temp, "cover.png"), cover, true);
 
                 Settings.cover.Value = cover;
                 Settings.novaCover.Value = cover;
@@ -81,13 +81,13 @@ namespace New_SSQE.FileParsing.Formats
 
             if (Settings.useVideo.Value)
             {
-                string video = $"{Assets.CACHED}\\{audioId}-video.mp4";
-                File.Copy($"{temp}\\video.mp4", video, true);
+                string video = Path.Combine(Assets.CACHED, $"{audioId}-video.mp4");
+                File.Copy(Path.Combine(temp, "video.mp4"), video, true);
 
                 Settings.video.Value = video;
             }
 
-            using FileStream data = new($"{temp}\\objects.phxmo", FileMode.Open, FileAccess.Read);
+            using FileStream data = new(Path.Combine(temp, "objects.phxmo"), FileMode.Open, FileAccess.Read);
             data.Seek(0, SeekOrigin.Begin);
             using BinaryReader reader = new(data);
 

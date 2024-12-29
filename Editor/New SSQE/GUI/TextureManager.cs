@@ -19,7 +19,7 @@ namespace New_SSQE.GUI
             {
                 if (img == null)
                 {
-                    string file = $"{Assets.TEXTURES}\\{textureName}.png";
+                    string file = Path.Combine(Assets.TEXTURES, $"{textureName}.png");
 
                     if (!File.Exists(file))
                     {

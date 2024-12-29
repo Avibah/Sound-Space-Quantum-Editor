@@ -20,14 +20,14 @@ namespace New_SSQE.ExternalUtils
         }
         public static void OpenDirectory() => OpenDirectory(Assets.THIS);
 
-        public static Process RunExecutable(string path, string exe, string args) => Process.Start($"{path}\\{GetExecutableName(exe)}", args);
+        public static Process RunExecutable(string path, string exe, string args) => Process.Start(Path.Combine(path, GetExecutableName(exe)), args);
         public static Process RunExecutable(string path, string exe, params string[] args) => RunExecutable(path, exe, string.Join(" ", args));
         public static Process RunExecutable(string exe, string args) => RunExecutable(Assets.THIS, exe, args);
 
-        public static bool ExecutableExists(string path, string exe) => File.Exists($"{path}\\{GetExecutableName(exe)}");
+        public static bool ExecutableExists(string path, string exe) => File.Exists(Path.Combine(path, GetExecutableName(exe)));
         public static bool ExecutableExists(string exe) => ExecutableExists(Assets.THIS, exe);
 
-        public static FileVersionInfo GetExecutableVersionInfo(string path, string exe) => FileVersionInfo.GetVersionInfo($"{path}\\{exe}{Extension}");
+        public static FileVersionInfo GetExecutableVersionInfo(string path, string exe) => FileVersionInfo.GetVersionInfo(Path.Combine(path, $"{exe}{Extension}"));
         public static FileVersionInfo GetExecutableVersionInfo(string exe) => GetExecutableVersionInfo(Assets.THIS, exe);
 
         public static string GetExecutableName(string exe) => $"{exe}{Extension}";
@@ -38,7 +38,7 @@ namespace New_SSQE.ExternalUtils
                 dependency = "bass";
             dependency = IsLinux ? $"lib{dependency}.so" : $"{dependency}.dll";
 
-            return File.Exists($"{path}\\{dependency}");
+            return File.Exists(Path.Combine(path, dependency));
         }
         public static bool CheckDependency(string dependency) => CheckDependency(Assets.THIS, dependency);
 

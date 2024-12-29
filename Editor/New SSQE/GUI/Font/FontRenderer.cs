@@ -29,7 +29,7 @@ namespace New_SSQE.GUI.Font
         public static BufferHandle UnicodeVbO1;
         public static BufferHandle UnicodeStaticVbO;
 
-        private static readonly bool unicodeFont = StbFont.InitUnicode($"{Assets.FONTS}\\Unifont-P0.png", TextureUnit.Texture12);
+        private static readonly bool unicodeFont = StbFont.InitUnicode(Path.Combine(Assets.FONTS, "Unifont-P0.png"), TextureUnit.Texture12);
         private static readonly int unicodeUnit = 12;
 
         public static Vector4[] Print(float x, float y, string text, int fontSize, string font)
