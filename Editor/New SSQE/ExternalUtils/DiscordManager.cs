@@ -1,10 +1,9 @@
 ﻿using DiscordRPC;
 using DiscordRPC.Logging;
-using New_SSQE.ExternalUtils;
 using New_SSQE.GUI;
 using New_SSQE.Maps;
 
-namespace New_SSQE.Misc.Network
+namespace New_SSQE.ExternalUtils
 {
     internal enum DiscordStatus
     {

@@ -2,7 +2,6 @@
 using New_SSQE.GUI.Font;
 using New_SSQE.Maps;
 using New_SSQE.Misc.Dialogs;
-using New_SSQE.Misc.Network;
 using New_SSQE.Misc.Static;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
@@ -54,7 +53,7 @@ namespace New_SSQE.GUI
 
         private int lastAssembled = 0;
         private int mapOffset = 0;
-        private readonly string changelogText;
+        private static string changelogText = "";
 
         public GuiWindowMenu() : base(0, 0, MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y)
         {
@@ -93,9 +92,14 @@ namespace New_SSQE.GUI
 
             try
             {
-                changelogText = WebClient.DownloadString(Links.CHANGELOG);
+                if (string.IsNullOrWhiteSpace(changelogText))
+                    changelogText = WebClient.DownloadString(Links.CHANGELOG);
             }
-            catch { changelogText = "Failed to load changelog"; }
+            catch (Exception ex)
+            {
+                Logging.Register("Failed to load changelog!", LogSeverity.WARN, ex);
+                changelogText = $"Failed to load changelog!\n\n{ex}";
+            }
 
             OnResize(MainWindow.Instance.ClientSize);
             AssembleMapList();

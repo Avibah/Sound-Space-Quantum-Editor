@@ -9,8 +9,8 @@ using New_SSQE.GUI.Font;
 using New_SSQE.GUI.Shaders;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Preferences;
-using New_SSQE.Misc.Easing;
 using New_SSQE.Maps;
+using New_SSQE.Misc.Static;
 
 namespace New_SSQE.GUI
 {
@@ -431,31 +431,31 @@ namespace New_SSQE.GUI
                     switch(obj.ID)
                     {
                         case 2 when obj is Brightness temp:
-                            brightness = (float)EasingStyles.Process(brightness, temp.Intensity, (ms - temp.Ms) / temp.Duration, temp.Style, temp.Direction);
+                            brightness = (float)Easing.Process(brightness, temp.Intensity, (ms - temp.Ms) / temp.Duration, temp.Style, temp.Direction);
                             break;
 
                         case 3 when obj is Contrast temp:
-                            contrast = (float)EasingStyles.Process(contrast, temp.Intensity, (ms - temp.Ms) / temp.Duration, temp.Style, temp.Direction);
+                            contrast = (float)Easing.Process(contrast, temp.Intensity, (ms - temp.Ms) / temp.Duration, temp.Style, temp.Direction);
                             break;
 
                         case 4 when obj is Saturation temp:
-                            saturation = (float)EasingStyles.Process(saturation, temp.Intensity, (ms - temp.Ms) / temp.Duration, temp.Style, temp.Direction);
+                            saturation = (float)Easing.Process(saturation, temp.Intensity, (ms - temp.Ms) / temp.Duration, temp.Style, temp.Direction);
                             break;
 
                         case 5 when obj is Blur temp:
-                            blur = (float)EasingStyles.Process(blur, temp.Intensity, (ms - temp.Ms) / temp.Duration, temp.Style, temp.Direction);
+                            blur = (float)Easing.Process(blur, temp.Intensity, (ms - temp.Ms) / temp.Duration, temp.Style, temp.Direction);
                             break;
 
                         case 6 when obj is FOV temp:
-                            fov = (float)EasingStyles.Process(fov, temp.Intensity, (ms - temp.Ms) / temp.Duration, temp.Style, temp.Direction);
+                            fov = (float)Easing.Process(fov, temp.Intensity, (ms - temp.Ms) / temp.Duration, temp.Style, temp.Direction);
                             break;
 
                         case 7 when obj is Tint temp:
                             float tt = (currentTime - temp.Ms) / temp.Duration;
 
-                            double r = EasingStyles.Process(tint.R / 255f, temp.Color.R / 255f, tt, temp.Style, temp.Direction);
-                            double g = EasingStyles.Process(tint.G / 255f, temp.Color.G / 255f, tt, temp.Style, temp.Direction);
-                            double b = EasingStyles.Process(tint.B / 255f, temp.Color.B / 255f, tt, temp.Style, temp.Direction);
+                            double r = Easing.Process(tint.R / 255f, temp.Color.R / 255f, tt, temp.Style, temp.Direction);
+                            double g = Easing.Process(tint.G / 255f, temp.Color.G / 255f, tt, temp.Style, temp.Direction);
+                            double b = Easing.Process(tint.B / 255f, temp.Color.B / 255f, tt, temp.Style, temp.Direction);
 
                             tint = Color.FromArgb((int)(r * 255f), (int)(g * 255f), (int)(b * 255f));
                             break;
@@ -463,15 +463,15 @@ namespace New_SSQE.GUI
                         case 8 when obj is Position temp:
                             float tp = (currentTime - temp.Ms) / temp.Duration;
 
-                            double x = EasingStyles.Process(pos.X, temp.Pos.X, tp, temp.Style, temp.Direction);
-                            double y = EasingStyles.Process(pos.Y, temp.Pos.Y, tp, temp.Style, temp.Direction);
-                            double z = EasingStyles.Process(pos.Z, temp.Pos.Z, tp, temp.Style, temp.Direction);
+                            double x = Easing.Process(pos.X, temp.Pos.X, tp, temp.Style, temp.Direction);
+                            double y = Easing.Process(pos.Y, temp.Pos.Y, tp, temp.Style, temp.Direction);
+                            double z = Easing.Process(pos.Z, temp.Pos.Z, tp, temp.Style, temp.Direction);
 
                             pos = ((float)x, (float)y, (float)z);
                             break;
 
                         case 9 when obj is Rotation temp:
-                            rotation = (float)EasingStyles.Process(rotation, temp.Degrees, (currentTime - temp.Ms) / temp.Duration, temp.Style, temp.Direction);
+                            rotation = (float)Easing.Process(rotation, temp.Degrees, (currentTime - temp.Ms) / temp.Duration, temp.Style, temp.Direction);
                             break;
 
                         case 10 when obj is ARFactor temp:

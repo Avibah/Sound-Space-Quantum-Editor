@@ -21,7 +21,6 @@ using New_SSQE.GUI.Shaders;
 using New_SSQE.Preferences;
 using New_SSQE.GUI.Input;
 using New_SSQE.Objects.Managers;
-using New_SSQE.Misc.Network;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
 using New_SSQE.ExternalUtils;

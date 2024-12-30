@@ -21,12 +21,17 @@ namespace New_SSQE.NewGUI.Controls
         private static float MS_TO_PX => CurrentMap.NoteStep / 1000f;
         private float NoteSize => (rect.Height - Settings.trackHeight.Value.Value) * 0.65f;
         private float CellGap => (rect.Height - Settings.trackHeight.Value.Value - NoteSize) / 2f;
+        private float CellPos(float x) => x * NoteSize * 0.2f + NoteSize * 0.1f;
 
         private bool selecting = false;
+        private float selectMsStart;
+        private float selectMsEnd;
 
         private MapObject? hoveringObject;
         private List<MapObject> draggingObjects = [];
         private MapObject? lastPlayedObject;
+
+        private Instance selectBox;
 
         private Instance noteConstant;
         private Instance noteLocation;
@@ -42,6 +47,8 @@ namespace New_SSQE.NewGUI.Controls
         {
             TrackRenderMode = trackRenderMode;
 
+            selectBox = Instancing.Generate("track_selectBox", Shader.XScalingProgram);
+
             noteConstant = Instancing.Generate("track_noteConstant", Shader.TrackProgram);
             noteLocation = Instancing.Generate("track_noteLocation", Shader.TrackProgram);
             noteHover = Instancing.Generate("track_noteHover", Shader.TimelineProgram);
@@ -51,7 +58,7 @@ namespace New_SSQE.NewGUI.Controls
             dragLine = Instancing.Generate("track_dragLine", Shader.TimelineProgram);
         }
 
-        private void UpdateInstanceData()
+        private void UpdateInstanceData(float mousex, float mousey)
         {
             float currentTime = Settings.currentTime.Value.Value;
             float maxTime = Settings.currentTime.Value.Max;
@@ -90,9 +97,8 @@ namespace New_SSQE.NewGUI.Controls
                     float x = cursorPos - currentPos + note.Ms * MS_TO_PX;
                     float a = note.Ms < currentTime - 1 ? 0.35f : 1f;
 
-                    // TODO: figure out what these values should actually be so they can scale
-                    float gridX = x + (2 - note.X) * 12 + 4.5f;
-                    float gridY = CellGap + (2 - note.Y) * 12 + 4.5f;
+                    float gridX = x + CellPos(2 - note.X);
+                    float gridY = CellGap + CellPos(2 - note.Y);
 
                     noteConstants[i - low] = (x, 0, a, i % colorCount);
                     noteLocations[i - low] = (gridX, gridY, a, i % colorCount);
@@ -149,15 +155,14 @@ namespace New_SSQE.NewGUI.Controls
 
             for (int i = 0; i < 9; i++)
             {
-                // TODO: figure out what these values should actually be so they can scale
-                float gridX = (2 - i % 3) * 12 + 4.5f;
-                float gridY = i / 3 * 12 + 4.5f;
+                float gridX = CellPos(2 - i % 3);
+                float gridY = CellPos(i / 3);
 
                 verts.AddRange(GLVerts.Outline(gridX, gridY, 9, 9, 1, 1f, 1f, 1f, 0.45f));
             }
 
             noteConstant.UploadStaticData(verts.ToArray());
-            noteLocation.UploadStaticData(GLVerts.Rect(0, 0, 9, 9, 1f, 1f, 1f, 1f));
+            noteLocation.UploadStaticData(GLVerts.Rect(0, 0, NoteSize * 0.2f, NoteSize * 0.2f, 1f, 1f, 1f, 1f));
             noteHover.UploadStaticData(GLVerts.Outline(-4, CellGap - 4, NoteSize + 8, NoteSize + 8, 1, 1f, 1f, 1f, 1f));
             noteSelect.UploadStaticData(GLVerts.Outline(-4, CellGap - 4, NoteSize + 8, NoteSize + 8, 1, 1f, 1f, 1f, 1f));
 
@@ -172,9 +177,17 @@ namespace New_SSQE.NewGUI.Controls
         public override void PreRender(float mousex, float mousey, float frametime)
         {
             base.PreRender(mousex, mousey, frametime);
-            Update();
 
-            // update selection by ms rather than x position
+            if (selecting)
+            {
+                (int low, int high) = CurrentMap.Notes.SearchRange(selectMsStart, selectMsEnd);
+                
+                List<Note> selected = new();
+                if (CurrentMap.Notes.Count > 0)
+                    selected = CurrentMap.Notes.Take(new Range(low, high)).ToList();
+
+                CurrentMap.Notes.Selected = new(selected);
+            }
         }
 
         public override void Render(float mousex, float mousey, float frametime)
@@ -183,7 +196,7 @@ namespace New_SSQE.NewGUI.Controls
             
             // render waveform
 
-            UpdateInstanceData();
+            UpdateInstanceData(mousex, mousey);
 
             if (TrackRenderMode == TrackRenderMode.Notes)
             {

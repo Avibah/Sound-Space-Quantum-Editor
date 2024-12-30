@@ -1,4 +1,4 @@
-﻿using New_SSQE.Misc.Easing;
+﻿using New_SSQE.Misc.Static;
 using System.Drawing;
 
 namespace New_SSQE.Objects

@@ -29,21 +29,12 @@ namespace New_SSQE.Audio
 
         private static Level ParseBuffer(short[] data, int start, int end)
         {
-            short left = 0;
-            short right = 0;
-
-            for (int i = start; i < Math.Min(end + 1, data.Length); i += 2)
-            {
-                if (Math.Abs((int)data[i]) > Math.Abs((int)left))
-                    left = data[i];
-                if (Math.Abs((int)data[i + 1]) > Math.Abs((int)right))
-                    right = data[i + 1];
-            }
+            int index = Math.Min(end, data.Length - 1);
 
             return new()
             {
-                left = left,
-                right = right
+                left = data[index - 1],
+                right = data[index]
             };
         }
 

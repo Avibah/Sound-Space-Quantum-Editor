@@ -1,6 +1,28 @@
-﻿namespace New_SSQE.Misc.Easing
+﻿namespace New_SSQE.Misc.Static
 {
-    internal class EasingStyles
+    public enum EasingStyle
+    {
+        Linear = 0,
+        Sine = 1,
+        Back = 2,
+        Quad = 3,
+        Quart = 4,
+        Quint = 5,
+        Bounce = 6,
+        Elastic = 7,
+        Exponential = 8,
+        Circular = 9,
+        Cubic = 10,
+    }
+
+    public enum EasingDirection
+    {
+        In = 0,
+        Out = 1,
+        InOut = 2,
+    }
+
+    internal class Easing
     {
         // https://easings.net/
 

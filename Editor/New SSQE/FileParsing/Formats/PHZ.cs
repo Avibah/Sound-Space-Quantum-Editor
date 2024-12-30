@@ -1,4 +1,4 @@
-﻿using New_SSQE.Misc.Network;
+﻿using New_SSQE.ExternalUtils;
 using New_SSQE.Misc.Static;
 using System.Text.Json;
 

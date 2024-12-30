@@ -100,7 +100,7 @@ namespace New_SSQE.Preferences
 
         public static readonly Setting<SliderSetting> trackHeight = new SliderSetting(16, 32, 1);
         public static readonly Setting<SliderSetting> cursorPos = new SliderSetting(40, 100, 1);
-        public static readonly Setting<SliderSetting> approachRate = new SliderSetting(9, 29, 1);
+        public static readonly Setting<SliderSetting> approachRate = new SliderSetting(14, 29, 1);
         public static readonly Setting<SliderSetting> playerApproachRate = new SliderSetting(9, 29, 1);
         public static readonly Setting<SliderSetting> masterVolume = new SliderSetting(0.05f, 1, 0.01f);
         public static readonly Setting<SliderSetting> sfxVolume = new SliderSetting(0.1f, 1, 0.01f);

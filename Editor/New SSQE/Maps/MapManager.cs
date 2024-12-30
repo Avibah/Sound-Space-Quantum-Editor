@@ -4,7 +4,6 @@ using New_SSQE.ExternalUtils;
 using New_SSQE.FileParsing;
 using New_SSQE.GUI;
 using New_SSQE.Misc.Dialogs;
-using New_SSQE.Misc.Network;
 using New_SSQE.Misc.Static;
 using New_SSQE.Objects;
 using New_SSQE.Preferences;

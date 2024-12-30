@@ -9,7 +9,6 @@ using New_SSQE.FileParsing;
 using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
 using New_SSQE.Objects.Managers;
-using New_SSQE.Misc.Easing;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
 using New_SSQE.ExternalUtils;

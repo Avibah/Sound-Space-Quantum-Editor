@@ -3,6 +3,14 @@
 namespace New_SSQE.ExternalUtils
 {
     // for debugging purposes
+
+    internal enum LogSeverity
+    {
+        INFO,
+        WARN,
+        ERROR
+    }
+
     internal class Logging
     {
         public static List<string> Logs = new();

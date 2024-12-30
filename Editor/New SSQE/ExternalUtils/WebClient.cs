@@ -1,11 +1,21 @@
-﻿using New_SSQE.ExternalUtils;
-using System.Net;
+﻿using System.Net;
 
-namespace New_SSQE.Misc.Network
+namespace New_SSQE.ExternalUtils
 {
+    internal enum FileSource
+    {
+        Other,
+        Roblox,
+        Pulsus
+    }
+
     internal class WebClient
     {
         private static readonly HttpClient client = new();
+        private static readonly HttpClient impatientClient = new()
+        {
+            Timeout = TimeSpan.FromMilliseconds(10000)
+        };
         private static readonly HttpClient robloxClient = new(new HttpClientHandler()
         {
             AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
@@ -37,14 +47,16 @@ namespace New_SSQE.Misc.Network
         {
             Task<string> result = Task.Run(async () =>
             {
-                using HttpResponseMessage response = await client.GetAsync(url);
+                using HttpResponseMessage response = await impatientClient.GetAsync(url);
                 using HttpContent content = response.Content;
 
-                return content.ReadAsStringAsync().Result;
+                return await content.ReadAsStringAsync();
             });
 
             if (result.Result != null)
+            {
                 return result.Result;
+            }
             else
                 throw new WebException();
         }
@@ -63,7 +75,7 @@ namespace New_SSQE.Misc.Network
                 using HttpResponseMessage response = await determined.SendAsync(request);
                 using HttpContent content = response.Content;
 
-                Stream stream = content.ReadAsStreamAsync().Result;
+                Stream stream = await content.ReadAsStreamAsync();
 
                 Logging.Register($"Attempted download of file: {location} - {source} : {response.StatusCode}");
 
