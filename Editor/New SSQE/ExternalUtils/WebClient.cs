@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.Json;
 
 namespace New_SSQE.ExternalUtils
 {
@@ -24,6 +25,27 @@ namespace New_SSQE.ExternalUtils
         {
             AllowAutoRedirect = false
         });
+
+        public static string GetBeatmapURLFromRhythiaMapID(int id)
+        {
+            Task<string> result = Task.Run(async () =>
+            {
+                HttpRequestMessage request = new(HttpMethod.Post, "https://development.rhythia.com/api/getBeatmapPage")
+                {
+                    Content = new StringContent("{\"id\":" + id + ",\"session\":\"\"}")
+                };
+
+                using HttpResponseMessage response = await client.SendAsync(request);
+                using HttpContent content = response.Content;
+
+                return await content.ReadAsStringAsync();
+            });
+
+            Dictionary<string, JsonElement> json = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(result.Result) ?? new();
+            Dictionary<string, JsonElement> beatmapData = json.TryGetValue("beatmap", out JsonElement value) ? value.Deserialize<Dictionary<string, JsonElement>>() ?? new() : new();
+
+            return beatmapData.TryGetValue("beatmapFile", out JsonElement file) ? file.GetString() ?? "" : "";
+        }
 
         public static string GetRedirect(string url)
         {

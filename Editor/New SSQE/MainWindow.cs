@@ -160,7 +160,7 @@ namespace New_SSQE
 
             Logging.Register($"Required OpenGL version: {APIVersion}");
             Logging.Register("Current OpenGL version: " + (GL.GetString(StringName.Version) ?? "N/A"));
-            
+
             string version = GL.GetString(StringName.Version) ?? "";
             int major = 0, minor = 0;
             GL.GetInteger(GetPName.MajorVersion, ref major);

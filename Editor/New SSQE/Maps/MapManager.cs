@@ -210,6 +210,8 @@ namespace New_SSQE.Maps
                 else
                 {
                     string path = Path.Combine(Assets.TEMP, "tempdownload.sspm");
+                    if (int.TryParse(data, out int beatmapID))
+                        data = WebClient.GetBeatmapURLFromRhythiaMapID(beatmapID);
 
                     WebClient.DownloadFile(data, path);
                     data = Parser.ParseSSPM(path);
