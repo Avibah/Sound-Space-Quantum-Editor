@@ -120,22 +120,24 @@ namespace New_SSQE.Maps
 
 
 
-        private static BigInteger FactorialApprox(int k)
+        private static BigInteger FactorialApproximation(int num)
         {
-            BigInteger result = new(1);
+            BigInteger result = BigInteger.One;
 
-            if (k < 10)
-                for (int i = 1; i <= k; i++)
-                    result *= i;
+            if (num < 10)
+            {
+                for (int factor = 1; factor <= num; factor++)
+                    result *= factor;
+            }
             else
-                result = (BigInteger)(Math.Sqrt(2 * Math.PI * k) * Math.Pow(k / Math.E, k));
+                result = (BigInteger)(Math.Sqrt(2 * Math.PI * num) * Math.Pow(num / Math.E, num));
 
             return result;
         }
 
-        private static BigInteger BinomialCoefficient(int k, int v)
+        private static BigInteger BinomialCoefficient(int total, int choose)
         {
-            return FactorialApprox(k) / (FactorialApprox(v) * FactorialApprox(k - v));
+            return FactorialApproximation(total) / (FactorialApproximation(choose) * FactorialApproximation(total - choose));
         }
 
         public static List<Note> DrawBezier(List<Note> nodes, int divisor)
@@ -144,51 +146,52 @@ namespace New_SSQE.Maps
 
             if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
             {
-                int k = nodes.Count - 1;
-                decimal tdiff = nodes[k].Ms - nodes[0].Ms;
-                decimal d = 1m / (divisor * k);
+                int degree = nodes.Count - 1;
 
                 if (Settings.curveBezier.Value)
                 {
-                    for (decimal t = 0; t <= 1 + d / 2m; t += d)
+                    decimal tIncrement = 1m / (divisor * degree);
+                    decimal deltaMs = nodes[degree].Ms - nodes[0].Ms;
+
+                    for (decimal t = 0; t <= 1 + tIncrement / 2m; t += tIncrement)
                     {
-                        float xf = 0;
-                        float yf = 0;
-                        decimal tf = nodes[0].Ms + tdiff * t;
+                        float noteX = 0;
+                        float noteY = 0;
+                        decimal ms = nodes[0].Ms + deltaMs * t;
 
-                        for (int v = 0; v <= k; v++)
+                        for (int point = 0; point <= degree; point++)
                         {
-                            Note note = nodes[v];
-                            double bez = (double)BinomialCoefficient(k, v) * (Math.Pow(1 - (double)t, k - v) * Math.Pow((double)t, v));
+                            Note note = nodes[point];
+                            double value = (double)BinomialCoefficient(degree, point) * (Math.Pow(1 - (double)t, degree - point) * Math.Pow((double)t, point));
 
-                            xf += (float)(bez * note.X);
-                            yf += (float)(bez * note.Y);
+                            noteX += (float)(value * note.X);
+                            noteY += (float)(value * note.Y);
                         }
 
-                        final.Add(new(xf, yf, (long)tf));
+                        final.Add(new(noteX, noteY, (long)ms));
                     }
                 }
                 else
                 {
-                    d = 1m / divisor;
+                    decimal tIncrement = 1m / divisor;
 
-                    for (int v = 0; v < k; v++)
+                    for (int point = 0; point < degree; point++)
                     {
-                        Note note = nodes[v];
-                        Note nextnote = nodes[v + 1];
-                        decimal xdist = (decimal)(nextnote.X - note.X);
-                        decimal ydist = (decimal)(nextnote.Y - note.Y);
-                        decimal tdist = nextnote.Ms - note.Ms;
+                        Note note = nodes[point];
+                        Note nextnote = nodes[point + 1];
+                        decimal deltaX = (decimal)(nextnote.X - note.X);
+                        decimal deltaY = (decimal)(nextnote.Y - note.Y);
+                        decimal deltaMs = nextnote.Ms - note.Ms;
 
-                        for (decimal t = 0; t < 1 + d / 2m; t += d)
+                        for (decimal t = 0; t < 1 + tIncrement / 2m; t += tIncrement)
                         {
                             if (t > 0)
                             {
-                                decimal xf = (decimal)note.X + xdist * t;
-                                decimal yf = (decimal)note.Y + ydist * t;
-                                decimal tf = note.Ms + tdist * t;
+                                decimal x = (decimal)note.X + deltaX * t;
+                                decimal y = (decimal)note.Y + deltaY * t;
+                                decimal ms = note.Ms + deltaMs * t;
 
-                                final.Add(new((float)xf, (float)yf, (long)tf));
+                                final.Add(new((float)x, (float)y, (long)ms));
                             }
                         }
                     }
@@ -207,24 +210,24 @@ namespace New_SSQE.Maps
                 if (divisor > 0 && ((CurrentMap.BezierNodes != null && CurrentMap.BezierNodes.Count > 1) || CurrentMap.Notes.Selected.Count > 1))
                 {
                     bool success = true;
-                    List<Note> finalNodes = CurrentMap.BezierNodes != null && CurrentMap.BezierNodes.Count > 1 ? CurrentMap.BezierNodes.ToList() : CurrentMap.Notes.Selected.ToList();
-                    List<Note> finalNotes = new();
+                    List<Note> nodes = CurrentMap.BezierNodes != null && CurrentMap.BezierNodes.Count > 1 ? CurrentMap.BezierNodes.ToList() : CurrentMap.Notes.Selected.ToList();
+                    List<Note> result = new();
 
                     List<int> anchored = new() { 0 };
 
-                    for (int i = 0; i < finalNodes.Count; i++)
-                        if (finalNodes[i].Anchored && !anchored.Contains(i))
+                    for (int i = 0; i < nodes.Count; i++)
+                        if (nodes[i].Anchored && !anchored.Contains(i))
                             anchored.Add(i);
 
-                    if (!anchored.Contains(finalNodes.Count - 1))
-                        anchored.Add(finalNodes.Count - 1);
+                    if (!anchored.Contains(nodes.Count - 1))
+                        anchored.Add(nodes.Count - 1);
 
                     for (int i = 1; i < anchored.Count; i++)
                     {
                         List<Note> newNodes = new();
 
                         for (int j = anchored[i - 1]; j <= anchored[i]; j++)
-                            newNodes.Add(finalNodes[j]);
+                            newNodes.Add(nodes[j]);
 
                         try
                         {
@@ -233,7 +236,7 @@ namespace New_SSQE.Maps
 
                             if (success)
                                 for (int j = 1; j < finalbez.Count; j++)
-                                    finalNotes.Add(finalbez[j]);
+                                    result.Add(finalbez[j]);
                         }
                         catch (OverflowException)
                         {
@@ -250,10 +253,10 @@ namespace New_SSQE.Maps
                     CurrentMap.Notes.ClearSelection();
                     CurrentMap.SelectedPoint = null;
 
-                    finalNotes.Add(finalNodes[0]);
+                    result.Add(nodes[0]);
 
                     if (success)
-                        NoteManager.Replace("DRAW BEZIER", finalNodes, finalNotes);
+                        NoteManager.Replace("DRAW BEZIER", nodes, result);
                 }
 
                 foreach (Note note in CurrentMap.Notes)
