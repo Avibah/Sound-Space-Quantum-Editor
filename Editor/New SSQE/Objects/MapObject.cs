@@ -15,12 +15,15 @@
         public bool Selected;
         public long DragStartMs;
 
-        public MapObject(int id, long ms, string? name = null)
+        public bool HasDuration;
+
+        public MapObject(int id, long ms, string? name = null, bool hasDuration = true)
         {
             ID = id;
             Ms = ms;
 
             Name = name;
+            HasDuration = hasDuration;
 
             ExtraData = Array.Empty<string>();
         }

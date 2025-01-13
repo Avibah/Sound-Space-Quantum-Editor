@@ -150,16 +150,16 @@ namespace New_SSQE.Audio
             isUploaded = true;
         }
 
-        public static void Render(Vector4 pos, float trackHeight)
+        public static void Render(Vector2 xPositions, Vector2 songPositions, float trackHeight)
         {
             if (!isUploaded)
                 return;
 
-            int start = Math.Max(0, (int)(pos.Z * waveLength) - 1);
-            int end = Math.Min(waveLength, (int)(pos.W * waveLength) + 1);
+            int start = Math.Max(0, (int)(songPositions.X * waveLength) - 1);
+            int end = Math.Min(waveLength, (int)(songPositions.Y * waveLength) + 1);
 
             GL.UseProgram(Shader.WaveformProgram);
-            GL.Uniform3f(posLocation, pos.X, pos.Y - pos.X, trackHeight);
+            GL.Uniform3f(posLocation, xPositions.X, xPositions.Y - xPositions.X, trackHeight);
 
             GL.BindVertexArray(VaO);
             GL.DrawArrays(PrimitiveType.LineStrip, start, end - start);

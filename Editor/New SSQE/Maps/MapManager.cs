@@ -145,54 +145,63 @@ namespace New_SSQE.Maps
 
             if (file)
             {
-                string? old = CurrentMap.FileName;
-                file = false;
-                CurrentMap.FileName = null;
-
-                switch (Path.GetExtension(pathOrData))
+                try
                 {
-                    case ".sspm":
-                        pathOrData = Parser.ParseSSPM(pathOrData);
-                        break;
-                    case ".osu":
-                        pathOrData = Parser.ParseOSU(pathOrData);
-                        break;
-                    case ".nch":
-                        pathOrData = Parser.ParseNOVA(pathOrData);
-                        break;
-                    case ".npk":
-                        string tempNPK = Path.Combine(Assets.TEMP, "nova");
-                        Directory.CreateDirectory(tempNPK);
-                        foreach (string temp in Directory.GetFiles(tempNPK))
-                            File.Delete(temp);
-                        ZipFile.ExtractToDirectory(pathOrData, tempNPK);
+                    string? old = CurrentMap.FileName;
+                    file = false;
+                    CurrentMap.FileName = null;
 
-                        pathOrData = Parser.ParseNOVA(Path.Combine(tempNPK, "chart.nch"));
-                        break;
-                    case ".phxm":
-                        pathOrData = Parser.ParsePHXM(pathOrData);
-                        break;
-                    case ".phz":
-                        string tempPHZ = Path.Combine(Assets.TEMP, "pulsus");
-                        Directory.CreateDirectory(tempPHZ);
-                        foreach (string temp in Directory.GetFiles(tempPHZ))
-                            File.Delete(temp);
-                        ZipFile.ExtractToDirectory(pathOrData, tempPHZ);
+                    switch (Path.GetExtension(pathOrData))
+                    {
+                        case ".sspm":
+                            pathOrData = Parser.ParseSSPM(pathOrData);
+                            break;
+                        case ".osu":
+                            pathOrData = Parser.ParseOSU(pathOrData);
+                            break;
+                        case ".nch":
+                            pathOrData = Parser.ParseNOVA(pathOrData);
+                            break;
+                        case ".npk":
+                            string tempNPK = Path.Combine(Assets.TEMP, "nova");
+                            Directory.CreateDirectory(tempNPK);
+                            foreach (string temp in Directory.GetFiles(tempNPK))
+                                File.Delete(temp);
+                            ZipFile.ExtractToDirectory(pathOrData, tempNPK);
 
-                        pathOrData = Parser.ParsePHZ(Directory.GetFiles(tempPHZ).FirstOrDefault() ?? "");
-                        break;
-                    case ".json":
-                        if (Parser.IsValidPHZ(pathOrData))
-                            pathOrData = Parser.ParsePHZ(pathOrData);
-                        else
+                            pathOrData = Parser.ParseNOVA(Path.Combine(tempNPK, "chart.nch"));
+                            break;
+                        case ".phxm":
+                            pathOrData = Parser.ParsePHXM(pathOrData);
+                            break;
+                        case ".phz":
+                            string tempPHZ = Path.Combine(Assets.TEMP, "pulsus");
+                            Directory.CreateDirectory(tempPHZ);
+                            foreach (string temp in Directory.GetFiles(tempPHZ))
+                                File.Delete(temp);
+                            ZipFile.ExtractToDirectory(pathOrData, tempPHZ);
+
+                            pathOrData = Parser.ParsePHZ(Directory.GetFiles(tempPHZ).FirstOrDefault() ?? "");
+                            break;
+                        case ".json":
+                            if (Parser.IsValidPHZ(pathOrData))
+                                pathOrData = Parser.ParsePHZ(pathOrData);
+                            else
+                                return false;
+                            break;
+                        case not ".txt":
                             return false;
-                        break;
-                    case not ".txt":
-                        return false;
-                    case ".txt":
-                        file = true;
-                        CurrentMap.FileName = old;
-                        break;
+                        case ".txt":
+                            file = true;
+                            CurrentMap.FileName = old;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logging.Register($"Error while parsing map: {ex.Message}", LogSeverity.WARN, ex);
+                    MessageBox.Show($"Failed to load map data: {ex.Message}\n\nExit and check '*\\logs.txt' for more info", MBoxIcon.Warning, MBoxButtons.OK);
+                    return false;
                 }
             }
             if (pathOrData == "")

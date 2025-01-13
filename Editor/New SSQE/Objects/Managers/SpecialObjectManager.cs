@@ -3,7 +3,7 @@ using New_SSQE.Maps;
 
 namespace New_SSQE.Objects.Managers
 {
-    internal class SpecialObjectManager
+    internal class SpecialObjectManager : IObjectManager<MapObject>
     {
         private static ObjectList<MapObject> Objects => CurrentMap.SpecialObjects;
 

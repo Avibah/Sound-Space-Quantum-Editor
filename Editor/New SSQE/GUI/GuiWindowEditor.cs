@@ -13,6 +13,8 @@ using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
 using New_SSQE.ExternalUtils;
 using New_SSQE.Maps;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace New_SSQE.GUI
 {
@@ -118,15 +120,17 @@ namespace New_SSQE.GUI
 
         // export nav
         private readonly GuiButton RNavExport = new(1735, 60, 175, 50, 5, "EXPORT", 31, false, true);
-        private readonly GuiButton SaveButton = new(1610, 130, 100, 40, 24, "SAVE", 27, false, true);
-        private readonly GuiButton SaveAsButton = new(1720, 130, 100, 40, 25, "SAVE AS", 27, false, true);
-        private readonly GuiButtonList ExportSwitch = new(1590, 200, 250, 40, Settings.exportType, 27, false, true);
-        private readonly GuiButton ExportButton = new(1610, 250, 210, 40, 44, "EXPORT MAP", 27, false, true);
-        private readonly GuiTextbox ReplaceIDBox = new(1610, 340, 210, 40, 27, true);
-        private readonly GuiButton ReplaceID = new(1610, 390, 210, 40, 29, "REPLACE", 27, false, true);
-        private readonly GuiButton ConvertAudio = new(1610, 460, 210, 40, 49, "CONVERT TO MP3", 27, false, true);
+        private readonly GuiButton SaveButton = new(1640, 130, 100, 40, 24, "SAVE", 27, false, true);
+        private readonly GuiButton SaveAsButton = new(1750, 130, 100, 40, 25, "SAVE AS", 27, false, true);
+        private readonly GuiButtonList ExportSwitch = new(1620, 200, 250, 40, Settings.exportType, 27, false, true);
+        private readonly GuiButton ExportButton = new(1640, 250, 210, 40, 44, "EXPORT MAP", 27, false, true);
+        private readonly GuiTextbox ReplaceIDBox = new(1640, 340, 210, 40, 27, true);
+        private readonly GuiButton ReplaceID = new(1640, 390, 210, 40, 29, "REPLACE", 27, false, true);
+        private readonly GuiButton ConvertAudio = new(1640, 460, 210, 40, 49, "CONVERT TO MP3", 27, false, true);
+        private readonly GuiButton CalculateSR = new(1365, 130, 210, 40, 50, "Calculate SR/RP", 27, false, true);
 
-        private readonly GuiLabel ReplaceIDLabel = new(1610, 300, 210, 40, "Replace Audio ID", 30, false, true, "main", true, Settings.color1);
+        private readonly GuiLabel ReplaceIDLabel = new(1640, 300, 210, 40, "Replace Audio ID", 30, false, true, "main", true, Settings.color1);
+        private readonly GuiLabel SRLabel = new(1375, 180, 190, 320, "", 28, false, true, "main", false, Settings.color1);
 
         // vfx
         private readonly GuiButton ExitMapVFX = new(10, 60, 545, 50, 31, "CLOSE MAP VFX", 31, false, true) { Visible = false };
@@ -237,7 +241,7 @@ namespace New_SSQE.GUI
                 // Buttons
                 CopyButton, BackButton, SaveButton, PlayPause, LNavOptions, LNavTiming, OpenTimings, ImportIni, LNavPatterns, HFlip, VFlip, StoreNodes, ClearNodes,
                 BezierButton, RotateButton, ScaleButton, RNavExport, OpenBookmarks, CopyBookmarks, PasteBookmarks, LNavPlayer, CameraMode, PlayMap, ExportButton,
-                FromStart, RNavGraphics, RNavSnapping, SwapClickMode, SaveAsButton, ReplaceID, /*EditMapVFX,*/ ExitMapVFX, ConvertAudio,
+                FromStart, RNavGraphics, RNavSnapping, SwapClickMode, SaveAsButton, ReplaceID, EditMapVFX, ExitMapVFX, ConvertAudio, CalculateSR,
                 NavBrightness, NavContrast, NavSaturation, NavBlur, NavFOV, NavTint, NavPosition, NavRotation, NavARFactor, NavText,
                 VFXStyle, VFXDirection, VFXColor, VFXApply, ExportSwitch, EditSpecial, ExitSpecial, NavBeat, GameSwitch, VFXStrength,
                 // Checkboxes
@@ -252,7 +256,7 @@ namespace New_SSQE.GUI
                 // Labels
                 ZoomLabel, ZoomValueLabel, ClickModeLabel, BeatDivisorLabel, SnappingLabel, TempoLabel, MusicLabel, MusicValueLabel, SfxLabel, SfxValueLabel, CurrentTimeLabel,
                 CurrentMsLabel, TotalTimeLabel, NotesLabel, TrackHeightLabel, CursorPosLabel, ApproachRateLabel, ExportOffsetLabel, SfxOffsetLabel, DrawBezierLabel, RotateLabel,
-                ScaleLabel, CameraModeLabel, NoteScaleLabel, CursorScaleLabel, SensitivityLabel, ParallaxLabel, FieldOfViewLabel, ReplaceIDLabel,
+                ScaleLabel, CameraModeLabel, NoteScaleLabel, CursorScaleLabel, SensitivityLabel, ParallaxLabel, FieldOfViewLabel, ReplaceIDLabel, SRLabel,
                 ApproachDistanceLabel, PlayerApproachRateLabel, HitWindowLabel, ToastLabel,
                 VFXDurationLabel, VFXStyleLabel, VFXDirectionLabel, VFXIntensityLabel, VFXFOVLabel, VFXVectorLabel,
                 VFXDegreesLabel, VFXFactorLabel, VFXStringLabel, VFXToast, VFXStrengthLabel
@@ -405,6 +409,8 @@ namespace New_SSQE.GUI
         }
 
         private bool playerRunning = false;
+
+        private static readonly Dictionary<string, (float, Dictionary<string, float>)> calculatorCache = new();
 
         public override void OnButtonClicked(int id)
         {
@@ -885,7 +891,7 @@ namespace New_SSQE.GUI
                             break;
 
                         case "AR Factor":
-                            mapObj = new ARFactor(vfxMs, vfxFactor);
+                            mapObj = new ARFactor(vfxMs, vfxDuration, vfxStyle, vfxDirection, vfxFactor);
                             break;
 
                         case "Text":
@@ -1015,6 +1021,35 @@ namespace New_SSQE.GUI
                 case 49:
                     MusicPlayer.ConvertToMP3();
                     break;
+
+                case 50:
+                    string mapData = Parser.SaveLegacy(CurrentMap.SoundID);
+                    byte[] mapBytes = Encoding.UTF8.GetBytes(mapData[mapData.IndexOf(',')..]);
+                    string mapHash = Encoding.UTF8.GetString(SHA512.HashData(mapBytes));
+
+                    float sr;
+                    Dictionary<string, float> rp;
+
+                    if (calculatorCache.TryGetValue(mapHash, out (float, Dictionary<string, float>) value))
+                    {
+                        sr = value.Item1;
+                        rp = value.Item2;
+                    }
+                    else
+                    {
+                        WebClient.GetDifficultyMetrics(mapData, out sr, out rp);
+                        calculatorCache.Add(mapHash, (sr, rp));
+                    }
+
+                    string difficultyResult = sr > 0 ? $"SR: {Math.Round(sr, 2)}\n" : "";
+                    string suffix = sr > 0 ? "RP" : "";
+
+                    foreach (KeyValuePair<string, float> kvp in rp)
+                        difficultyResult += $"\n{kvp.Key}: {Math.Round(kvp.Value, 2)} {suffix}";
+
+                    SRLabel.Text = difficultyResult;
+
+                    break;
             }
 
             base.OnButtonClicked(id);
@@ -1095,12 +1130,12 @@ namespace New_SSQE.GUI
             NavText.Text = textNav ? "[Text]" : "Text";
 
 
-            VFXDurationLabel.Visible = brightnessNav || contrastNav || saturationNav || blurNav || fovNav || tintNav || positionNav || rotationNav || textNav;
-            VFXDuration.Visible = brightnessNav || contrastNav || saturationNav || blurNav || fovNav || tintNav || positionNav || rotationNav || textNav;
-            VFXStyleLabel.Visible = brightnessNav || contrastNav || saturationNav || blurNav || fovNav || tintNav || positionNav || rotationNav;
-            VFXStyle.Visible = brightnessNav || contrastNav || saturationNav || blurNav || fovNav || tintNav || positionNav || rotationNav;
-            VFXDirectionLabel.Visible = brightnessNav || contrastNav || saturationNav || blurNav || fovNav || tintNav || positionNav || rotationNav;
-            VFXDirection.Visible = brightnessNav || contrastNav || saturationNav || blurNav || fovNav || tintNav || positionNav || rotationNav;
+            VFXDurationLabel.Visible = brightnessNav || contrastNav || saturationNav || blurNav || fovNav || tintNav || positionNav || rotationNav || textNav || arFactorNav;
+            VFXDuration.Visible = brightnessNav || contrastNav || saturationNav || blurNav || fovNav || tintNav || positionNav || rotationNav || textNav || arFactorNav;
+            VFXStyleLabel.Visible = brightnessNav || contrastNav || saturationNav || blurNav || fovNav || tintNav || positionNav || rotationNav || arFactorNav;
+            VFXStyle.Visible = brightnessNav || contrastNav || saturationNav || blurNav || fovNav || tintNav || positionNav || rotationNav || arFactorNav;
+            VFXDirectionLabel.Visible = brightnessNav || contrastNav || saturationNav || blurNav || fovNav || tintNav || positionNav || rotationNav || arFactorNav;
+            VFXDirection.Visible = brightnessNav || contrastNav || saturationNav || blurNav || fovNav || tintNav || positionNav || rotationNav || arFactorNav;
             VFXIntensityLabel.Visible = brightnessNav || contrastNav || saturationNav || blurNav;
             VFXIntensity.Visible = brightnessNav || contrastNav || saturationNav || blurNav;
             VFXFOVLabel.Visible = fovNav;
@@ -1131,7 +1166,7 @@ namespace New_SSQE.GUI
         private void UpdateGame()
         {
             string game = Settings.modchartGame.Value.Current;
-            bool phoenyx = game == "Phoenyx";
+            bool phoenyx = game == "Rhythia";
             bool nova = game == "Nova";
             bool vfx = GuiGrid.VFXObjects;
             bool spec = !vfx;
@@ -1259,6 +1294,9 @@ namespace New_SSQE.GUI
                     break;
 
                 case "ARFactor" when obj is ARFactor temp:
+                    Settings.vfxDuration.Value = temp.Duration;
+                    Settings.vfxStyle.Value.Current = temp.Style.ToString();
+                    Settings.vfxDirection.Value.Current = temp.Direction.ToString();
                     Settings.vfxFactor.Value = temp.Factor;
 
                     VFXFactor.Text = temp.Factor.ToString();
@@ -1410,8 +1448,10 @@ namespace New_SSQE.GUI
             ReplaceIDBox.Visible = exportNav;
             ReplaceID.Visible = exportNav;
             ConvertAudio.Visible = exportNav && !Platform.IsLinux;
+            CalculateSR.Visible = exportNav;
 
             ReplaceIDLabel.Visible = exportNav;
+            SRLabel.Visible = exportNav;
         }
 
         public override void OnResize(Vector2i size)

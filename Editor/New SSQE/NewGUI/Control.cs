@@ -24,7 +24,6 @@ namespace New_SSQE.NewGUI
         {
             shader = Shader.Program;
             textures = [];
-            GenerateTextures();
 
             startRect = rect;
             this.rect = rect;
@@ -35,8 +34,6 @@ namespace New_SSQE.NewGUI
         public Control(float x, float y, float w, float h) : this(new RectangleF(x, y, w, h)) { }
 
         public abstract float[] Draw();
-
-        public virtual void GenerateTextures() { }
 
         public virtual void Update()
         {
@@ -65,12 +62,17 @@ namespace New_SSQE.NewGUI
             float widthDiff = width / 1920;
             float heightDiff = height / 1080;
 
-            rect = new(startRect.X * widthDiff, startRect.Y * heightDiff,
+            SetRect(startRect.X * widthDiff, startRect.Y * heightDiff,
                 startRect.Width * widthDiff, startRect.Height * heightDiff);
 
             Update();
         }
 
+        public virtual void SetRect(RectangleF rect) => this.rect = rect;
+
+        public virtual void SetRect(float x, float y, float width, float height) => SetRect(new(x, y, width, height));
+
+        public virtual RectangleF GetRect() => rect;
 
 
         private bool _disposed = false;

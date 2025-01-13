@@ -150,6 +150,8 @@ namespace New_SSQE.NewGUI.Controls
                 case Keys.KeyPadEnter:
                 case Keys.Escape:
                     Focused = false;
+
+                    InvokeTextInput(new(text));
                     break;
 
                 default:

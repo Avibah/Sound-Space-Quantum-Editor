@@ -3,7 +3,7 @@ using New_SSQE.Maps;
 
 namespace New_SSQE.Objects.Managers
 {
-    internal class VfxObjectManager
+    internal class VfxObjectManager : IObjectManager<MapObject>
     {
         private static ObjectList<MapObject> Objects => CurrentMap.VfxObjects;
 

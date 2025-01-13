@@ -110,9 +110,12 @@ namespace New_SSQE.Objects
                         obj = new Rotation(ms, duration, style, direction, rotation);
                         break;
                     case 10:
+                        duration = long.Parse(data[++index]);
+                        style = string.IsNullOrWhiteSpace(data[++index]) ? EasingStyle.Linear : (EasingStyle)int.Parse(data[index]);
+                        direction = string.IsNullOrWhiteSpace(data[++index]) ? EasingDirection.InOut : (EasingDirection)int.Parse(data[index]);
                         float factor = float.Parse(data[++index], Program.Culture);
 
-                        obj = new ARFactor(ms, factor);
+                        obj = new ARFactor(ms, duration, style, direction, factor);
                         break;
                     case 11:
                         duration = long.Parse(data[++index]);

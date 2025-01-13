@@ -3,7 +3,7 @@ using New_SSQE.Maps;
 
 namespace New_SSQE.Objects.Managers
 {
-    internal class NoteManager
+    internal class NoteManager : IObjectManager<Note>
     {
         private static ObjectList<Note> Notes => CurrentMap.Notes;
         private static List<Note> BezierNodes => CurrentMap.BezierNodes;

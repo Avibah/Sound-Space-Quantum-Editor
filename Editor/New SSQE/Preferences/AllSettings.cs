@@ -56,6 +56,7 @@ namespace New_SSQE.Preferences
         public static readonly Setting<float> fov = 70;
         public static readonly Setting<float> noteScale = 1;
         public static readonly Setting<float> cursorScale = 1;
+        public static readonly Setting<float> fontScale = 1;
 
         public static readonly Setting<string> language = "english";
         public static readonly Setting<string> autosavedFile = "";

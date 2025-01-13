@@ -1,5 +1,6 @@
 ﻿using New_SSQE.EditHistory;
 using New_SSQE.ExternalUtils;
+using New_SSQE.FileParsing;
 using New_SSQE.Maps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;

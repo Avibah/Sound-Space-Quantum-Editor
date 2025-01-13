@@ -5,7 +5,7 @@
     {
         public float BPM { get; set; }
 
-        public TimingPoint(float bpm, long ms) : base(1, ms)
+        public TimingPoint(float bpm, long ms) : base(1, ms, "BPM", false)
         {
             BPM = bpm;
             Ms = ms;

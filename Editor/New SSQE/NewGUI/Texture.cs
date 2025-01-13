@@ -45,14 +45,18 @@ namespace New_SSQE.NewGUI
             Draw(dest.X, dest.Y, dest.Width, dest.Height, rect.X, rect.Y, rect.Width, rect.Height, alpha);
         }
 
+        public void Activate()
+        {
+            GLState.EnableTextureUnit(shader, texUnit);
+            GLState.EnableTexture(texture);
+        }
+
         public void Render()
         {
             if (_disposed)
                 return;
 
-            GLState.EnableTextureUnit(shader, texUnit);
-            GLState.EnableTexture(texture);
-
+            Activate();
             GLState.DrawTriangles(vao, 0, 6);
         }
 

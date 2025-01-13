@@ -57,7 +57,7 @@ namespace New_SSQE.GUI
         public float StartPos = 0f;
         public float EndPos = 1f;
 
-        private Vector4 PosSet = new();
+        private Vector2 PosSet = new();
 
         private TextureHandle spriteSheet;
 
@@ -829,7 +829,7 @@ namespace New_SSQE.GUI
 
             // render waveform
             if (Settings.waveform.Value)
-                Waveform.Render(PosSet, Rect.Height);
+                Waveform.Render(PosSet, (StartPos, EndPos), Rect.Height);
 
             // render dynamic elements
             GenerateOffsets();
@@ -904,7 +904,7 @@ namespace New_SSQE.GUI
             StartPos = Math.Max(0, (-cursorX * 1000f / noteStep + currentTime) / totalTime);
             EndPos = Math.Min(1, ((Rect.Width - cursorX) * 1000f / noteStep + currentTime) / totalTime);
 
-            PosSet = (-posX + cursorX, endX, StartPos, EndPos);
+            PosSet = (-posX + cursorX, endX);
 
             HoveringNote = null;
             HoveringPoint = null;

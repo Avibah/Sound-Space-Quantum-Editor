@@ -16,6 +16,7 @@ namespace SSQE_Player.GUI
         private readonly GuiLabel HitWindowTempoLabel = new(10, 1050, 60, 40, "", 28, false, Settings.color2.Value);
         private readonly GuiLabel OffsetLabel = new(930, 1040, 60, 40, "", 28, true, Settings.color2.Value);
         private readonly GuiLabel FPSLabel = new(1800, 1050, 60, 40, "", 28, false, Settings.color2.Value);
+        private readonly GuiLabel TimeLabel = new(0, 1050, 1920, 40, "", 28, true, Settings.color2.Value);
 
         private Matrix4 noteScale = Matrix4.CreateScale(1);
 
@@ -72,7 +73,7 @@ namespace SSQE_Player.GUI
 
             Labels =
             [
-                AccuracyLabel, ComboLabel, MissesLabel, InfoLabel, PausedLabel, HitWindowTempoLabel, OffsetLabel, FPSLabel
+                AccuracyLabel, ComboLabel, MissesLabel, InfoLabel, PausedLabel, HitWindowTempoLabel, OffsetLabel, FPSLabel, TimeLabel
             ];
 
             hitWindow = (int)Settings.hitWindow.Value;
@@ -149,6 +150,9 @@ namespace SSQE_Player.GUI
             ComboLabel.Text = combo.ToString();
             MissesLabel.Text = $"{misses} | {Pauses}";
             OffsetLabel.Text = Offset != 0 ? $"Offset: {Offset:#0}ms" : "";
+
+            float currentTime = Settings.currentTime.Value.Value;
+            TimeLabel.Text = $"{(int)(currentTime / 60000f)}:{(int)(currentTime % 60000 / 1000f):0#}";
 
             frames++;
             time += frametime;

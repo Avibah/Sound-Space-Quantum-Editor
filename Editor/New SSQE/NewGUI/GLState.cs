@@ -1,5 +1,4 @@
-﻿using Avalonia.OpenGL;
-using New_SSQE.GUI.Shaders;
+﻿using New_SSQE.GUI.Shaders;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -28,9 +27,7 @@ namespace New_SSQE.NewGUI
                 EnableProgram(program);
                 GL.ActiveTexture(texUnit);
 
-                EnableProgram(Shader.TextureProgram);
-                int location = GL.GetUniformLocation(Shader.TextureProgram, "texture0");
-                GL.Uniform1i(location, (int)texUnit - (int)TextureUnit.Texture0);
+                Uniform1i(Shader.TextureProgram, "texture0", (int)texUnit - (int)TextureUnit.Texture0);
             }
 
             _texUnit = texUnit;
@@ -89,7 +86,7 @@ namespace New_SSQE.NewGUI
             {
                 GL.VertexAttribPointer((uint)i, fieldWidths[i], VertexAttribPointerType.Float, false, stride * sizeof(float), offset * sizeof(float));
                 GL.EnableVertexAttribArray((uint)i);
-                
+
                 offset += i;
             }
 
@@ -168,5 +165,53 @@ namespace New_SSQE.NewGUI
         public static void Clean(VertexArrayHandle vao) => GL.DeleteVertexArray(vao);
         public static void Clean(BufferHandle vbo) => GL.DeleteBuffer(vbo);
         public static void Clean(TextureHandle texture) => GL.DeleteTexture(texture);
+
+        public static void Uniform1(ProgramHandle program, string uniform, float[] values)
+        {
+            EnableProgram(program);
+
+            int location = GL.GetUniformLocation(program, uniform);
+            GL.Uniform1f(location, values.Length, values);
+        }
+        public static void Uniform1(ProgramHandle program, string uniform, float x) => Uniform1(program, uniform, [x]);
+
+        public static void Uniform1i(ProgramHandle program, string uniform, int[] values)
+        {
+            EnableProgram(program);
+
+            int location = GL.GetUniformLocation(program, uniform);
+            GL.Uniform1i(location, values.Length, values);
+        }
+        public static void Uniform1i(ProgramHandle program, string uniform, int x) => Uniform1(program, uniform, [x]);
+
+        public static void Uniform2(ProgramHandle program, string uniform, Vector2[] values)
+        {
+            EnableProgram(program);
+
+            int location = GL.GetUniformLocation(program, uniform);
+            GL.Uniform2f(location, values.Length, values);
+        }
+        public static void Uniform2(ProgramHandle program, string uniform, Vector2 value) => Uniform2(program, uniform, [value]);
+        public static void Uniform2(ProgramHandle program, string uniform, float x, float y) => Uniform2(program, uniform, [(x, y)]);
+
+        public static void Uniform3(ProgramHandle program, string uniform, Vector3[] values)
+        {
+            EnableProgram(program);
+
+            int location = GL.GetUniformLocation(program, uniform);
+            GL.Uniform3f(location, values.Length, values);
+        }
+        public static void Uniform3(ProgramHandle program, string uniform, Vector3 value) => Uniform3(program, uniform, [value]);
+        public static void Uniform3(ProgramHandle program, string uniform, float x, float y, float z) => Uniform3(program, uniform, [(x, y, z)]);
+
+        public static void Uniform4(ProgramHandle program, string uniform, Vector4[] values)
+        {
+            EnableProgram(program);
+
+            int location = GL.GetUniformLocation(program, uniform);
+            GL.Uniform4f(location, values.Length, values);
+        }
+        public static void Uniform4(ProgramHandle program, string uniform, Vector4 value) => Uniform4(program, uniform, [value]);
+        public static void Uniform4(ProgramHandle program, string uniform, float x, float y, float z, float w) => Uniform4(program, uniform, [(x, y, z, w)]);
     }
 }

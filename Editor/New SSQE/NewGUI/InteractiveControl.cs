@@ -13,10 +13,24 @@ namespace New_SSQE.NewGUI
         public float X;
         public float Y;
 
-        public ClickEventArgs(float x, float y)
+        public ClickType ClickType;
+
+        public ClickEventArgs(float x, float y, ClickType clickType)
         {
             X = x;
             Y = y;
+
+            ClickType = clickType;
+        }
+    }
+
+    internal class TextInputEventArgs : EventArgs
+    {
+        public string Text;
+
+        public TextInputEventArgs(string text)
+        {
+            Text = text;
         }
     }
 
@@ -24,6 +38,7 @@ namespace New_SSQE.NewGUI
     {
         public event EventHandler LeftClick;
         public event EventHandler RightClick;
+        public event EventHandler TextInput;
 
         public bool Hovering = false;
         public bool Dragging = false;
@@ -43,7 +58,7 @@ namespace New_SSQE.NewGUI
             {
                 Focused = true;
                 Dragging = true;
-                LeftClick?.Invoke(this, new ClickEventArgs(x, y));
+                LeftClick?.Invoke(this, new ClickEventArgs(x, y, ClickType.Left));
             }
             else
                 Focused = false;
@@ -52,7 +67,7 @@ namespace New_SSQE.NewGUI
         public virtual void MouseClickRight(float x, float y)
         {
             if (Hovering)
-                RightClick?.Invoke(this, new ClickEventArgs(x, y));
+                RightClick?.Invoke(this, new ClickEventArgs(x, y, ClickType.Right));
         }
 
         public virtual void MouseUpLeft(float x, float y)
@@ -67,5 +82,7 @@ namespace New_SSQE.NewGUI
 
         public virtual void KeyDown(Keys key) { }
         public virtual void KeyUp(Keys key) { }
+
+        protected void InvokeTextInput(TextInputEventArgs e) => TextInput?.Invoke(this, e);
     }
 }

@@ -2,7 +2,7 @@
 {
     internal class Beat : MapObject
     {
-        public Beat(long ms) : base(12, ms, "Beat")
+        public Beat(long ms) : base(12, ms, "Beat", false)
         {
 
         }

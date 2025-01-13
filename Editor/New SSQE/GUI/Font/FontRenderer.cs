@@ -1,5 +1,6 @@
 ﻿using New_SSQE.GUI.Shaders;
 using New_SSQE.Misc.Static;
+using New_SSQE.Preferences;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -34,24 +35,22 @@ namespace New_SSQE.GUI.Font
 
         public static Vector4[] Print(float x, float y, string text, int fontSize, string font)
         {
-            return fonts[font].Print(x, y, text, fontSize, unicode);
+            return fonts[font].Print(x, y, text, (int)(fontSize * Settings.fontScale.Value), unicode);
         }
 
         public static void PrintInto(Vector4[] arr, int offset, float x, float y, string text, int fontSize, string font)
         {
-            if (unicode)
-                text = Translator.Translate(text);
-            fonts[font].PrintInto(arr, offset, x, y, text, fontSize, unicode);
+            fonts[font].PrintInto(arr, offset, x, y, text, (int)(fontSize * Settings.fontScale.Value), unicode);
         }
 
         public static int GetWidth(string text, int fontSize, string font)
         {
-            return fonts[font].Extent(text, fontSize, unicode);
+            return fonts[font].Extent(text, (int)(fontSize * Settings.fontScale.Value), unicode);
         }
 
         public static int GetHeight(int fontSize, string font)
         {
-            return fonts[font].Baseline(fontSize, unicode);
+            return fonts[font].Baseline((int)(fontSize * Settings.fontScale.Value), unicode);
         }
 
         private static string _activeFont = "";

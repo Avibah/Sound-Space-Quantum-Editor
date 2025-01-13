@@ -38,7 +38,10 @@ namespace New_SSQE.FileParsing.Formats
                         bpm = value.GetSingle();
                         break;
                     case "song":
-                        id = $"{value.GetInt32()}";
+                        if (value.ValueKind == JsonValueKind.Number)
+                            id = value.GetInt32().ToString();
+                        else
+                            id = value.GetString() ?? "";
                         break;
                     case "beat":
                         beats = JsonSerializer.Deserialize<JsonElement[]>(value) ?? beats;
@@ -62,8 +65,15 @@ namespace New_SSQE.FileParsing.Formats
                 }
             }
 
-            if (!File.Exists(Path.Combine(Assets.CACHED, $"{id}.asset")))
-                WebClient.DownloadFile($"https://pulsus.cc/play/client/s/{id}.mp3", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Pulsus);
+            try
+            {
+                if (!File.Exists(Path.Combine(Assets.CACHED, $"{id}.asset")))
+                    WebClient.DownloadFile($"https://pulsus.cc/play/client/s/{id}.mp3", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Pulsus);
+            }
+            catch (Exception ex)
+            {
+                Logging.Register("Failed to download audio (Pulsus)", LogSeverity.WARN, ex);
+            }
 
             return $"{id},{string.Join(',', data)}";
         }

@@ -1,5 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace New_SSQE.NewGUI
 {
@@ -93,6 +94,20 @@ namespace New_SSQE.NewGUI
                 x + w, y + h, tx + tw, ty + th, alpha,
                 x, y + h, tx, ty + th, alpha,
                 x + w, y, tx + tw, ty, alpha
+            };
+        }
+
+        public static float[] Icon(float x, float y, float w, float h)
+        {
+            return new float[]
+            {
+                x, y, 0f, 0f, 0, 0,
+                x + w, y, 1f, 0f, 0, 0,
+                x, y + h, 0f, 1f, 0, 0,
+
+                x + w, y + h, 1f, 1f, 0, 0,
+                x, y + h, 0f, 1f, 0, 0,
+                x + w, y, 1f, 0f, 0, 0
             };
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using AvaloniaEdit;
+using System.Net;
 using System.Text.Json;
 
 namespace New_SSQE.ExternalUtils
@@ -15,7 +16,7 @@ namespace New_SSQE.ExternalUtils
         private static readonly HttpClient client = new();
         private static readonly HttpClient impatientClient = new()
         {
-            Timeout = TimeSpan.FromMilliseconds(10000)
+            Timeout = TimeSpan.FromMilliseconds(30000)
         };
         private static readonly HttpClient robloxClient = new(new HttpClientHandler()
         {
@@ -45,6 +46,41 @@ namespace New_SSQE.ExternalUtils
             Dictionary<string, JsonElement> beatmapData = json.TryGetValue("beatmap", out JsonElement value) ? value.Deserialize<Dictionary<string, JsonElement>>() ?? new() : new();
 
             return beatmapData.TryGetValue("beatmapFile", out JsonElement file) ? file.GetString() ?? "" : "";
+        }
+
+        public static void GetDifficultyMetrics(string mapData, out float sr, out Dictionary<string, float> rp)
+        {
+            HttpStatusCode status = HttpStatusCode.Processing;
+
+            Task<string> result = Task.Run(async () =>
+            {
+                HttpRequestMessage request = new(HttpMethod.Post, "https://development.rhythia.com/api/getRawStarRating")
+                {
+                    Content = new StringContent("{\"rawMap\":\"" + mapData + "\",\"session\":\"\"}")
+                };
+
+                using HttpResponseMessage response = await client.SendAsync(request);
+                using HttpContent content = response.Content;
+
+                status = response.StatusCode;
+                return await content.ReadAsStringAsync();
+            });
+
+            string jsonResult = result.Result;
+
+            if (status != HttpStatusCode.OK)
+            {
+                sr = 0;
+                rp = new() { { "Upload Failed", (int)status } };
+            }
+            else
+            {
+                Dictionary<string, JsonElement> json = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(result.Result) ?? new();
+                Dictionary<string, JsonElement> beatmapData = json.TryGetValue("beatmap", out JsonElement value) ? value.Deserialize<Dictionary<string, JsonElement>>() ?? new() : new();
+
+                sr = beatmapData.TryGetValue("starRating", out JsonElement rating) ? rating.GetSingle() : 0f;
+                rp = beatmapData.TryGetValue("rp", out JsonElement points) ? points.Deserialize<Dictionary<string, float>>() ?? new() : new();
+            }
         }
 
         public static string GetRedirect(string url)
@@ -99,7 +135,7 @@ namespace New_SSQE.ExternalUtils
 
                 Stream stream = await content.ReadAsStreamAsync();
 
-                Logging.Register($"Attempted download of file: {location} - {source} : {response.StatusCode}");
+                Logging.Register($"Attempted download of file: {location} - {source} ({url}) : {response.StatusCode}");
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {

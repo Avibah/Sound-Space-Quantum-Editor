@@ -8,7 +8,7 @@
 
         public bool Anchored;
 
-        public Note(float x, float y, long ms) : base(0, ms)
+        public Note(float x, float y, long ms) : base(0, ms, "Note", false)
         {
             X = x;
             Y = y;
