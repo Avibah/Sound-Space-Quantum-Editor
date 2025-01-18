@@ -1,5 +1,4 @@
 ﻿using New_SSQE.Objects;
-using TextCopy;
 
 namespace New_SSQE.ExternalUtils
 {

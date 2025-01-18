@@ -261,18 +261,6 @@ namespace New_SSQE
             try
             {
                 CurrentWindow?.Render(Mouse.X, Mouse.Y, (float)args.Time);
-
-                if (RecordingMouse)
-                {
-                    float cur = Settings.currentTime.Value.Value;
-                    long ms = Timing.GetClosestBeat(cur);
-
-                    if (ms > 0 && ms <= cur && CurrentMap.Notes.FirstOrDefault(n => Math.Abs(n.Ms - ms) < 2) == null)
-                    {
-                        PointF point = CurrentWindow?.Grid?.PointToGridSpace(Mouse.X, Mouse.Y) ?? new();
-                        NoteManager.Add("ADD NOTE", new Note(point.X, point.Y, ms));
-                    }
-                }
             }
             catch (Exception ex)
             {
@@ -373,8 +361,6 @@ namespace New_SSQE
             WindowState = isFullscreen ? WindowState.Fullscreen : WindowState.Maximized;
         }
 
-        private bool RecordingMouse = false;
-
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
             CtrlHeld = e.Control;
@@ -397,14 +383,9 @@ namespace New_SSQE
                     if (e.Key == Keys.Space && !editor.Timeline.Dragging)
                     {
                         if (MusicPlayer.IsPlaying)
-                        {
-                            RecordingMouse = false;
                             MusicPlayer.Pause();
-                        }
                         else
                         {
-                            if (ShiftHeld && CtrlHeld)
-                                RecordingMouse = true;
                             SliderSetting currentTime = Settings.currentTime.Value;
                             
                             if (currentTime.Value >= currentTime.Max - 1)

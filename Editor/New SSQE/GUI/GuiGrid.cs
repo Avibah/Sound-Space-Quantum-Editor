@@ -580,7 +580,6 @@ namespace New_SSQE.GUI
                 GL.DrawArrays(PrimitiveType.Triangles, 0, offset);
 
                 // render keybinds
-                GL.UseProgram(FontRenderer.unicode ? Shader.UnicodeProgram : Shader.FontProgram);
                 FontRenderer.SetActive("main");
 
                 GL.Uniform4f(TexColorLocation, 0.2f, 0.2f, 0.2f, 1f);
@@ -610,7 +609,7 @@ namespace New_SSQE.GUI
                 GL.BindVertexArray(VaO);
                 GL.DrawArrays(PrimitiveType.LineStrip, offset, Indices["bezierLength"]);
 
-                GL.UseProgram(FontRenderer.unicode ? Shader.UnicodeProgram : Shader.FontProgram);
+                GL.UseProgram(FontRenderer.Program);
             }
         }
 

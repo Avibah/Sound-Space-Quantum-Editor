@@ -11,6 +11,7 @@ namespace New_SSQE.GUI.Font
     internal class FontRenderer
     {
         public static bool unicode = true;
+        public static ProgramHandle Program => unicode ? Shader.UnicodeProgram : Shader.FontProgram;
 
         public static readonly Dictionary<string, Tuple<TextureUnit, int>> FontIndex = new()
         {
@@ -61,6 +62,8 @@ namespace New_SSQE.GUI.Font
                 //return;
             _activeFont = font;
 
+            GL.UseProgram(Program);
+
             if (unicode)
             {
                 int location = GL.GetUniformLocation(Shader.UnicodeProgram, "texture0");
@@ -94,9 +97,10 @@ namespace New_SSQE.GUI.Font
                 return;
             _activeColor = color;
 
-            int location = GL.GetUniformLocation(unicode ? Shader.FontProgram : Shader.UnicodeProgram, "TexColor");
+            int location = GL.GetUniformLocation(Program, "TexColor");
             GL.Uniform4f(location, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
         }
+        public static void SetColor(int r, int g, int b, int a = 255) => SetColor(Color.FromArgb(r, g, b, a));
 
         public static void RenderData(string font, Vector4[] data, float[]? alpha = null, int? count = null)
         {

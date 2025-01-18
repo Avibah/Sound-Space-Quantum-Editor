@@ -59,7 +59,7 @@ namespace New_SSQE.NewGUI
                 for (int i = 0; i < a.Length; i++)
                     a[i] = 1 - alpha;
 
-            GLState.EnableProgram(FontRenderer.unicode ? Shader.UnicodeProgram : Shader.FontProgram);
+            GLState.EnableProgram(FontRenderer.Program);
             FontRenderer.SetActive(font);
             FontRenderer.SetColor(textColor);
             FontRenderer.RenderData(font, verts, a);

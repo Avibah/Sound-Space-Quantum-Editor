@@ -1,6 +1,5 @@
 ﻿using OpenTK.Mathematics;
 using System.Drawing;
-using System.Runtime.InteropServices;
 
 namespace New_SSQE.NewGUI
 {
@@ -94,6 +93,20 @@ namespace New_SSQE.NewGUI
                 x + w, y + h, tx + tw, ty + th, alpha,
                 x, y + h, tx, ty + th, alpha,
                 x + w, y, tx + tw, ty, alpha
+            };
+        }
+
+        public static float[] TextureWithoutAlpha(float x, float y, float w, float h, float tx = 0, float ty = 0, float tw = 1, float th = 1)
+        {
+            return new float[]
+            {
+                x, y, tx, ty,
+                x + w, y, tx + tw, ty,
+                x, y + h, tx, ty + th,
+
+                x + w, y + h, tx + tw, ty + th,
+                x, y + h, tx, ty + th,
+                x + w, y, tx + tw, ty
             };
         }
 

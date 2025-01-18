@@ -145,6 +145,7 @@ namespace New_SSQE.NewGUI.Controls
 
             int colorCount = Settings.noteColors.Value.Count;
             float? lastRenderedText = null;
+            hoveringObject = null;
 
             MapObject? toPlay = null;
             int objCount = 0;
@@ -157,7 +158,6 @@ namespace New_SSQE.NewGUI.Controls
 
             if (RenderMode == TrackRenderMode.Notes)
             {
-                // render notes
                 ObjectList<Note> notes = CurrentMap.Notes;
                 (int low, int high) = notes.SearchRange(minMs, maxMs);
                 int range = high - low;
@@ -226,7 +226,6 @@ namespace New_SSQE.NewGUI.Controls
             }
             else
             {
-                // render map objects
                 ObjectList<MapObject> objects = RenderMode == TrackRenderMode.VFX ? CurrentMap.VfxObjects : CurrentMap.SpecialObjects;
                 List<int> indices = [];
 
@@ -446,12 +445,12 @@ namespace New_SSQE.NewGUI.Controls
             bpmHover.UploadData([bpmHovers]);
             bpmSelect.UploadData([bpmSelects]);
 
-            Vector4[] staticLines = new Vector4[]
-            {
+            Vector4[] staticLines =
+            [
                 (cursorPos - currentPos, 0, 1, 1),
                 (endPos, 0, 1, 8),
                 (cursorPos, 0, 0.75f, 4)
-            };
+            ];
 
             staticLine.UploadData(staticLines);
 
@@ -490,7 +489,7 @@ namespace New_SSQE.NewGUI.Controls
 
             RectangleF note = new(0, CellGap, NoteSize, NoteSize);
 
-            List<float> noteVerts = new();
+            List<float> noteVerts = [];
             noteVerts.AddRange(GLVerts.Rect(note, 1f, 1f, 1f, 1 / 20f));
             noteVerts.AddRange(GLVerts.Outline(note, 1, 1f, 1f, 1f, 1f));
 
@@ -507,7 +506,7 @@ namespace New_SSQE.NewGUI.Controls
             noteHover.UploadStaticData(GLVerts.Outline(-4, CellGap - 4, NoteSize + 8, NoteSize + 8, 1, 1f, 1f, 1f, 1f));
             noteSelect.UploadStaticData(GLVerts.Outline(-4, CellGap - 4, NoteSize + 8, NoteSize + 8, 1, 1f, 1f, 1f, 1f));
 
-            List<float> objVerts = new();
+            List<float> objVerts = [];
             objVerts.AddRange(GLVerts.CircleOutline(NoteSize / 2, NoteSize / 2 + CellGap, NoteSize / 2, 2, 20, 0, 1f, 1f, 1f, 1f));
             objVerts.AddRange(GLVerts.Circle(NoteSize / 2, NoteSize / 2 + CellGap, NoteSize / 2, 20, 0, 1f, 1f, 1f, 1 / 20f));
 
@@ -536,7 +535,7 @@ namespace New_SSQE.NewGUI.Controls
 
             GLState.Uniform2(Shader.IconTexProgram, "SpriteSize", 1f / MainWindow.SpriteSize.X, 1f / MainWindow.SpriteSize.Y);
 
-            List<float> verts = new();
+            List<float> verts = [];
             verts.AddRange(GLVerts.Rect(rect, 0.15f, 0.15f, 0.15f, Settings.trackOpacity.Value / 255f));
             verts.AddRange(GLVerts.Outline(rect, 1, 0.2f, 0.2f, 0.2f));
 
@@ -549,6 +548,11 @@ namespace New_SSQE.NewGUI.Controls
 
             if (selecting)
             {
+                float cursorPos = rect.Width * Settings.cursorPos.Value.Value / 100f;
+                float currentMs = Settings.currentTime.Value.Value;
+                float mouseMs = (mousex - cursorPos - NoteSize / 2f) / MS_TO_PX + currentMs;
+                selectMsEnd = MathHelper.Clamp(mouseMs, 0, Settings.currentTime.Value.Max);
+
                 float start = Math.Min(selectMsStart, selectMsEnd);
                 float end = Math.Max(selectMsStart, selectMsEnd);
                 (int low, int high) = CurrentMap.Notes.SearchRange(start, end);
@@ -620,7 +624,6 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.PostRender(mousex, mousey, frametime);
             
-            GLState.EnableProgram(FontRenderer.unicode ? Shader.UnicodeProgram : Shader.FontProgram);
             FontRenderer.SetActive(FONT);
 
             FontRenderer.SetColor(Settings.color1.Value);
@@ -803,14 +806,19 @@ namespace New_SSQE.NewGUI.Controls
                     else
                         selected.Add(hoveringObject);
                 }
+                else if (selected.Count == 0)
+                    selected = [hoveringObject];
 
                 SetSelected(selected);
 
-                draggingObjects = selected;
-                draggingDuration = null;
+                if (hoveringObject.Selected)
+                {
+                    draggingObjects = [hoveringObject, .. selected];
+                    foreach (MapObject obj in draggingObjects)
+                        obj.DragStartMs = obj.Ms;
+                }
 
-                foreach (MapObject obj in draggingObjects)
-                    obj.DragStartMs = obj.Ms;
+                draggingDuration = null;
             }
             else if (Dragging)
             {
@@ -886,7 +894,6 @@ namespace New_SSQE.NewGUI.Controls
         public override void MouseClickRight(float x, float y)
         {
             base.MouseClickRight(x, y);
-            ClearSelection();
 
             if (Hovering)
             {
@@ -897,6 +904,8 @@ namespace New_SSQE.NewGUI.Controls
                 selectMsStart = MathHelper.Clamp(mouseMs, 0, Settings.currentTime.Value.Max);
                 selecting = true;
             }
+            else
+                ClearSelection();
         }
 
         public override void MouseUpRight(float x, float y)

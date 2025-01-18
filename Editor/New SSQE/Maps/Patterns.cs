@@ -215,8 +215,8 @@ namespace New_SSQE.Maps
 
                     List<int> anchored = new() { 0 };
 
-                    for (int i = 0; i < nodes.Count; i++)
-                        if (nodes[i].Anchored && !anchored.Contains(i))
+                    for (int i = 1; i < nodes.Count; i++)
+                        if (nodes[i].Anchored)
                             anchored.Add(i);
 
                     if (!anchored.Contains(nodes.Count - 1))

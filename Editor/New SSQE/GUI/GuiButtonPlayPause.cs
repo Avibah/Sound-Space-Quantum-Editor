@@ -1,6 +1,5 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.GUI.Font;
-using New_SSQE.GUI.Shaders;
 using OpenTK.Graphics.OpenGL;
 
 namespace New_SSQE.GUI
@@ -35,7 +34,6 @@ namespace New_SSQE.GUI
             GL.BindVertexArray(tVaO);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
-            GL.UseProgram(FontRenderer.unicode ? Shader.UnicodeProgram : Shader.FontProgram);
             FontRenderer.SetActive("main");
         }
 

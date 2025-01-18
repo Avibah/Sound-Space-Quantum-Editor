@@ -2,6 +2,7 @@
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using System.Drawing;
 
 namespace New_SSQE.NewGUI
 {
@@ -12,6 +13,14 @@ namespace New_SSQE.NewGUI
         private static TextureHandle? _texture;
         private static VertexArrayHandle? _vao;
         private static BufferHandle? _vbo;
+        private static RenderbufferHandle? _rbo;
+
+        private static Dictionary<FramebufferTarget, FramebufferHandle?> _fbo = new()
+        {
+            {FramebufferTarget.Framebuffer, null },
+            {FramebufferTarget.ReadFramebuffer, null },
+            {FramebufferTarget.DrawFramebuffer, null }
+        };
 
         public static void EnableProgram(ProgramHandle program)
         {
@@ -39,6 +48,7 @@ namespace New_SSQE.NewGUI
                 GL.BindTexture(TextureTarget.Texture2d, texture);
             _texture = texture;
         }
+
         public static void EnableVAO(VertexArrayHandle vao)
         {
             if (vao != _vao)
@@ -165,6 +175,8 @@ namespace New_SSQE.NewGUI
         public static void Clean(VertexArrayHandle vao) => GL.DeleteVertexArray(vao);
         public static void Clean(BufferHandle vbo) => GL.DeleteBuffer(vbo);
         public static void Clean(TextureHandle texture) => GL.DeleteTexture(texture);
+        public static void Clean(FramebufferHandle fbo) => GL.DeleteFramebuffer(fbo);
+        public static void Clean(RenderbufferHandle rbo) => GL.DeleteRenderbuffer(rbo);
 
         public static void Uniform1(ProgramHandle program, string uniform, float[] values)
         {
@@ -213,5 +225,80 @@ namespace New_SSQE.NewGUI
         }
         public static void Uniform4(ProgramHandle program, string uniform, Vector4 value) => Uniform4(program, uniform, [value]);
         public static void Uniform4(ProgramHandle program, string uniform, float x, float y, float z, float w) => Uniform4(program, uniform, [(x, y, z, w)]);
+
+        public static void EnableFBO(FramebufferHandle fbo, FramebufferTarget target = FramebufferTarget.Framebuffer)
+        {
+            if (fbo != _fbo[target])
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
+            _fbo[target] = fbo;
+        }
+
+        public static void EnableRBO(RenderbufferHandle rbo)
+        {
+            if (rbo != _rbo)
+                GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
+            _rbo = rbo;
+        }
+
+        public static void DisableFBO_RBO()
+        {
+            EnableFBO(FramebufferHandle.Zero, FramebufferTarget.ReadFramebuffer);
+            EnableFBO(FramebufferHandle.Zero, FramebufferTarget.DrawFramebuffer);
+            EnableFBO(FramebufferHandle.Zero);
+
+            EnableRBO(RenderbufferHandle.Zero);
+        }
+
+        public static void CreateFBO(out FramebufferHandle fbo, out FramebufferHandle msaa_fbo, out RenderbufferHandle rbo, out TextureHandle fbo_tex)
+        {
+            rbo = GL.GenRenderbuffer();
+            EnableRBO(rbo);
+
+            msaa_fbo = GL.GenFramebuffer();
+            EnableFBO(msaa_fbo);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, RenderbufferTarget.Renderbuffer, rbo);
+
+            fbo = GL.GenFramebuffer();
+            EnableFBO(fbo);
+
+            fbo_tex = NewTexture(TextureUnit.Texture3);
+            GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2d, fbo_tex, 0);
+
+            DisableFBO_RBO();
+        }
+
+        public static void AllocateFBO(float vpW, float vpH, FramebufferHandle fbo, FramebufferHandle msaa_fbo, RenderbufferHandle rbo, TextureHandle fbo_tex)
+        {
+            EnableRBO(rbo);
+            EnableFBO(msaa_fbo);
+            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, Math.Min(MainWindow.MaxSamples, 32), InternalFormat.Rgba8, (int)vpW, (int)vpH);
+
+            DisableFBO_RBO();
+            EnableTextureUnit(Shader.VFXFBOProgram, TextureUnit.Texture3);
+            EnableTexture(fbo_tex);
+            GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba, (int)vpW, (int)vpH, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+        }
+
+        public static void BeginFBORender(RectangleF viewport, FramebufferHandle msaa_fbo)
+        {
+            EnableFBO(msaa_fbo);
+
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Viewport((int)viewport.X, (int)viewport.Y, (int)viewport.Width, (int)viewport.Height);
+        }
+        public static void BeginFBORender(float vpX, float vpY, float vpW, float vpH, FramebufferHandle msaa_fbo) => BeginFBORender(new(vpX, vpY, vpW, vpH), msaa_fbo);
+
+        public static void EndFBORender(RectangleF viewport, FramebufferHandle fbo, FramebufferHandle msaa_fbo)
+        {
+            EnableFBO(msaa_fbo, FramebufferTarget.ReadFramebuffer);
+            EnableFBO(fbo, FramebufferTarget.DrawFramebuffer);
+
+            GL.BlitFramebuffer((int)viewport.X, (int)viewport.Y, (int)viewport.Width, (int)viewport.Height,
+                (int)viewport.X, (int)viewport.Y, (int)viewport.Width, (int)viewport.Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+            DisableFBO_RBO();
+        }
+        public static void EndFBORender(float vpX, float vpY, float vpW, float vpH, FramebufferHandle fbo, FramebufferHandle msaa_fbo) => EndFBORender(new(vpX, vpY, vpW, vpH), fbo, msaa_fbo);
     }
 }

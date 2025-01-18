@@ -57,10 +57,10 @@ namespace New_SSQE.NewGUI
                 textures[textureIndex].Render();
         }
 
-        public virtual void Resize(float width, float height)
+        public virtual void Resize(float screenWidth, float screenHeight)
         {
-            float widthDiff = width / 1920;
-            float heightDiff = height / 1080;
+            float widthDiff = screenWidth / 1920;
+            float heightDiff = screenHeight / 1080;
 
             SetRect(startRect.X * widthDiff, startRect.Y * heightDiff,
                 startRect.Width * widthDiff, startRect.Height * heightDiff);
@@ -70,7 +70,7 @@ namespace New_SSQE.NewGUI
 
         public virtual void SetRect(RectangleF rect) => this.rect = rect;
 
-        public virtual void SetRect(float x, float y, float width, float height) => SetRect(new(x, y, width, height));
+        public void SetRect(float x, float y, float width, float height) => SetRect(new(x, y, width, height));
 
         public virtual RectangleF GetRect() => rect;
 
