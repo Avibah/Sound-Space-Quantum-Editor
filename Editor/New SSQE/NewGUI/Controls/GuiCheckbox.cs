@@ -8,7 +8,7 @@ namespace New_SSQE.NewGUI.Controls
     {
         public bool Toggle = false;
 
-        private Setting<bool>? setting;
+        private readonly Setting<bool>? setting;
         private float checkSize = 0f;
 
         public GuiCheckbox(float x, float y, float w, float h, Setting<bool>? setting = null, string text = "", int textSize = 0, string font = "main") : base(x, y, w, h, text, textSize, font, false)

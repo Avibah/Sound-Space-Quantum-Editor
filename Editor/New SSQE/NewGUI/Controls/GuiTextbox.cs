@@ -4,7 +4,6 @@ using New_SSQE.GUI.Input;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Drawing;
 
 namespace New_SSQE.NewGUI.Controls
 {
@@ -15,7 +14,7 @@ namespace New_SSQE.NewGUI.Controls
         private bool cursorShowing = false;
         private float cursorTime = 0;
 
-        private Setting<string>? setting;
+        private readonly Setting<string>? setting;
 
         public GuiTextbox(float x, float y, float w, float h, Setting<string>? setting = null, string text = "", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h, text, textSize, font, centered)
         {
@@ -148,10 +147,12 @@ namespace New_SSQE.NewGUI.Controls
 
                 case Keys.Enter:
                 case Keys.KeyPadEnter:
+                    Focused = false;
+                    InvokeTextInput(new(text));
+                    break;
+
                 case Keys.Escape:
                     Focused = false;
-
-                    InvokeTextInput(new(text));
                     break;
 
                 default:

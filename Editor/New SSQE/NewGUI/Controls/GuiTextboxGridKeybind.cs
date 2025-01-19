@@ -5,7 +5,7 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiTextboxGridKeybind : GuiTextbox
     {
-        private int gridKey;
+        private readonly int gridKey;
 
         public GuiTextboxGridKeybind(float x, float y, float w, float h, int gridKey, string text = "", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h, null, text, textSize, font, centered)
         {

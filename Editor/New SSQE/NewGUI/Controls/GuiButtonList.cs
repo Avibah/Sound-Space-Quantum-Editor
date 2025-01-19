@@ -4,8 +4,8 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiButtonList : GuiButton
     {
-        private Setting<ListSetting> setting;
-        private string prefix;
+        private readonly Setting<ListSetting> setting;
+        private readonly string prefix;
 
         public GuiButtonList(float x, float y, float w, float h, Setting<ListSetting> setting, string prefix = "") : base(x, y, w, h)
         {

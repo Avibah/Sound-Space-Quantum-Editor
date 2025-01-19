@@ -22,24 +22,24 @@ namespace New_SSQE.NewGUI.Controls
     {
         private const string FONT = "main";
 
-        private VertexArrayHandle bezierPreviewLineVAO;
-        private BufferHandle bezierPreviewLineVBO;
+        private readonly VertexArrayHandle bezierPreviewLineVAO;
+        private readonly BufferHandle bezierPreviewLineVBO;
 
         private float CellSize => rect.Width / 3f;
         private float NoteSize => CellSize * 0.75f;
         private float PreviewSize => CellSize * 0.65f;
         private float CellGap => (CellSize - NoteSize) / 2f;
 
-        private Instance autoplayCursor;
+        private readonly Instance autoplayCursor;
 
-        private Instance noteConstant;
-        private Instance noteApproach;
-        private Instance noteHover;
-        private Instance noteSelect;
-        private Instance notePreview;
+        private readonly Instance noteConstant;
+        private readonly Instance noteApproach;
+        private readonly Instance noteHover;
+        private readonly Instance noteSelect;
+        private readonly Instance notePreview;
 
-        private Instance beatConstant;
-        private Instance beatApproach;
+        private readonly Instance beatConstant;
+        private readonly Instance beatApproach;
 
         private Vector2? hoveringCell;
         private bool placing = false;
@@ -428,7 +428,7 @@ namespace New_SSQE.NewGUI.Controls
 
                 GLState.EnableProgram(Shader.Program);
                 GLState.BufferData(bezierPreviewLineVBO, verts.ToArray());
-                GLState.DrawTriangles(0, verts.Count / 6);
+                GLState.DrawTriangles(bezierPreviewLineVAO, 0, verts.Count / 6);
             }
         }
 

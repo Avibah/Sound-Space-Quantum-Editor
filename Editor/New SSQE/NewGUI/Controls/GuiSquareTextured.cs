@@ -13,8 +13,6 @@ namespace New_SSQE.NewGUI.Controls
             }
             else
                 textures = [new(texture)];
-
-            textureIndex = 0;
         }
         public GuiSquareTextured(string texture, string? fileSource = null) : this(0, 0, 1920, 1080, texture, fileSource) { }
 

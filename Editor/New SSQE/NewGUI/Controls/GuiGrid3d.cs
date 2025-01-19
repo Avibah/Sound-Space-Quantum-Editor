@@ -13,11 +13,11 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiGrid3d : View3dControl
     {
-        private VertexArrayHandle backgroundVAO;
-        private BufferHandle backgroundVBO;
+        private readonly VertexArrayHandle backgroundVAO;
+        private readonly BufferHandle backgroundVBO;
         private int backgroundVertexCount;
 
-        private Instance noteConstant;
+        private readonly Instance noteConstant;
 
         public GuiGrid3d(float x, float y, float w, float h) : base(x, y, w, h)
         {

@@ -24,6 +24,7 @@ namespace New_SSQE.NewGUI
         {
             shader = Shader.Program;
             textures = [];
+            textureIndex = 0;
 
             startRect = rect;
             this.rect = rect;

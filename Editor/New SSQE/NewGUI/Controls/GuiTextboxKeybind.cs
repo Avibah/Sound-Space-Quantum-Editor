@@ -5,7 +5,7 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiTextboxKeybind : GuiTextbox
     {
-        private Setting<Keybind> setting;
+        private readonly Setting<Keybind> setting;
 
         public GuiTextboxKeybind(float x, float y, float w, float h, Setting<Keybind> setting, string text = "", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h, null, text, textSize, font, centered)
         {

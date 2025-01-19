@@ -13,9 +13,9 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiSliderTimeline : GuiSlider
     {
-        private Instance notes;
-        private Instance points;
-        private Instance objects;
+        private readonly Instance notes;
+        private readonly Instance points;
+        private readonly Instance objects;
 
         private Bookmark? hoveringBookmark = null;
         private Vector4[] hoveringBookmarkText = [];
@@ -164,6 +164,15 @@ namespace New_SSQE.NewGUI.Controls
                 RectangleF hitbox = new(xPos - 4f, yPos - 40f, 8f + (endX - xPos), 8f);
                 if (hitbox.Contains(x, y))
                     hoveringBookmark = bookmark;
+            }
+
+            if (hoveringBookmark != null)
+            {
+                float progress = hoveringBookmark.Ms / setting.Value.Max;
+                float xPos = lineRect.X + progress * lineRect.Width;
+                float height = FontRenderer.GetHeight(16, "main");
+
+                hoveringBookmarkText = FontRenderer.Print(xPos, yPos - 40f - height, hoveringBookmark.Text, 16, "main");
             }
         }
 

@@ -40,36 +40,36 @@ namespace New_SSQE.NewGUI.Controls
         private MapObject? lastPlayedObject;
         private float? lastPlayedTick;
 
-        private Instance selectBox;
-        private Instance staticLine;
+        private readonly Instance selectBox;
+        private readonly Instance staticLine;
 
-        private Instance noteConstant;
-        private Instance noteLocation;
-        private Instance noteHover;
-        private Instance noteSelect;
+        private readonly Instance noteConstant;
+        private readonly Instance noteLocation;
+        private readonly Instance noteHover;
+        private readonly Instance noteSelect;
 
-        private Instance objConstant;
-        private Instance objIcon;
-        private Instance objHover;
-        private Instance objSelect;
+        private readonly Instance objConstant;
+        private readonly Instance objIcon;
+        private readonly Instance objHover;
+        private readonly Instance objSelect;
 
-        private Instance objDurationMarker;
-        private Instance objDurationBar;
-        private Instance objDurationHover;
-        private Instance objDurationSelect;
+        private readonly Instance objDurationMarker;
+        private readonly Instance objDurationBar;
+        private readonly Instance objDurationHover;
+        private readonly Instance objDurationSelect;
 
-        private Instance textLine;
-        private Instance dragLine;
+        private readonly Instance textLine;
+        private readonly Instance dragLine;
 
-        private Instance bpmStart;
-        private Instance bpmBeat;
-        private Instance bpmHalfBeat;
-        private Instance bpmSubBeat;
+        private readonly Instance bpmStart;
+        private readonly Instance bpmBeat;
+        private readonly Instance bpmHalfBeat;
+        private readonly Instance bpmSubBeat;
 
-        private Instance bpmHover;
-        private Instance bpmSelect;
+        private readonly Instance bpmHover;
+        private readonly Instance bpmSelect;
 
-        private Texture spriteSheet;
+        private readonly Texture spriteSheet;
 
         private Vector4[] color1Data = [];
         private Vector4[] color2Data = [];

@@ -5,8 +5,8 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiSliderInfinite : GuiSlider
     {
-        private float min;
-        private float max;
+        private readonly float min;
+        private readonly float max;
 
         public GuiSliderInfinite(float x, float y, float w, float h, float min, float max, Setting<SliderSetting> setting, bool reverse = false) : base(x, y, w, h, setting, reverse)
         {

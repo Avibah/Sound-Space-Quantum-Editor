@@ -13,7 +13,7 @@ namespace New_SSQE.NewGUI.Controls
 
         protected Setting<SliderSetting> setting;
         
-        private bool reverse;
+        private readonly bool reverse;
         private float hoverTime = 0f;
 
         public GuiSlider(float x, float y, float w, float h, Setting<SliderSetting> setting, bool reverse = false) : base(x, y, w, h, "", 0, "main", true)

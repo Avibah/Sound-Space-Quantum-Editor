@@ -7,12 +7,14 @@ namespace New_SSQE.NewGUI
         private Control[] controls = [];
         private InteractiveControl[] interactives = [];
 
+        public Control[] Children => [.. controls];
+
         public ControlContainer(float x, float y, float w, float h, params Control[] controls) : base(x, y, w, h)
         {
             SetControls(controls);
         }
 
-        public void SetControls(Control[] controls)
+        public void SetControls(params Control[] controls)
         {
             List<InteractiveControl> interactives = [];
 

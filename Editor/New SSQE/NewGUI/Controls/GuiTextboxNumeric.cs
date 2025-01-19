@@ -8,9 +8,9 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiTextboxNumeric : GuiTextbox
     {
-        private Setting<float>? setting;
-        private bool isFloat;
-        private bool isPositive;
+        private readonly Setting<float>? setting;
+        private readonly bool isFloat;
+        private readonly bool isPositive;
 
         public GuiTextboxNumeric(float x, float y, float w, float h, Setting<float>? setting = null, bool isFloat = false, bool isPositive = false, string text = "0", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h, null, text, textSize, font, centered)
         {
