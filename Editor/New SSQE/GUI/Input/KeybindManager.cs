@@ -1,6 +1,5 @@
 ﻿using New_SSQE.EditHistory;
 using New_SSQE.ExternalUtils;
-using New_SSQE.FileParsing;
 using New_SSQE.Maps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
@@ -12,6 +11,10 @@ namespace New_SSQE.GUI.Input
 {
     internal class KeybindManager
     {
+        public static bool CtrlHeld => MainWindow.Instance.CtrlHeld;
+        public static bool AltHeld => MainWindow.Instance.AltHeld;
+        public static bool ShiftHeld => MainWindow.Instance.ShiftHeld;
+
         public static void ParseKeybind(Keys key, bool ctrl, bool alt, bool shift)
         {
             if (MainWindow.Instance.CurrentWindow is not GuiWindowEditor gse)
@@ -258,7 +261,7 @@ namespace New_SSQE.GUI.Input
                         if (CurrentMap.Notes.Selected.Count > 0)
                             NoteManager.Remove("DELETE NOTE[S]");
                         else if (CurrentMap.SelectedPoint != null)
-                            PointManager.Remove("DELETE POINT");
+                            PointManager.Remove("DELETE POINT", CurrentMap.SelectedPoint);
                         else if (CurrentMap.VfxObjects.Selected.Count > 0)
                             VfxObjectManager.Remove("DELETE OBJECT[S]");
                         else if (CurrentMap.SpecialObjects.Selected.Count > 0)

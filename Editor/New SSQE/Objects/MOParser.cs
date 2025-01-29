@@ -127,6 +127,11 @@ namespace New_SSQE.Objects
                     case 12:
                         obj = new Beat(ms);
                         break;
+                    case 13:
+                        int glideDirection = int.Parse(data[++index]);
+
+                        obj = new Glide(ms, (GlideDirection)glideDirection);
+                        break;
                     default:
                         obj = new(id ?? -1, ms);
                         break;

@@ -23,19 +23,28 @@ namespace New_SSQE.Preferences
         }
 
         public abstract object GetValue();
+        public abstract object GetDefault();
         public abstract void SetValue(object value);
     }
 
     internal class Setting<T> : SettingBase
     {
         public T Value;
+        public readonly T Default;
+
+        public Setting(T value)
+        {
+            Value = value;
+            Default = value;
+        }
 
         public static implicit operator Setting<T>(T value)
         {
-            return new() { Value = value, Type = typeof(T) };
+            return new(value) { Type = typeof(T) };
         }
 
         public override object GetValue() => Value;
+        public override object GetDefault() => Default;
         public override void SetValue(object value) => Value = (T)value;
     }
 

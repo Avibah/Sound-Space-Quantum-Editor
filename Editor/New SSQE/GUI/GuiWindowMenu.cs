@@ -5,7 +5,6 @@ using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
-using System.Diagnostics;
 using System.Drawing;
 
 namespace New_SSQE.GUI

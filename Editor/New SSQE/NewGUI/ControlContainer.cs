@@ -1,4 +1,5 @@
 ﻿using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Drawing;
 
 namespace New_SSQE.NewGUI
 {
@@ -6,6 +7,8 @@ namespace New_SSQE.NewGUI
     {
         private Control[] controls = [];
         private InteractiveControl[] interactives = [];
+
+        private bool buttonClicked = false;
 
         public Control[] Children => [.. controls];
 
@@ -16,16 +19,25 @@ namespace New_SSQE.NewGUI
 
         public void SetControls(params Control[] controls)
         {
+            RectangleF oldRect = rect;
+            Resize(1920, 1080);
+
             List<InteractiveControl> interactives = [];
 
             foreach (Control control in controls)
             {
                 if (control is InteractiveControl interactive)
+                {
                     interactives.Add(interactive);
+                    interactive.LeftClick += (s, e) => buttonClicked = true;
+                    interactive.RightClick += (s, e) => buttonClicked = true;
+                }
             }
 
             this.controls = controls;
             this.interactives = interactives.ToArray();
+
+            Resize(oldRect.Width, oldRect.Height);
         }
 
         public override float[] Draw() => [];
@@ -94,11 +106,16 @@ namespace New_SSQE.NewGUI
                 return;
 
             base.MouseClickLeft(x, y);
+            buttonClicked = false;
 
-            foreach (InteractiveControl control in interactives)
+            for (int i = interactives.Length - 1; i >= 0; i--)
             {
+                InteractiveControl control = interactives[i];
+
                 if (control.Visible)
                     control.MouseClickLeft(x, y);
+                if (buttonClicked)
+                    break;
             }
         }
 
@@ -108,11 +125,16 @@ namespace New_SSQE.NewGUI
                 return;
 
             base.MouseClickRight(x, y);
+            buttonClicked = false;
 
-            foreach (InteractiveControl control in interactives)
+            for (int i = interactives.Length - 1; i >= 0; i--)
             {
+                InteractiveControl control = interactives[i];
+
                 if (control.Visible)
                     control.MouseClickRight(x, y);
+                if (buttonClicked)
+                    break;
             }
         }
 
@@ -204,6 +226,20 @@ namespace New_SSQE.NewGUI
             {
                 if (control.Visible)
                     control.KeyUp(key);
+            }
+        }
+
+        public override void KeybindUsed(string keybind)
+        {
+            if (!Visible)
+                return;
+
+            base.KeybindUsed(keybind);
+
+            foreach (InteractiveControl control in interactives)
+            {
+                if (control.Visible)
+                    control.KeybindUsed(keybind);
             }
         }
 

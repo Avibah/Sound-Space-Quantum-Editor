@@ -1,5 +1,4 @@
-﻿using New_SSQE.GUI.Font;
-using New_SSQE.GUI.Shaders;
+﻿using New_SSQE.NewGUI.Font;
 using OpenTK.Mathematics;
 using System.Drawing;
 
@@ -18,6 +17,10 @@ namespace New_SSQE.NewGUI
 
         private float textX;
         private float textY;
+
+        public string Text => text;
+        public int TextSize => textSize;
+        public string Font => font;
 
         public TextControl(float x, float y, float w, float h, string text = "", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h)
         {
@@ -67,11 +70,16 @@ namespace New_SSQE.NewGUI
 
         public virtual void SetText(string? text = null, int? textSize = null, string? font = null)
         {
+            string prevText = this.text;
+            int prevTextSize = this.textSize;
+            string prevFont = this.font;
+
             this.text = text ?? this.text;
             this.textSize = textSize ?? this.textSize;
             this.font = font ?? this.font;
 
-            Update();
+            if (prevText != this.text || prevTextSize != this.textSize || prevFont != this.font)
+                Update();
         }
 
         public virtual void SetColor(Color? color = null, float? alpha = null)

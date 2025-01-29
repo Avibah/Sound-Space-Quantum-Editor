@@ -1,20 +1,16 @@
 ﻿namespace New_SSQE.Objects
 {
     [Serializable]
-    internal class Note : MapObject
+    internal class Note : XYMapObject
     {
-        public float X;
-        public float Y;
-
         public bool Anchored;
 
-        public Note(float x, float y, long ms) : base(0, ms, "Note", false)
+        public Note(float x, float y, long ms) : base(0, x, y, ms, "Note")
         {
-            X = x;
-            Y = y;
+
         }
 
-        public Note(string data) : base(0, 0)
+        public Note(string data) : this(0, 0, 0)
         {
             string[] split = data.Split('|');
 

@@ -24,21 +24,32 @@ namespace New_SSQE.NewGUI
         }
     }
 
-    internal class TextInputEventArgs : EventArgs
+    internal class TextEnteredEventArgs : EventArgs
     {
         public string Text;
 
-        public TextInputEventArgs(string text)
+        public TextEnteredEventArgs(string text)
         {
             Text = text;
         }
     }
 
+    internal class ScrollEventArgs : EventArgs
+    {
+        public float Value;
+
+        public ScrollEventArgs(float value)
+        {
+            Value = value;
+        }
+    }
+
     internal abstract class InteractiveControl : TextControl
     {
-        public event EventHandler LeftClick;
-        public event EventHandler RightClick;
-        public event EventHandler TextInput;
+        public event EventHandler? LeftClick;
+        public event EventHandler? RightClick;
+        public event EventHandler? TextEntered;
+        public event EventHandler? Scroll;
 
         public bool Hovering = false;
         public bool Dragging = false;
@@ -82,7 +93,9 @@ namespace New_SSQE.NewGUI
 
         public virtual void KeyDown(Keys key) { }
         public virtual void KeyUp(Keys key) { }
+        public virtual void KeybindUsed(string keybind) { }
 
-        protected void InvokeTextInput(TextInputEventArgs e) => TextInput?.Invoke(this, e);
+        protected void InvokeTextEntered(TextEnteredEventArgs e) => TextEntered?.Invoke(this, e);
+        protected void InvokeScroll(ScrollEventArgs e) => Scroll?.Invoke(this, e);
     }
 }

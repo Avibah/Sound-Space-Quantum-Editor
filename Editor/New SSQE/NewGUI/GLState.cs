@@ -1,4 +1,5 @@
-﻿using New_SSQE.GUI.Shaders;
+﻿using New_SSQE.ExternalUtils;
+using New_SSQE.NewGUI.Shaders;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -15,7 +16,7 @@ namespace New_SSQE.NewGUI
         private static BufferHandle? _vbo;
         private static RenderbufferHandle? _rbo;
 
-        private static Dictionary<FramebufferTarget, FramebufferHandle?> _fbo = new()
+        private static readonly Dictionary<FramebufferTarget, FramebufferHandle?> _fbo = new()
         {
             {FramebufferTarget.Framebuffer, null },
             {FramebufferTarget.ReadFramebuffer, null },
@@ -29,14 +30,14 @@ namespace New_SSQE.NewGUI
             _program = program;
         }
 
-        public static void EnableTextureUnit(ProgramHandle program, TextureUnit texUnit)
+        public static void EnableTextureUnit(Shader shader, TextureUnit texUnit)
         {
             if (texUnit != _texUnit)
             {
-                EnableProgram(program);
+                shader.Enable();
                 GL.ActiveTexture(texUnit);
 
-                Uniform1i(Shader.TextureProgram, "texture0", (int)texUnit - (int)TextureUnit.Texture0);
+                shader.Uniform1i("texture0", (int)texUnit - (int)TextureUnit.Texture0);
             }
 
             _texUnit = texUnit;
@@ -129,21 +130,21 @@ namespace New_SSQE.NewGUI
 
         public static void LoadTexture(TextureHandle texture, int width, int height, nint pixels, TextureUnit texUnit)
         {
-            EnableTextureUnit(Shader.TextureProgram, texUnit);
+            EnableTextureUnit(Shader.Texture, texUnit);
             EnableTexture(texture);
 
             GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba, width, height, 0,
                 PixelFormat.Bgra, PixelType.UnsignedByte, pixels);
         }
 
-        public static TextureHandle NewTexture(TextureUnit texUnit)
+        public static TextureHandle NewTexture(TextureUnit texUnit, bool smooth = false)
         {
             TextureHandle texture = GL.GenTexture();
-            EnableTextureUnit(Shader.TextureProgram, texUnit);
+            EnableTextureUnit(Shader.Texture, texUnit);
             EnableTexture(texture);
 
-            GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, (int)(smooth ? TextureMinFilter.Linear : TextureMinFilter.Nearest));
+            GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, (int)(smooth ? TextureMagFilter.Linear : TextureMagFilter.Nearest));
 
             return texture;
         }
@@ -226,6 +227,14 @@ namespace New_SSQE.NewGUI
         public static void Uniform4(ProgramHandle program, string uniform, Vector4 value) => Uniform4(program, uniform, [value]);
         public static void Uniform4(ProgramHandle program, string uniform, float x, float y, float z, float w) => Uniform4(program, uniform, [(x, y, z, w)]);
 
+        public static void UniformMatrix4(ProgramHandle program, string uniform, Matrix4 value)
+        {
+            EnableProgram(program);
+
+            int location = GL.GetUniformLocation(program, uniform);
+            GL.UniformMatrix4f(location, false, value);
+        }
+
         public static void EnableFBO(FramebufferHandle fbo, FramebufferTarget target = FramebufferTarget.Framebuffer)
         {
             if (fbo != _fbo[target])
@@ -269,14 +278,14 @@ namespace New_SSQE.NewGUI
             DisableFBO_RBO();
         }
 
-        public static void AllocateFBO(float vpW, float vpH, FramebufferHandle fbo, FramebufferHandle msaa_fbo, RenderbufferHandle rbo, TextureHandle fbo_tex)
+        public static void AllocateFBO(float vpW, float vpH, FramebufferHandle msaa_fbo, RenderbufferHandle rbo, TextureHandle fbo_tex)
         {
             EnableRBO(rbo);
             EnableFBO(msaa_fbo);
             GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, Math.Min(MainWindow.MaxSamples, 32), InternalFormat.Rgba8, (int)vpW, (int)vpH);
 
             DisableFBO_RBO();
-            EnableTextureUnit(Shader.VFXFBOProgram, TextureUnit.Texture3);
+            EnableTextureUnit(Shader.FBOTexture, TextureUnit.Texture3);
             EnableTexture(fbo_tex);
             GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba, (int)vpW, (int)vpH, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
         }
@@ -300,5 +309,38 @@ namespace New_SSQE.NewGUI
             DisableFBO_RBO();
         }
         public static void EndFBORender(float vpX, float vpY, float vpW, float vpH, FramebufferHandle fbo, FramebufferHandle msaa_fbo) => EndFBORender(new(vpX, vpY, vpW, vpH), fbo, msaa_fbo);
+
+        public static ProgramHandle CompileShader(string vertex, string fragment)
+        {
+            ShaderHandle _vertex = GL.CreateShader(ShaderType.VertexShader);
+            GL.ShaderSource(_vertex, vertex);
+            GL.CompileShader(_vertex);
+
+            GL.GetShaderInfoLog(_vertex, out string vertexLog);
+            if (!string.IsNullOrWhiteSpace(vertexLog))
+                Logging.Register($"Failed to compile vertex shader: {vertexLog}\n{vertex}");
+
+            ShaderHandle _fragment = GL.CreateShader(ShaderType.FragmentShader);
+            GL.ShaderSource(_fragment, fragment);
+            GL.CompileShader(_fragment);
+
+            GL.GetShaderInfoLog(_fragment, out string fragmentLog);
+            if (!string.IsNullOrWhiteSpace(fragmentLog))
+                Logging.Register($"Failed to compile fragment shader: {fragmentLog}\n{fragment}");
+
+            ProgramHandle program = GL.CreateProgram();
+            GL.AttachShader(program, _vertex);
+            GL.AttachShader(program, _fragment);
+
+            GL.LinkProgram(program);
+
+            GL.DetachShader(program, _vertex);
+            GL.DetachShader(program, _fragment);
+
+            GL.DeleteShader(_vertex);
+            GL.DeleteShader(_fragment);
+
+            return program;
+        }
     }
 }

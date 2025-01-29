@@ -48,8 +48,4 @@
       <HintPath>bin\x64\Release\net6.0\Bass.Net.dll</HintPath>
     </Reference>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="NewGUI\Windows\" />
-  </ItemGroup>
 </Project>

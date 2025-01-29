@@ -1,6 +1,5 @@
 ﻿using New_SSQE.GUI;
-using New_SSQE.GUI.Shaders;
-using New_SSQE.Maps;
+using New_SSQE.NewMaps;
 using New_SSQE.Misc.Static;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
@@ -8,6 +7,7 @@ using New_SSQE.Preferences;
 using OpenTK.Graphics;
 using OpenTK.Mathematics;
 using System.Drawing;
+using New_SSQE.NewGUI.Shaders;
 
 namespace New_SSQE.NewGUI.Controls
 {
@@ -23,7 +23,7 @@ namespace New_SSQE.NewGUI.Controls
         {
             (backgroundVAO, backgroundVBO) = GLState.NewVAO_VBO(2, 4);
 
-            noteConstant = Instancing.Generate("grid3d_noteConstant", Shader.VFXNoteProgram);
+            noteConstant = Instancing.Generate("grid3d_noteConstant", Shader.FBOObject);
         }
 
         private void UpdateInstanceData(float mousex, float mousey)
@@ -174,9 +174,27 @@ namespace New_SSQE.NewGUI.Controls
                 Matrix4 mView = Matrix4.CreateTranslation(-vCameraPos) * mRotation;
                 Matrix4 mTranslation = Matrix4.CreateTranslation(position * (-1, 1, 1));
 
-                Shader.SetPVT(mProjection, mView, mTranslation);
-                Shader.SetBCSBT(brightness, contrast, saturation, blur, (tint.R / 255f, tint.G / 255f, tint.B / 255f));
-                Shader.SetBlur(blur);
+                // grid
+                Shader.FBOMain.UniformMatrix4("Projection", mProjection);
+                Shader.FBOMain.UniformMatrix4("View", mView);
+                Shader.FBOMain.UniformMatrix4("Transform", mTranslation);
+
+                Shader.FBOMain.Uniform1("Brightness", brightness);
+                Shader.FBOMain.Uniform1("Contrast", contrast);
+                Shader.FBOMain.Uniform1("Saturation", saturation);
+                Shader.FBOMain.Uniform3("Tint", tint.R / 255f, tint.G / 255f, tint.B / 255f);
+
+                // notes
+                Shader.FBOObject.UniformMatrix4("Projection", mProjection);
+                Shader.FBOObject.UniformMatrix4("View", mView);
+                Shader.FBOObject.UniformMatrix4("Transform", mTranslation);
+
+                Shader.FBOObject.Uniform1("Brightness", brightness);
+                Shader.FBOObject.Uniform1("Contrast", contrast);
+                Shader.FBOObject.Uniform1("Saturation", saturation);
+                Shader.FBOObject.Uniform3("Tint", tint.R / 255f, tint.G / 255f, tint.B / 255f);
+
+                Shader.FBOTexture.Uniform1("blur", blur);
             }
 
             if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
@@ -195,7 +213,7 @@ namespace New_SSQE.NewGUI.Controls
 
             BeginFBORender();
 
-            GLState.EnableProgram(Shader.VFXGridProgram);
+            Shader.FBOMain.Enable();
             GLState.DrawTriangles(backgroundVAO, 0, backgroundVertexCount);
 
             noteConstant.Render();

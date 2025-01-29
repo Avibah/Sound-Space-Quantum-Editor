@@ -25,7 +25,7 @@
             Name = name;
             HasDuration = hasDuration;
 
-            ExtraData = Array.Empty<string>();
+            ExtraData = [];
         }
 
         public virtual string ToString(params object[] data)

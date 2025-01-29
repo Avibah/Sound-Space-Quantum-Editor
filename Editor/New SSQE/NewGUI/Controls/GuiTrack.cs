@@ -1,7 +1,7 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.GUI.Font;
-using New_SSQE.GUI.Shaders;
-using New_SSQE.Maps;
+using New_SSQE.NewGUI.Font;
+using New_SSQE.NewGUI.Shaders;
+using New_SSQE.NewMaps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Preferences;
@@ -11,16 +11,9 @@ using System.Drawing;
 
 namespace New_SSQE.NewGUI.Controls
 {
-    internal enum TrackRenderMode
-    {
-        Notes,
-        VFX,
-        Special
-    }
-
     internal class GuiTrack : InteractiveControl
     {
-        private static float MS_TO_PX => CurrentMap.NoteStep / 1000f;
+        private static float MS_TO_PX => CurrentMap.Zoom * 0.5f;
         private float NoteSize => (rect.Height - Settings.trackHeight.Value.Value) * 0.65f;
         private float CellGap => (rect.Height - Settings.trackHeight.Value.Value - NoteSize) / 2f;
         private float CellPos(float x) => x * NoteSize * 0.2f + NoteSize * 0.1f;
@@ -37,6 +30,7 @@ namespace New_SSQE.NewGUI.Controls
         private float dragXStart;
         private bool shouldReplay;
 
+        private TimingPoint? selectedPoint;
         private MapObject? lastPlayedObject;
         private float? lastPlayedTick;
 
@@ -74,42 +68,39 @@ namespace New_SSQE.NewGUI.Controls
         private Vector4[] color1Data = [];
         private Vector4[] color2Data = [];
 
-        public TrackRenderMode RenderMode;
         public float StartPositionRelative;
         public float EndPositionRelative;
 
-        public GuiTrack(float x, float y, float w, float h, TrackRenderMode trackRenderMode = TrackRenderMode.Notes) : base(x, y, w, h)
+        public GuiTrack(float x, float y, float w, float h) : base(x, y, w, h)
         {
-            RenderMode = trackRenderMode;
+            selectBox = Instancing.Generate("track_selectBox", Shader.InstancedMainExtra, true);
+            staticLine = Instancing.Generate("track_staticLine", Shader.InstancedMain);
 
-            selectBox = Instancing.Generate("track_selectBox", Shader.XScalingProgram);
-            staticLine = Instancing.Generate("track_staticLine", Shader.TimelineProgram);
+            noteConstant = Instancing.Generate("track_noteConstant", Shader.InstancedObject);
+            noteLocation = Instancing.Generate("track_noteLocation", Shader.InstancedObject);
+            noteHover = Instancing.Generate("track_noteHover", Shader.InstancedMain);
+            noteSelect = Instancing.Generate("track_noteSelect", Shader.InstancedMain);
 
-            noteConstant = Instancing.Generate("track_noteConstant", Shader.TrackProgram);
-            noteLocation = Instancing.Generate("track_noteLocation", Shader.TrackProgram);
-            noteHover = Instancing.Generate("track_noteHover", Shader.TimelineProgram);
-            noteSelect = Instancing.Generate("track_noteSelect", Shader.TimelineProgram);
+            objConstant = Instancing.Generate("track_objConstant", Shader.InstancedObject);
+            objIcon = Instancing.Generate("track_objIcon", Shader.Sprite);
+            objHover = Instancing.Generate("track_objHover", Shader.InstancedMain);
+            objSelect = Instancing.Generate("track_objSelect", Shader.InstancedMain);
 
-            objConstant = Instancing.Generate("track_objConstant", Shader.TrackProgram);
-            objIcon = Instancing.Generate("track_objIcon", Shader.IconTexProgram);
-            objHover = Instancing.Generate("track_objHover", Shader.TimelineProgram);
-            objSelect = Instancing.Generate("track_objSelect", Shader.TimelineProgram);
+            objDurationMarker = Instancing.Generate("track_objDurationMarker", Shader.InstancedObject);
+            objDurationBar = Instancing.Generate("track_objDurationBar", Shader.InstancedObjectExtra, true);
+            objDurationHover = Instancing.Generate("track_objDurationhover", Shader.InstancedMain);
+            objDurationSelect = Instancing.Generate("track_objDurationSelect", Shader.InstancedMain);
 
-            objDurationMarker = Instancing.Generate("track_objDurationMarker", Shader.TrackProgram);
-            objDurationBar = Instancing.Generate("track_objDurationBar", Shader.XScalingProgram);
-            objDurationHover = Instancing.Generate("track_objDurationhover", Shader.TimelineProgram);
-            objDurationSelect = Instancing.Generate("track_objDurationSelect", Shader.TimelineProgram);
+            textLine = Instancing.Generate("track_textLine", Shader.InstancedMain);
+            dragLine = Instancing.Generate("track_dragLine", Shader.InstancedMain);
 
-            textLine = Instancing.Generate("track_textLine", Shader.TimelineProgram);
-            dragLine = Instancing.Generate("track_dragLine", Shader.TimelineProgram);
+            bpmStart = Instancing.Generate("track_bpmStart", Shader.InstancedMain);
+            bpmBeat = Instancing.Generate("track_bpmBeat", Shader.InstancedMain);
+            bpmHalfBeat = Instancing.Generate("track_bpmHalfBeat", Shader.InstancedMain);
+            bpmSubBeat = Instancing.Generate("track_bpmSubBeat", Shader.InstancedMain);
 
-            bpmStart = Instancing.Generate("track_bpmStart", Shader.TimelineProgram);
-            bpmBeat = Instancing.Generate("track_bpmBeat", Shader.TimelineProgram);
-            bpmHalfBeat = Instancing.Generate("track_bpmHalfBeat", Shader.TimelineProgram);
-            bpmSubBeat = Instancing.Generate("track_bpmSubBeat", Shader.TimelineProgram);
-
-            bpmHover = Instancing.Generate("track_bpmHover", Shader.TimelineProgram);
-            bpmSelect = Instancing.Generate("track_bpmSelect", Shader.TimelineProgram);
+            bpmHover = Instancing.Generate("track_bpmHover", Shader.InstancedMainExtra, true);
+            bpmSelect = Instancing.Generate("track_bpmSelect", Shader.InstancedMainExtra, true);
 
             spriteSheet = new("sprites", null, true, TextureUnit.Texture2);
         }
@@ -156,7 +147,7 @@ namespace New_SSQE.NewGUI.Controls
             int color1Length = 0;
             int color2Length = 0;
 
-            if (RenderMode == TrackRenderMode.Notes)
+            if (CurrentMap.RenderMode == ObjectRenderMode.Notes)
             {
                 ObjectList<Note> notes = CurrentMap.Notes;
                 (int low, int high) = notes.SearchRange(minMs, maxMs);
@@ -180,21 +171,21 @@ namespace New_SSQE.NewGUI.Controls
                     float gridX = x + CellPos(2 - note.X);
                     float gridY = CellGap + CellPos(2 - note.Y);
 
-                    noteConstants[i - low] = (x, 0, a, i % colorCount);
-                    noteLocations[i - low] = (gridX, gridY, a, i % colorCount);
-                    textLines[i - low] = (x, 0, a, 4);
+                    noteConstants[i - low] = (x, 0, 1, 2 * (i % colorCount) + a);
+                    noteLocations[i - low] = (gridX, gridY, 1, 2 * (i % colorCount) + a);
+                    textLines[i - low] = (x, 0, 1, 2 * 4 + a);
 
                     if (mousex > x && mousex < x + NoteSize && mousey > CellGap && mousey < CellGap + NoteSize)
                         hoveringObject ??= note;
 
                     if (hoveringObject == note)
-                        noteHovers = (x, 0, 1, 5);
+                        noteHovers = (x, 0, 1, 2 * 5 + 1);
                     else if (note.Selected)
                     {
                         if (Dragging)
-                            dragLines[selectIndex++] = (cursorPos - currentPos + note.DragStartMs * MS_TO_PX, 0, 1, 7);
+                            dragLines[selectIndex++] = (cursorPos - currentPos + note.DragStartMs * MS_TO_PX, 0, 1, 2 * 7 + 1);
                         else
-                            noteSelects[selectIndex++] = (x, 0, 1, 6);
+                            noteSelects[selectIndex++] = (x, 0, 1, 2 * 6 + 1);
                     }
 
                     if (note.Ms <= currentTime - sfxOffset)
@@ -226,17 +217,19 @@ namespace New_SSQE.NewGUI.Controls
             }
             else
             {
-                ObjectList<MapObject> objects = RenderMode == TrackRenderMode.VFX ? CurrentMap.VfxObjects : CurrentMap.SpecialObjects;
+                ObjectList<MapObject> objects = CurrentMap.RenderMode == ObjectRenderMode.VFX ? CurrentMap.VfxObjects : CurrentMap.SpecialObjects;
                 List<int> indices = [];
 
                 Vector4[] objConstants = new Vector4[objects.Count];
                 Vector4[] objIcons = new Vector4[objects.Count];
+                Vector3[] objIconsSecondary = new Vector3[objects.Count];
                 Vector4 objHovers = Vector4.Zero;
                 Vector4[] objSelects = new Vector4[objects.Selected.Count];
                 int selectIndex = 0;
 
                 Vector4[] objDurationMarkers = new Vector4[objects.Count];
                 Vector4[] objDurationBars = new Vector4[objects.Count];
+                Vector3[] objDurationBarsSecondary = new Vector3[objects.Count];
                 Vector4 objDurationHovers = Vector4.Zero;
                 Vector4 objDurationSelects = Vector4.Zero;
 
@@ -260,40 +253,42 @@ namespace New_SSQE.NewGUI.Controls
 
                     int c = i % colorCount;
 
-                    objConstants[i] = (x, 0, a, c);
-                    objIcons[i] = (x, c, obj.ID, a);
-                    textLines[i] = (x, 0, a, 4);
+                    objConstants[i] = (x, 0, 1, 2 * c + a);
+                    objIcons[i] = (x, 0, 1, a);
+                    objIconsSecondary[i] = (obj.ID, c, 0);
+                    textLines[i] = (x, 0, 1, 2 * 4 + a);
 
                     if (obj.HasDuration)
                     {
                         float width = obj.Duration * MS_TO_PX;
 
-                        objDurationBars[i] = (x + NoteSize, 0, a + Math.Max(2 * (int)(width - NoteSize), 0), c);
-                        objDurationMarkers[i] = (x + width, 0, a, c);
+                        objDurationBars[i] = (x + NoteSize, 0, 1, 2 * c + a);
+                        objDurationBarsSecondary[i] = (Math.Max(width - NoteSize, 0), 1, 0);
+                        objDurationMarkers[i] = (x + width, 0, 1, 2 * c + a);
 
                         if (Math.Abs(mousex - x - width) < NoteSize / 4 && Math.Abs(mousey - CellGap - NoteSize / 2) < NoteSize / 4)
                             hoveringDuration ??= obj;
 
                         if (hoveringDuration == obj)
-                            objDurationHovers = (x + width, 0, 1, 5);
+                            objDurationHovers = (x + width, 0, 1, 2 * 5 + 1);
                         else if (draggingDuration == obj)
-                            objDurationSelects = (x + width, 0, 1, 6);
+                            objDurationSelects = (x + width, 0, 1, 2 * 6 + 1);
                     }
 
                     if (mousex > x && mousex < x + NoteSize && mousey > CellGap && mousey < CellGap + NoteSize)
                         hoveringObject ??= obj;
 
                     if (hoveringObject == obj)
-                        objHovers = (x, 0, 1, 5);
+                        objHovers = (x, 0, 1, 2 * 5 + 1);
                     else if (obj.Selected)
                     {
                         if (Dragging)
-                            dragLines[selectIndex++] = (cursorPos - currentPos + obj.DragStartMs * MS_TO_PX, 0, 1, 7);
+                            dragLines[selectIndex++] = (cursorPos - currentPos + obj.DragStartMs * MS_TO_PX, 0, 1, 2 * 7 + 1);
                         else
-                            objSelects[selectIndex++] = (x, 0, 1, 6);
+                            objSelects[selectIndex++] = (x, 0, 1, 2 * 6 + 1);
                     }
 
-                    if (RenderMode == TrackRenderMode.Special && obj.Ms <= currentTime - sfxOffset)
+                    if (CurrentMap.RenderMode == ObjectRenderMode.Special && obj.Ms <= currentTime - sfxOffset)
                         toPlay = obj;
 
                     if (x - 8 > (lastRenderedText ?? float.MinValue))
@@ -313,12 +308,12 @@ namespace New_SSQE.NewGUI.Controls
                 }
 
                 objConstant.UploadData(objConstants);
-                objIcon.UploadData(objIcons);
+                objIcon.UploadData(objIcons, objIconsSecondary);
                 objHover.UploadData([objHovers]);
                 objSelect.UploadData(objSelects);
 
                 objDurationMarker.UploadData(objDurationMarkers);
-                objDurationBar.UploadData(objDurationBars);
+                objDurationBar.UploadData(objDurationBars, objDurationBarsSecondary);
                 objDurationHover.UploadData([objDurationHovers]);
                 objDurationSelect.UploadData([objDurationSelects]);
 
@@ -402,22 +397,22 @@ namespace New_SSQE.NewGUI.Controls
                     hoveringObject ??= point;
 
                 if (hoveringObject == point)
-                    bpmHovers = (currentX, 0, 1, 5);
-                else if (CurrentMap.SelectedPoint == point)
-                    bpmSelects = (currentX, 0, 1, 6);
+                    bpmHovers = (currentX, 0, 1, 2 * 5 + 1);
+                else if (selectedPoint == point)
+                    bpmSelects = (currentX, 0, 1, 2 * 6 + 1);
 
                 // full beat ticks
                 for (int j = 0; j < metrics.X; j++)
                 {
                     float x = currentX + (float)(msIncrement * (j + 1) * MS_TO_PX);
-                    bpmBeats[currentMetrics.X + j] = (x, 0, 1, 1);
+                    bpmBeats[currentMetrics.X + j] = (x, 0, 1, 2 * 1 + 1);
                 }
 
                 // half beat ticks
                 for (int j = 0; j < metrics.Y; j++)
                 {
                     float x = currentX + (float)((msIncrement * j + halfIncrement) * MS_TO_PX);
-                    bpmHalfBeats[currentMetrics.Y + j] = (x, 0, 1, 2);
+                    bpmHalfBeats[currentMetrics.Y + j] = (x, 0, 1, 2 * 2 + 1);
                 }
 
                 // sub beat ticks
@@ -431,7 +426,7 @@ namespace New_SSQE.NewGUI.Controls
                         currentIncrement += subIncrement;
 
                     float x = currentX + (float)((msIncrement * j + currentIncrement) * MS_TO_PX);
-                    bpmSubBeats[currentMetrics.Z + j] = (x, 0, 1, 0);
+                    bpmSubBeats[currentMetrics.Z + j] = (x, 0, 1, 2 * 0 + 1);
                 }
 
                 currentMetrics += metrics;
@@ -447,9 +442,9 @@ namespace New_SSQE.NewGUI.Controls
 
             Vector4[] staticLines =
             [
-                (cursorPos - currentPos, 0, 1, 1),
-                (endPos, 0, 1, 8),
-                (cursorPos, 0, 0.75f, 4)
+                (cursorPos - currentPos, 0, 1, 2 * 1 + 1),
+                (endPos, 0, 1, 2 * 8 + 1),
+                (cursorPos, 0, 1, 2 * 4 + 0.75f)
             ];
 
             staticLine.UploadData(staticLines);
@@ -533,7 +528,7 @@ namespace New_SSQE.NewGUI.Controls
             bpmHover.UploadStaticData(GLVerts.Outline(-4, rect.Height, 80, 60, 1, 1f, 1f, 1f, 1f));
             bpmSelect.UploadStaticData(GLVerts.Outline(-4, rect.Height, 80, 60, 1, 1f, 1f, 1f, 1f));
 
-            GLState.Uniform2(Shader.IconTexProgram, "SpriteSize", 1f / MainWindow.SpriteSize.X, 1f / MainWindow.SpriteSize.Y);
+            Shader.Sprite.Uniform2("SpriteSize", 1f / MainWindow.SpriteSize.X, 1f / MainWindow.SpriteSize.Y);
 
             List<float> verts = [];
             verts.AddRange(GLVerts.Rect(rect, 0.15f, 0.15f, 0.15f, Settings.trackOpacity.Value / 255f));
@@ -584,7 +579,7 @@ namespace New_SSQE.NewGUI.Controls
             selectBox.Render();
             staticLine.Render();
 
-            if (RenderMode == TrackRenderMode.Notes)
+            if (CurrentMap.RenderMode == ObjectRenderMode.Notes)
             {
                 noteConstant.Render();
                 noteLocation.Render();
@@ -683,15 +678,15 @@ namespace New_SSQE.NewGUI.Controls
                 foreach (MapObject obj in draggingObjects)
                     obj.Ms = (long)MathHelper.Clamp(obj.DragStartMs - offset, 0, totalTime);
 
-                switch (RenderMode)
+                switch (CurrentMap.RenderMode)
                 {
-                    case TrackRenderMode.Notes:
+                    case ObjectRenderMode.Notes:
                         CurrentMap.Notes.Sort();
                         break;
-                    case TrackRenderMode.VFX:
+                    case ObjectRenderMode.VFX:
                         CurrentMap.VfxObjects.Sort();
                         break;
-                    case TrackRenderMode.Special:
+                    case ObjectRenderMode.Special:
                         CurrentMap.SpecialObjects.Sort();
                         break;
                 }
@@ -709,7 +704,7 @@ namespace New_SSQE.NewGUI.Controls
 
         private void ClearSelection()
         {
-            CurrentMap.SelectedPoint = null;
+            selectedPoint = null;
             CurrentMap.Notes.ClearSelection();
             CurrentMap.VfxObjects.ClearSelection();
             CurrentMap.SpecialObjects.ClearSelection();
@@ -719,15 +714,15 @@ namespace New_SSQE.NewGUI.Controls
         {
             int low, high;
 
-            switch (RenderMode)
+            switch (CurrentMap.RenderMode)
             {
-                case TrackRenderMode.Notes:
+                case ObjectRenderMode.Notes:
                     (low, high) = CurrentMap.Notes.SearchRange(start, end);
                     return CurrentMap.Notes.Take(new Range(low, high)).Cast<MapObject>().ToList();
-                case TrackRenderMode.VFX:
+                case ObjectRenderMode.VFX:
                     (low, high) = CurrentMap.VfxObjects.SearchRange(start, end);
                     return CurrentMap.VfxObjects.Take(new Range(low, high)).ToList();
-                case TrackRenderMode.Special:
+                case ObjectRenderMode.Special:
                     (low, high) = CurrentMap.SpecialObjects.SearchRange(start, end);
                     return CurrentMap.SpecialObjects.Take(new Range(low, high)).ToList();
             }
@@ -737,11 +732,11 @@ namespace New_SSQE.NewGUI.Controls
 
         private List<MapObject> GetSelected()
         {
-            return RenderMode switch
+            return CurrentMap.RenderMode switch
             {
-                TrackRenderMode.Notes => CurrentMap.Notes.Selected.Cast<MapObject>().ToList(),
-                TrackRenderMode.VFX => CurrentMap.VfxObjects.Selected,
-                TrackRenderMode.Special => CurrentMap.SpecialObjects.Selected,
+                ObjectRenderMode.Notes => CurrentMap.Notes.Selected.Cast<MapObject>().ToList(),
+                ObjectRenderMode.VFX => CurrentMap.VfxObjects.Selected,
+                ObjectRenderMode.Special => CurrentMap.SpecialObjects.Selected,
                 _ => []
             };
         }
@@ -750,15 +745,15 @@ namespace New_SSQE.NewGUI.Controls
         {
             ClearSelection();
 
-            switch (RenderMode)
+            switch (CurrentMap.RenderMode)
             {
-                case TrackRenderMode.Notes:
+                case ObjectRenderMode.Notes:
                     CurrentMap.Notes.Selected = new(selected.Cast<Note>());
                     break;
-                case TrackRenderMode.VFX:
+                case ObjectRenderMode.VFX:
                     CurrentMap.VfxObjects.Selected = new(selected);
                     break;
-                case TrackRenderMode.Special:
+                case ObjectRenderMode.Special:
                     CurrentMap.SpecialObjects.Selected = new(selected);
                     break;
             }
@@ -775,7 +770,7 @@ namespace New_SSQE.NewGUI.Controls
 
                 ClearSelection();
 
-                CurrentMap.SelectedPoint = point;
+                selectedPoint = point;
             }
             else if (hoveringDuration != null)
             {
@@ -851,18 +846,18 @@ namespace New_SSQE.NewGUI.Controls
                     obj.Ms -= msDiff;
 
                 if (draggingObjects[0] is TimingPoint point)
-                    PointManager.Edit("MOVE POINT", n => n.Ms += msDiff);
+                    PointManager.Edit("MOVE POINT", point, n => n.Ms += msDiff);
                 else
                 {
-                    switch (RenderMode)
+                    switch (CurrentMap.RenderMode)
                     {
-                        case TrackRenderMode.Notes:
+                        case ObjectRenderMode.Notes:
                             NoteManager.Edit("MOVE NOTE[S]", n => n.Ms += msDiff);
                             break;
-                        case TrackRenderMode.VFX:
+                        case ObjectRenderMode.VFX:
                             VfxObjectManager.Edit("MOVE OBJECT[S]", n => n.Ms += msDiff);
                             break;
-                        case TrackRenderMode.Special:
+                        case ObjectRenderMode.Special:
                             SpecialObjectManager.Edit("MOVE OBJECT[S]", n => n.Ms += msDiff);
                             break;
                     }
@@ -872,12 +867,12 @@ namespace New_SSQE.NewGUI.Controls
             {
                 draggingDuration.Duration -= msDiff;
 
-                switch (RenderMode)
+                switch (CurrentMap.RenderMode)
                 {
-                    case TrackRenderMode.VFX:
+                    case ObjectRenderMode.VFX:
                         VfxObjectManager.Edit("MOVE OBJ DURATION", [draggingDuration], n => n.Duration += msDiff);
                         break;
-                    case TrackRenderMode.Special:
+                    case ObjectRenderMode.Special:
                         SpecialObjectManager.Edit("MOVE OBJ DURATION", [draggingDuration], n => n.Duration += msDiff);
                         break;
                 }
@@ -912,6 +907,19 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.MouseUpRight(x, y);
             selecting = false;
+        }
+
+        public override void KeybindUsed(string keybind)
+        {
+            base.KeybindUsed(keybind);
+
+            switch (keybind)
+            {
+                case "delete":
+                    if (selectedPoint != null)
+                        PointManager.Remove("DELETE POINT", selectedPoint);
+                    break;
+            }
         }
     }
 }

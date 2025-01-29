@@ -1,6 +1,6 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.GUI;
-using New_SSQE.Maps;
+using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using System.Drawing;
@@ -16,10 +16,14 @@ namespace New_SSQE.NewGUI.Controls
         private readonly bool reverse;
         private float hoverTime = 0f;
 
+        private float prevValue = 0f;
+
         public GuiSlider(float x, float y, float w, float h, Setting<SliderSetting> setting, bool reverse = false) : base(x, y, w, h, "", 0, "main", true)
         {
             this.setting = setting;
             this.reverse = reverse;
+
+            prevValue = setting.Value.Value;
         }
 
         public override float[] Draw()
@@ -120,9 +124,13 @@ namespace New_SSQE.NewGUI.Controls
                     break;
 
                 case "tempo":
-                    CurrentMap.SetTempo(setting.Value.Value);
+                    CurrentMap.Tempo = setting.Value.Value;
                     break;
             }
+
+            if (setting.Value.Value != prevValue)
+                InvokeScroll(new(setting.Value.Value));
+            prevValue = setting.Value.Value;
         }
     }
 }

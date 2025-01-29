@@ -1,12 +1,12 @@
-﻿using OpenTK.Graphics;
-using New_SSQE.GUI.Shaders;
+﻿using New_SSQE.NewGUI.Shaders;
+using OpenTK.Graphics;
 using System.Drawing;
 
 namespace New_SSQE.NewGUI
 {
     internal abstract class Control : IDisposable
     {
-        protected ProgramHandle shader;
+        protected Shader shader;
         protected Texture[] textures;
 
         protected int textureIndex;
@@ -19,10 +19,11 @@ namespace New_SSQE.NewGUI
         protected int vertexCount;
 
         public bool Visible = true;
+        public bool Square = false;
 
         public Control(RectangleF rect)
         {
-            shader = Shader.Program;
+            shader = Shader.Default;
             textures = [];
             textureIndex = 0;
 
@@ -48,24 +49,40 @@ namespace New_SSQE.NewGUI
 
         public virtual void Render(float mousex, float mousey, float frametime)
         {
-            GLState.EnableProgram(shader);
+            shader.Enable();
             GLState.DrawTriangles(vao, 0, vertexCount);
-        }
 
-        public virtual void PostRender(float mousex, float mousey, float frametime)
-        {
             if (textureIndex >= 0 && textureIndex < textures.Length)
                 textures[textureIndex].Render();
         }
+
+        public virtual void PostRender(float mousex, float mousey, float frametime) { }
 
         public virtual void Resize(float screenWidth, float screenHeight)
         {
             float widthDiff = screenWidth / 1920;
             float heightDiff = screenHeight / 1080;
 
-            SetRect(startRect.X * widthDiff, startRect.Y * heightDiff,
-                startRect.Width * widthDiff, startRect.Height * heightDiff);
+            float x = startRect.X * widthDiff;
+            float y = startRect.Y * heightDiff;
+            float w = startRect.Width * widthDiff;
+            float h = startRect.Height * heightDiff;
 
+            if (Square)
+            {
+                if (w < h)
+                {
+                    x += (h - w) / 2;
+                    w = h;
+                }
+                else
+                {
+                    y += (w - h) / 2;
+                    h = w;
+                }
+            }
+
+            SetRect(x, y, w, h);
             Update();
         }
 

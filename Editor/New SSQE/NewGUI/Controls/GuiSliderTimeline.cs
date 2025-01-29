@@ -1,8 +1,8 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.GUI;
-using New_SSQE.GUI.Font;
-using New_SSQE.GUI.Shaders;
-using New_SSQE.Maps;
+using New_SSQE.NewGUI.Font;
+using New_SSQE.NewGUI.Shaders;
+using New_SSQE.NewMaps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
@@ -22,9 +22,9 @@ namespace New_SSQE.NewGUI.Controls
 
         public GuiSliderTimeline(float x, float y, float w, float h, bool reverse = false) : base(x, y, w, h, Settings.currentTime, reverse)
         {
-            notes = Instancing.Generate("timeline_notes", Shader.TimelineProgram);
-            points = Instancing.Generate("timeline_points", Shader.TimelineProgram);
-            objects = Instancing.Generate("timeline_objects", Shader.TimelineProgram);
+            notes = Instancing.Generate("timeline_notes", Shader.InstancedMain);
+            points = Instancing.Generate("timeline_points", Shader.InstancedMain);
+            objects = Instancing.Generate("timeline_objects", Shader.InstancedMain);
         }
 
         public void UpdateInstanceData()
@@ -43,7 +43,7 @@ namespace New_SSQE.NewGUI.Controls
                 Note note = CurrentMap.Notes[i];
                 float x = lineRect.X + note.Ms * mult;
 
-                noteVerts[i] = (x, 0, 1, 0);
+                noteVerts[i] = (x, 0, 1, 2 * 0 + 1);
             }
 
             // points
@@ -52,7 +52,7 @@ namespace New_SSQE.NewGUI.Controls
                 TimingPoint point = CurrentMap.TimingPoints[i];
                 float x = lineRect.X + point.Ms * mult;
 
-                pointVerts[i] = (x, 0, 1, 0);
+                pointVerts[i] = (x, 0, 1, 2 * 0 + 1);
             }
 
             // vfx objects
@@ -61,7 +61,7 @@ namespace New_SSQE.NewGUI.Controls
                 MapObject obj = CurrentMap.VfxObjects[i];
                 float x = lineRect.X + obj.Ms * mult;
 
-                objectVerts[i] = (x, 0, 1, 0);
+                objectVerts[i] = (x, 0, 1, 2 * 0 + 1);
             }
 
             // special objects
@@ -70,7 +70,7 @@ namespace New_SSQE.NewGUI.Controls
                 MapObject obj = CurrentMap.SpecialObjects[i];
                 float x = lineRect.X + obj.Ms * mult;
 
-                objectVerts[i + CurrentMap.VfxObjects.Count] = (x, 0, 1, 0);
+                objectVerts[i + CurrentMap.VfxObjects.Count] = (x, 0, 1, 2 * 0 + 1);
             }
 
             notes.UploadData(noteVerts);
@@ -87,7 +87,7 @@ namespace New_SSQE.NewGUI.Controls
             points.UploadStaticData(GLVerts.Line(0, y - 10f, 0, y - 6f, 2, Color.White));
             objects.UploadStaticData(GLVerts.Line(0, y + 9f, 0, y + 7f, 2, Color.White));
 
-            List<float> bookmarkVerts = new();
+            List<float> bookmarkVerts = [];
 
             for (int i = 0; i < CurrentMap.Bookmarks.Count; i++)
             {

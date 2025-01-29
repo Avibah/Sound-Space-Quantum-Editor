@@ -142,11 +142,11 @@ namespace New_SSQE
 
 If you do not already have it, install the Visual C++ 2015 Redistributable package. This is required for GLFW to work (which SSQE uses).
 
-Check if all required DLL files are present and working. If not, add or replace any missing or broken ones with versions from the latest release, or reinstall.
+Try reinstalling from the latest release in case any required files are missing or broken.
 
 Try updating your graphics driver to the latest version.
 
-If none of these work or aren't applicable, report the error in the official Sound Space Discord server.
+If none of these work or aren't applicable, report the error through {Links.FEEDBACK_FORM}
 
 {logs}
                 ";

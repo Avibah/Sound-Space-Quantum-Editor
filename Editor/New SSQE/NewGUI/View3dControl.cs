@@ -1,4 +1,4 @@
-﻿using New_SSQE.GUI.Shaders;
+﻿using New_SSQE.NewGUI.Shaders;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -37,7 +37,7 @@ namespace New_SSQE.NewGUI
             float h = 2 * (rect.Height / screenRect.Height);
 
             GLState.BufferData(ViewVBO, GLVerts.TextureWithoutAlpha(x, y, w, h));
-            GLState.AllocateFBO(w, h, fbo, msaa_fbo, rbo, fbo_tex);
+            GLState.AllocateFBO(w, h, msaa_fbo, rbo, fbo_tex);
         }
 
         public void BeginFBORender()
@@ -52,7 +52,7 @@ namespace New_SSQE.NewGUI
             renderEnded = true;
 
             GLState.EndFBORender(rect, fbo, msaa_fbo);
-            GLState.EnableTextureUnit(Shader.VFXFBOProgram, TextureUnit.Texture3);
+            GLState.EnableTextureUnit(Shader.FBOTexture, TextureUnit.Texture3);
             GLState.EnableTexture(fbo_tex);
             GLState.DrawTriangles(ViewVAO, 0, 6);
         }

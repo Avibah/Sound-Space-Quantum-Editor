@@ -1,11 +1,12 @@
-﻿using OpenTK.Graphics;
+﻿using New_SSQE.NewGUI.Shaders;
+using OpenTK.Graphics;
 using OpenTK.Mathematics;
 
 namespace New_SSQE.NewGUI
 {
     internal class Instance : IDisposable
     {
-        private ProgramHandle program;
+        private Shader shader;
         private BufferHandle staticVBO;
         private VertexArrayHandle staticVAO;
         private int vertexCount;
@@ -14,11 +15,11 @@ namespace New_SSQE.NewGUI
         private BufferHandle vbo_2;
         private int instanceCount;
 
-        private bool hasSecondary;
+        private readonly bool hasSecondary;
 
-        public Instance(ProgramHandle program, bool hasSecondary = false)
+        public Instance(Shader shader, bool hasSecondary = false)
         {
-            this.program = program;
+            this.shader = shader;
             this.hasSecondary = hasSecondary;
 
             (staticVAO, staticVBO) = GLState.NewVAO_VBO(2, 4);
@@ -46,7 +47,7 @@ namespace New_SSQE.NewGUI
 
         public void Render()
         {
-            GLState.EnableProgram(program);
+            shader.Enable();
             GLState.DrawInstances(staticVAO, 0, vertexCount, instanceCount);
         }
 
@@ -62,12 +63,12 @@ namespace New_SSQE.NewGUI
 
     internal static class Instancing
     {
-        private static readonly Dictionary<string, Instance> instances = new();
+        private static readonly Dictionary<string, Instance> instances = [];
 
-        public static Instance Generate(string key, ProgramHandle program)
+        public static Instance Generate(string key, Shader shader, bool hasSecondary = false)
         {
             if (!instances.TryGetValue(key, out Instance? instance))
-                instances.Add(key, new(program));
+                instances.Add(key, new(shader, hasSecondary));
 
             return instance ?? instances[key];
         }

@@ -1,5 +1,5 @@
 ﻿using New_SSQE.GUI;
-using New_SSQE.GUI.Shaders;
+using New_SSQE.NewGUI.Shaders;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
@@ -13,16 +13,14 @@ namespace New_SSQE.NewGUI
 
         private static readonly RectangleF defaultSource = new(0, 0, 1, 1);
 
-        private ProgramHandle shader;
-        private TextureHandle texture;
-        private TextureUnit texUnit;
+        private readonly TextureHandle texture;
+        private readonly TextureUnit texUnit;
 
-        private VertexArrayHandle vao;
-        private BufferHandle vbo;
+        private readonly VertexArrayHandle vao;
+        private readonly BufferHandle vbo;
 
         public Texture(string texture, SKBitmap? img = null, bool smooth = false, TextureUnit unit = TextureUnit.Texture0)
         {
-            shader = Shader.TextureProgram;
             this.texture = TextureManager.GetOrRegister(texture, img, smooth, unit);
             texUnit = unit;
 
@@ -47,7 +45,7 @@ namespace New_SSQE.NewGUI
 
         public void Activate()
         {
-            GLState.EnableTextureUnit(shader, texUnit);
+            GLState.EnableTextureUnit(Shader.Texture, texUnit);
             GLState.EnableTexture(texture);
         }
 

@@ -1,5 +1,5 @@
 ﻿using New_SSQE.ExternalUtils;
-using New_SSQE.GUI.Font;
+using New_SSQE.NewGUI.Font;
 using New_SSQE.GUI.Input;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
@@ -148,7 +148,7 @@ namespace New_SSQE.NewGUI.Controls
                 case Keys.Enter:
                 case Keys.KeyPadEnter:
                     Focused = false;
-                    InvokeTextInput(new(text));
+                    InvokeTextEntered(new(text));
                     break;
 
                 case Keys.Escape:

@@ -79,5 +79,13 @@ namespace New_SSQE.EditHistory
             actions.Clear();
             _index = -1;
         }
+
+        public static void ResetActions(IEnumerable<URAction> newActions, int newIndex)
+        {
+            Clear();
+            foreach (URAction action in newActions)
+                Add(action.Label, action.Undo, action.Redo, false);
+            _index = newIndex;
+        }
     }
 }

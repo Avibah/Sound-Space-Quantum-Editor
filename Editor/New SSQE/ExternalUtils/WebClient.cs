@@ -1,5 +1,4 @@
-﻿using AvaloniaEdit;
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 
 namespace New_SSQE.ExternalUtils

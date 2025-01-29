@@ -1,17 +1,22 @@
-﻿namespace New_SSQE.Objects
+﻿using OpenTK.Mathematics;
+
+namespace New_SSQE.Objects
 {
     [Serializable]
     internal class TimingPoint : MapObject
     {
         public float BPM { get; set; }
+        public Vector2 TimeSignature { get; set; }
 
-        public TimingPoint(float bpm, long ms) : base(1, ms, "BPM", false)
+        public TimingPoint(float bpm, long ms, Vector2? timeSignature = null) : base(1, ms, "BPM", false)
         {
             BPM = bpm;
             Ms = ms;
+
+            TimeSignature = timeSignature ?? (4, 4);
         }
 
-        public TimingPoint(string data) : base(1, 0)
+        public TimingPoint(string data) : this(0, 0)
         {
             string[] split = data.Split('|');
 

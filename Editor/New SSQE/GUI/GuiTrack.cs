@@ -1284,7 +1284,7 @@ namespace New_SSQE.GUI
                     long ms = point.Ms;
                     point.Ms = point.DragStartMs;
 
-                    PointManager.Edit("MOVE POINT", n => n.Ms = ms);
+                    PointManager.Edit("MOVE POINT", point, n => n.Ms = ms);
                 }
                 else if (DraggingObjDuration != null && DraggingObjDuration.DragStartMs != DraggingObjDuration.Duration)
                 {

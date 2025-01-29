@@ -31,9 +31,10 @@ namespace SSQE_Player.GUI
         private int hits = 0;
         private int combo = 0;
 
-        private float health = 100;
-        private readonly float healthRegen = 100 / 12f;
-        private readonly float healthPenalty = 20f;
+        private float health = 10;
+        private readonly float healthRegen = 1;
+        private readonly float healthPenalty = 2;
+        private readonly float maxHealth;
 
         private Color healthColor = Color.FromArgb(0, 255, 0);
 
@@ -65,6 +66,8 @@ namespace SSQE_Player.GUI
 
         public GuiWindowMain(int startIndex) : base(0, 0, MainWindow.Instance.Size.X, MainWindow.Instance.Size.Y)
         {
+            maxHealth = health;
+
             noteSet = new bool[MainWindow.Instance.Notes.Length + 1];
             for (int i = startIndex; i < noteSet.Length; i++)
                 noteSet[i] = true;
@@ -274,7 +277,7 @@ namespace SSQE_Player.GUI
             float[] c1 = [color1.R / 255f, color1.G / 255f, color1.B / 255f, 1f];
             float[] ch = [healthColor.R / 255f, healthColor.G / 255f, healthColor.B / 255f, 1f];
 
-            float ratio = health / 100f * 2.5f;
+            float ratio = health / maxHealth * 2.5f;
 
             SliderSetting setting = Settings.currentTime.Value;
             float progress = setting.Value / setting.Max;
@@ -331,7 +334,7 @@ namespace SSQE_Player.GUI
 
         private void HitNote(int index)
         {
-            health = MathHelper.Clamp(health + healthRegen, 0, 100);
+            health = MathHelper.Clamp(health + healthRegen, 0, maxHealth);
 
             lastHit = index;
 
@@ -343,7 +346,7 @@ namespace SSQE_Player.GUI
 
         private void MissNote(int index)
         {
-            health = MathHelper.Clamp(health - healthPenalty, 0, 100);
+            health = MathHelper.Clamp(health - healthPenalty, 0, maxHealth);
 
             if (health <= 0)
                 healthColor = Color.FromArgb(255, 100, 0);

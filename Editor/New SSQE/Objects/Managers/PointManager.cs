@@ -6,7 +6,6 @@ namespace New_SSQE.Objects.Managers
     internal class PointManager
     {
         private static List<TimingPoint> Points => CurrentMap.TimingPoints;
-        private static TimingPoint? Selected => CurrentMap.SelectedPoint;
 
         public static void Replace(string label, TimingPoint? oldPoint, TimingPoint? newPoint)
         {
@@ -44,11 +43,9 @@ namespace New_SSQE.Objects.Managers
 
             Replace(label, toModify, completed);
         }
-        public static void Edit(string label, Action<TimingPoint> action) => Edit(label, Selected, action);
 
         public static void Add(string label, TimingPoint toAdd) => Replace(label, null, toAdd);
 
         public static void Remove(string label, TimingPoint toRemove) => Replace(label, toRemove, null);
-        public static void Remove(string label) => Replace(label, Selected, null);
     }
 }
