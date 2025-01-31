@@ -1,5 +1,6 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.GUI;
+using New_SSQE.NewGUI.Base;
 using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;

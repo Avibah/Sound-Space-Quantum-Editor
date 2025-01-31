@@ -16,9 +16,19 @@ namespace New_SSQE.NewMaps
         VFX
     }
 
+    internal enum IndividualObjectMode
+    {
+        Disabled,
+
+        Beat = 12,
+        Glide = 13,
+        Mine = 14
+    }
+
     internal static class CurrentMap
     {
         public static ObjectRenderMode RenderMode = ObjectRenderMode.Notes;
+        public static IndividualObjectMode ObjectMode = IndividualObjectMode.Disabled;
 
         public static Map? Map;
 
@@ -247,7 +257,8 @@ namespace New_SSQE.NewMaps
         public static void ClearSelection()
         {
             Notes.ClearSelection();
-            
+            VfxObjects.ClearSelection();
+            SpecialObjects.ClearSelection();
         }
     }
 }

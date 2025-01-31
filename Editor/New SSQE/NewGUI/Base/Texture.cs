@@ -1,16 +1,12 @@
-﻿using New_SSQE.GUI;
-using New_SSQE.NewGUI.Shaders;
-using OpenTK.Graphics;
+﻿using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 using System.Drawing;
 
-namespace New_SSQE.NewGUI
+namespace New_SSQE.NewGUI.Base
 {
     internal class Texture : IDisposable
     {
-        // todo: new shader for coloring/sprite compatibility
-
         private static readonly RectangleF defaultSource = new(0, 0, 1, 1);
 
         private readonly TextureHandle texture;
@@ -21,7 +17,7 @@ namespace New_SSQE.NewGUI
 
         public Texture(string texture, SKBitmap? img = null, bool smooth = false, TextureUnit unit = TextureUnit.Texture0)
         {
-            this.texture = TextureManager.GetOrRegister(texture, img, smooth, unit);
+            this.texture = Texturing.Generate(texture, img, smooth, unit);
             texUnit = unit;
 
             (vao, vbo) = GLState.NewVAO_VBO(2, 2, 1);

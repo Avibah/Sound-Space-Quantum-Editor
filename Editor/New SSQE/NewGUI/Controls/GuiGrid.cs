@@ -1,6 +1,6 @@
 ﻿using New_SSQE.Audio;
+using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Font;
-using New_SSQE.NewGUI.Shaders;
 using New_SSQE.NewMaps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
@@ -50,8 +50,12 @@ namespace New_SSQE.NewGUI.Controls
 
         public Vector2 CellBounds => Settings.enableQuantum.Value ? (-0.85f, 2.85f) : (0, 2);
 
-        public GuiGrid(float x, float y, float w, float h) : base(x, y, w, h)
+        private bool respectObjectMode;
+
+        public GuiGrid(float x, float y, float w, float h, bool respectObjectMode = true) : base(x, y, w, h)
         {
+            this.respectObjectMode = respectObjectMode;
+
             (bezierPreviewLineVAO, bezierPreviewLineVBO) = GLState.NewVAO_VBO(2, 4);
 
             autoplayCursor = Instancing.Generate("grid_autoplayCursor", Shader.InstancedMain);
@@ -200,6 +204,8 @@ namespace New_SSQE.NewGUI.Controls
 
             if (CurrentMap.RenderMode == ObjectRenderMode.Special)
             {
+                bool shouldCheckID = respectObjectMode && CurrentMap.ObjectMode != IndividualObjectMode.Disabled;
+
                 List<Vector4> beatConstants = [];
                 List<Vector4> beatApproaches = [];
 
@@ -210,6 +216,9 @@ namespace New_SSQE.NewGUI.Controls
                 {
                     MapObject obj = objects[i];
                     float progress = (float)Math.Min(1, (float)Math.Pow(1 - Math.Min(1, (obj.Ms - currentTime) * approachRate / 750), 2));
+
+                    if (shouldCheckID && obj.ID != (int)CurrentMap.ObjectMode)
+                        continue;
 
                     switch (obj.ID)
                     {

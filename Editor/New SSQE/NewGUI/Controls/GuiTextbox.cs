@@ -4,6 +4,7 @@ using New_SSQE.GUI.Input;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using New_SSQE.NewGUI.Base;
 
 namespace New_SSQE.NewGUI.Controls
 {

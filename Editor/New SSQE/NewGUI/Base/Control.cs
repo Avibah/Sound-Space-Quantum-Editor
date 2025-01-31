@@ -1,8 +1,7 @@
-﻿using New_SSQE.NewGUI.Shaders;
-using OpenTK.Graphics;
+﻿using OpenTK.Graphics;
 using System.Drawing;
 
-namespace New_SSQE.NewGUI
+namespace New_SSQE.NewGUI.Base
 {
     internal abstract class Control : IDisposable
     {
@@ -83,10 +82,13 @@ namespace New_SSQE.NewGUI
             }
 
             SetRect(x, y, w, h);
-            Update();
         }
 
-        public virtual void SetRect(RectangleF rect) => this.rect = rect;
+        public virtual void SetRect(RectangleF rect)
+        {
+            this.rect = rect;
+            Update();
+        }
 
         public void SetRect(float x, float y, float width, float height) => SetRect(new(x, y, width, height));
 

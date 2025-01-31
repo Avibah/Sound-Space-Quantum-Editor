@@ -1,7 +1,7 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.GUI;
+using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Font;
-using New_SSQE.NewGUI.Shaders;
 using New_SSQE.NewMaps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Other;

@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using New_SSQE.NewGUI.Base;
 
 namespace New_SSQE.NewGUI.Controls
 {

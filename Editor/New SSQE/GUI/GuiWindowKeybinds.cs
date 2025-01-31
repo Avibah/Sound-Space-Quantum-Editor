@@ -112,16 +112,16 @@ namespace New_SSQE.GUI
                 // Buttons
                 BackButton, HFlipReset, VFlipReset, SwitchClickReset, ToggleQuantumReset, OpenTimingsReset, OpenBookmarksReset, StoreNodesReset, DrawBezierReset, AnchorNodeReset,
                 OpenDirectoryReset, ExportSSPMReset, CreateBPMReset, GridTLReset, GridTCReset, GridTRReset, GridMLReset, GridMCReset, GridMRReset, GridBLReset, GridBCReset, GridBRReset,
-                /*BeatReset,*/
+                BeatReset,
                 // Checkboxes
                 CtrlIndicator, AltIndicator, ShiftIndicator,
                 // Boxes
                 HFlipBox, VFlipBox, SwitchClickBox, ToggleQuantumBox, OpenTimingsBox, OpenBookmarksBox, StoreNodesBox, DrawBezierBox, AnchorNodeBox, OpenDirectoryBox, ExportSSPMBox,
-                CreateBPMBox, GridTLBox, GridTCBox, GridTRBox, GridMLBox, GridMCBox, GridMRBox, GridBLBox, GridBCBox, GridBRBox, /*BeatBox,*/
+                CreateBPMBox, GridTLBox, GridTCBox, GridTRBox, GridMLBox, GridMCBox, GridMRBox, GridBLBox, GridBCBox, GridBRBox, BeatBox,
                 // Labels
                 HFlipLabel, VFlipLabel, SwitchClickLabel, ToggleQuantumLabel, OpenTimingsLabel, OpenBookmarksLabel, StoreNodesLabel, DrawBezierLabel, AnchorNodeLabel, OpenDirectoryLabel,
                 ExportSSPMLabel, CreateBPMLabel, HFlipCAS, VFlipCAS, SwitchClickCAS, ToggleQuantumCAS, OpenTimingsCAS, OpenBookmarksCAS, StoreNodesCAS, DrawBezierCAS, AnchorNodeCAS,
-                OpenDirectoryCAS, ExportSSPMCAS, CreateBPMCAS, GridLabel, StaticKeysLabel, /*ExtrasLabel, BeatLabel, BeatCAS*/
+                OpenDirectoryCAS, ExportSSPMCAS, CreateBPMCAS, GridLabel, StaticKeysLabel, ExtrasLabel, BeatLabel, BeatCAS
             };
 
             BackgroundSquare = new(Color.FromArgb(255, 30, 30, 30), "background_menu.png", "menubg");

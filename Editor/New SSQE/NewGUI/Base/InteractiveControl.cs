@@ -1,6 +1,6 @@
 ﻿using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace New_SSQE.NewGUI
+namespace New_SSQE.NewGUI.Base
 {
     internal enum ClickType
     {
@@ -46,10 +46,10 @@ namespace New_SSQE.NewGUI
 
     internal abstract class InteractiveControl : TextControl
     {
-        public event EventHandler? LeftClick;
-        public event EventHandler? RightClick;
-        public event EventHandler? TextEntered;
-        public event EventHandler? Scroll;
+        public event EventHandler<ClickEventArgs>? LeftClick;
+        public event EventHandler<ClickEventArgs>? RightClick;
+        public event EventHandler<TextEnteredEventArgs>? TextEntered;
+        public event EventHandler<ScrollEventArgs>? Scroll;
 
         public bool Hovering = false;
         public bool Dragging = false;
@@ -97,5 +97,13 @@ namespace New_SSQE.NewGUI
 
         protected void InvokeTextEntered(TextEnteredEventArgs e) => TextEntered?.Invoke(this, e);
         protected void InvokeScroll(ScrollEventArgs e) => Scroll?.Invoke(this, e);
+
+        public virtual void DisconnectAll()
+        {
+            LeftClick = null;
+            RightClick = null;
+            TextEntered = null;
+            Scroll = null;
+        }
     }
 }

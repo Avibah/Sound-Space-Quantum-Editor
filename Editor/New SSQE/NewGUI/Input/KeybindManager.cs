@@ -1,6 +1,6 @@
 ﻿using New_SSQE.EditHistory;
 using New_SSQE.ExternalUtils;
-using New_SSQE.Maps;
+using New_SSQE.NewMaps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Preferences;
@@ -24,7 +24,7 @@ namespace New_SSQE.NewGUI.Input
 
             foreach (string keybind in keybinds)
             {
-                if (keybind.Contains("gridKey") && !GuiTrack.RenderMapObjects)
+                if (keybind.Contains("gridKey") && CurrentMap.RenderMode == ObjectRenderMode.Notes)
                 {
                     string rep = keybind.Replace("gridKey", "");
                     string[] xy = rep.Split('|');
@@ -56,7 +56,7 @@ namespace New_SSQE.NewGUI.Input
                     continue;
                 }
 
-                if (keybind.Contains("extras") && GuiTrack.RenderMapObjects && !GuiTrack.VFXObjects)
+                if (keybind.Contains("extras") && CurrentMap.RenderMode == ObjectRenderMode.Special)
                 {
                     long ms = Timing.GetClosestBeat(Settings.currentTime.Value.Value);
                     ms = ms > 0 ? ms : (long)Settings.currentTime.Value.Value;
@@ -86,6 +86,7 @@ namespace New_SSQE.NewGUI.Input
                         {
                             CurrentMap.SelectedPoint = null;
                             CurrentMap.Notes.Selected = new(CurrentMap.Notes);
+                            CurrentMap.ClearSelection();
                         }
 
                         break;

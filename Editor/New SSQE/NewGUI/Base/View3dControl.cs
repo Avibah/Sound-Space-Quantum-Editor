@@ -1,9 +1,8 @@
-﻿using New_SSQE.NewGUI.Shaders;
-using OpenTK.Graphics;
+﻿using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
-namespace New_SSQE.NewGUI
+namespace New_SSQE.NewGUI.Base
 {
     internal abstract class View3dControl : InteractiveControl
     {

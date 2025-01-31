@@ -1,5 +1,5 @@
 ﻿using New_SSQE.ExternalUtils;
-using New_SSQE.NewGUI.Shaders;
+using New_SSQE.NewGUI.Base;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -10,7 +10,6 @@ namespace New_SSQE.NewGUI
     internal static class GLState
     {
         private static ProgramHandle? _program;
-        private static TextureUnit? _texUnit;
         private static TextureHandle? _texture;
         private static VertexArrayHandle? _vao;
         private static BufferHandle? _vbo;
@@ -32,15 +31,10 @@ namespace New_SSQE.NewGUI
 
         public static void EnableTextureUnit(Shader shader, TextureUnit texUnit)
         {
-            if (texUnit != _texUnit)
-            {
-                shader.Enable();
-                GL.ActiveTexture(texUnit);
+            shader.Enable();
+            GL.ActiveTexture(texUnit);
 
-                shader.Uniform1i("texture0", (int)texUnit - (int)TextureUnit.Texture0);
-            }
-
-            _texUnit = texUnit;
+            shader.Uniform1i("texture0", (int)texUnit - (int)TextureUnit.Texture0);
         }
 
         public static void EnableTexture(TextureHandle texture)
@@ -287,7 +281,7 @@ namespace New_SSQE.NewGUI
             DisableFBO_RBO();
             EnableTextureUnit(Shader.FBOTexture, TextureUnit.Texture3);
             EnableTexture(fbo_tex);
-            GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba, (int)vpW, (int)vpH, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba, (int)vpW, (int)vpH, 0, PixelFormat.Rgba, PixelType.UnsignedByte, nint.Zero);
         }
 
         public static void BeginFBORender(RectangleF viewport, FramebufferHandle msaa_fbo)

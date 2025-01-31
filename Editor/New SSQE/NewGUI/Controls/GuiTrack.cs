@@ -1,6 +1,6 @@
 ﻿using New_SSQE.Audio;
+using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Font;
-using New_SSQE.NewGUI.Shaders;
 using New_SSQE.NewMaps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
@@ -218,6 +218,7 @@ namespace New_SSQE.NewGUI.Controls
             else
             {
                 ObjectList<MapObject> objects = CurrentMap.RenderMode == ObjectRenderMode.VFX ? CurrentMap.VfxObjects : CurrentMap.SpecialObjects;
+                bool shouldCheckID = CurrentMap.RenderMode == ObjectRenderMode.Special && CurrentMap.ObjectMode != IndividualObjectMode.Disabled;
                 List<int> indices = [];
 
                 Vector4[] objConstants = new Vector4[objects.Count];
@@ -247,6 +248,8 @@ namespace New_SSQE.NewGUI.Controls
                         continue;
                     if (obj.Ms > maxMs)
                         break;
+                    if (shouldCheckID && obj.ID != (int)CurrentMap.ObjectMode)
+                        continue;
 
                     float x = cursorPos - currentPos + obj.Ms * MS_TO_PX;
                     float a = obj.Ms < currentTime - 1 ? 0.35f : 1f;
@@ -618,7 +621,7 @@ namespace New_SSQE.NewGUI.Controls
         public override void PostRender(float mousex, float mousey, float frametime)
         {
             base.PostRender(mousex, mousey, frametime);
-            
+
             FontRenderer.SetActive(FONT);
 
             FontRenderer.SetColor(Settings.color1.Value);
@@ -705,9 +708,7 @@ namespace New_SSQE.NewGUI.Controls
         private void ClearSelection()
         {
             selectedPoint = null;
-            CurrentMap.Notes.ClearSelection();
-            CurrentMap.VfxObjects.ClearSelection();
-            CurrentMap.SpecialObjects.ClearSelection();
+            CurrentMap.ClearSelection();
         }
 
         private List<MapObject> GetObjectsInRange(float start, float end)

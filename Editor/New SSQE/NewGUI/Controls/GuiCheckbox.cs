@@ -1,4 +1,5 @@
 ﻿using New_SSQE.Audio;
+using New_SSQE.NewGUI.Base;
 using New_SSQE.Preferences;
 using System.Drawing;
 
@@ -6,7 +7,18 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiCheckbox : InteractiveControl
     {
-        public bool Toggle = false;
+        private bool _toggle;
+        public bool Toggle
+        {
+            get => _toggle;
+            set
+            {
+                _toggle = value;
+
+                if (setting != null)
+                    setting.Value = value;
+            }
+        }
 
         private readonly Setting<bool>? setting;
         private float checkSize = 0f;
@@ -22,17 +34,15 @@ namespace New_SSQE.NewGUI.Controls
         public override float[] Draw()
         {
             float width = Math.Min(rect.Width, rect.Height);
-            float wGap = (rect.Width - width) / 2;
             float hGap = (rect.Height - width) / 2;
-            RectangleF squareRect = new(rect.X + wGap, rect.Y + hGap, width, width);
+            RectangleF squareRect = new(rect.X, rect.Y + hGap, width, width);
 
             float[] fill = GLVerts.Rect(squareRect, 0.05f, 0.05f, 0.05f);
             float[] outline = GLVerts.Outline(squareRect, 0.2f, 0.2f, 0.2f);
 
             float cWidth = width * 0.75f * checkSize;
-            float cwGap = (rect.Width - cWidth) / 2;
-            float chGap = (rect.Height - cWidth) / 2;
-            RectangleF checkRect = new(rect.X + cwGap, rect.Y + chGap, cWidth, cWidth);
+            float cGap = (width - cWidth) / 2;
+            RectangleF checkRect = new(rect.X + cGap, rect.Y + hGap + cGap, cWidth, cWidth);
 
             SetColor(Settings.color1.Value);
             float[] check = GLVerts.Rect(checkRect, Settings.color2.Value);
@@ -59,9 +69,6 @@ namespace New_SSQE.NewGUI.Controls
             {
                 SoundPlayer.Play(Settings.clickSound.Value);
                 Toggle ^= true;
-
-                if (setting != null)
-                    setting.Value = Toggle;
             }
         }
     }

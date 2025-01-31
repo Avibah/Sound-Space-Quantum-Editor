@@ -7,7 +7,7 @@ using New_SSQE.Preferences;
 using OpenTK.Graphics;
 using OpenTK.Mathematics;
 using System.Drawing;
-using New_SSQE.NewGUI.Shaders;
+using New_SSQE.NewGUI.Base;
 
 namespace New_SSQE.NewGUI.Controls
 {

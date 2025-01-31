@@ -236,7 +236,7 @@ namespace New_SSQE.NewGUI
 
             for (int i = 0; i < sides; i++)
             {
-                int next = i + 1 == sides ? 0 : i + 1;
+                int next = (i + 1) % sides;
 
                 final[index++] = vertices[i].X;
                 final[index++] = vertices[i].Y;

@@ -1,6 +1,8 @@
-﻿using New_SSQE.NewGUI.Controls;
+﻿using New_SSQE.NewGUI.Base;
+using New_SSQE.NewGUI.Controls;
 using New_SSQE.NewMaps;
 using New_SSQE.NewMaps.Parsing;
+using System.Drawing;
 
 namespace New_SSQE.NewGUI.Windows
 {
@@ -13,14 +15,14 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton ImportButton = new(832, 666, 256, 64, "IMPORT FILE", 38);
         public static readonly GuiButton BackButton = new(832, 740, 256, 64, "BACK", 38);
 
-        public static readonly GuiSquareTextured BackgroundSquare = new(0, 0, 1920, 1080, "menubg", "background_menu.png");
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", "background_menu.png", Color.FromArgb(30, 30, 30));
 
         public GuiWindowCreate() : base(BackgroundSquare, IDLabel, IDBox, CreateButton, ImportButton, BackButton)
         {
             
         }
 
-        public override void ConnectButtons()
+        public override void ConnectEvents()
         {
             CreateButton.LeftClick += (s, e) =>
             {
@@ -40,10 +42,7 @@ namespace New_SSQE.NewGUI.Windows
                     MapManager.Load(audioId);
             };
 
-            BackButton.LeftClick += (s, e) =>
-            {
-                MainWindow.Instance.SwitchWindow(new GUI.GuiWindowMenu());
-            };
+            BackButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowMenu());
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using New_SSQE.Preferences;
+﻿using New_SSQE.NewGUI.Base;
+using New_SSQE.Preferences;
 
 namespace New_SSQE.NewGUI.Controls
 {

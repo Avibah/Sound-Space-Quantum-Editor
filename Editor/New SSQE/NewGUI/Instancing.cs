@@ -1,4 +1,4 @@
-﻿using New_SSQE.NewGUI.Shaders;
+﻿using New_SSQE.NewGUI.Base;
 using OpenTK.Graphics;
 using OpenTK.Mathematics;
 

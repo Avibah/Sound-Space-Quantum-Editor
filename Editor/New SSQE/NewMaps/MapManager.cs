@@ -1,8 +1,8 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.ExternalUtils;
-using New_SSQE.GUI;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
+using New_SSQE.NewGUI;
 using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Preferences;
 
@@ -97,6 +97,23 @@ namespace New_SSQE.NewMaps
 
 
 
+        public static bool LoadMap(Map map)
+        {
+            CurrentMap.Map?.Close();
+            CurrentMap.Map = map;
+
+            map.Close();
+            Cache.Add(map);
+            SaveCache();
+
+            if (map.Open())
+            {
+                Windowing.SwitchWindow(new GuiWindowEditor());
+            }
+
+            return Windowing.Current is GuiWindowEditor && CurrentMap.SoundID != "-1";
+        }
+
         public static bool Load(string data)
         {
             foreach (Map map in Cache)
@@ -108,8 +125,6 @@ namespace New_SSQE.NewMaps
                 }
             }
 
-            CurrentMap.Map?.Close();
-
             try
             {
                 Map map = new();
@@ -120,14 +135,7 @@ namespace New_SSQE.NewMaps
                     return false;
                 }
 
-                CurrentMap.Map = map;
-                map.Close();
-
-                Cache.Add(map);
-                SaveCache();
-
-                if (map.Open())
-                    MainWindow.Instance.SwitchWindow(new GuiWindowEditor());
+                return LoadMap(map);
             }
             catch (Exception ex)
             {
@@ -135,8 +143,6 @@ namespace New_SSQE.NewMaps
                 MessageBox.Show($"Failed to load map data: {ex.Message}\n\nExit and check '*\\logs.txt' for more info", MBoxIcon.Warning, MBoxButtons.OK);
                 return false;
             }
-
-            return CurrentMap.SoundID != "-1";
         }
 
 

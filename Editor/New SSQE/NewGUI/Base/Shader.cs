@@ -1,7 +1,8 @@
-﻿using OpenTK.Graphics;
+﻿using New_SSQE.NewGUI.Shaders;
+using OpenTK.Graphics;
 using OpenTK.Mathematics;
 
-namespace New_SSQE.NewGUI.Shaders
+namespace New_SSQE.NewGUI.Base
 {
     internal abstract class Shader
     {

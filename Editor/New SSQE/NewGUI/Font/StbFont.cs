@@ -32,8 +32,8 @@ namespace New_SSQE.NewGUI.Font
         public Vector2 CharSize;
         public Vector4[] AtlasMetrics;
         public VertexArrayHandle VAO;
+        public BufferHandle VBO_0;
         public BufferHandle VBO_1;
-        public BufferHandle VBO_2;
         public BufferHandle StaticVBO;
 
         private readonly int _baseline;
@@ -141,8 +141,8 @@ namespace New_SSQE.NewGUI.Font
             surface.Dispose();
 
             (VAO, StaticVBO) = GLState.NewVAO_VBO(2);
-            VBO_1 = GLState.ExtendInstancingVAO(VAO, 1, 4);
-            VBO_2 = GLState.ExtendInstancingVAO(VAO, 2, 1);
+            VBO_0 = GLState.ExtendInstancingVAO(VAO, 1, 4);
+            VBO_1 = GLState.ExtendInstancingVAO(VAO, 2, 1);
 
             float[] charData =
             [
@@ -163,6 +163,11 @@ namespace New_SSQE.NewGUI.Font
 
         private static SKBitmap UnicodeBitmap;
         private static int[] UnicodeExtents;
+
+        public static VertexArrayHandle UnicodeVAO;
+        public static BufferHandle UnicodeVBO_0;
+        public static BufferHandle UnicodeVBO_1;
+        public static BufferHandle UnicodeStaticVBO;
 
         public static bool InitUnicode(string path, TextureUnit unit)
         {
@@ -226,9 +231,9 @@ namespace New_SSQE.NewGUI.Font
             canvas.Dispose();
             surface.Dispose();
 
-            (FontRenderer.UnicodeVaO, FontRenderer.UnicodeStaticVbO) = GLState.NewVAO_VBO(2);
-            FontRenderer.UnicodeVbO0 = GLState.ExtendInstancingVAO(FontRenderer.UnicodeVaO, 1, 4);
-            FontRenderer.UnicodeVbO1 = GLState.ExtendInstancingVAO(FontRenderer.UnicodeVaO, 2, 1);
+            (UnicodeVAO, UnicodeStaticVBO) = GLState.NewVAO_VBO(2);
+            UnicodeVBO_0 = GLState.ExtendInstancingVAO(UnicodeVAO, 1, 4);
+            UnicodeVBO_1 = GLState.ExtendInstancingVAO(UnicodeVAO, 2, 1);
 
             float[] charData =
             [
@@ -241,7 +246,7 @@ namespace New_SSQE.NewGUI.Font
                 1, 0
             ];
 
-            GLState.BufferData(FontRenderer.UnicodeStaticVbO, charData);
+            GLState.BufferData(UnicodeStaticVBO, charData);
 
             TextureHandle handle = GLState.NewTexture(unit, true);
             GLState.LoadTexture(handle, UnicodeBitmap.Width, UnicodeBitmap.Height, UnicodeBitmap.GetPixels(), unit);

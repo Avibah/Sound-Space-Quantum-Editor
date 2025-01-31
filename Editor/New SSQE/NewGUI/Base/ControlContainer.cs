@@ -1,7 +1,7 @@
 ﻿using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Drawing;
 
-namespace New_SSQE.NewGUI
+namespace New_SSQE.NewGUI.Base
 {
     internal class ControlContainer : InteractiveControl
     {
@@ -10,7 +10,7 @@ namespace New_SSQE.NewGUI
 
         private bool buttonClicked = false;
 
-        public Control[] Children => [.. controls];
+        public Control[] Children => [..controls];
 
         public ControlContainer(float x, float y, float w, float h, params Control[] controls) : base(x, y, w, h)
         {

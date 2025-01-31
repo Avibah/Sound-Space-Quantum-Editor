@@ -1,6 +1,7 @@
 ﻿using New_SSQE.ExternalUtils;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
+using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Controls;
 using New_SSQE.NewGUI.Font;
 using New_SSQE.NewMaps;
@@ -47,7 +48,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton MapClose3 = new(1144, 1040, 40, 40, "X", 26);
         public static readonly GuiButton MapClose4 = new(1512, 1040, 40, 40, "X", 26);
 
-        public static readonly GuiSquareTextured BackgroundSquare = new(0, 0, 1920, 1080, "menubg", "background_menu.png");
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", "background_menu.png", Color.FromArgb(30, 30, 30));
 
         private static readonly List<(GuiButton, GuiButton)> mapSelects =
         [
@@ -112,7 +113,7 @@ namespace New_SSQE.NewGUI.Windows
             base.Render(mousex, mousey, frametime);
         }
 
-        public override void ConnectButtons()
+        public override void ConnectEvents()
         {
             SliderSetting setting = Settings.changelogPosition.Value;
 
@@ -122,14 +123,14 @@ namespace New_SSQE.NewGUI.Windows
 
                 for (int i = 0; i < changelogLines.Count; i++)
                 {
-                    if (i >= setting.Max - setting.Value && i < setting.Max - setting.Value + Changelog.GetRect().Height / Changelog.TextSize / (FontRenderer.unicode ? StbFont.UnicodeMult : 1) - 1)
+                    if (i >= setting.Max - setting.Value && i < setting.Max - setting.Value + Changelog.GetRect().Height / Changelog.TextSize / (FontRenderer.Unicode ? StbFont.UnicodeMult : 1) - 1)
                         lines.Add(changelogLines[i]);
                 }
 
                 Changelog.SetText(string.Join('\n', lines));
             }
 
-            ChangelogSlider.Scroll += (s, e) => ChangelogScrolled(s, e as ScrollEventArgs ?? new(0));
+            ChangelogSlider.Scroll += ChangelogScrolled;
             ChangelogScrolled(null, new(Settings.changelogPosition.Value.Value));
 
             MainWindow editor = MainWindow.Instance;
@@ -242,7 +243,7 @@ namespace New_SSQE.NewGUI.Windows
                     Map map = MapManager.Cache[i + mapIndex];
                     string fileId = (!map.IsSaved ? "[!] " : "") + map.FileID;
 
-                    select.SetText(FontRenderer.TrimText(fileId, select.TextSize, (int)select.GetRect().Width - 10, select.Font));
+                    select.SetText(FontRenderer.TrimText(fileId, select.TextSize, select.Font, (int)select.GetRect().Width - 10));
                     mapNames[i] = select.Text;
                 }
             }

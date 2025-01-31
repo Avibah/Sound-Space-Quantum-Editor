@@ -132,6 +132,12 @@ namespace New_SSQE.Objects
 
                         obj = new Glide(ms, (GlideDirection)glideDirection);
                         break;
+                    case 14:
+                        float mx = float.Parse(data[++index], Program.Culture);
+                        float my = float.Parse(data[++index], Program.Culture);
+
+                        obj = new Mine(mx, my, ms);
+                        break;
                     default:
                         obj = new(id ?? -1, ms);
                         break;

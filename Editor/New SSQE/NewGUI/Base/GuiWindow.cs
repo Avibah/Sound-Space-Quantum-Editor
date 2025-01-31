@@ -3,9 +3,8 @@ using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Drawing;
 
-namespace New_SSQE.NewGUI.Windows
+namespace New_SSQE.NewGUI.Base
 {
     internal abstract class GuiWindow
     {
@@ -28,19 +27,25 @@ namespace New_SSQE.NewGUI.Windows
         private readonly ControlContainer container;
         public bool AwaitingButtonCompletion = false;
 
-        public GuiWindow(RectangleF rect, params Control[] controls)
+        public GuiWindow(float width, float height, params Control[] controls)
         {
-            ConnectButtons();
+            ConnectEvents();
 
             container = new(0, 0, 1920, 1080, controls);
-            container.Resize(rect.Width, rect.Height);
+            container.Resize(width, height);
         }
-        public GuiWindow(float x, float y, float w, float h, params Control[] controls) : this(new(x, y, w, h), controls) { }
-        public GuiWindow(params Control[] controls) : this(new(0, 0, MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y), controls) { }
+        public GuiWindow(params Control[] controls) : this(MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y, controls) { }
 
-        public abstract void ConnectButtons();
-        public virtual void Open() { }
-        public virtual void Close() { }
+        public abstract void ConnectEvents();
+
+        public virtual void Close()
+        {
+            foreach (Control control in container.Children)
+            {
+                if (control is InteractiveControl interactive)
+                    interactive.DisconnectAll();
+            }
+        }
 
         public virtual void SetControls(params Control[] controls)
         {

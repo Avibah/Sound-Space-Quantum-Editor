@@ -1,104 +1,77 @@
-﻿using New_SSQE.GUI.Shaders;
-using New_SSQE.Misc.Static;
+﻿using New_SSQE.Misc.Static;
+using New_SSQE.NewGUI.Base;
 using New_SSQE.Preferences;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Drawing;
 
 namespace New_SSQE.NewGUI.Font
 {
-    internal class FontRenderer
+    internal static class FontRenderer
     {
-        public static bool unicode = true;
-        public static ProgramHandle Program => unicode ? Shader.UnicodeProgram : Shader.FontProgram;
-
-        public static readonly Dictionary<string, Tuple<TextureUnit, int>> FontIndex = new()
+        static FontRenderer()
         {
-            {"main", new Tuple<TextureUnit, int>(TextureUnit.Texture15, 15) },
-            {"square", new Tuple<TextureUnit, int>(TextureUnit.Texture14, 14) },
-            {"squareo", new Tuple<TextureUnit, int>(TextureUnit.Texture13, 13) },
+            StbFont.InitUnicode(Path.Combine(Assets.FONTS, "Unifont-P0.png"), TextureUnit.Texture12);
+        }
+
+        public static bool Unicode = true;
+
+        private static readonly Dictionary<string, TextureUnit> fontUnits = new()
+        {
+            {"main", TextureUnit.Texture15 },
+            {"square", TextureUnit.Texture14 },
+            {"squareo", TextureUnit.Texture13 },
+            {"unicode", TextureUnit.Texture12 }
         };
+
         private static readonly Dictionary<string, StbFont> fonts = new()
         {
-            {"main", new StbFont("main", FontIndex["main"].Item1) },
-            {"square", new StbFont("Square", FontIndex["square"].Item1) },
-            {"squareo", new StbFont("Squareo", FontIndex["squareo"].Item1) },
+            {"main", new("main", fontUnits["main"]) },
+            {"square", new("square", fontUnits["square"]) },
+            {"squareo", new("squareo", fontUnits["squareo"]) }
         };
 
-        public static VertexArrayHandle UnicodeVaO;
-        public static BufferHandle UnicodeVbO0;
-        public static BufferHandle UnicodeVbO1;
-        public static BufferHandle UnicodeStaticVbO;
+        public static Vector4[] Print(float x, float y, string text, int textSize, string font)
+            => fonts[font].Print(x, y, text, (int)(textSize * Settings.fontScale.Value), Unicode);
+        public static void PrintInto(Vector4[] array, int offset, float x, float y, string text, int textSize, string font)
+            => fonts[font].PrintInto(array, offset, x, y, text, (int)(textSize * Settings.fontScale.Value), Unicode);
+        public static int GetWidth(string text, int textSize, string font)
+            => fonts[font].Extent(text, (int)(textSize * Settings.fontScale.Value), Unicode);
+        public static int GetHeight(int textSize, string font)
+            => fonts[font].Baseline((int)(textSize * Settings.fontScale.Value), Unicode);
 
-        private static readonly bool unicodeFont = StbFont.InitUnicode(Path.Combine(Assets.FONTS, "Unifont-P0.png"), TextureUnit.Texture12);
-        private static readonly int unicodeUnit = 12;
-
-        public static Vector4[] Print(float x, float y, string text, int fontSize, string font)
-        {
-            return fonts[font].Print(x, y, text, (int)(fontSize * Settings.fontScale.Value), unicode);
-        }
-
-        public static void PrintInto(Vector4[] arr, int offset, float x, float y, string text, int fontSize, string font)
-        {
-            fonts[font].PrintInto(arr, offset, x, y, text, (int)(fontSize * Settings.fontScale.Value), unicode);
-        }
-
-        public static int GetWidth(string text, int fontSize, string font)
-        {
-            return fonts[font].Extent(text, (int)(fontSize * Settings.fontScale.Value), unicode);
-        }
-
-        public static int GetHeight(int fontSize, string font)
-        {
-            return fonts[font].Baseline((int)(fontSize * Settings.fontScale.Value), unicode);
-        }
-
-        private static string _activeFont = "";
+        private static string activeFont = "";
+        private static Shader Shader => Unicode ? Shader.Unicode : Shader.Font;
 
         public static void SetActive(string font)
         {
-            if (font == _activeFont)
+            if (activeFont == font)
                 return;
-            _activeFont = font;
+            activeFont = font;
 
-            GL.UseProgram(Program);
-
-            if (unicode)
+            if (Unicode)
             {
-                int location = GL.GetUniformLocation(Shader.UnicodeProgram, "texture0");
-                GL.Uniform1i(location, unicodeUnit);
-
-                location = GL.GetUniformLocation(Shader.UnicodeProgram, "CharSize");
-                GL.Uniform2f(location, ((1 - 0.04f) / 256f, (1 - 0.04f) / 256f));
-
-                GL.BindVertexArray(UnicodeVaO);
+                GLState.EnableTextureUnit(Shader, fontUnits["unicode"]);
+                Shader.Uniform2("CharSize", (1 - 0.04f) / 256f, (1 - 0.04f) / 256f);
             }
             else
             {
-                int location = GL.GetUniformLocation(Shader.FontProgram, "texture0");
-                GL.Uniform1i(location, FontIndex[font].Item2);
-
-                location = GL.GetUniformLocation(Shader.FontProgram, "TexLookup");
-                GL.Uniform4f(location, StbFont.CharRange, fonts[font].AtlasMetrics);
-
-                location = GL.GetUniformLocation(Shader.FontProgram, "CharSize");
-                GL.Uniform2f(location, fonts[font].CharSize);
-
-                GL.BindVertexArray(fonts[font].VaO);
+                GLState.EnableTextureUnit(Shader, fontUnits[font]);
+                Shader.Uniform4("TexLookup", fonts[font].AtlasMetrics);
+                Shader.Uniform2("CharSize", fonts[font].CharSize);
             }
         }
 
-        private static Color _activeColor = Color.White;
+        private static Color activeColor = Color.White;
 
         public static void SetColor(Color color)
         {
-            if (color == _activeColor)
+            if (activeColor == color)
                 return;
-            _activeColor = color;
+            activeColor = color;
 
-            int location = GL.GetUniformLocation(Program, "TexColor");
-            GL.Uniform4f(location, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
+            Shader.Enable();
+            Shader.Uniform4("TexColor", color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
         }
         public static void SetColor(int r, int g, int b, int a = 255) => SetColor(Color.FromArgb(r, g, b, a));
 
@@ -108,24 +81,21 @@ namespace New_SSQE.NewGUI.Font
             {
                 alpha ??= new float[data.Length];
 
-                GL.BindBuffer(BufferTargetARB.ArrayBuffer, unicode ? UnicodeVbO0 : fonts[font].VbOs[0]);
-                GL.BufferData(BufferTargetARB.ArrayBuffer, data, BufferUsageARB.DynamicDraw);
-                GL.BindBuffer(BufferTargetARB.ArrayBuffer, unicode ? UnicodeVbO1 : fonts[font].VbOs[1]);
-                GL.BufferData(BufferTargetARB.ArrayBuffer, alpha, BufferUsageARB.DynamicDraw);
-
-                GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, count ?? data.Length);
+                GLState.BufferData(Unicode ? StbFont.UnicodeVBO_0 : fonts[font].VBO_0, data);
+                GLState.BufferData(Unicode ? StbFont.UnicodeVBO_1 : fonts[font].VBO_1, alpha);
+                GLState.DrawInstances(0, 6, count ?? data.Length);
             }
         }
 
-        public static string TrimText(string text, int fontSize, int width, string font = "main")
+        public static string TrimText(string text, int textSize, string font, int width)
         {
             string end = "...";
-            int endWidth = GetWidth(end, fontSize, font);
+            int endWidth = GetWidth(end, textSize, font);
 
-            if (GetWidth(text, fontSize, font) < width)
+            if (GetWidth(text, textSize, font) < width)
                 return text;
 
-            while (GetWidth(text, fontSize, font) >= width - endWidth)
+            while (GetWidth(text, textSize, font) >= width - endWidth)
                 text = text[..^1];
 
             return text + end;
