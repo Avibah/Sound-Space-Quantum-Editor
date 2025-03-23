@@ -6,9 +6,9 @@ using OpenTK.Mathematics;
 using System.Reflection;
 using System.Text.Json;
 using New_SSQE.Audio;
-using New_SSQE.GUI.Shaders;
 using New_SSQE.Misc.Static;
 using New_SSQE.ExternalUtils;
+using New_SSQE.NewGUI.Base;
 
 namespace New_SSQE.Preferences
 {
@@ -95,38 +95,21 @@ namespace New_SSQE.Preferences
 
         public static void RefreshColors()
         {
-            GL.UseProgram(Shader.TrackProgram);
-            int location = GL.GetUniformLocation(Shader.TrackProgram, "NoteColors");
-            Vector4[] colors = new Vector4[32];
+            Vector4[] noteColors = new Vector4[32];
 
-            for (int i = 0; i < noteColors.Value.Count; i++)
+            for (int i = 0; i < Settings.noteColors.Value.Count; i++)
             {
-                Color color = noteColors.Value[i];
-                colors[i] = (color.R / 255f, color.G / 255f, color.B / 255f, 1f);
+                Color color = Settings.noteColors.Value[i];
+                noteColors[i] = (color.R / 255f, color.G / 255f, color.B / 255f, 1f);
             }
 
-            GL.Uniform4f(location, 32, colors);
+            Shader.FBOObject.Uniform4("NoteColors", noteColors);
+            Shader.InstancedObject.Uniform4("NoteColors", noteColors);
+            Shader.InstancedObjectExtra.Uniform4("NoteColors", noteColors);
+            Shader.Sprite.Uniform4("NoteColors", noteColors);
 
-            GL.UseProgram(Shader.ScalingProgram);
-            location = GL.GetUniformLocation(Shader.ScalingProgram, "NoteColors");
-            GL.Uniform4f(location, 32, colors);
-
-            GL.UseProgram(Shader.XScalingProgram);
-            location = GL.GetUniformLocation(Shader.XScalingProgram, "NoteColors");
-            GL.Uniform4f(location, 32, colors);
-
-            GL.UseProgram(Shader.IconTexProgram);
-            location = GL.GetUniformLocation(Shader.IconTexProgram, "NoteColors");
-            GL.Uniform4f(location, 32, colors);
-
-            GL.UseProgram(Shader.VFXNoteProgram);
-            location = GL.GetUniformLocation(Shader.VFXNoteProgram, "NoteColors");
-            GL.Uniform4f(location, 32, colors);
-
-            GL.UseProgram(Shader.TimelineProgram);
-            location = GL.GetUniformLocation(Shader.TimelineProgram, "Colors");
-            colors = new Vector4[11]
-            {
+            Vector4[] colors =
+            [
                 (color1.Value.R / 255f, color1.Value.G / 255f, color1.Value.B / 255f, 1f),
                 (color2.Value.R / 255f, color2.Value.G / 255f, color2.Value.B / 255f, 1f),
                 (color3.Value.R / 255f, color3.Value.G / 255f, color3.Value.B / 255f, 1f),
@@ -138,9 +121,10 @@ namespace New_SSQE.Preferences
                 (1f, 0f, 0f, 1f),
                 (0.5f, 0.5f, 0.5f, 1f),
                 (color5.Value.R / 255f, color5.Value.G / 255f, color5.Value.B / 255f, 1f)
-            };
+            ];
 
-            GL.Uniform4f(location, colors.Length, colors);
+            Shader.InstancedMain.Uniform4("Colors", colors);
+            Shader.InstancedMainExtra.Uniform4("Colors", colors);
         }
 
         public static void RefreshKeyMapping()

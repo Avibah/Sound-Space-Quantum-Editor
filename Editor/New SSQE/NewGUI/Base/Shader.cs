@@ -1,6 +1,7 @@
 ﻿using New_SSQE.NewGUI.Shaders;
 using OpenTK.Graphics;
 using OpenTK.Mathematics;
+using System.Drawing;
 
 namespace New_SSQE.NewGUI.Base
 {
@@ -88,6 +89,7 @@ void main()
         public void Uniform3(string uniform, Vector3[] values) => GLState.Uniform3(program, uniform, values);
         public void Uniform3(string uniform, Vector3 value) => GLState.Uniform3(program, uniform, value);
         public void Uniform3(string uniform, float x, float y, float z) => GLState.Uniform3(program, uniform, x, y, z);
+        public void Uniform3(string uniform, Color value) => GLState.Uniform3(program, uniform, value);
         public void Uniform4(string uniform, Vector4[] values) => GLState.Uniform4(program, uniform, values);
         public void Uniform4(string uniform, Vector4 value) => GLState.Uniform4(program, uniform, value);
         public void Uniform4(string uniform, float x, float y, float z, float w) => GLState.Uniform4(program, uniform, x, y, z, w);

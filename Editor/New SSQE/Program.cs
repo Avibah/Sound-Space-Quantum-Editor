@@ -50,6 +50,56 @@ namespace New_SSQE
             Process[] processes = Process.GetProcessesByName("Sound Space Quantum Editor");
             return processes.Length > 1;
         }
+
+        private static void WriteCrashReport(object e)
+        {
+            try
+            {
+                if (MainWindow.Instance != null)
+                {
+                    CurrentMap.LoadedMap?.Save();
+                    MapManager.SaveCache();
+                }
+            }
+            catch (Exception ex) { Logging.Register("Map(s) failed to save on abort", LogSeverity.WARN, ex); }
+
+            Logging.Register("[Error encountered in application]", LogSeverity.ERROR);
+            string logs = string.Join('\n', Logging.Logs);
+
+            string text = @$"// whoops
+
+{e}
+
+|******************|
+|  POSSIBLE FIXES  |
+|******************|
+
+If you do not already have it, install the Visual C++ 2015 Redistributable package. This is required for GLFW to work (which SSQE uses).
+
+Try reinstalling from the latest release in case any required files are missing or broken.
+
+Try updating your graphics driver to the latest version.
+
+If none of these work or aren't applicable, report the error through {Links.FEEDBACK_FORM}
+
+{logs}
+                ";
+
+            File.WriteAllText(Path.Combine(Assets.THIS, "crash-report.txt"), text);
+
+            DialogResult result = MessageBox.Show(@"Fatal error encountered while running this application
+A crash report has been created at '*\crash-report.txt'
+
+Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes_No);
+
+            if (result == DialogResult.Yes)
+            {
+                Platform.OpenLink(Links.NEW_GITHUB_ISSUE);
+                Platform.OpenDirectory();
+            }
+
+            Environment.Exit(0);
+        }
         
         public static void Main(string[] args)
         {
@@ -70,9 +120,9 @@ namespace New_SSQE
                                 File.Delete(file);
                             File.WriteAllText(file, string.Join(' ', final));
 
-                            if (final[0] == "open" && final[1].StartsWith("file ") && !IsOtherWindowOpen())
+                            if (final[0] == "open" && !IsOtherWindowOpen())
                             {
-                                MainWindow.InitialFile = final[1].Remove(0, 5);
+                                ProgramArgs.Parse(final);
                                 break;
                             }
                             return;
@@ -83,6 +133,12 @@ namespace New_SSQE
             {
                 return;
             }
+
+            AppDomain domain = AppDomain.CurrentDomain;
+            domain.UnhandledException += (s, e) =>
+            {
+                WriteCrashReport(e.ExceptionObject);
+            };
 
             try
             {
@@ -119,50 +175,7 @@ namespace New_SSQE
             }
             catch (Exception e)
             {
-                try
-                {
-                    if (MainWindow.Instance != null)
-                    {
-                        CurrentMap.LoadedMap?.Save();
-                        MapManager.SaveCache();
-                    }
-                }
-                catch (Exception ex) { Logging.Register("Map(s) failed to save on abort", LogSeverity.WARN, ex); }
-
-                Logging.Register("[Error encountered in application]", LogSeverity.ERROR);
-                string logs = string.Join('\n', Logging.Logs);
-
-                string text = @$"// whoops
-
-{e}
-
-|******************|
-|  POSSIBLE FIXES  |
-|******************|
-
-If you do not already have it, install the Visual C++ 2015 Redistributable package. This is required for GLFW to work (which SSQE uses).
-
-Try reinstalling from the latest release in case any required files are missing or broken.
-
-Try updating your graphics driver to the latest version.
-
-If none of these work or aren't applicable, report the error through {Links.FEEDBACK_FORM}
-
-{logs}
-                ";
-
-                File.WriteAllText(Path.Combine(Assets.THIS, "crash-report.txt"), text);
-
-                DialogResult result = MessageBox.Show(@"Fatal error encountered while running this application
-A crash report has been created at '*\crash-report.txt'
-
-Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes_No);
-
-                if (result == DialogResult.Yes)
-                {
-                    Platform.OpenLink(Links.NEW_GITHUB_ISSUE);
-                    Platform.OpenDirectory();
-                }
+                WriteCrashReport(e);
             }
 
             ProgramArgs.Unwatch();

@@ -8,7 +8,7 @@ namespace New_SSQE.NewGUI.Controls
     {
         private readonly Setting<Color>? setting;
 
-        public GuiLabel(float x, float y, float w, float h, Setting<Color>? color = null, string text = "", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h, text, textSize, font, centered)
+        public GuiLabel(float x, float y, float w, float h, Setting<Color>? color = null, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, text, textSize, font, centerMode)
         {
             setting = color;
             textColor = color?.Value ?? Color.White;

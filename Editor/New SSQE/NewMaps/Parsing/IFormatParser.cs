@@ -14,7 +14,7 @@
         /// </summary>
         /// <param name="data">The data to read</param>
         /// <returns>Whether the operation succeeded</returns>
-        static virtual bool ReadData(string data) => true;
+        static virtual bool ReadData(string data) => throw new NotImplementedException();
 
         /// <summary>
         /// Writes map objects from CurrentMap and applicable metadata from Settings to a file given a valid file path
@@ -29,7 +29,7 @@
         /// For this to work well, the format may also want to implement metadata for use elsewhere in case Settings isn't favorable
         /// </summary>
         /// <returns>Whether the operation succeeded</returns>
-        static virtual bool Export() => true;
+        static virtual bool Export() => throw new NotImplementedException();
 
         /// <summary>
         /// Holds any optional metadata for the format for use in exporting - <see cref="Export()"/>

@@ -1,5 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL;
-using New_SSQE.GUI;
 using System.ComponentModel;
 using System.Drawing;
 using OpenTK.Windowing.Common;
@@ -7,23 +6,18 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Mathematics;
 using SkiaSharp;
-using MouseButton = OpenTK.Windowing.GraphicsLibraryFramework.MouseButton;
 using OpenTK.Windowing.Common.Input;
 using System.Runtime.InteropServices;
 using System.IO.Compression;
-using OpenTK.Graphics;
 using Assets = New_SSQE.Misc.Static.Assets;
-using New_SSQE.GUI.Font;
 using New_SSQE.Audio;
-using New_SSQE.FileParsing;
-using New_SSQE.GUI.Shaders;
 using New_SSQE.Preferences;
-using New_SSQE.GUI.Input;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
 using New_SSQE.ExternalUtils;
-using New_SSQE.Maps;
+using New_SSQE.NewMaps;
 using System.Diagnostics;
+using New_SSQE.NewGUI;
 
 namespace New_SSQE
 {
@@ -93,7 +87,7 @@ namespace New_SSQE
 
         public static MainWindow Instance;
 
-        public GuiWindow CurrentWindow;
+        public GUI.GuiWindow CurrentWindow;
 
         public readonly Dictionary<Keys, Tuple<int, int>> KeyMapping = new();
         public static bool Focused = true;
@@ -104,7 +98,6 @@ namespace New_SSQE
         public bool CtrlHeld;
         public bool AltHeld;
         public bool ShiftHeld;
-        public bool RightHeld;
 
         public static Avalonia.Controls.Window DefaultWindow;
 
@@ -148,14 +141,14 @@ namespace New_SSQE
         })
         {
             MSAA = samples > 0;
-
+            
             // requires higher OpenGL version
             if (DebugVersion)
             {
                 GL.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
                 GL.Enable(EnableCap.DebugOutput);
             }
-
+            
             Logging.Register($"Required OpenGL version: {APIVersion}");
             Logging.Register("Current OpenGL version: " + (GL.GetString(StringName.Version) ?? "N/A"));
 
@@ -168,8 +161,6 @@ namespace New_SSQE
             if (string.IsNullOrWhiteSpace(version) || new Version(major, minor) < APIVersion)
                 throw new Exception($"Unsupported OpenGL version (Minimum: {APIVersion})");
 
-            Shader.Init();
-            
             Instance = this;
             DefaultWindow = new BackgroundWindow();
 
@@ -183,10 +174,10 @@ namespace New_SSQE
             MapManager.LoadCache();
 
             OnMouseWheel(new MouseWheelEventArgs());
-            SwitchWindow(new GuiWindowMenu());
+            Windowing.SwitchWindow(new NewGUI.Windows.GuiWindowMenu());
 
             if (!string.IsNullOrWhiteSpace(InitialFile))
-                MapManager.Load(InitialFile, true);
+                MapManager.Load(InitialFile);
         }
 
         public void UpdateFPS(VSyncMode mode, float fps)
@@ -237,36 +228,24 @@ namespace New_SSQE
 
                 if (!string.IsNullOrWhiteSpace(FileToLoad))
                 {
-                    MapManager.Load(FileToLoad, true);
+                    MapManager.Load(FileToLoad);
                     FileToLoad = "";
                 }
             }
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            if (MusicPlayer.IsPlaying && CurrentWindow is GuiWindowEditor)
+            if (MusicPlayer.IsPlaying)
                 Settings.currentTime.Value.Value = (float)MusicPlayer.CurrentTime.TotalMilliseconds;
-
-            Delta = MouseState.Position - (Mouse.X, Mouse.Y);
-
-            if (Delta.X != 0 || Delta.Y != 0)
-            {
-                Mouse.X = (int)MouseState.X;
-                Mouse.Y = (int)MouseState.Y;
-                CurrentWindow?.OnMouseMove(Mouse);
-            }
-
+            
             try
             {
-                CurrentWindow?.Render(Mouse.X, Mouse.Y, (float)args.Time);
+                Windowing.Current?.Render(MouseState.X, MouseState.Y, (float)args.Time);
             }
             catch (Exception ex)
             {
                 Logging.Register($"Failed to render frame", LogSeverity.ERROR, ex);
             }
-
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, BufferHandle.Zero);
-            GL.BindVertexArray(VertexArrayHandle.Zero);
 
             OpenTK.Graphics.OpenGL.ErrorCode err = GL.GetError();
             while (err != OpenTK.Graphics.OpenGL.ErrorCode.NoError)
@@ -289,9 +268,9 @@ namespace New_SSQE
 
                 double duration = sw.Elapsed.TotalMilliseconds;
 
-                // something is causing the gc to have a noticeable lag spike when it runs, so maybe now its doing more harm than good
                 if (duration > 50)
                 {
+                    // something is causing the gc to have a noticeable lag spike when it runs, so maybe now its doing more harm than good
                     Logging.Register($"GC took {duration}ms to process! Disabling forced garbage collection to improve performance");
                     gcEnabled = false;
                 }
@@ -310,40 +289,26 @@ namespace New_SSQE
                 int h = Math.Max(e.Height, 600);
                 Size = new Vector2i(w, h);
 
-                base.OnResize(new ResizeEventArgs(w, h));
+                base.OnResize(new(w, h));
                 GL.Viewport(0, 0, w, h);
-                Shader.UploadOrtho(w, h);
+                NewGUI.Base.Shader.SetViewports(w, h);
 
-                CurrentWindow?.OnResize(Size);
-
+                Windowing.Current?.Resize(new(w, h));
                 OnRenderFrame(new FrameEventArgs());
             }
         }
 
-        protected override void OnMouseUp(MouseButtonEventArgs e)
-        {
-            CurrentWindow?.OnMouseUp(Mouse);
-            if (e.Button == MouseButton.Right)
-                RightHeld = false;
-        }
-
-        private bool ClickLocked = false;
-
-        public void LockClick() => ClickLocked = true;
-        public void UnlockClick() => ClickLocked = false;
+        public void LockClick() => NewGUI.Base.GuiWindow.LockClick = true;
+        public void UnlockClick() => NewGUI.Base.GuiWindow.LockClick = false;
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
-            if (!ClickLocked)
-                CurrentWindow?.OnMouseClick(Mouse, e.Button == MouseButton.Right);
-            RightHeld = RightHeld || e.Button == MouseButton.Right;
+            Windowing.Current?.MouseDown(e);
         }
 
-        protected override void OnMouseLeave()
+        protected override void OnMouseUp(MouseButtonEventArgs e)
         {
-            CurrentWindow?.OnMouseLeave(Mouse);
-
-            Mouse = new Point(-1, -1);
+            Windowing.Current?.MouseUp(e);
         }
 
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
@@ -351,6 +316,8 @@ namespace New_SSQE
             CtrlHeld = e.Control;
             AltHeld = e.Alt;
             ShiftHeld = e.Shift;
+
+            Windowing.Current?.KeyUp(e.Key);
         }
 
         private void SwitchFullscreen()
@@ -374,71 +341,12 @@ namespace New_SSQE
             if (e.Key == Keys.F4 && AltHeld)
                 Close();
 
-            if (!FocusingBox())
-            {
-                if (CurrentWindow is GuiWindowEditor editor)
-                {
-                    if (e.Key == Keys.Space && !editor.Timeline.Dragging)
-                    {
-                        if (MusicPlayer.IsPlaying)
-                            MusicPlayer.Pause();
-                        else
-                        {
-                            SliderSetting currentTime = Settings.currentTime.Value;
-                            
-                            if (currentTime.Value >= currentTime.Max - 1)
-                                currentTime.Value = 0;
-
-                            MusicPlayer.Play();
-                        }
-                    }
-
-                    if (e.Key == Keys.Left || e.Key == Keys.Right)
-                        Timing.Scroll(e.Key == Keys.Left);
-
-                    if (e.Key == Keys.Escape)
-                        CurrentMap.ClearSelection();
-
-                    KeybindManager.ParseKeybind(e.Key, CtrlHeld, AltHeld, ShiftHeld);
-                }
-            }
-
-            CurrentWindow?.OnKeyDown(e.Key, e.Control);
+            Windowing.Current?.KeyDown(e.Key);
         }
 
         protected override void OnFileDrop(FileDropEventArgs e)
         {
-            for (int i = 0; i < e.FileNames.Length; i++)
-            {
-                string file = e.FileNames[i];
-
-                if (File.Exists(file))
-                {
-                    bool loaded = true;
-                    Map? prev = CurrentMap.LoadedMap;
-
-                    if (Path.GetExtension(file) == ".ini" && CurrentWindow is GuiWindowEditor)
-                        MapManager.ImportProperties(file);
-                    else if (MusicPlayer.SupportedExtensions.Contains(Path.GetExtension(file)))
-                    {
-                        string id = Exporting.FixID(Path.GetFileNameWithoutExtension(file));
-                        if (file != Path.Combine(Assets.CACHED, $"{id}.asset"))
-                            File.Copy(file, Path.Combine(Assets.CACHED, $"{id}.asset"), true);
-
-                        loaded = MapManager.Load(id);
-                    }
-                    else
-                        loaded = MapManager.Load(file, true);
-
-                    if (!loaded && prev != null)
-                    {
-                        prev.Load();
-
-                        if (CurrentWindow is GuiWindowEditor editor)
-                            editor.Timeline.GenerateOffsets();
-                    }
-                }
-            }
+            Windowing.Current?.FileDrop(e);
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
@@ -449,31 +357,7 @@ namespace New_SSQE
             AltHeld = keyboard.IsKeyDown(Keys.LeftAlt) || keyboard.IsKeyDown(Keys.RightAlt);
             ShiftHeld = keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift);
 
-            if (CurrentWindow is GuiWindowEditor)
-            {
-                if (ShiftHeld)
-                {
-                    SliderSetting setting = Settings.beatDivisor.Value;
-                    float step = setting.Step * (CtrlHeld ? 1 : 2) * e.OffsetY;
-
-                    setting.Value = MathHelper.Clamp(setting.Value + step, 0f, setting.Max);
-                }
-                else if (CtrlHeld)
-                    CurrentMap.IncrementZoom(e.OffsetY);
-                else
-                    Timing.Scroll(e.OffsetY < 0 ^ Settings.reverseScroll.Value, Math.Abs(e.OffsetY));
-            }
-            else if (CurrentWindow is GuiWindowMenu menu)
-            {
-                if (menu.MapSelectBackdrop.Rect.Contains(Mouse))
-                    menu.ScrollMaps(e.OffsetY > 0);
-                else
-                {
-                    SliderSetting setting = Settings.changelogPosition.Value;
-
-                    setting.Value = MathHelper.Clamp(setting.Value + setting.Step * e.OffsetY, 0f, setting.Max);
-                }
-            }
+            Windowing.Current?.MouseScroll(e.OffsetY);
         }
 
         private bool forceClose = false;
@@ -497,6 +381,7 @@ namespace New_SSQE
                     tempSave.Add(map);
             }
 
+            /*
             foreach (Map map in tempSave)
             {
                 MapManager.Load(map, false);
@@ -513,7 +398,8 @@ namespace New_SSQE
                     map.Close(false, false, false);
             }
             else
-                SwitchWindow(new GuiWindowMenu());
+                Windowing.SwitchWindow(new NewGUI.Windows.GuiWindowMenu());
+            */
 
             forceClose = !cancel;
 
@@ -532,8 +418,8 @@ namespace New_SSQE
             {
                 closed = true;
 
-                if (CurrentWindow is GuiWindowMenu menu)
-                    menu.AssembleMapList();
+                //if (CurrentWindow is GuiWindowMenu menu)
+                    //menu.AssembleMapList();
 
                 Settings.Save();
 
@@ -558,22 +444,9 @@ namespace New_SSQE
 
 
 
-        private bool FocusingBox()
+        public void SwitchWindow(GUI.GuiWindow window)
         {
-            if (CurrentWindow == null)
-                return false;
-
-            foreach (WindowControl control in CurrentWindow.Controls)
-                if (control is GuiTextbox box && box.Focused)
-                    return true;
-
-            return false;
-        }
-
-
-
-        public void SwitchWindow(GuiWindow window)
-        {
+            /*
             if (CurrentWindow is GuiWindowEditor)
                 CurrentMap.LoadedMap?.Save();
 
@@ -601,6 +474,7 @@ namespace New_SSQE
             CurrentWindow = window;
 
             Settings.Save();
+            */
         }
 
 

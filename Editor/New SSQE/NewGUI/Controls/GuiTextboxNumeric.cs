@@ -1,4 +1,5 @@
-﻿using New_SSQE.GUI.Input;
+﻿using New_SSQE.NewGUI.Input;
+using New_SSQE.NewGUI.Base;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -12,7 +13,7 @@ namespace New_SSQE.NewGUI.Controls
         private readonly bool isFloat;
         private readonly bool isPositive;
 
-        public GuiTextboxNumeric(float x, float y, float w, float h, Setting<float>? setting = null, bool isFloat = false, bool isPositive = false, string text = "0", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h, null, text, textSize, font, centered)
+        public GuiTextboxNumeric(float x, float y, float w, float h, Setting<float>? setting = null, bool isFloat = false, bool isPositive = false, string text = "0", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, null, text, textSize, font, centerMode)
         {
             this.setting = setting;
             this.isFloat = isFloat;
@@ -24,9 +25,14 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void KeyDown(Keys key)
         {
+            if (!Focused)
+                return;
+
             bool ctrl = MainWindow.Instance.CtrlHeld;
             bool shift = MainWindow.Instance.ShiftHeld;
-            
+
+            cursorPos = MathHelper.Clamp(cursorPos, 0, text.Length);
+
             switch (key)
             {
                 case Keys.C when ctrl:
@@ -66,8 +72,12 @@ namespace New_SSQE.NewGUI.Controls
             if (setting != null && (isFloat ? float.TryParse(text, out numFloat) : int.TryParse(text, out numInt)))
             {
                 float value = numFloat + numInt;
+                float prevSetting = setting.Value;
+
                 if (!isPositive || value > 0)
                     setting.Value = value;
+                if (prevSetting != setting.Value)
+                    InvokeValueChanged(new(value));
             }
         }
     }

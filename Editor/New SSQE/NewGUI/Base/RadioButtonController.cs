@@ -16,31 +16,55 @@ namespace New_SSQE.NewGUI.Base
     {
         public EventHandler<RadioButtonEventArgs>? SelectionChanged;
 
+        private GuiButton[] controls;
         private GuiButton? active;
         private Dictionary<GuiButton, string> texts = [];
 
-        public string Active => active?.Text ?? "";
+        private int? initialIndex = null;
+
+        public string Active => active != null ? texts[active] : "";
 
         public RadioButtonController(int? activeIndex, params GuiButton[] controls)
         {
-            active = activeIndex != null ? controls[activeIndex.Value] : null;
+            this.controls = controls;
+            initialIndex = activeIndex;
+        }
+
+        public void Initialize()
+        {
+            void UpdateSelection(GuiButton control, string text)
+            {
+                if (active != null)
+                    active.Text = texts[active];
+
+                active = active == control ? null : control;
+                control.Text = active == control ? $"[{text}]" : text;
+
+                SelectionChanged?.Invoke(active, new(Active));
+            }
 
             foreach (GuiButton control in controls)
             {
+                if (texts.TryGetValue(control, out string? value))
+                    control.Text = value;
+
                 string text = control.Text;
-                texts.Add(control, text);
+                texts.TryAdd(control, text);
 
-                control.LeftClick += (s, e) =>
-                {
-                    if (active != null)
-                        active.Text = texts[active];
-
-                    active = active == control ? null : control;
-                    control.Text = active == control ? $"[{text}]" : text;
-
-                    SelectionChanged?.Invoke(active, new(Active));
-                };
+                control.LeftClick += (s, e) => UpdateSelection(control, text);
             }
+
+            if (initialIndex != null)
+            {
+                GuiButton control = controls[initialIndex.Value];
+                UpdateSelection(control, texts[control]);
+            }
+        }
+
+        public void ClearSelection()
+        {
+            active = null;
+            SelectionChanged?.Invoke(null, new(Active));
         }
     }
 }

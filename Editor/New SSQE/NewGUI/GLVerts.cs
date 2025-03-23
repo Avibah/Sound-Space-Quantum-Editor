@@ -159,7 +159,7 @@ namespace New_SSQE.NewGUI
 
 
 
-        public static float[] Circle(float x, float y, float radius, int sides, float angle, params float[] c)
+        public static float[] Polygon(float x, float y, float radius, int sides, float angle, params float[] c)
         {
             float alpha = c.Length == 4 ? c[3] : 1f;
 
@@ -207,12 +207,12 @@ namespace New_SSQE.NewGUI
             return final;
         }
 
-        public static float[] Circle(float x, float y, float radius, int sides, float angle, Color color, float alpha = 1)
-            => Circle(x, y, radius, sides, angle, color.R / 255f, color.G / 255f, color.B / 255f, alpha);
+        public static float[] Polygon(float x, float y, float radius, int sides, float angle, Color color, float alpha = 1)
+            => Polygon(x, y, radius, sides, angle, color.R / 255f, color.G / 255f, color.B / 255f, alpha);
 
 
 
-        public static float[] CircleOutline(float x, float y, float radius, float width, int sides, float angle, params float[] c)
+        public static float[] PolygonOutline(float x, float y, float radius, float width, int sides, float angle, params float[] c)
         {
             float alpha = c.Length == 4 ? c[3] : 1f;
 
@@ -284,7 +284,7 @@ namespace New_SSQE.NewGUI
             return final;
         }
 
-        public static float[] CircleOutline(float x, float y, float radius, float width, int sides, float angle, Color color, float alpha = 1)
-            => CircleOutline(x, y, radius, width, sides, angle, color.R / 255f, color.G / 255f, color.B / 255f, alpha);
+        public static float[] PolygonOutline(float x, float y, float radius, float width, int sides, float angle, Color color, float alpha = 1)
+            => PolygonOutline(x, y, radius, width, sides, angle, color.R / 255f, color.G / 255f, color.B / 255f, alpha);
     }
 }

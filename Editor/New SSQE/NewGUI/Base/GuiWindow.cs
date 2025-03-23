@@ -1,4 +1,9 @@
-﻿using New_SSQE.GUI.Input;
+﻿using New_SSQE.Audio;
+using New_SSQE.FileParsing;
+using New_SSQE.Misc.Static;
+using New_SSQE.NewGUI.Controls;
+using New_SSQE.NewGUI.Input;
+using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -18,20 +23,20 @@ namespace New_SSQE.NewGUI.Base
          * fullscreen View3dControls for this without checking for memory leaks afterwards.
          * 
          * 
-         * The default sizes of controls are based on a standard 1920x1080 monitor,
+         * The default sizes of controls are based on a traditional 1920x1080 monitor,
          * so all positions/sizes should assume the window is fullscreen on a 1080p display.
          * Controls will be resized automatically.
          * 
          */
 
         private readonly ControlContainer container;
-        public bool AwaitingButtonCompletion = false;
+        public static bool LockClick = false;
 
         public GuiWindow(float width, float height, params Control[] controls)
         {
             ConnectEvents();
 
-            container = new(0, 0, 1920, 1080, controls);
+            container = new(controls);
             container.Resize(width, height);
         }
         public GuiWindow(params Control[] controls) : this(MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y, controls) { }
@@ -40,11 +45,7 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void Close()
         {
-            foreach (Control control in container.Children)
-            {
-                if (control is InteractiveControl interactive)
-                    interactive.DisconnectAll();
-            }
+            container.DisconnectAll();
         }
 
         public virtual void SetControls(params Control[] controls)
@@ -53,6 +54,11 @@ namespace New_SSQE.NewGUI.Base
         }
 
         private Vector2 prevMouse = -Vector2.One;
+
+        public virtual void Update()
+        {
+            container.Update();
+        }
 
         public virtual void Render(float mousex, float mousey, float frametime)
         {
@@ -72,7 +78,7 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void MouseDown(MouseButtonEventArgs e)
         {
-            if (AwaitingButtonCompletion)
+            if (LockClick)
                 return;
 
             if (e.Button == MouseButton.Left)
@@ -99,6 +105,7 @@ namespace New_SSQE.NewGUI.Base
             container.KeyDown(key);
 
             List<string> keybinds = Settings.CompareKeybind(key, KeybindManager.CtrlHeld, KeybindManager.AltHeld, KeybindManager.ShiftHeld);
+            KeybindManager.Run(key);
 
             foreach (string keybind in keybinds)
                 container.KeybindUsed(keybind);
@@ -112,6 +119,45 @@ namespace New_SSQE.NewGUI.Base
         public virtual void Dispose()
         {
             container.Dispose();
+        }
+
+        public virtual void FileDrop(FileDropEventArgs e)
+        {
+            for (int i = 0; i < e.FileNames.Length; i++)
+            {
+                string file = e.FileNames[i];
+
+                if (File.Exists(file))
+                {
+                    bool loaded = true;
+                    Map? prev = CurrentMap.Map;
+
+                    if (MusicPlayer.SupportedExtensions.Contains(Path.GetExtension(file)))
+                    {
+                        string id = Exporting.FixID(Path.GetFileNameWithoutExtension(file));
+                        if (file != Path.Combine(Assets.CACHED, $"{id}.asset"))
+                            File.Copy(file, Path.Combine(Assets.CACHED, $"{id}.asset"), true);
+
+                        loaded = MapManager.Load(id);
+                    }
+                    else if (Path.GetExtension(file) != ".ini")
+                        loaded = MapManager.Load(file);
+
+                    if (!loaded && prev != null)
+                        prev.Open();
+                }
+            }
+        }
+
+        public virtual bool TextboxFocused()
+        {
+            foreach (Control control in container.Children)
+            {
+                if (control is GuiTextbox textbox && textbox.Focused)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

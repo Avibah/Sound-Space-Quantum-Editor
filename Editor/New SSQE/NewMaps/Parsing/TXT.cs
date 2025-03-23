@@ -24,9 +24,9 @@ namespace New_SSQE.NewMaps.Parsing
                         {
                             string[] subData = mapData[i].Split('|');
 
-                            float x = float.Parse(subData[1], Program.Culture);
-                            float y = float.Parse(subData[2], Program.Culture);
-                            long ms = long.Parse(subData[0]);
+                            float x = float.Parse(subData[0], Program.Culture);
+                            float y = float.Parse(subData[1], Program.Culture);
+                            long ms = long.Parse(subData[2]);
 
                             CurrentMap.Notes.Add(new(x, y, ms));
                         }

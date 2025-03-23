@@ -14,7 +14,7 @@ namespace New_SSQE.NewGUI.Font
             StbFont.InitUnicode(Path.Combine(Assets.FONTS, "Unifont-P0.png"), TextureUnit.Texture12);
         }
 
-        public static bool Unicode = true;
+        public static bool Unicode = false;
 
         private static readonly Dictionary<string, TextureUnit> fontUnits = new()
         {
@@ -40,14 +40,14 @@ namespace New_SSQE.NewGUI.Font
         public static int GetHeight(int textSize, string font)
             => fonts[font].Baseline((int)(textSize * Settings.fontScale.Value), Unicode);
 
-        private static string activeFont = "";
+        private static (string, bool) activeFont = ("", false);
         private static Shader Shader => Unicode ? Shader.Unicode : Shader.Font;
 
         public static void SetActive(string font)
         {
-            if (activeFont == font)
+            if (activeFont == (font, Unicode))
                 return;
-            activeFont = font;
+            activeFont = (font, Unicode);
 
             if (Unicode)
             {
@@ -62,15 +62,8 @@ namespace New_SSQE.NewGUI.Font
             }
         }
 
-        private static Color activeColor = Color.White;
-
         public static void SetColor(Color color)
         {
-            if (activeColor == color)
-                return;
-            activeColor = color;
-
-            Shader.Enable();
             Shader.Uniform4("TexColor", color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
         }
         public static void SetColor(int r, int g, int b, int a = 255) => SetColor(Color.FromArgb(r, g, b, a));
@@ -83,7 +76,7 @@ namespace New_SSQE.NewGUI.Font
 
                 GLState.BufferData(Unicode ? StbFont.UnicodeVBO_0 : fonts[font].VBO_0, data);
                 GLState.BufferData(Unicode ? StbFont.UnicodeVBO_1 : fonts[font].VBO_1, alpha);
-                GLState.DrawInstances(0, 6, count ?? data.Length);
+                GLState.DrawInstances(Unicode ? StbFont.UnicodeVAO : fonts[font].VAO, 0, 6, count ?? data.Length);
             }
         }
 

@@ -14,10 +14,10 @@ namespace New_SSQE.NewGUI.Windows
 {
     internal class GuiWindowMenu : GuiWindow
     {
-        public static readonly GuiLabel ChangelogLabel = new(60, 195, 200, 40, null, "CHANGELOG", 42, "square", false);
-        public static readonly GuiLabel SoundSpaceLabel = new(35, 0, 750, 100, null, "SOUND SPACE", 156, "square", false);
-        public static readonly GuiLabel QuantumEditorLabel = new(615, 140, 150, 40, null, "QUANTUM EDITOR", 38, "square", false);
-        public static readonly GuiLabel Changelog = new(60, 230, 890, 715, null, "", 20, "main", false);
+        public static readonly GuiLabel ChangelogLabel = new(60, 195, 200, 40, null, "CHANGELOG", 42, "square", CenterMode.None);
+        public static readonly GuiLabel SoundSpaceLabel = new(35, 0, 750, 100, null, "SOUND SPACE", 156, "square", CenterMode.None);
+        public static readonly GuiLabel QuantumEditorLabel = new(615, 140, 150, 40, null, "QUANTUM EDITOR", 38, "square", CenterMode.None);
+        public static readonly GuiLabel Changelog = new(60, 230, 890, 715, null, "", 20, "main", CenterMode.None) { Stretch = StretchMode.XY };
         public static readonly GuiButton FeedbackButton = new(35, 140, 100, 40, "Feedback?", 20);
 
         public static readonly GuiButton CreateButton = new(1190, 180, 600, 100, "CREATE NEW MAP", 54, "square");
@@ -28,27 +28,27 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton AutosavedButton = new(1190, 640, 600, 100, "AUTOSAVED MAP", 54, "square");
         public static readonly GuiButton LastMapButton = new(1190, 755, 600, 100, "EDIT LAST MAP", 54, "square");
 
-        public static readonly GuiSlider ChangelogSlider = new(950, 230, 20, 720, Settings.changelogPosition, true);
-        public static readonly GuiSquare ChangelogBackdrop1 = new(35, 180, 950, 790, Color.FromArgb(40, 0, 0, 0));
-        public static readonly GuiSquare ChangelogBackdrop2 = new(55, 230, 900, 715, Color.FromArgb(50, 0, 0, 0));
+        public static readonly GuiSlider ChangelogSlider = new(950, 230, 20, 720, Settings.changelogPosition) { Stretch = StretchMode.X, Style = new(ControlStyles.Slider_Uncolored) };
+        public static readonly GuiSquare ChangelogBackdrop1 = new(35, 180, 950, 790, Color.FromArgb(40, 0, 0, 0)) { Stretch = StretchMode.XY };
+        public static readonly GuiSquare ChangelogBackdrop2 = new(55, 230, 900, 715, Color.FromArgb(50, 0, 0, 0)) { Stretch = StretchMode.XY };
         
-        public static readonly GuiSquare MapSelectBackdrop = new(0, 1040, 1920, 40, Color.FromArgb(50, 0, 0, 0));
+        public static readonly GuiSquare MapSelectBackdrop = new(0, 1040, 1920, 40, Color.FromArgb(50, 0, 0, 0)) { Stretch = StretchMode.XY };
         public static readonly GuiButton NavLeft = new(0, 1040, 40, 40, "<", 34);
         public static readonly GuiButton NavRight = new(1880, 1040, 40, 40, ">", 34);
 
-        public static readonly GuiButton MapSelect0 = new(40, 1040, 368, 40, "", 20);
-        public static readonly GuiButton MapSelect1 = new(408, 1040, 368, 40, "", 20);
-        public static readonly GuiButton MapSelect2 = new(776, 1040, 368, 40, "", 20);
-        public static readonly GuiButton MapSelect3 = new(1144, 1040, 368, 40, "", 20);
-        public static readonly GuiButton MapSelect4 = new(1512, 1040, 368, 40, "", 20);
+        public static readonly GuiButton MapSelect0 = new(40, 1040, 368, 40, "", 20) { Stretch = StretchMode.XY };
+        public static readonly GuiButton MapSelect1 = new(408, 1040, 368, 40, "", 20) { Stretch = StretchMode.XY };
+        public static readonly GuiButton MapSelect2 = new(776, 1040, 368, 40, "", 20) { Stretch = StretchMode.XY };
+        public static readonly GuiButton MapSelect3 = new(1144, 1040, 368, 40, "", 20) { Stretch = StretchMode.XY };
+        public static readonly GuiButton MapSelect4 = new(1512, 1040, 368, 40, "", 20) { Stretch = StretchMode.XY };
 
-        public static readonly GuiButton MapClose0 = new(40, 1040, 40, 40, "X", 26);
-        public static readonly GuiButton MapClose1 = new(408, 1040, 40, 40, "X", 26);
-        public static readonly GuiButton MapClose2 = new(776, 1040, 40, 40, "X", 26);
-        public static readonly GuiButton MapClose3 = new(1144, 1040, 40, 40, "X", 26);
-        public static readonly GuiButton MapClose4 = new(1512, 1040, 40, 40, "X", 26);
+        public static readonly GuiButton MapClose0 = new(40, 1040, 40, 40, "X", 26) { Stretch = StretchMode.XY };
+        public static readonly GuiButton MapClose1 = new(408, 1040, 40, 40, "X", 26) { Stretch = StretchMode.XY };
+        public static readonly GuiButton MapClose2 = new(776, 1040, 40, 40, "X", 26) { Stretch = StretchMode.XY };
+        public static readonly GuiButton MapClose3 = new(1144, 1040, 40, 40, "X", 26) { Stretch = StretchMode.XY };
+        public static readonly GuiButton MapClose4 = new(1512, 1040, 40, 40, "X", 26) { Stretch = StretchMode.XY };
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", "background_menu.png", Color.FromArgb(30, 30, 30));
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", "background_menu.png", Color.FromArgb(30, 30, 30)) { Stretch = StretchMode.XY };
 
         private static readonly List<(GuiButton, GuiButton)> mapSelects =
         [
@@ -63,7 +63,14 @@ namespace New_SSQE.NewGUI.Windows
         private static List<string> changelogLines = [];
 
         private static int mapIndex = 0;
-        private static readonly List<string> mapNames = [];
+        private static readonly List<string> mapNames =
+        [
+            "",
+            "",
+            "",
+            "",
+            ""
+        ];
 
         public GuiWindowMenu() : base(BackgroundSquare, ChangelogBackdrop1, ChangelogBackdrop2, MapSelectBackdrop,
             CreateButton, LoadButton, ImportButton, SettingsButton, AutosavedButton, LastMapButton, NavLeft, NavRight, FeedbackButton,
@@ -84,7 +91,7 @@ namespace New_SSQE.NewGUI.Windows
             AssembleChangelog();
             AssembleMapList();
 
-            Settings.changelogPosition.Value.Value = Settings.changelogPosition.Value.Max;
+            Settings.changelogPosition.Value.Value = 0;
         }
 
         public override void Resize(ResizeEventArgs e)
@@ -97,6 +104,9 @@ namespace New_SSQE.NewGUI.Windows
             RectangleF rect = LastMapButton.GetRect();
             LastMapButton.SetRect(rect.X, AutosavedButton.Visible ? rect.Y : AutosavedButton.GetRect().Y, rect.Width, rect.Height);
             LastMapButton.Update();
+
+            Settings.changelogPosition.Value.Value = 0;
+            AssembleChangelog();
         }
 
         public override void Render(float mousex, float mousey, float frametime)
@@ -115,30 +125,13 @@ namespace New_SSQE.NewGUI.Windows
 
         public override void ConnectEvents()
         {
-            SliderSetting setting = Settings.changelogPosition.Value;
-
-            void ChangelogScrolled(object? s, ScrollEventArgs e)
-            {
-                List<string> lines = [];
-
-                for (int i = 0; i < changelogLines.Count; i++)
-                {
-                    if (i >= setting.Max - setting.Value && i < setting.Max - setting.Value + Changelog.GetRect().Height / Changelog.TextSize / (FontRenderer.Unicode ? StbFont.UnicodeMult : 1) - 1)
-                        lines.Add(changelogLines[i]);
-                }
-
-                Changelog.SetText(string.Join('\n', lines));
-            }
-
-            ChangelogSlider.Scroll += ChangelogScrolled;
-            ChangelogScrolled(null, new(Settings.changelogPosition.Value.Value));
-
-            MainWindow editor = MainWindow.Instance;
+            ChangelogSlider.ValueChanged += UpdateChangelogText;
+            UpdateChangelogText(null, new(Settings.changelogPosition.Value.Value));
 
             FeedbackButton.LeftClick += (s, e) => Platform.OpenLink(Links.FEEDBACK_FORM);
 
-            CreateButton.LeftClick += (s, e) => editor.SwitchWindow(new GUI.GuiWindowCreate());
-            SettingsButton.LeftClick += (s, e) => editor.SwitchWindow(new GUI.GuiWindowSettings());
+            CreateButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowCreate());
+            SettingsButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowSettings());
 
             LoadButton.LeftClick += (s, e) =>
             {
@@ -169,7 +162,7 @@ namespace New_SSQE.NewGUI.Windows
             void Open(int index)
             {
                 MapManager.Cache[mapIndex + index].Open();
-                editor.SwitchWindow(new GUI.GuiWindowEditor());
+                Windowing.SwitchWindow(new GuiWindowEditor());
             }
 
             MapSelect0.LeftClick += (s, e) => Open(0);
@@ -189,6 +182,22 @@ namespace New_SSQE.NewGUI.Windows
             MapClose2.LeftClick += (s, e) => Close(2);
             MapClose3.LeftClick += (s, e) => Close(3);
             MapClose4.LeftClick += (s, e) => Close(4);
+
+            ChangelogSlider.ValueChanged += (s, e) => AssembleChangelog();
+        }
+
+        private void UpdateChangelogText(object? sender, ValueChangedEventArgs e)
+        {
+            SliderSetting setting = Settings.changelogPosition.Value;
+            List<string> lines = [];
+
+            for (int i = 0; i < changelogLines.Count; i++)
+            {
+                if (i >= setting.Value && i < setting.Value + Changelog.GetRect().Height / Changelog.TextSize / (FontRenderer.Unicode ? StbFont.UnicodeMult : 1) - 1)
+                    lines.Add(changelogLines[i]);
+            }
+
+            Changelog.SetText(string.Join('\n', lines));
         }
 
         private void AssembleChangelog()
@@ -224,6 +233,7 @@ namespace New_SSQE.NewGUI.Windows
             ChangelogSlider.Visible = setting.Max > 0;
 
             changelogLines = lines;
+            UpdateChangelogText(null, new(Settings.changelogPosition.Value.Value));
         }
 
         private void AssembleMapList()
@@ -249,7 +259,7 @@ namespace New_SSQE.NewGUI.Windows
             }
         }
 
-        public void ScrollMapList(bool right)
+        private void ScrollMapList(bool right)
         {
             if (right)
                 mapIndex++;
@@ -257,6 +267,26 @@ namespace New_SSQE.NewGUI.Windows
                 mapIndex--;
 
             AssembleMapList();
+        }
+
+        public override void MouseScroll(float delta)
+        {
+            base.MouseScroll(delta);
+
+            bool hovering = NavLeft.Hovering || NavRight.Hovering;
+            foreach ((GuiButton, GuiButton) nav in mapSelects)
+                hovering |= nav.Item1.Hovering || nav.Item2.Hovering;
+
+            if (hovering)
+                ScrollMapList(delta > 0);
+            else
+            {
+                int pos = (int)(Settings.changelogPosition.Value.Value + (delta < 0 ? 1 : -1));
+                Settings.changelogPosition.Value.Value = Math.Clamp(pos, 0, Settings.changelogPosition.Value.Max);
+
+                AssembleChangelog();
+                ChangelogSlider.Update();
+            }
         }
     }
 }

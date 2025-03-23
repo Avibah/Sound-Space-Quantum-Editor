@@ -6,30 +6,16 @@ namespace New_SSQE.ExternalUtils
     {
         public static void SetText(string text)
         {
-            if (MainWindow.Instance != null)
-                MainWindow.Instance.ClipboardString = text;
+            try
+            {
+                if (MainWindow.Instance != null)
+                    MainWindow.Instance.ClipboardString = text;
+            }
+            catch { }
         }
 
         public static void SetData(List<MapObject> mapObjects)
         {
-            /*
-            List<string> data = new();
-
-            foreach (MapObject obj in mapObjects)
-            {
-                if (obj is Note note)
-                {
-                    double x = Math.Round(note.X, 2);
-                    double y = Math.Round(note.Y, 2);
-
-                    data.Add($"{note.X.ToString(Program.Culture)}|{note.Y.ToString(Program.Culture)}|{note.Ms}");
-                }
-            }
-
-            SetText(string.Join(',', data));
-            return;
-            */
-
             string[] objStr = new string[mapObjects.Count + 1];
             objStr[0] = "copy";
 
@@ -41,7 +27,13 @@ namespace New_SSQE.ExternalUtils
 
         public static string GetText()
         {
-            return MainWindow.Instance.ClipboardString ?? "";
+            try
+            {
+                return MainWindow.Instance.ClipboardString ?? "";
+            }
+            catch { }
+
+            return "";
         }
 
         public static List<MapObject> GetData()

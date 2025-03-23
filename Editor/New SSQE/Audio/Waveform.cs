@@ -1,9 +1,9 @@
-﻿using New_SSQE.GUI.Shaders;
+﻿using New_SSQE.NewGUI;
+using New_SSQE.NewGUI.Base;
 using New_SSQE.Preferences;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using System.Drawing;
 
 namespace New_SSQE.Audio
 {
@@ -11,8 +11,8 @@ namespace New_SSQE.Audio
     {
         private static float[] WaveModel = Array.Empty<float>();
         private static int waveLength = 0;
-        private static VertexArrayHandle VaO;
-        private static BufferHandle VbO;
+        private static VertexArrayHandle vao;
+        private static BufferHandle vbo;
         private static int posLocation;
 
         private static bool isUploaded = false;
@@ -123,29 +123,12 @@ namespace New_SSQE.Audio
 
         private static void Upload()
         {
-            GL.UseProgram(Shader.WaveformProgram);
-            VaO = GL.GenVertexArray();
-            VbO = GL.GenBuffer();
-            posLocation = GL.GetUniformLocation(Shader.WaveformProgram, "WavePos");
-
-            Color color = Settings.color4.Value;
-            float[] c = new float[3] { color.R / 255f, color.G / 255f, color.B / 255f };
-            int colorLocation = GL.GetUniformLocation(Shader.WaveformProgram, "LineColor");
-            GL.Uniform3f(colorLocation, c[0], c[1], c[2]);
-
-            GL.BindVertexArray(VaO);
-
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, VbO);
-            GL.BufferData(BufferTargetARB.ArrayBuffer, WaveModel, BufferUsageARB.StaticDraw);
+            Shader.Waveform.Uniform3("LineColor", Settings.color4.Value);
+            (vao, vbo) = GLState.NewVAO_VBO(2);
+            GLState.BufferData(vbo, WaveModel);
 
             waveLength = WaveModel.Length / 2;
-            WaveModel = Array.Empty<float>();
-
-            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 2 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
-
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, BufferHandle.Zero);
-            GL.BindVertexArray(VertexArrayHandle.Zero);
+            WaveModel = [];
 
             isUploaded = true;
         }
@@ -158,21 +141,15 @@ namespace New_SSQE.Audio
             int start = Math.Max(0, (int)(songPositions.X * waveLength) - 1);
             int end = Math.Min(waveLength, (int)(songPositions.Y * waveLength) + 1);
 
-            GL.UseProgram(Shader.WaveformProgram);
-            GL.Uniform3f(posLocation, xPositions.X, xPositions.Y - xPositions.X, trackHeight);
-
-            GL.BindVertexArray(VaO);
-            GL.DrawArrays(PrimitiveType.LineStrip, start, end - start);
+            Shader.Waveform.Uniform3("WavePos", xPositions.X, xPositions.Y - xPositions.X, trackHeight);
+            GLState.DrawArrays(vao, PrimitiveType.LineStrip, start, end - start);
         }
 
         public static void Dispose()
         {
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, VbO);
-            GL.BufferData(BufferTargetARB.ArrayBuffer, 0, nint.Zero, BufferUsageARB.StaticDraw);
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, BufferHandle.Zero);
-            GL.DeleteBuffer(VbO);
-
-            GL.DeleteVertexArray(VaO);
+            GLState.BufferData(vbo, Array.Empty<float>());
+            GLState.Clean(vbo);
+            GLState.Clean(vao);
 
             isUploaded = false;
         }

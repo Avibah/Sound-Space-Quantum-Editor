@@ -16,13 +16,18 @@ namespace New_SSQE.NewGUI.Base
     {
         public EventHandler<RadioCheckboxEventArgs>? SelectionChanged;
 
+        private GuiCheckbox[] controls;
         private GuiCheckbox active;
         public string Active => active.Text;
 
         public RadioCheckboxController(int activeIndex, params GuiCheckbox[] controls)
         {
+            this.controls = controls;
             active = controls[activeIndex];
+        }
 
+        public void Initialize()
+        {
             foreach (GuiCheckbox control in controls)
             {
                 control.Toggle = control == active;

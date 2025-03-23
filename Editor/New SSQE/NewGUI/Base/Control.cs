@@ -3,10 +3,19 @@ using System.Drawing;
 
 namespace New_SSQE.NewGUI.Base
 {
+    internal enum StretchMode
+    {
+        None = 1,
+        X = 2,
+        Y = 4,
+        XY = 6
+    }
+
     internal abstract class Control : IDisposable
     {
         protected Shader shader;
         protected Texture[] textures;
+        public ControlStyle Style = new();
 
         protected int textureIndex;
 
@@ -18,7 +27,7 @@ namespace New_SSQE.NewGUI.Base
         protected int vertexCount;
 
         public bool Visible = true;
-        public bool Square = false;
+        public StretchMode Stretch = StretchMode.None;
 
         public Control(RectangleF rect)
         {
@@ -48,8 +57,11 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void Render(float mousex, float mousey, float frametime)
         {
-            shader.Enable();
-            GLState.DrawTriangles(vao, 0, vertexCount);
+            if (vertexCount > 0)
+            {
+                shader.Enable();
+                GLState.DrawTriangles(vao, 0, vertexCount);
+            }
 
             if (textureIndex >= 0 && textureIndex < textures.Length)
                 textures[textureIndex].Render();
@@ -66,19 +78,21 @@ namespace New_SSQE.NewGUI.Base
             float y = startRect.Y * heightDiff;
             float w = startRect.Width * widthDiff;
             float h = startRect.Height * heightDiff;
+            
+            float min = Math.Min(widthDiff, heightDiff);
 
-            if (Square)
+            if (!Stretch.HasFlag(StretchMode.X))
             {
-                if (w < h)
-                {
-                    x += (h - w) / 2;
-                    w = h;
-                }
-                else
-                {
-                    y += (w - h) / 2;
-                    h = w;
-                }
+                float width = startRect.Width * min;
+                x += (w - width) / 2;
+                w = width;
+            }
+
+            if (!Stretch.HasFlag(StretchMode.Y))
+            {
+                float height = startRect.Height * min;
+                y += (h - height) / 2;
+                h = height;
             }
 
             SetRect(x, y, w, h);
@@ -93,6 +107,8 @@ namespace New_SSQE.NewGUI.Base
         public void SetRect(float x, float y, float width, float height) => SetRect(new(x, y, width, height));
 
         public virtual RectangleF GetRect() => rect;
+
+        public virtual RectangleF GetOrigin() => startRect;
 
 
         private bool _disposed = false;

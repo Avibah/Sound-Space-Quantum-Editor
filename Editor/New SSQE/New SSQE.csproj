@@ -12,6 +12,8 @@
     <ApplicationIcon>bin\x64\Release\net6.0\assets\textures\Icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- TODO: Set up project for NativeAOT, and remove Avalonia dependency and add custom forms beforehand -->
+    <PublishAot>false</PublishAot>
   </PropertyGroup>
   <ItemGroup>
     <None Remove=".gitignore" />

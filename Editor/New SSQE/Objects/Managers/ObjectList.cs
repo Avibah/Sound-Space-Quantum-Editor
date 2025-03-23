@@ -1,4 +1,4 @@
-﻿using New_SSQE.GUI;
+﻿using New_SSQE.NewGUI.Windows;
 
 namespace New_SSQE.Objects.Managers
 {
@@ -25,7 +25,7 @@ namespace New_SSQE.Objects.Managers
 
 
 
-        private SelectionList<T> _selected = new();
+        private SelectionList<T> _selected = [];
         public SelectionList<T> Selected
         {
             get => _selected;
@@ -38,7 +38,7 @@ namespace New_SSQE.Objects.Managers
 
         public void ClearSelection()
         {
-            Selected = new();
+            Selected = [];
         }
 
 
@@ -134,15 +134,13 @@ namespace New_SSQE.Objects.Managers
         public new void Clear()
         {
             base.Clear();
-            Selected = new();
+            Selected = [];
         }
 
         public new void Sort()
         {
             Sort((x, y) => (int)(x.Ms - y.Ms));
-
-            if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
-                editor.Timeline.GenerateOffsets();
+            GuiWindowEditor.Timeline.Update();
         }
 
 

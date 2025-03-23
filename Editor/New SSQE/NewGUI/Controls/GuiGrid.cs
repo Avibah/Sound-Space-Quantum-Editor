@@ -8,7 +8,6 @@ using New_SSQE.Preferences;
 using OpenTK.Graphics;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Drawing;
 
 namespace New_SSQE.NewGUI.Controls
 {
@@ -23,6 +22,7 @@ namespace New_SSQE.NewGUI.Controls
         private float NoteSize => CellSize * 0.75f;
         private float PreviewSize => CellSize * 0.65f;
         private float CellGap => (CellSize - NoteSize) / 2f;
+        private float PreviewGap => (CellSize - PreviewSize) / 2f;
 
         private readonly Instance autoplayCursor;
 
@@ -40,6 +40,8 @@ namespace New_SSQE.NewGUI.Controls
         private Vector2? lastPlacedPos;
 
         private XYMapObject? hoveringXY;
+        // The first element in this list represents the object that was initially dragged, with it being repeated later in the list to keep object ordering
+        // Ex.: With notes 1, 2, 3, the corresponding drag list (if note 2 is clicked) is {2, 1, 2, 3}
         private List<XYMapObject> draggingXY = [];
         private Vector2 dragCellStart;
 
@@ -68,9 +70,11 @@ namespace New_SSQE.NewGUI.Controls
 
             beatConstant = Instancing.Generate("grid_beatConstant", Shader.InstancedMain);
             beatApproach = Instancing.Generate("grid_beatApproach", Shader.InstancedMain);
+
+            Style = new ControlStyle(ControlStyles.Grid_Colored);
         }
 
-        private Vector2 MouseToGridSpace(float mousex, float mousey)
+        private Vector2 MouseToGridSpaceUnclamped(float mousex, float mousey)
         {
             bool quantum = Settings.enableQuantum.Value;
 
@@ -84,10 +88,20 @@ namespace New_SSQE.NewGUI.Controls
                 y = (float)Math.Floor((y + 1 / increment / 2) * increment) / increment;
             }
 
-            x = MathHelper.Clamp(x - 1 / increment + 1, CellBounds.X, CellBounds.Y);
-            y = MathHelper.Clamp(y - 1 / increment + 1, CellBounds.X, CellBounds.Y);
+            x = x - 1 / increment + 1;
+            y = y - 1 / increment + 1;
 
             return (2 - x, 2 - y);
+        }
+
+        private Vector2 MouseToGridSpace(float mousex, float mousey)
+        {
+            Vector2 pos = MouseToGridSpaceUnclamped(mousex, mousey);
+
+            float x = MathHelper.Clamp(pos.X, CellBounds.X, CellBounds.Y);
+            float y = MathHelper.Clamp(pos.Y, CellBounds.X, CellBounds.Y);
+
+            return (x, y);
         }
 
         private void UpdateInstanceData(float mousex, float mousey)
@@ -115,7 +129,7 @@ namespace New_SSQE.NewGUI.Controls
 
             int selectIndex = 0;
 
-            if (range > 0)
+            if (notes.Count > 0)
             {
                 if (notes[low].Ms <= currentTime)
                     last = notes[low];
@@ -125,6 +139,7 @@ namespace New_SSQE.NewGUI.Controls
             }
 
             bool gridNumbers = Settings.gridNumbers.Value;
+            int gridNumberSize = (int)(28 * TextScale);
             hoveringXY = null;
 
             for (int i = low; i < high; i++)
@@ -138,23 +153,27 @@ namespace New_SSQE.NewGUI.Controls
                 float progress = (float)Math.Min(1, Math.Pow(1 - Math.Min(1, (note.Ms - currentTime) * approachRate / 750), 2));
                 float approachSize = 4 + NoteSize + NoteSize * (1 - progress) * 2 + 0.5f;
 
-                noteConstants[i - low] = (x, y, 1, 2 * 5 + progress);
+                noteConstants[i - low] = (x, y, 1, 2 * c + progress);
                 noteApproaches[i - low] = (x - approachSize / 2 + NoteSize / 2, y - approachSize / 2 + NoteSize / 2, approachSize, 2 * c + progress);
 
-                if (hoveringCell == (note.X, note.Y) && Math.Abs(x - (mousex + CellSize / 2)) <= NoteSize / 2 && Math.Abs(y - (mousey + CellSize / 2)) <= NoteSize / 2)
-                    hoveringXY ??= note;
-                if (hoveringXY == note)
-                    noteHovers = (x, y, 1, 2 * 5);
+                if (CurrentMap.ClickMode.HasFlag(ClickMode.Select))
+                {
+                    if (Math.Abs(mousex - NoteSize / 2 - x) <= NoteSize / 2 && Math.Abs(mousey - NoteSize / 2 - y) <= NoteSize / 2)
+                        hoveringXY ??= note;
+                    if (hoveringXY == note)
+                        noteHovers = (x, y, 1, 2 * 5 + 1);
+                }
+                
                 if (note.Selected)
                     noteSelects[selectIndex++] = (x, y, 1, 2 * 6 + progress);
 
                 if (gridNumbers)
                 {
                     string numText = $"{i + 1:##,###}";
-                    int width = FontRenderer.GetWidth(numText, 28, FONT);
-                    int height = FontRenderer.GetHeight(28, FONT);
+                    int width = FontRenderer.GetWidth(numText, gridNumberSize, FONT);
+                    int height = FontRenderer.GetHeight(gridNumberSize, FONT);
 
-                    gridNumStrings.Add(((x + CellSize / 2 - width / 2, y + CellSize / 2 - height / 2, 1 - progress), numText));
+                    gridNumStrings.Add(((x + NoteSize / 2 - width / 2, y + NoteSize / 2 - height / 2, 1 - progress), numText));
                     gridNumLength += numText.Length;
                 }
             }
@@ -173,7 +192,7 @@ namespace New_SSQE.NewGUI.Controls
             {
                 (Vector3, string) data = gridNumStrings[i];
 
-                FontRenderer.PrintInto(gridNumData, offset, data.Item1.X, data.Item1.Y, data.Item2, 28, FONT);
+                FontRenderer.PrintInto(gridNumData, offset, data.Item1.X, data.Item1.Y, data.Item2, gridNumberSize, FONT);
 
                 for (int j = 0; j < data.Item2.Length; j++)
                     gridNumAlphaData[offset++] = data.Item1.Z;
@@ -222,7 +241,7 @@ namespace New_SSQE.NewGUI.Controls
 
                     switch (obj.ID)
                     {
-                        case 12 when obj is Beat beat:
+                        case 12:
                             float approachSize = 4 + rect.Width + rect.Width * (1 - progress) + 0.5f;
                             
                             beatConstants.Add((rect.X, rect.Y, 1, 2 * 4 + progress));
@@ -238,11 +257,11 @@ namespace New_SSQE.NewGUI.Controls
             List<Vector4> notePreviews = [];
             bezierPositions = [];
 
-            if (hoveringCell != null)
+            if (hoveringCell != null && hoveringXY == null && CurrentMap.ClickMode.HasFlag(ClickMode.Place))
             {
                 Vector2 hover = hoveringCell ?? Vector2.One;
-                float x = rect.X + (2 - hover.X) * CellSize + CellGap;
-                float y = rect.Y + (2 - hover.Y) * CellSize + CellGap;
+                float x = rect.X + (2 - hover.X) * CellSize + PreviewGap;
+                float y = rect.Y + (2 - hover.Y) * CellSize + PreviewGap;
 
                 notePreviews.Add((x, y, 1, 2 * 9 + 1));
             }
@@ -275,8 +294,8 @@ namespace New_SSQE.NewGUI.Controls
                 {
                     Note note = result[i];
 
-                    float x = rect.X + (2 - note.X) * CellSize + CellGap;
-                    float y = rect.Y + (2 - note.Y) * CellSize + CellGap;
+                    float x = rect.X + (2 - note.X) * CellSize + PreviewGap;
+                    float y = rect.Y + (2 - note.Y) * CellSize + PreviewGap;
 
                     notePreviews.Add((x, y, 1, 2 * 2 + 1));
                     bezierPositions.Add((x, y));
@@ -289,8 +308,8 @@ namespace New_SSQE.NewGUI.Controls
         public override float[] Draw()
         {
             List<float> autoplayVerts = [];
-            autoplayVerts.AddRange(GLVerts.Outline(0, 0, 1, 1, 0.075f, 1f, 1f, 1f, 1f));
-            autoplayVerts.AddRange(GLVerts.Rect(0, 0, 1, 1, 1f, 1f, 1f, 0.25f));
+            autoplayVerts.AddRange(GLVerts.Outline(0, 0, 1, 1, 0.075f, Style.Quaternary));
+            autoplayVerts.AddRange(GLVerts.Rect(0, 0, 1, 1, Style.Quaternary, 0.25f));
             autoplayCursor.UploadStaticData(autoplayVerts.ToArray());
 
             List<float> noteVerts = [];
@@ -311,16 +330,16 @@ namespace New_SSQE.NewGUI.Controls
             beatApproach.UploadStaticData(GLVerts.Outline(0, 0, 1, 1, 0.0075f, Settings.color5.Value));
 
             List<float> verts = [];
-            verts.AddRange(GLVerts.Rect(rect, 0.15f, 0.15f, 0.15f, Settings.gridOpacity.Value / 255f));
-            verts.AddRange(GLVerts.Outline(rect, 1, 0.2f, 0.2f, 0.2f));
+            verts.AddRange(GLVerts.Rect(rect, Style.Primary, Settings.gridOpacity.Value / 255f));
+            verts.AddRange(GLVerts.Outline(rect, 1, Style.Secondary));
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 1; i < 3; i++)
             {
                 float x = rect.X + rect.Width / 3 * i;
                 float y = rect.Y + rect.Height / 3 * i;
 
-                verts.AddRange(GLVerts.Line(x, rect.Y, x, rect.Bottom, 1, 0.05f, 0.05f, 0.05f));
-                verts.AddRange(GLVerts.Line(rect.X, y, rect.Right, y, 1, 0.05f, 0.05f, 0.05f));
+                verts.AddRange(GLVerts.Line(x, rect.Y, x, rect.Bottom, 1, Style.Tertiary));
+                verts.AddRange(GLVerts.Line(rect.X, y, rect.Right, y, 1, Style.Tertiary));
             }
 
             float divisor = Settings.quantumGridLines.Value ? Settings.quantumSnapping.Value.Value + 3 : 3;
@@ -331,11 +350,12 @@ namespace New_SSQE.NewGUI.Controls
                 float x = rect.X + rect.Width / divisor * (i - offset);
                 float y = rect.Y + rect.Height / divisor * (i - offset);
 
-                verts.AddRange(GLVerts.Line(x, rect.Y, x, rect.Bottom, 1, 0.2f, 0.2f, 0.2f));
-                verts.AddRange(GLVerts.Line(rect.X, y, rect.Right, y, 1, 0.2f, 0.2f, 0.2f));
+                verts.AddRange(GLVerts.Line(x, rect.Y, x, rect.Bottom, 1, Style.Secondary));
+                verts.AddRange(GLVerts.Line(rect.X, y, rect.Right, y, 1, Style.Secondary));
             }
 
             List<Vector4> keyVerts = [];
+            int gridLetterSize = (int)(38 * TextScale);
 
             if (Settings.gridLetters.Value)
             {
@@ -344,15 +364,14 @@ namespace New_SSQE.NewGUI.Controls
                 foreach (KeyValuePair<Keys, Tuple<int, int>> key in keybinds)
                 {
                     string letter = key.Key.ToString().Replace("KeyPad", "");
-                    Tuple<int, int> pos = key.Value;
 
                     float x = rect.X + key.Value.Item1 * CellSize + CellSize / 2;
                     float y = rect.Y + key.Value.Item2 * CellSize + CellSize / 2;
 
-                    int width = FontRenderer.GetWidth(letter, 38, FONT);
-                    int height = FontRenderer.GetHeight(38, FONT);
+                    int width = FontRenderer.GetWidth(letter, gridLetterSize, FONT);
+                    int height = FontRenderer.GetHeight(gridLetterSize, FONT);
 
-                    keyVerts.AddRange(FontRenderer.Print(x - width / 2f, y - height / 2f, letter, 38, FONT));
+                    keyVerts.AddRange(FontRenderer.Print(x - width / 2f, y - height / 2f, letter, gridLetterSize, FONT));
                 }
             }
 
@@ -364,6 +383,7 @@ namespace New_SSQE.NewGUI.Controls
         public override void PreRender(float mousex, float mousey, float frametime)
         {
             base.PreRender(mousex, mousey, frametime);
+            Update();
 
             if (placing && MusicPlayer.IsPlaying)
             {
@@ -383,15 +403,18 @@ namespace New_SSQE.NewGUI.Controls
             base.Render(mousex, mousey, frametime);
             UpdateInstanceData(mousex, mousey);
 
-            FontRenderer.SetActive(FONT);
-            FontRenderer.SetColor(51, 51, 51);
-            FontRenderer.RenderData(FONT, keybindVerts);
+            if (Settings.gridLetters.Value)
+            {
+                FontRenderer.SetActive(FONT);
+                FontRenderer.SetColor(Style.Secondary);
+                FontRenderer.RenderData(FONT, keybindVerts);
+            }
 
             noteConstant.Render();
             if (Settings.approachSquares.Value)
                 noteApproach.Render();
-            noteHover.Render();
             noteSelect.Render();
+            noteHover.Render();
             if (Settings.autoplay.Value)
                 autoplayCursor.Render();
             notePreview.Render();
@@ -411,7 +434,7 @@ namespace New_SSQE.NewGUI.Controls
             if (Settings.gridNumbers.Value)
             {
                 FontRenderer.SetActive(FONT);
-                FontRenderer.SetColor(Color.White);
+                FontRenderer.SetColor(Style.Quaternary);
                 FontRenderer.RenderData(FONT, gridNumData, gridNumAlphaData);
             }
 
@@ -424,7 +447,7 @@ namespace New_SSQE.NewGUI.Controls
                     Vector2 prev = bezierPositions[i - 1];
                     Vector2 cur = bezierPositions[i];
 
-                    verts.AddRange(GLVerts.Line(prev.X, prev.Y, cur.X, cur.Y, 1, 1f, 1f, 1f, 1f));
+                    verts.AddRange(GLVerts.Line(prev.X, prev.Y, cur.X, cur.Y, 1, Style.Quaternary));
                 }
 
                 shader.Enable();
@@ -437,8 +460,13 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.MouseMove(x, y);
 
-            hoveringCell = MouseToGridSpace(x, y);
-            Vector2 hover = hoveringCell ?? Vector2.One;
+            Vector2 hover = MouseToGridSpace(x, y);
+            Vector2 unclamped = MouseToGridSpaceUnclamped(x, y);
+
+            if (Math.Abs(hover.X - unclamped.X) <= 1 && Math.Abs(hover.Y - unclamped.Y) <= 1)
+                hoveringCell = hover;
+            else
+                hoveringCell = null;
 
             if (placing && !MusicPlayer.IsPlaying)
             {
@@ -461,7 +489,7 @@ namespace New_SSQE.NewGUI.Controls
                 
                 float xOffset = hover.X - drag.X;
                 float yOffset = hover.Y - drag.Y;
-
+                
                 if (xOffset == 0 && yOffset == 0)
                     return;
 
@@ -470,23 +498,23 @@ namespace New_SSQE.NewGUI.Controls
                 float minY = drag.Y;
                 float maxY = drag.Y;
 
-                foreach (Note note in draggingXY)
+                foreach (XYMapObject obj in draggingXY)
                 {
-                    minX = Math.Min(minX, note.X);
-                    maxX = Math.Max(maxX, note.X);
-                    minY = Math.Min(minY, note.Y);
-                    maxY = Math.Max(maxY, note.Y);
+                    minX = Math.Min(minX, obj.X);
+                    maxX = Math.Max(maxX, obj.X);
+                    minY = Math.Min(minY, obj.Y);
+                    maxY = Math.Max(maxY, obj.Y);
                 }
 
                 xOffset = Math.Max(CellBounds.X, minX + xOffset) - minX;
-                xOffset = Math.Min(CellBounds.X, maxX + xOffset) - maxX;
-                yOffset = Math.Max(CellBounds.Y, minY + yOffset) - minY;
+                xOffset = Math.Min(CellBounds.Y, maxX + xOffset) - maxX;
+                yOffset = Math.Max(CellBounds.X, minY + yOffset) - minY;
                 yOffset = Math.Min(CellBounds.Y, maxY + yOffset) - maxY;
 
-                foreach (XYMapObject obj in draggingXY)
+                for (int i = 1; i < draggingXY.Count; i++)
                 {
-                    obj.X += xOffset;
-                    obj.Y += yOffset;
+                    draggingXY[i].X += xOffset;
+                    draggingXY[i].Y += yOffset;
                 }
             }
         }
@@ -495,13 +523,13 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.MouseClickLeft(x, y);
 
-            if (hoveringXY == null || (Settings.separateClickTools.Value && !Settings.selectTool.Value))
+            if ((hoveringXY == null && CurrentMap.ClickMode == ClickMode.Both) || CurrentMap.ClickMode == ClickMode.Place)
             {
-                if (CurrentMap.RenderMode != ObjectRenderMode.Notes)
+                if (CurrentMap.RenderMode != ObjectRenderMode.Notes || hoveringCell == null)
                     return;
 
                 long ms = Timing.GetClosestBeat(Settings.currentTime.Value.Value);
-                Vector2 toPlace = hoveringCell ?? Vector2.One;
+                Vector2 toPlace = hoveringCell.Value;
 
                 Note note = new(toPlace.X, toPlace.Y, ms >= 0 ? ms : (long)Settings.currentTime.Value.Value);
                 NoteManager.Add("ADD NOTE", note);
@@ -515,7 +543,7 @@ namespace New_SSQE.NewGUI.Controls
             else if (hoveringXY != null)
             {
                 ObjectList<XYMapObject> objects = hoveringXY is Note ? new(CurrentMap.Notes.Cast<XYMapObject>()) : new(CurrentMap.SpecialObjects.Where(n => n is XYMapObject).Cast<XYMapObject>());
-                List<XYMapObject> selected = objects.Selected.ToList();
+                List<XYMapObject> selected = new(CurrentMap.GetSelected().Where(n => n is XYMapObject).Cast<XYMapObject>());
 
                 if (MainWindow.Instance.ShiftHeld)
                 {
@@ -527,6 +555,7 @@ namespace New_SSQE.NewGUI.Controls
                     (int low, int high) = objects.SearchRange(min, max);
 
                     selected = objects.Take(new Range(low, high)).ToList();
+                    selected.Remove(first);
                     selected.Insert(0, first);
                 }
                 else if (MainWindow.Instance.CtrlHeld)
@@ -539,12 +568,12 @@ namespace New_SSQE.NewGUI.Controls
                 else if (selected.Count == 0)
                     selected = [hoveringXY];
 
-                objects.Selected = new(selected);
+                CurrentMap.SetSelected(new(selected));
 
                 if (hoveringXY.Selected)
                 {
                     draggingXY = [hoveringXY, ..selected];
-                    dragCellStart = selected.Count > 0 ? (selected[0].X, selected[0].Y) : Vector2.One;
+                    dragCellStart = (hoveringXY.X, hoveringXY.Y);
                 }
             }
         }
@@ -562,10 +591,10 @@ namespace New_SSQE.NewGUI.Controls
                 
                 if (cellDiff.LengthSquared > 0)
                 {
-                    foreach (XYMapObject obj in draggingXY)
+                    for (int i = 1; i < draggingXY.Count; i++)
                     {
-                        obj.X -= cellDiff.X;
-                        obj.Y -= cellDiff.Y;
+                        draggingXY[i].X -= cellDiff.X;
+                        draggingXY[i].Y -= cellDiff.Y;
                     }
 
                     NoteManager.Edit($"MOVE {(draggingXY[0] is Note ? "NOTE" : "OBJECT")}[S]", n =>

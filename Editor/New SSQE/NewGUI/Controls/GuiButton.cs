@@ -9,21 +9,19 @@ namespace New_SSQE.NewGUI.Controls
     {
         private float hoverTime = 0f;
         protected bool RightResponsive = false;
-
-        private float Fill => 0.1f + hoverTime;
-        private float Outline => 0.1f + Fill;
         
-        public GuiButton(float x, float y, float w, float h, string text = "", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h, text, textSize, font, centered)
+        public GuiButton(float x, float y, float w, float h, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, text, textSize, font, centerMode)
         {
-
+            Style = new(ControlStyles.Button_Uncolored);
         }
 
         public override float[] Draw()
         {
-            float[] fill = GLVerts.Rect(rect, Fill, Fill, Fill);
-            float[] outline = GLVerts.Outline(rect, 2f, Outline, Outline, Outline);
+            float[] fill = GLVerts.Rect(rect, Style.Primary);
+            float[] outline = GLVerts.Outline(rect, 2f, Style.Secondary);
+            float[] mask = GLVerts.Rect(rect, Style.Tertiary, hoverTime);
 
-            return fill.Concat(outline).ToArray();
+            return fill.Concat(outline).Concat(mask).ToArray();
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)
@@ -31,7 +29,7 @@ namespace New_SSQE.NewGUI.Controls
             base.PreRender(mousex, mousey, frametime);
 
             float prevTime = hoverTime;
-            hoverTime = MathHelper.Clamp((hoverTime / 0.025f) + (Hovering ? 10 : -10) * frametime, 0, 1) * 0.025f;
+            hoverTime = MathHelper.Clamp((hoverTime / 0.05f) + (Hovering ? 10 : -10) * frametime, 0, 1) * 0.05f;
 
             if (hoverTime != prevTime)
                 Update();
@@ -39,18 +37,30 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void MouseClickLeft(float x, float y)
         {
-            base.MouseClickLeft(x, y);
-
             if (Hovering)
                 SoundPlayer.Play(Settings.clickSound.Value);
+
+            base.MouseClickLeft(x, y);
         }
 
         public override void MouseClickRight(float x, float y)
         {
-            base.MouseClickRight(x, y);
-
             if (Hovering && RightResponsive)
                 SoundPlayer.Play(Settings.clickSound.Value);
+
+            base.MouseClickRight(x, y);
+        }
+
+        private string keybind = "";
+
+        public void BindKeybind(string keybind) => this.keybind = keybind;
+
+        public override void KeybindUsed(string keybind)
+        {
+            base.KeybindUsed(keybind);
+
+            if (keybind == this.keybind)
+                InvokeLeftClick(new(0, 0, ClickType.Left));
         }
     }
 }

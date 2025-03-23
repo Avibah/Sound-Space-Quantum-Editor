@@ -17,18 +17,22 @@ namespace New_SSQE.NewGUI.Controls
         private readonly bool isFloat;
         private readonly bool isPositive;
 
-        public GuiNumberBox(float x, float y, float w, float h, float increment, Setting<float>? setting = null, bool isFloat = false, bool isPositive = false, string text = "0", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h)
+        public GuiNumberBox(float x, float y, float w, float h, float increment, Setting<float>? setting = null, bool isFloat = false, bool isPositive = false, string text = "0", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h)
         {
-            ValueBox = new(x, y, w - w / 8, h, setting, isFloat, isPositive, text, textSize, font, centered);
+            ValueBox = new(x, y, w - w / 8, h, setting, isFloat, isPositive, text, textSize, font, centerMode);
             UpButton = new(x + w - w / 8, y, w / 8, h / 2, "^", 16, "square");
             DownButton = new(x + w - w / 8, y + h / 2, w / 8, h / 2, "v", 16, "square");
 
             SetControls(ValueBox, UpButton, DownButton);
 
-            Value = setting == null ? 0 : setting.Value;
+            if (setting != null)
+                Value = setting.Value;
+            else if (!float.TryParse(text, out Value))
+                Value = 0;
+
 
             this.setting = setting;
-            this.increment = increment;
+            this.increment = Math.Abs(increment);
 
             this.isFloat = isFloat;
             this.isPositive = isPositive;
@@ -41,8 +45,8 @@ namespace New_SSQE.NewGUI.Controls
         {
             Value += increment;
 
-            if (!isPositive)
-                Value = Math.Max(Value, 0);
+            if (isPositive)
+                Value = Math.Max(Value, this.increment);
             if (!isFloat)
                 Value = (int)Value;
 

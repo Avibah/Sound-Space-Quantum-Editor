@@ -15,7 +15,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton ImportButton = new(832, 666, 256, 64, "IMPORT FILE", 38);
         public static readonly GuiButton BackButton = new(832, 740, 256, 64, "BACK", 38);
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", "background_menu.png", Color.FromArgb(30, 30, 30));
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", "background_menu.png", Color.FromArgb(30, 30, 30)) { Stretch = StretchMode.XY };
 
         public GuiWindowCreate() : base(BackgroundSquare, IDLabel, IDBox, CreateButton, ImportButton, BackButton)
         {

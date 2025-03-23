@@ -1,4 +1,5 @@
-﻿using New_SSQE.Preferences;
+﻿using New_SSQE.NewGUI.Base;
+using New_SSQE.Preferences;
 
 namespace New_SSQE.NewGUI.Controls
 {
@@ -7,12 +8,13 @@ namespace New_SSQE.NewGUI.Controls
         private readonly Setting<ListSetting> setting;
         private readonly string prefix;
 
-        public GuiButtonList(float x, float y, float w, float h, Setting<ListSetting> setting, string prefix = "") : base(x, y, w, h)
+        public GuiButtonList(float x, float y, float w, float h, Setting<ListSetting> setting, string prefix = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, "", textSize, font, centerMode)
         {
             this.setting = setting;
             this.prefix = prefix;
 
             RightResponsive = true;
+            SetText(prefix + setting.Value.Current.ToString().ToUpper());
         }
 
         private void UpdateSetting(bool right)
@@ -23,8 +25,7 @@ namespace New_SSQE.NewGUI.Controls
             int index = Array.IndexOf(possible, list.Current);
             index = index >= 0 ? index : possible.Length - 1;
 
-            int newIndex = right ? (index - 1 >= 0 ? index - 1 : possible.Length - 1) : (index + 1) % possible.Length;
-
+            int newIndex = (possible.Length + index + (right ? -1 : 1)) % possible.Length;
             list.Current = possible[newIndex];
 
             SetText(prefix + list.Current.ToString().ToUpper());

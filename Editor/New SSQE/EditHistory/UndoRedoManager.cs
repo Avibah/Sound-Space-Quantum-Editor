@@ -1,6 +1,6 @@
 ﻿using New_SSQE.ExternalUtils;
-using New_SSQE.GUI;
-using New_SSQE.Maps;
+using New_SSQE.NewMaps;
+using New_SSQE.NewGUI.Windows;
 using New_SSQE.Preferences;
 using System.Drawing;
 
@@ -29,13 +29,13 @@ namespace New_SSQE.EditHistory
 
 
                 // cause people hate bpm now?
-                if (label == "ADD NOTE" && runRedo && CurrentMap.TimingPoints.Count == 0 && MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
+                if (label == "ADD NOTE" && runRedo && CurrentMap.TimingPoints.Count == 0)
                 {
                     DateTime curTime = DateTime.Now;
 
                     if (prevTime == null || (curTime - prevTime)?.TotalMilliseconds >= 5000)
                     {
-                        editor.ShowToast("Please use BPM!", Settings.color2.Value);
+                        GuiWindowEditor.ShowToast("Please use BPM!", Settings.color2.Value);
                         prevTime = curTime;
                     }
                 }
@@ -51,9 +51,7 @@ namespace New_SSQE.EditHistory
             if (_index >= 0)
             {
                 URAction action = actions[_index];
-
-                if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
-                    editor.ShowToast($"UNDONE: {action.Label}", Color.FromArgb(255, 109, 0));
+                GuiWindowEditor.ShowToast($"UNDONE: {action.Label}", Color.FromArgb(255, 109, 0));
 
                 action.Undo?.Invoke();
                 _index--;
@@ -65,9 +63,7 @@ namespace New_SSQE.EditHistory
             if (_index + 1 < actions.Count)
             {
                 URAction action = actions[_index + 1];
-
-                if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
-                    editor.ShowToast($"REDONE: {action.Label}", Color.FromArgb(255, 109, 0));
+                GuiWindowEditor.ShowToast($"REDONE: {action.Label}", Color.FromArgb(255, 109, 0));
 
                 action.Redo?.Invoke();
                 _index++;

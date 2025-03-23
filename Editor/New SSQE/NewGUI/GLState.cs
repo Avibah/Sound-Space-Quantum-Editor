@@ -22,7 +22,7 @@ namespace New_SSQE.NewGUI
             {FramebufferTarget.DrawFramebuffer, null }
         };
 
-        public static void EnableProgram(ProgramHandle program)
+        public static unsafe void EnableProgram(ProgramHandle program)
         {
             if (program != _program)
                 GL.UseProgram(program);
@@ -92,7 +92,7 @@ namespace New_SSQE.NewGUI
                 GL.VertexAttribPointer((uint)i, fieldWidths[i], VertexAttribPointerType.Float, false, stride * sizeof(float), offset * sizeof(float));
                 GL.EnableVertexAttribArray((uint)i);
 
-                offset += i;
+                offset += fieldWidths[i];
             }
 
             DisableVAO_VBO();
@@ -167,6 +167,14 @@ namespace New_SSQE.NewGUI
             DrawInstances(first, count, instances);
         }
 
+        public static void DrawArrays(PrimitiveType type, int first, int count) => GL.DrawArrays(type, first, count);
+
+        public static void DrawArrays(VertexArrayHandle vao, PrimitiveType type, int first, int count)
+        {
+            EnableVAO(vao);
+            DrawArrays(type, first, count);
+        }
+
         public static void Clean(VertexArrayHandle vao) => GL.DeleteVertexArray(vao);
         public static void Clean(BufferHandle vbo) => GL.DeleteBuffer(vbo);
         public static void Clean(TextureHandle texture) => GL.DeleteTexture(texture);
@@ -189,7 +197,7 @@ namespace New_SSQE.NewGUI
             int location = GL.GetUniformLocation(program, uniform);
             GL.Uniform1i(location, values.Length, values);
         }
-        public static void Uniform1i(ProgramHandle program, string uniform, int x) => Uniform1(program, uniform, [x]);
+        public static void Uniform1i(ProgramHandle program, string uniform, int x) => Uniform1i(program, uniform, [x]);
 
         public static void Uniform2(ProgramHandle program, string uniform, Vector2[] values)
         {
@@ -210,6 +218,7 @@ namespace New_SSQE.NewGUI
         }
         public static void Uniform3(ProgramHandle program, string uniform, Vector3 value) => Uniform3(program, uniform, [value]);
         public static void Uniform3(ProgramHandle program, string uniform, float x, float y, float z) => Uniform3(program, uniform, [(x, y, z)]);
+        public static void Uniform3(ProgramHandle program, string uniform, Color value) => Uniform3(program, uniform, [(value.R / 255f, value.G / 255f, value.B / 255f)]);
 
         public static void Uniform4(ProgramHandle program, string uniform, Vector4[] values)
         {

@@ -6,7 +6,7 @@ namespace New_SSQE.NewGUI.Shaders
     {
         private const string vertex = @"#version 330 core
 layout (location = 0) in vec2 aPosition;
-layout (location = 1) in vec4 aCharLayout;
+layout (location = 1) in vec4 aCharLayout; // x/y/s/c
 layout (location = 2) in float aCharAlpha;
 
 out vec4 texColor;

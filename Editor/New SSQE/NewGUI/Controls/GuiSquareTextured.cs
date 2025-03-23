@@ -19,7 +19,7 @@ namespace New_SSQE.NewGUI.Controls
 
         public override float[] Draw()
         {
-            textures[0].Draw(rect);
+            textures[0].Draw(rect, null, color.A / 255f);
             return base.Draw();
         }
     }

@@ -1,5 +1,4 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.GUI;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
@@ -13,18 +12,20 @@ namespace New_SSQE.NewGUI.Controls
         public float ShiftIncrement = 1;
 
         protected Setting<SliderSetting> setting;
-        
+
         private readonly bool reverse;
         private float hoverTime = 0f;
 
         private float prevValue = 0f;
 
-        public GuiSlider(float x, float y, float w, float h, Setting<SliderSetting> setting, bool reverse = false) : base(x, y, w, h, "", 0, "main", true)
+        public GuiSlider(float x, float y, float w, float h, Setting<SliderSetting> setting, bool reverse = false) : base(x, y, w, h, "", 0, "main", CenterMode.XY)
         {
             this.setting = setting;
             this.reverse = reverse;
 
             prevValue = setting.Value.Value;
+
+            Style = new(ControlStyles.Slider_Uncolored);
         }
 
         public override float[] Draw()
@@ -39,12 +40,12 @@ namespace New_SSQE.NewGUI.Controls
                 : new(rect.X + rect.Width / 2 - 1.5f, rect.Y + rect.Width / 2, 3, rect.Height - rect.Width);
             Vector2 circlePos = (lineRect.X + lineRect.Width * (horizontal ? progress : 0.5f), lineRect.Y + lineRect.Height * (horizontal ? 0.5f : progress));
 
-            float[] line = GLVerts.Rect(lineRect, Settings.color2.Value);
-            float[] circle = GLVerts.Circle(circlePos.X, circlePos.Y, 4, 16, 0, Settings.color1.Value);
+            float[] line = GLVerts.Rect(lineRect, Style.Secondary);
+            float[] circle = GLVerts.Polygon(circlePos.X, circlePos.Y, 4, 16, 0, Style.Primary);
 
             if (hoverTime > 0)
             {
-                float[] hoverCircle = GLVerts.CircleOutline(circlePos.X, circlePos.Y, 12 * hoverTime, 6, 2, 90 * hoverTime, Settings.color1.Value);
+                float[] hoverCircle = GLVerts.PolygonOutline(circlePos.X, circlePos.Y, 12 * hoverTime, 2, 6, 90 * hoverTime, Style.Primary);
                 circle = circle.Concat(hoverCircle).ToArray();
             }
 
@@ -64,21 +65,23 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void MouseClickLeft(float x, float y)
         {
-            base.MouseClickLeft(x, y);
-
             if (Hovering)
                 SoundPlayer.Play(Settings.clickSound.Value);
+            
+            base.MouseClickLeft(x, y);
         }
 
         public override void MouseClickRight(float x, float y)
         {
-            base.MouseClickRight(x, y);
-
             if (Hovering)
             {
                 SoundPlayer.Play(Settings.clickSound.Value);
                 setting.Value.Value = setting.Value.Default;
+                UpdateSlider();
+                Update();
             }
+
+            base.MouseClickRight(x, y);
         }
 
         public override void MouseMove(float x, float y)
@@ -88,7 +91,7 @@ namespace New_SSQE.NewGUI.Controls
             if (Dragging)
             {
                 bool horizontal = rect.Width > rect.Height;
-                float width = rect.Height - rect.Width * (horizontal ? -1 : 1);
+                float width = (rect.Height - rect.Width) * (horizontal ? -1 : 1);
 
                 float step = setting.Value.Step / setting.Value.Max;
                 if (!MainWindow.Instance.ShiftHeld)
@@ -101,19 +104,15 @@ namespace New_SSQE.NewGUI.Controls
                 setting.Value.Value = MathHelper.Clamp(setting.Value.Max * progress, 0, setting.Value.Max);
 
                 UpdateSlider();
+                Update();
             }
         }
 
         private void UpdateSlider()
         {
-            if (MainWindow.Instance.CurrentWindow is not GuiWindowEditor editor)
-                return;
-
             switch (setting.Name)
             {
                 case "trackHeight":
-                    editor.YOffset = 64 + setting.Value.Value;
-                    editor.OnResize(MainWindow.Instance.ClientSize);
                     break;
 
                 case "sfxVolume":
@@ -130,7 +129,7 @@ namespace New_SSQE.NewGUI.Controls
             }
 
             if (setting.Value.Value != prevValue)
-                InvokeScroll(new(setting.Value.Value));
+                InvokeValueChanged(new(setting.Value.Value));
             prevValue = setting.Value.Value;
         }
     }

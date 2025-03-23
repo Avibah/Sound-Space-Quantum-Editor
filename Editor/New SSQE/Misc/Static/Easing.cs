@@ -80,7 +80,7 @@
                     break;
 
                 case EasingStyle.Bounce:
-                    x = In(0, 1, 1 - t, style);
+                    x = Out(0, 1, 1 - t, style);
                     break;
 
                 case EasingStyle.Elastic:
@@ -203,7 +203,7 @@
                     break;
 
                 case EasingStyle.Exponential:
-                    x = t == 0 ? 0 : t == 1 ? 1 : t < 0.5 ? Math.Pow(2, 20 * t - 0) / 2 : (2 - Math.Pow(2, -20 * t + 10)) / 2;
+                    x = t == 0 ? 0 : t == 1 ? 1 : t < 0.5 ? Math.Pow(2, 20 * t - 10) / 2 : (2 - Math.Pow(2, -20 * t + 10)) / 2;
                     break;
 
                 case EasingStyle.Circular:

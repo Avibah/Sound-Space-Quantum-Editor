@@ -8,18 +8,21 @@ namespace New_SSQE.NewGUI.Base
         private Control[] controls = [];
         private InteractiveControl[] interactives = [];
 
-        private bool buttonClicked = false;
-
         public Control[] Children => [..controls];
 
         public ControlContainer(float x, float y, float w, float h, params Control[] controls) : base(x, y, w, h)
         {
             SetControls(controls);
+            Stretch = StretchMode.XY;
         }
+
+        public ControlContainer(params Control[] controls) : this(0, 0, 1920, 1080, controls) { }
 
         public void SetControls(params Control[] controls)
         {
-            RectangleF oldRect = rect;
+            this.controls = [];
+            this.interactives = [];
+
             Resize(1920, 1080);
 
             List<InteractiveControl> interactives = [];
@@ -27,17 +30,13 @@ namespace New_SSQE.NewGUI.Base
             foreach (Control control in controls)
             {
                 if (control is InteractiveControl interactive)
-                {
                     interactives.Add(interactive);
-                    interactive.LeftClick += (s, e) => buttonClicked = true;
-                    interactive.RightClick += (s, e) => buttonClicked = true;
-                }
             }
 
             this.controls = controls;
-            this.interactives = interactives.ToArray();
+            this.interactives = [..interactives];
 
-            Resize(oldRect.Width, oldRect.Height);
+            Resize(MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y);
         }
 
         public override float[] Draw() => [];
@@ -57,7 +56,7 @@ namespace New_SSQE.NewGUI.Base
 
             base.PreRender(mousex, mousey, frametime);
 
-            foreach (Control control in interactives)
+            foreach (Control control in controls)
             {
                 if (control.Visible)
                     control.PreRender(mousex, mousey, frametime);
@@ -71,7 +70,7 @@ namespace New_SSQE.NewGUI.Base
 
             base.Render(mousex, mousey, frametime);
 
-            foreach (Control control in interactives)
+            foreach (Control control in controls)
             {
                 if (control.Visible)
                     control.Render(mousex, mousey, frametime);
@@ -85,7 +84,7 @@ namespace New_SSQE.NewGUI.Base
 
             base.PostRender(mousex, mousey, frametime);
 
-            foreach (Control control in interactives)
+            foreach (Control control in controls)
             {
                 if (control.Visible)
                     control.PostRender(mousex, mousey, frametime);
@@ -96,8 +95,18 @@ namespace New_SSQE.NewGUI.Base
         {
             base.Resize(width, height);
 
+            float wMult = rect.Width / startRect.Width;
+            float hMult = rect.Height / startRect.Height;
+
             foreach (Control control in controls)
+            {
                 control.Resize(width, height);
+
+                RectangleF controlRect = control.GetRect();
+                RectangleF controlOrigin = control.GetOrigin();
+
+                control.SetRect(rect.X + controlOrigin.X * wMult, rect.Y + controlOrigin.Y * hMult, controlRect.Width, controlRect.Height);
+            }
         }
 
         public override void MouseClickLeft(float x, float y)
@@ -106,16 +115,12 @@ namespace New_SSQE.NewGUI.Base
                 return;
 
             base.MouseClickLeft(x, y);
-            buttonClicked = false;
-
             for (int i = interactives.Length - 1; i >= 0; i--)
             {
                 InteractiveControl control = interactives[i];
 
                 if (control.Visible)
                     control.MouseClickLeft(x, y);
-                if (buttonClicked)
-                    break;
             }
         }
 
@@ -125,7 +130,6 @@ namespace New_SSQE.NewGUI.Base
                 return;
 
             base.MouseClickRight(x, y);
-            buttonClicked = false;
 
             for (int i = interactives.Length - 1; i >= 0; i--)
             {
@@ -133,8 +137,6 @@ namespace New_SSQE.NewGUI.Base
 
                 if (control.Visible)
                     control.MouseClickRight(x, y);
-                if (buttonClicked)
-                    break;
             }
         }
 
@@ -241,6 +243,14 @@ namespace New_SSQE.NewGUI.Base
                 if (control.Visible)
                     control.KeybindUsed(keybind);
             }
+        }
+
+        public override void DisconnectAll()
+        {
+            base.DisconnectAll();
+
+            foreach (InteractiveControl control in interactives)
+                control.DisconnectAll();
         }
 
 

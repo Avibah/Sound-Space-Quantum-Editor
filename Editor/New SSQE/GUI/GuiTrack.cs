@@ -295,7 +295,7 @@ namespace New_SSQE.GUI
 
             int colorCount = Settings.noteColors.Value.Count;
 
-            selecting = editor.RightHeld && RightDraggingTrack;
+            selecting = RightDraggingTrack;
 
             float minMs = (-cursorX - noteSize) * 1000f / noteStep + currentTime;
             float maxMs = (Rect.Width - cursorX) * 1000f / noteStep + currentTime;
@@ -912,7 +912,7 @@ namespace New_SSQE.GUI
             HoveringSpec = null;
             HoveringObjDuration = null;
 
-            selecting = editor.RightHeld && RightDraggingTrack;
+            selecting = RightDraggingTrack;
             selectHitbox = new RectangleF();
 
             if (selecting)

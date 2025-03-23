@@ -41,12 +41,17 @@ namespace New_SSQE.NewGUI
 
             if (hasSecondary && secondary != null)
                 GLState.BufferData(vbo_2, secondary);
+            else if (hasSecondary)
+                throw new ArgumentException("Missing secondary parameter on dual-parameter instance");
 
             instanceCount = primary.Length;
         }
 
         public void Render()
         {
+            if (instanceCount == 0)
+                return;
+
             shader.Enable();
             GLState.DrawInstances(staticVAO, 0, vertexCount, instanceCount);
         }

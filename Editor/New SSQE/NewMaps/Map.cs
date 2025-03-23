@@ -31,7 +31,7 @@ namespace New_SSQE.NewMaps
         public string FileID => Path.GetFileNameWithoutExtension(FileName) ?? SoundID;
         public bool IsSaved => FileName != null && File.Exists(FileName) && File.ReadAllText(FileName) == ToString();
 
-        private float _tempo;
+        private float _tempo = Settings.tempo.Value.Default;
         public float Tempo
         {
             get => Math.Min(_tempo, 0.9f) + Math.Max(_tempo - 0.9f, 0) * 2 + 0.1f;
@@ -41,7 +41,7 @@ namespace New_SSQE.NewMaps
                 MusicPlayer.Tempo = Tempo;
             }
         }
-        public float Zoom;
+        public float Zoom = 1f;
 
         private float currentTime;
         private float beatDivisor;
@@ -151,6 +151,19 @@ namespace New_SSQE.NewMaps
         }
 
         public bool Save() => Save(FileName ?? "");
+
+        public bool SaveAs()
+        {
+            string? old = FileName;
+            FileName = null;
+
+            bool result = Save();
+
+            if (!result)
+                FileName = old;
+
+            return result;
+        }
 
         public bool Load(string data)
         {

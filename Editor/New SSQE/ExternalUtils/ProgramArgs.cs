@@ -1,8 +1,9 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.GUI;
+using New_SSQE.NewGUI;
 using New_SSQE.Misc.Static;
 using New_SSQE.Preferences;
 using System.Globalization;
+using New_SSQE.NewGUI.Windows;
 
 namespace New_SSQE.ExternalUtils
 {
@@ -20,7 +21,8 @@ namespace New_SSQE.ExternalUtils
                 return;
             }
 
-            Logging.Register($"Program started with args: {string.Join(' ', args)}");
+            if (args.Length > 0)
+                Logging.Register($"Program started with args: {string.Join(' ', args)}");
             Parse(args);
         }
 
@@ -31,12 +33,12 @@ namespace New_SSQE.ExternalUtils
 
             switch (args[0])
             {
-                case "edit" when MainWindow.Instance.CurrentWindow is GuiWindowEditor:
+                case "edit" when Windowing.Current is GuiWindowEditor:
                     switch (args[1])
                     {
                         case "ms":
                             if (!float.TryParse(args[2], NumberStyles.Any, Program.Culture, out float ms))
-                                return;
+                                break;
 
                             MusicPlayer.Pause();
                             Settings.currentTime.Value.Value = Math.Clamp(ms, 0, Settings.currentTime.Value.Max);
@@ -49,6 +51,16 @@ namespace New_SSQE.ExternalUtils
                     {
                         case "file":
                             MainWindow.FileToLoad = string.Join(' ', args[2..]);
+                            break;
+                        case "rhyonline":
+                            if (!int.TryParse(args[2], out int id))
+                                break;
+
+                            string path = Path.Combine(Assets.TEMP, "tempdownload.sspm");
+                            string url = WebClient.GetBeatmapURLFromRhythiaMapID(id);
+
+                            WebClient.DownloadFile(url, path);
+                            MainWindow.FileToLoad = path;
                             break;
                     }
 

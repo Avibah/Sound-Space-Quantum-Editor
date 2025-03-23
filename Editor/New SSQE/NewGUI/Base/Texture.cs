@@ -21,6 +21,9 @@ namespace New_SSQE.NewGUI.Base
             texUnit = unit;
 
             (vao, vbo) = GLState.NewVAO_VBO(2, 2, 1);
+
+            if (this.texture == TextureHandle.Zero)
+                Dispose();
         }
 
         public Texture(string texture) : this(texture, null, false, TextureUnit.Texture0) { }

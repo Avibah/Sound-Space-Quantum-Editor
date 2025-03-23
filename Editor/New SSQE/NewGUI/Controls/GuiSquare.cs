@@ -5,7 +5,7 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiSquare : Control
     {
-        private Color color;
+        protected Color color;
         private readonly bool outline;
 
         public GuiSquare(float x, float y, float w, float h, Color? color = null, bool outline = false) : base(x, y, w, h)

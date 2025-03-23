@@ -23,29 +23,35 @@ namespace New_SSQE.NewGUI.Controls
         private readonly Setting<bool>? setting;
         private float checkSize = 0f;
 
-        public GuiCheckbox(float x, float y, float w, float h, Setting<bool>? setting = null, string text = "", int textSize = 0, string font = "main") : base(x, y, w, h, text, textSize, font, false)
+        public GuiCheckbox(float x, float y, float w, float h, Setting<bool>? setting = null, string text = "", int textSize = 0, string font = "main") : base(x, y, w, h, text, textSize, font, CenterMode.Y)
         {
             if (setting != null)
                 Toggle = setting.Value;
 
             this.setting = setting;
+
+            Style = new(ControlStyles.Checkbox_Colored);
         }
 
         public override float[] Draw()
         {
+            Toggle = setting?.Value ?? Toggle;
+
             float width = Math.Min(rect.Width, rect.Height);
             float hGap = (rect.Height - width) / 2;
             RectangleF squareRect = new(rect.X, rect.Y + hGap, width, width);
 
-            float[] fill = GLVerts.Rect(squareRect, 0.05f, 0.05f, 0.05f);
-            float[] outline = GLVerts.Outline(squareRect, 0.2f, 0.2f, 0.2f);
+            float[] fill = GLVerts.Rect(squareRect, Style.Tertiary);
+            float[] outline = GLVerts.Outline(squareRect, 2, Style.Quaternary);
 
             float cWidth = width * 0.75f * checkSize;
             float cGap = (width - cWidth) / 2;
             RectangleF checkRect = new(rect.X + cGap, rect.Y + hGap + cGap, cWidth, cWidth);
 
-            SetColor(Settings.color1.Value);
-            float[] check = GLVerts.Rect(checkRect, Settings.color2.Value);
+            SetColor(Style.Primary);
+            float[] check = GLVerts.Rect(checkRect, Style.Secondary);
+
+            xOffset = width * 1.15f;
 
             return fill.Concat(outline).Concat(check).ToArray();
         }

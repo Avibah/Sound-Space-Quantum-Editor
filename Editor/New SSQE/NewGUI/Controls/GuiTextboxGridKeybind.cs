@@ -1,4 +1,5 @@
-﻿using New_SSQE.Preferences;
+﻿using New_SSQE.NewGUI.Base;
+using New_SSQE.Preferences;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace New_SSQE.NewGUI.Controls
@@ -7,13 +8,16 @@ namespace New_SSQE.NewGUI.Controls
     {
         private readonly int gridKey;
 
-        public GuiTextboxGridKeybind(float x, float y, float w, float h, int gridKey, string text = "", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h, null, text, textSize, font, centered)
+        public GuiTextboxGridKeybind(float x, float y, float w, float h, int gridKey, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, null, text, textSize, font, centerMode)
         {
             this.gridKey = gridKey;
         }
 
         public override void KeyDown(Keys key)
         {
+            if (!Focused)
+                return;
+
             if (key == Keys.LeftControl || key == Keys.RightControl)
                 return;
             if (key == Keys.LeftAlt || key == Keys.RightAlt)
@@ -28,6 +32,13 @@ namespace New_SSQE.NewGUI.Controls
 
             SetText(key.ToString().ToUpper());
             cursorPos = text.Length;
+        }
+
+        public override float[] Draw()
+        {
+            text = Settings.gridKeys.Value[gridKey].ToString().ToUpper();
+
+            return base.Draw();
         }
     }
 }

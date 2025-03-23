@@ -1,5 +1,5 @@
 ﻿using New_SSQE.ExternalUtils;
-using New_SSQE.GUI;
+using New_SSQE.NewGUI.Windows;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Objects.Other;
@@ -25,10 +25,19 @@ namespace New_SSQE.NewMaps
         Mine = 14
     }
 
+    internal enum ClickMode
+    {
+        Select = 1,
+        Place = 2,
+        Both = 3
+    }
+
     internal static class CurrentMap
     {
         public static ObjectRenderMode RenderMode = ObjectRenderMode.Notes;
         public static IndividualObjectMode ObjectMode = IndividualObjectMode.Disabled;
+
+        public static ClickMode ClickMode => Settings.separateClickTools.Value ? (Settings.selectTool.Value ? ClickMode.Select : ClickMode.Place) : ClickMode.Both;
 
         public static Map? Map;
 
@@ -136,6 +145,36 @@ namespace New_SSQE.NewMaps
 
         public static bool Save(string path) => Map?.Save(path) ?? false;
         public static bool Save() => Map?.Save() ?? false;
+        public static bool SaveAs() => Map?.SaveAs() ?? false;
+
+
+
+        public static List<MapObject> GetSelected()
+        {
+            return RenderMode switch
+            {
+                ObjectRenderMode.Notes => Notes.Selected.Cast<MapObject>().ToList(),
+                ObjectRenderMode.VFX => VfxObjects.Selected,
+                ObjectRenderMode.Special => SpecialObjects.Selected,
+                _ => []
+            };
+        }
+
+        public static void SetSelected(List<MapObject> selected)
+        {
+            switch (RenderMode)
+            {
+                case ObjectRenderMode.Notes:
+                    Notes.Selected = new(selected.Cast<Note>());
+                    break;
+                case ObjectRenderMode.VFX:
+                    VfxObjects.Selected = new(selected);
+                    break;
+                case ObjectRenderMode.Special:
+                    SpecialObjects.Selected = new(selected);
+                    break;
+            }
+        }
 
 
 
@@ -143,7 +182,7 @@ namespace New_SSQE.NewMaps
 
         public static void Autosave()
         {
-            if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor && Notes.Count + Bookmarks.Count + TimingPoints.Count > 0)
+            if (Notes.Count + Bookmarks.Count + TimingPoints.Count > 0)
             {
                 if (IsSaved)
                     return;
@@ -159,10 +198,10 @@ namespace New_SSQE.NewMaps
                     Settings.autosavedProperties.Value = data[1];
                     Settings.Save(false);
 
-                    editor.ShowToast("AUTOSAVED", Settings.color1.Value);
+                    GuiWindowEditor.ShowToast("AUTOSAVED", Settings.color1.Value);
                 }
                 else if (Save())
-                    editor.ShowToast("AUTOSAVED", Settings.color1.Value);
+                    GuiWindowEditor.ShowToast("AUTOSAVED", Settings.color1.Value);
             }
         }
 
@@ -207,9 +246,7 @@ namespace New_SSQE.NewMaps
                 return;
 
             Clipboard.SetText(string.Join("\n", data));
-
-            if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
-                editor.ShowToast("COPIED TO CLIPBOARD", Color.FromArgb(0, 255, 200));
+            GuiWindowEditor.ShowToast("COPIED TO CLIPBOARD", Color.FromArgb(0, 255, 200));
         }
 
         public static void PasteBookmarks()
@@ -217,7 +254,7 @@ namespace New_SSQE.NewMaps
             string data = Clipboard.GetText();
             string[] bookmarks = data.Split('\n');
 
-            List<Bookmark> tempBookmarks = new();
+            List<Bookmark> tempBookmarks = [];
 
             for (int i = 0; i < bookmarks.Length; i++)
             {

@@ -1,6 +1,6 @@
 ﻿using New_SSQE.ExternalUtils;
 using New_SSQE.NewGUI.Font;
-using New_SSQE.GUI.Input;
+using New_SSQE.NewGUI.Input;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -17,19 +17,22 @@ namespace New_SSQE.NewGUI.Controls
 
         private readonly Setting<string>? setting;
 
-        public GuiTextbox(float x, float y, float w, float h, Setting<string>? setting = null, string text = "", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h, text, textSize, font, centered)
+        public GuiTextbox(float x, float y, float w, float h, Setting<string>? setting = null, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, text, textSize, font, centerMode)
         {
             this.setting = setting;
             if (setting != null)
                 SetText(setting.Value);
+
+            Style = new(ControlStyles.Textbox_Colored);
         }
 
         public override float[] Draw()
         {
-            SetColor(Settings.color2.Value);
+            text = setting?.Value ?? text;
+            SetColor(Style.Secondary);
 
-            float[] fill = GLVerts.Rect(rect, 0.1f, 0.1f, 0.1f);
-            float[] outline = GLVerts.Outline(rect, 2, 0.5f, 0.5f, 0.5f);
+            float[] fill = GLVerts.Rect(rect, Style.Primary);
+            float[] outline = GLVerts.Outline(rect, 2, Style.Tertiary);
             if (!cursorShowing)
                 return fill.Concat(outline).ToArray();
 
@@ -44,13 +47,12 @@ namespace New_SSQE.NewGUI.Controls
             float textW = FontRenderer.GetWidth(text, textSize, font);
             float textH = FontRenderer.GetHeight(textSize, font);
 
-            if (Centered)
-            {
+            if (CenterMode.HasFlag(CenterMode.X))
                 textX += rect.X + rect.Width / 2 - textW / 2;
+            if (CenterMode.HasFlag(CenterMode.Y))
                 textY += rect.Y + rect.Height / 2 - textH / 2;
-            }
 
-            float[] cursor = GLVerts.Line(textX, textY, textX, textY + textH, 2, Settings.color2.Value);
+            float[] cursor = GLVerts.Line(textX, textY, textX, textY + textH, 2, Style.Secondary);
 
             return fill.Concat(outline).Concat(cursor).ToArray();
         }
@@ -60,7 +62,7 @@ namespace New_SSQE.NewGUI.Controls
             base.PreRender(mousex, mousey, frametime);
 
             bool prevShowing = cursorShowing;
-            cursorShowing = Focused && cursorTime % 2 == 0;
+            cursorShowing = Focused && (int)cursorTime % 2 == 0;
 
             if (cursorShowing != prevShowing)
                 Update();
@@ -70,9 +72,14 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void KeyDown(Keys key)
         {
+            if (!Focused)
+                return;
             base.KeyDown(key);
+
             bool ctrl = MainWindow.Instance.CtrlHeld;
             bool shift = MainWindow.Instance.ShiftHeld;
+
+            cursorPos = MathHelper.Clamp(cursorPos, 0, text.Length);
 
             switch (key)
             {
@@ -198,6 +205,22 @@ namespace New_SSQE.NewGUI.Controls
             Run(onceAfter);
 
             return current;
+        }
+
+        public override void MouseClickLeft(float x, float y)
+        {
+            cursorTime = 0;
+            base.MouseClickLeft(x, y);
+            if (text.Length == 0)
+                return;
+
+            // rough estimate of where the cursor clicked relative to the text
+            int textWidth = FontRenderer.GetWidth(text, textSize, font);
+            float posX = x - rect.X - (rect.Width - textWidth) / 2;
+            float letterWidth = textWidth / text.Length;
+
+            posX = Math.Clamp(posX, 0, textWidth);
+            cursorPos = (int)Math.Floor(posX / letterWidth + 0.3f);
         }
     }
 }

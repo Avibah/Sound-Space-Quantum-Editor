@@ -1,5 +1,5 @@
 ﻿using New_SSQE.EditHistory;
-using New_SSQE.Maps;
+using New_SSQE.NewMaps;
 
 namespace New_SSQE.Objects.Managers
 {

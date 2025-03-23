@@ -1,7 +1,8 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.GUI;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Font;
+using New_SSQE.NewGUI.Input;
+using New_SSQE.NewGUI.Windows;
 using New_SSQE.NewMaps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Other;
@@ -98,21 +99,18 @@ namespace New_SSQE.NewGUI.Controls
                 float x = lineRect.X + progress * lineRect.Width;
                 float endX = lineRect.X + endProgress * lineRect.Width;
 
-                bookmarkVerts.AddRange(GLVerts.Rect(x - 4f, y - 40f, 8f + (endX - x), 8f, Settings.color3.Value, 0.75f));
+                bookmarkVerts.AddRange(GLVerts.Rect(x - 4f, y - 40f, 8f + (endX - x), 8f, hoveringBookmark == bookmark ? Style.Secondary : Style.Tertiary, 0.75f));
             }
 
             float[] main = base.Draw();
             float[] line = main[..36];
             float[] other = main[36..];
 
-            if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor && editor.Track != null)
-            {
-                float start = editor.Track.StartPos * lineRect.Width;
-                float width = (editor.Track.EndPos - editor.Track.StartPos) * lineRect.Width;
+            float start = GuiWindowEditor.Track.StartPositionRelative * lineRect.Width;
+            float width = (GuiWindowEditor.Track.EndPositionRelative - GuiWindowEditor.Track.StartPositionRelative) * lineRect.Width;
 
-                float[] seLine = GLVerts.Rect(lineRect.X + start, lineRect.Y, width, lineRect.Height, Settings.color3.Value);
-                line = line.Concat(seLine).ToArray();
-            }
+            float[] seLine = GLVerts.Rect(lineRect.X + start, lineRect.Y, width, lineRect.Height, Style.Tertiary);
+            line = line.Concat(seLine).ToArray();
 
             return line.Concat(other).Concat(bookmarkVerts).ToArray();
         }
@@ -126,6 +124,7 @@ namespace New_SSQE.NewGUI.Controls
         public override void Render(float mousex, float mousey, float frametime)
         {
             base.Render(mousex, mousey, frametime);
+            UpdateInstanceData();
 
             notes.Render();
             points.Render();
@@ -138,7 +137,7 @@ namespace New_SSQE.NewGUI.Controls
 
             if (hoveringBookmark != null)
             {
-                FontRenderer.SetColor(Settings.color2.Value);
+                FontRenderer.SetColor(Style.Secondary);
                 FontRenderer.RenderData("main", hoveringBookmarkText);
             }
         }
@@ -180,18 +179,18 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void MouseClickLeft(float x, float y)
         {
-            base.MouseClickLeft(x, y);
-
             if (hoveringBookmark != null)
             {
                 MusicPlayer.Pause();
-                Settings.currentTime.Value.Value = MainWindow.Instance.ShiftHeld ? hoveringBookmark.EndMs : hoveringBookmark.Ms;
+                Settings.currentTime.Value.Value = KeybindManager.ShiftHeld ? hoveringBookmark.EndMs : hoveringBookmark.Ms;
             }
             else if (Hovering)
             {
                 wasPlaying = MusicPlayer.IsPlaying;
                 MusicPlayer.Pause();
             }
+
+            base.MouseClickLeft(x, y);
         }
 
         public override void MouseUpLeft(float x, float y)

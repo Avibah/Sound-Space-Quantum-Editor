@@ -2,7 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using New_SSQE.ExternalUtils;
-using New_SSQE.Maps;
+using New_SSQE.NewMaps;
 using New_SSQE.Misc.Static;
 using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;

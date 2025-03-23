@@ -34,11 +34,11 @@ namespace New_SSQE.NewGUI.Base
         }
     }
 
-    internal class ScrollEventArgs : EventArgs
+    internal class ValueChangedEventArgs : EventArgs
     {
         public float Value;
 
-        public ScrollEventArgs(float value)
+        public ValueChangedEventArgs(float value)
         {
             Value = value;
         }
@@ -49,13 +49,13 @@ namespace New_SSQE.NewGUI.Base
         public event EventHandler<ClickEventArgs>? LeftClick;
         public event EventHandler<ClickEventArgs>? RightClick;
         public event EventHandler<TextEnteredEventArgs>? TextEntered;
-        public event EventHandler<ScrollEventArgs>? Scroll;
+        public event EventHandler<ValueChangedEventArgs>? ValueChanged;
 
         public bool Hovering = false;
         public bool Dragging = false;
         public bool Focused = false;
 
-        public InteractiveControl(float x, float y, float w, float h, string text = "", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h, text, textSize, font, centered)
+        public InteractiveControl(float x, float y, float w, float h, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, text, textSize, font, centerMode)
         {
 
         }
@@ -70,6 +70,7 @@ namespace New_SSQE.NewGUI.Base
                 Focused = true;
                 Dragging = true;
                 LeftClick?.Invoke(this, new ClickEventArgs(x, y, ClickType.Left));
+                MouseMove(x, y);
             }
             else
                 Focused = false;
@@ -96,14 +97,16 @@ namespace New_SSQE.NewGUI.Base
         public virtual void KeybindUsed(string keybind) { }
 
         protected void InvokeTextEntered(TextEnteredEventArgs e) => TextEntered?.Invoke(this, e);
-        protected void InvokeScroll(ScrollEventArgs e) => Scroll?.Invoke(this, e);
+        protected void InvokeValueChanged(ValueChangedEventArgs e) => ValueChanged?.Invoke(this, e);
+        protected void InvokeLeftClick(ClickEventArgs e) => LeftClick?.Invoke(this, e);
+        protected void InvokeRightClick(ClickEventArgs e) => RightClick?.Invoke(this, e);
 
         public virtual void DisconnectAll()
         {
             LeftClick = null;
             RightClick = null;
             TextEntered = null;
-            Scroll = null;
+            ValueChanged = null;
         }
     }
 }

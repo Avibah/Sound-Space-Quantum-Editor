@@ -1,4 +1,5 @@
-﻿using New_SSQE.Preferences;
+﻿using New_SSQE.NewGUI.Base;
+using New_SSQE.Preferences;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace New_SSQE.NewGUI.Controls
@@ -7,13 +8,16 @@ namespace New_SSQE.NewGUI.Controls
     {
         private readonly Setting<Keybind> setting;
 
-        public GuiTextboxKeybind(float x, float y, float w, float h, Setting<Keybind> setting, string text = "", int textSize = 0, string font = "main", bool centered = true) : base(x, y, w, h, null, text, textSize, font, centered)
+        public GuiTextboxKeybind(float x, float y, float w, float h, Setting<Keybind> setting, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, null, text, textSize, font, centerMode)
         {
             this.setting = setting;
         }
 
         public override void KeyDown(Keys key)
         {
+            if (!Focused)
+                return;
+
             if (key == Keys.LeftControl || key == Keys.RightControl)
                 return;
             if (key == Keys.LeftAlt || key == Keys.RightAlt)
@@ -35,6 +39,13 @@ namespace New_SSQE.NewGUI.Controls
 
             SetText(key.ToString().ToUpper());
             cursorPos = text.Length;
+        }
+
+        public override float[] Draw()
+        {
+            text = setting.Value.Key.ToString().ToUpper();
+
+            return base.Draw();
         }
     }
 }
