@@ -41,11 +41,11 @@ namespace New_SSQE.NewGUI.Controls
                 textBefore = cursorPos >= text.Length ? text : text[..cursorPos];
             cursorPos = Math.Min(cursorPos, text.Length);
 
-            float textBeforeWidth = FontRenderer.GetWidth(textBefore, textSize, font);
+            float textBeforeWidth = FontRenderer.GetWidth(textBefore, TextSize, font);
             float textX = textBeforeWidth;
             float textY = 0;
-            float textW = FontRenderer.GetWidth(text, textSize, font);
-            float textH = FontRenderer.GetHeight(textSize, font);
+            float textW = FontRenderer.GetWidth(text, TextSize, font);
+            float textH = FontRenderer.GetHeight(TextSize, font);
 
             if (CenterMode.HasFlag(CenterMode.X))
                 textX += rect.X + rect.Width / 2 - textW / 2;
@@ -215,7 +215,7 @@ namespace New_SSQE.NewGUI.Controls
                 return;
 
             // rough estimate of where the cursor clicked relative to the text
-            int textWidth = FontRenderer.GetWidth(text, textSize, font);
+            int textWidth = FontRenderer.GetWidth(text, TextSize, font);
             float posX = x - rect.X - (rect.Width - textWidth) / 2;
             float letterWidth = textWidth / text.Length;
 

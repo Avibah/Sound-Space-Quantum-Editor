@@ -29,24 +29,9 @@ namespace New_SSQE.NewGUI.Input
         {
             if (Windowing.Current is not GuiWindowEditor)
                 return;
-
-            if (keybind.Contains("gridKey") && CurrentMap.RenderMode == ObjectRenderMode.Notes)
-            {
-                string rep = keybind.Replace("gridKey", "");
-                string[] xy = rep.Split('|');
-
-                int x = 2 - int.Parse(xy[0]);
-                int y = 2 - int.Parse(xy[1]);
-                long ms = Timing.GetClosestBeat(Settings.currentTime.Value.Value);
-
-                Note note = new(x, y, (long)(ms >= 0 ? ms : Settings.currentTime.Value.Value));
-                NoteManager.Add("ADD NOTE", note);
-
-                if (Settings.autoAdvance.Value)
-                    Timing.Advance();
-
+            if (Windowing.Current?.TextboxFocused() ?? false)
                 return;
-            }
+            Windowing.Current?.KeybindUsed(keybind);
 
             if (keybind.Contains("pattern"))
             {
@@ -58,40 +43,19 @@ namespace New_SSQE.NewGUI.Input
                     Patterns.ClearPattern(index);
                 else
                     Patterns.RecallPattern(index);
-
-                return;
-            }
-
-            if (keybind.Contains("extras") && CurrentMap.RenderMode == ObjectRenderMode.Special)
-            {
-                long ms = Timing.GetClosestBeat(Settings.currentTime.Value.Value);
-                ms = ms > 0 ? ms : (long)Settings.currentTime.Value.Value;
-                MapObject? obj = null;
-
-                switch (keybind.Replace("extras", ""))
-                {
-                    case "Beat":
-                        obj = new Beat(ms);
-                        break;
-                }
-
-                if (obj != null)
-                    SpecialObjectManager.Add($"ADD {obj.Name?.ToUpper()}", obj);
-
-                return;
             }
 
             switch (keybind)
             {
                 case "selectAll":
-                    if (CurrentMap.RenderMode == ObjectRenderMode.VFX)
-                        CurrentMap.VfxObjects.Selected = new(CurrentMap.VfxObjects);
-                    else if (CurrentMap.RenderMode == ObjectRenderMode.Special)
-                        CurrentMap.SpecialObjects.Selected = new(CurrentMap.SpecialObjects);
+                    if (Mapping.RenderMode == ObjectRenderMode.VFX)
+                        Mapping.Current.VfxObjects.Selected = new(Mapping.Current.VfxObjects);
+                    else if (Mapping.RenderMode == ObjectRenderMode.Special)
+                        Mapping.Current.SpecialObjects.Selected = new(Mapping.Current.SpecialObjects);
                     else
                     {
-                        CurrentMap.Notes.Selected = new(CurrentMap.Notes);
-                        CurrentMap.ClearSelection();
+                        Mapping.Current.Notes.Selected = new(Mapping.Current.Notes);
+                        Mapping.ClearSelection();
                     }
 
                     break;
@@ -109,23 +73,23 @@ namespace New_SSQE.NewGUI.Input
                 case "copy":
                     try
                     {
-                        if (CurrentMap.Notes.Selected.Count > 0)
+                        if (Mapping.Current.Notes.Selected.Count > 0)
                         {
-                            List<MapObject> copied = CurrentMap.Notes.Selected.Cast<MapObject>().ToList();
+                            List<MapObject> copied = Mapping.Current.Notes.Selected.Cast<MapObject>().ToList();
                             Clipboard.SetData(copied);
 
                             GuiWindowEditor.ShowToast("COPIED NOTES", Settings.color1.Value);
                         }
-                        else if (CurrentMap.VfxObjects.Selected.Count > 0)
+                        else if (Mapping.Current.VfxObjects.Selected.Count > 0)
                         {
-                            List<MapObject> copied = CurrentMap.VfxObjects.Selected.ToList();
+                            List<MapObject> copied = Mapping.Current.VfxObjects.Selected.ToList();
                             Clipboard.SetData(copied);
 
                             GuiWindowEditor.ShowToast("COPIED OBJECTS", Settings.color1.Value);
                         }
-                        else if (CurrentMap.SpecialObjects.Selected.Count > 0)
+                        else if (Mapping.Current.SpecialObjects.Selected.Count > 0)
                         {
-                            List<MapObject> copied = CurrentMap.SpecialObjects.Selected.ToList();
+                            List<MapObject> copied = Mapping.Current.SpecialObjects.Selected.ToList();
                             Clipboard.SetData(copied);
 
                             GuiWindowEditor.ShowToast("COPIED OBJECTS", Settings.color1.Value);
@@ -153,7 +117,7 @@ namespace New_SSQE.NewGUI.Input
 
                             copied.ForEach(n => n.Ms = (long)MathHelper.Clamp(Settings.currentTime.Value.Value + n.Ms - offset, 0, Settings.currentTime.Value.Max));
 
-                            if (isNote && CurrentMap.RenderMode == ObjectRenderMode.Notes)
+                            if (isNote && Mapping.RenderMode == ObjectRenderMode.Notes)
                             {
                                 List<Note> copiedAsNotes = copied.Cast<Note>().ToList();
 
@@ -196,11 +160,11 @@ namespace New_SSQE.NewGUI.Input
                                         Timing.Advance();
                                 }
                             }
-                            else if (!isNote && CurrentMap.RenderMode != ObjectRenderMode.Notes)
+                            else if (!isNote && Mapping.RenderMode != ObjectRenderMode.Notes)
                             {
                                 (List<MapObject> vfxCopy, List<MapObject> specialCopy) = FormatUtils.SplitVFXSpecial(copied);
 
-                                if (CurrentMap.RenderMode ==  ObjectRenderMode.VFX)
+                                if (Mapping.RenderMode ==  ObjectRenderMode.VFX)
                                     VfxObjectManager.Add("PASTE OBJECT[S]", vfxCopy);
                                 else
                                     SpecialObjectManager.Add("PASTE OBJECT[S]", specialCopy);
@@ -225,25 +189,25 @@ namespace New_SSQE.NewGUI.Input
                 case "cut":
                     try
                     {
-                        if (CurrentMap.Notes.Selected.Count > 0)
+                        if (Mapping.Current.Notes.Selected.Count > 0)
                         {
-                            List<Note> copied = CurrentMap.Notes.Selected.ToList();
+                            List<Note> copied = Mapping.Current.Notes.Selected.ToList();
                             Clipboard.SetData(copied.Cast<MapObject>().ToList());
 
                             NoteManager.Remove("CUT NOTE[S]", copied);
                             GuiWindowEditor.ShowToast("CUT NOTES", Settings.color1.Value);
                         }
-                        else if (CurrentMap.Notes.Selected.Count > 0)
+                        else if (Mapping.Current.VfxObjects.Selected.Count > 0)
                         {
-                            List<MapObject> copied = CurrentMap.VfxObjects.Selected.ToList();
+                            List<MapObject> copied = Mapping.Current.VfxObjects.Selected.ToList();
                             Clipboard.SetData(copied);
 
                             VfxObjectManager.Remove("CUT OBJECT[S]", copied);
                             GuiWindowEditor.ShowToast("CUT OBJECTS", Settings.color1.Value);
                         }
-                        else if (CurrentMap.SpecialObjects.Selected.Count > 0)
+                        else if (Mapping.Current.SpecialObjects.Selected.Count > 0)
                         {
-                            List<MapObject> copied = CurrentMap.SpecialObjects.Selected.ToList();
+                            List<MapObject> copied = Mapping.Current.SpecialObjects.Selected.ToList();
                             Clipboard.SetData(copied);
 
                             SpecialObjectManager.Remove("CUT OBJECT[S]", copied);
@@ -279,8 +243,8 @@ namespace New_SSQE.NewGUI.Input
                     break;
 
                 case "storeNodes":
-                    if (CurrentMap.Notes.Selected.Count > 1)
-                        CurrentMap.BezierNodes = CurrentMap.Notes.Selected.ToList();
+                    if (Mapping.Current.Notes.Selected.Count > 1)
+                        Mapping.Current.BezierNodes = Mapping.Current.Notes.Selected.ToList();
 
                     break;
 
@@ -290,7 +254,7 @@ namespace New_SSQE.NewGUI.Input
                     break;
 
                 case "anchorNode":
-                    if (CurrentMap.Notes.Selected.Count > 0)
+                    if (Mapping.Current.Notes.Selected.Count > 0)
                         NoteManager.Edit("ANCHOR NODE[S]", n => n.Anchored ^= true);
 
                     break;
@@ -306,17 +270,17 @@ namespace New_SSQE.NewGUI.Input
                     break;
 
                 case "createBPM":
-                    if (CurrentMap.Notes.Selected.Count == 2)
+                    if (Mapping.Current.Notes.Selected.Count == 2)
                     {
-                        Note first = CurrentMap.Notes.Selected[0];
-                        Note second = CurrentMap.Notes.Selected[1];
+                        Note first = Mapping.Current.Notes.Selected[0];
+                        Note second = Mapping.Current.Notes.Selected[1];
 
                         long minMs = Math.Min(first.Ms, second.Ms);
                         long maxMs = Math.Max(first.Ms, second.Ms);
                         float bpm = (float)Math.Round(60000f / (maxMs - minMs) * 4) / 4;
 
                         if (bpm > 0)
-                            PointManager.Add("CREATE TIMING POINT", new(bpm, minMs));
+                            PointManager.Add("CREATE TIMING POINT", new TimingPoint(bpm, minMs));
                     }
 
                     break;

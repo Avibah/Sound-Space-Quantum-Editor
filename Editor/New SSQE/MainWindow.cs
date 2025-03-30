@@ -171,13 +171,13 @@ namespace New_SSQE
             CheckForUpdates();
             MessageBox.Instance?.Close();
 
-            MapManager.LoadCache();
+            Mapping.LoadCache();
 
             OnMouseWheel(new MouseWheelEventArgs());
             Windowing.SwitchWindow(new NewGUI.Windows.GuiWindowMenu());
 
             if (!string.IsNullOrWhiteSpace(InitialFile))
-                MapManager.Load(InitialFile);
+                Mapping.Load(InitialFile);
         }
 
         public void UpdateFPS(VSyncMode mode, float fps)
@@ -228,7 +228,7 @@ namespace New_SSQE
 
                 if (!string.IsNullOrWhiteSpace(FileToLoad))
                 {
-                    MapManager.Load(FileToLoad);
+                    Mapping.Load(FileToLoad);
                     FileToLoad = "";
                 }
             }
@@ -346,7 +346,11 @@ namespace New_SSQE
 
         protected override void OnFileDrop(FileDropEventArgs e)
         {
-            Windowing.Current?.FileDrop(e);
+            foreach (string file in e.FileNames)
+            {
+                if (File.Exists(file))
+                    Windowing.Current?.FileDrop(file);
+            }
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
@@ -367,44 +371,12 @@ namespace New_SSQE
         private void RunClose()
         {
             attemptClose = false;
+            forceClose = Mapping.Quit();
 
-            bool cancel = false;
-
-            List<Map> tempSave = new();
-            List<Map> tempKeep = new();
-
-            foreach (Map map in MapManager.Cache.ToList())
-            {
-                if (map.IsSaved)
-                    tempKeep.Add(map);
-                else
-                    tempSave.Add(map);
-            }
-
-            /*
-            foreach (Map map in tempSave)
-            {
-                MapManager.Load(map, false);
-                OnRenderFrame(new FrameEventArgs());
-
-                cancel |= !map.Close(false);
-                if (cancel)
-                    break;
-            }
-
-            if (!cancel)
-            {
-                foreach (Map map in tempKeep)
-                    map.Close(false, false, false);
-            }
+            if (forceClose)
+                Close();
             else
                 Windowing.SwitchWindow(new NewGUI.Windows.GuiWindowMenu());
-            */
-
-            forceClose = !cancel;
-
-            if (!cancel)
-                Close();
         }
 
         protected override void OnClosing(CancelEventArgs e)

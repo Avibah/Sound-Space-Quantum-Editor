@@ -5,47 +5,50 @@ namespace New_SSQE.Objects.Managers
 {
     internal class PointManager
     {
-        private static List<TimingPoint> Points => CurrentMap.TimingPoints;
+        private static List<TimingPoint> Points => Mapping.Current.TimingPoints;
 
-        public static void Replace(string label, TimingPoint? oldPoint, TimingPoint? newPoint)
+        public static void Replace(string label, List<TimingPoint> oldPoints, List<TimingPoint> newPoints)
         {
-            if (oldPoint == null && newPoint == null)
-                return;
+            label = label.Replace("[S]", Math.Max(oldPoints.Count, newPoints.Count) > 1 ? "S" : "");
+
+            oldPoints = [.. oldPoints];
+            newPoints = [.. newPoints];
 
             UndoRedoManager.Add(label, () =>
             {
-                if (newPoint != null)
-                    Points.Remove(newPoint);
-                if (oldPoint != null)
-                    Points.Add(oldPoint);
+                foreach (TimingPoint n in newPoints)
+                    Points.Remove(n);
+                Points.AddRange(oldPoints);
 
-                CurrentMap.SortTimings();
-                TimingsWindow.Instance?.ResetList();
+                Mapping.SortTimings();
+                NewGUI.TimingsWindow.Instance?.ResetList();
             }, () =>
             {
-                if (oldPoint != null)
-                    Points.Remove(oldPoint);
-                if (newPoint != null)
-                    Points.Add(newPoint);
+                foreach (TimingPoint n in oldPoints)
+                    Points.Remove(n);
+                Points.AddRange(newPoints);
 
-                CurrentMap.SortTimings();
-                TimingsWindow.Instance?.ResetList();
+                Mapping.SortTimings();
+                NewGUI.TimingsWindow.Instance?.ResetList();
             });
         }
 
-        public static void Edit(string label, TimingPoint? toModify, Action<TimingPoint> action)
+        public static void Edit(string label, List<TimingPoint> toModify, Action<TimingPoint> action)
         {
-            if (toModify == null)
+            if (toModify.Count == 0)
                 return;
 
-            TimingPoint completed = toModify.Clone();
-            action(completed);
+            List<TimingPoint> completed = toModify.Select(n => n.Clone()).ToList();
+            completed.ForEach(action);
 
             Replace(label, toModify, completed);
         }
+        public static void Edit(string label, TimingPoint toModify, Action<TimingPoint> action) => Edit(label, [toModify], action);
 
-        public static void Add(string label, TimingPoint toAdd) => Replace(label, null, toAdd);
+        public static void Add(string label, List<TimingPoint> toAdd) => Replace(label, [], toAdd);
+        public static void Add(string label, TimingPoint toAdd) => Replace(label, [], [toAdd]);
 
-        public static void Remove(string label, TimingPoint toRemove) => Replace(label, toRemove, null);
+        public static void Remove(string label, List<TimingPoint> toRemove) => Replace(label, toRemove, []);
+        public static void Remove(string label, TimingPoint toRemove) => Replace(label, [toRemove], []);
     }
 }

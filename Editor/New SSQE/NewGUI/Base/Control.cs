@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics;
+using OpenTK.Mathematics;
 using System.Drawing;
 
 namespace New_SSQE.NewGUI.Base
@@ -28,6 +29,8 @@ namespace New_SSQE.NewGUI.Base
 
         public bool Visible = true;
         public StretchMode Stretch = StretchMode.None;
+
+        public Vector2 RectOffset = Vector2.Zero;
 
         public Control(RectangleF rect)
         {
@@ -95,7 +98,7 @@ namespace New_SSQE.NewGUI.Base
                 h = height;
             }
 
-            SetRect(x, y, w, h);
+            SetRect(x + RectOffset.X * widthDiff, y + RectOffset.Y * heightDiff, w, h);
         }
 
         public virtual void SetRect(RectangleF rect)
@@ -104,7 +107,7 @@ namespace New_SSQE.NewGUI.Base
             Update();
         }
 
-        public void SetRect(float x, float y, float width, float height) => SetRect(new(x, y, width, height));
+        public virtual void SetRect(float x, float y, float width, float height) => SetRect(new(x, y, width, height));
 
         public virtual RectangleF GetRect() => rect;
 

@@ -12,6 +12,7 @@ using New_SSQE.Preferences;
 using System.Collections;
 using System.Collections.ObjectModel;
 using OpenFileDialog = New_SSQE.Misc.Dialogs.OpenFileDialog;
+using New_SSQE.Objects.Managers;
 
 namespace New_SSQE.NewGUI
 {
@@ -67,12 +68,11 @@ namespace New_SSQE.NewGUI
         {
             if (float.TryParse(BPMBox.Text, out float bpm) && long.TryParse(OffsetBox.Text, out long offset))
             {
-                foreach (TimingPoint item in CurrentMap.TimingPoints)
+                foreach (TimingPoint item in Mapping.Current.TimingPoints)
                     if (item.Ms == offset)
                         return;
 
-                CurrentMap.TimingPoints.Add(new(bpm, offset));
-                CurrentMap.SortTimings();
+                PointManager.Add("ADD POINT", new TimingPoint(bpm, offset));
             }
         }
 
@@ -84,30 +84,30 @@ namespace New_SSQE.NewGUI
 
                 if (float.TryParse(BPMBox.Text, out float bpm) && long.TryParse(OffsetBox.Text, out long offset))
                 {
-                    foreach (TimingPoint item in CurrentMap.TimingPoints)
+                    foreach (TimingPoint item in Mapping.Current.TimingPoints)
                         if (item.Ms == offset && item != point)
                             return;
 
                     if (Settings.adjustNotes.Value)
                         Timing.UpdatePoint(point, bpm, offset);
 
-                    point.BPM = bpm;
-                    point.Ms = offset;
-
-                    CurrentMap.SortTimings();
+                    PointManager.Edit("EDIT POINT", point, n =>
+                    {
+                        n.BPM = bpm;
+                        n.Ms = offset;
+                    });
                 }
             }
         }
 
         private void DeletePoint_Click(object sender, RoutedEventArgs e)
         {
-            for (int i = 0; i < PointList.SelectedItems.Count; i++)
-            {
-                TimingPoint point = GetPointFromSelected(i);
-                CurrentMap.TimingPoints.Remove(point);
-            }
+            List<TimingPoint> toRemove = [];
 
-            CurrentMap.SortTimings();
+            for (int i = 0; i < PointList.SelectedItems.Count; i++)
+                toRemove.Add(GetPointFromSelected(i));
+
+            PointManager.Remove("DELETE POINT[S]", toRemove);
         }
 
         private void MovePoint_Click(object sender, RoutedEventArgs e)
@@ -117,15 +117,12 @@ namespace New_SSQE.NewGUI
                 List<TimingPoint> points = [];
 
                 for (int i = 0; i < PointList.SelectedItems.Count; i++)
-                {
-                    TimingPoint point = GetPointFromSelected(i);
-                    point.Ms += offset;
-                    points.Add(point);
-                }
+                    points.Add(GetPointFromSelected(i));
+
+                PointManager.Edit("MOVE POINT[S]", points, n => n.Ms += offset);
 
                 if (Settings.adjustNotes.Value)
                     Timing.MovePoints(points, offset);
-                CurrentMap.SortTimings();
             }
         }
 
@@ -210,7 +207,7 @@ namespace New_SSQE.NewGUI
         private TimingPoint GetPointFromSelected(int index)
         {
             IList selected = PointList.SelectedItems;
-            List<TimingPoint> points = CurrentMap.TimingPoints;
+            List<TimingPoint> points = Mapping.Current.TimingPoints;
 
             TimingPoint? point = selected[index] as TimingPoint;
 
@@ -223,7 +220,7 @@ namespace New_SSQE.NewGUI
 
         public void ResetList()
         {
-            List<TimingPoint> points = CurrentMap.TimingPoints;
+            List<TimingPoint> points = Mapping.Current.TimingPoints;
 
             Dataset.Clear();
             for (int i = 0; i < points.Count; i++)
@@ -273,8 +270,8 @@ namespace New_SSQE.NewGUI
                     }
                 }
 
-                CurrentMap.TimingPoints = newPoints.ToList();
-                CurrentMap.SortTimings();
+                Mapping.Current.TimingPoints = newPoints.ToList();
+                Mapping.SortTimings();
             }
             catch (Exception ex)
             {
@@ -308,7 +305,7 @@ namespace New_SSQE.NewGUI
                 offsetStr = offsetStr[..offsetStr.IndexOf(',')].Replace("offset\": ", "");
                 string mapData = data[data.IndexOf("pathData")..data.IndexOf(',')].Replace("pathData\": \"", "").Replace("\"", "");
 
-                decimal firstBpm = decimal.Parse(firstBpmStr, Program.Culture);
+                decimal firstBpm = decimal.Parse(firstBpmStr[6..firstBpmStr.IndexOf(',')], Program.Culture);
                 decimal bpm = firstBpm;
                 decimal offset = decimal.Parse(offsetStr, Program.Culture);
 
@@ -438,8 +435,8 @@ namespace New_SSQE.NewGUI
                     }
                 }
 
-                CurrentMap.TimingPoints = newPoints.ToList();
-                CurrentMap.SortTimings();
+                Mapping.Current.TimingPoints = newPoints.ToList();
+                Mapping.SortTimings();
             }
             catch (Exception ex)
             {
@@ -504,8 +501,8 @@ namespace New_SSQE.NewGUI
                 for (int i = 0; i < msList.Count; i++)
                     newPoints.Add(new((float)bpmList[i], (long)msList[i]));
 
-                CurrentMap.TimingPoints = newPoints.ToList();
-                CurrentMap.SortTimings();
+                Mapping.Current.TimingPoints = newPoints.ToList();
+                Mapping.SortTimings();
             }
             catch (Exception ex)
             {

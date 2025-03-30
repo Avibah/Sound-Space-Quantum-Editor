@@ -6,14 +6,14 @@ namespace New_SSQE.Objects.Managers
 {
     internal class BookmarkManager
     {
-        private static List<Bookmark> Bookmarks => CurrentMap.Bookmarks;
+        private static List<Bookmark> Bookmarks => Mapping.Current.Bookmarks;
 
         public static void Replace(string label, List<Bookmark> oldBookmarks, List<Bookmark> newBookmarks)
         {
             label = label.Replace("[S]", Math.Max(oldBookmarks.Count, newBookmarks.Count) > 1 ? "S" : "");
 
-            oldBookmarks = oldBookmarks.ToList();
-            newBookmarks = newBookmarks.ToList();
+            oldBookmarks = [..oldBookmarks];
+            newBookmarks = [..newBookmarks];
 
             UndoRedoManager.Add(label, () =>
             {
@@ -21,14 +21,16 @@ namespace New_SSQE.Objects.Managers
                     Bookmarks.Remove(n);
                 Bookmarks.AddRange(oldBookmarks);
 
-                CurrentMap.SortBookmarks();
+                Mapping.SortBookmarks();
+                NewGUI.BookmarksWindow.Instance?.ResetList();
             }, () =>
             {
                 foreach (Bookmark n in oldBookmarks)
                     Bookmarks.Remove(n);
                 Bookmarks.AddRange(newBookmarks);
 
-                CurrentMap.SortBookmarks();
+                Mapping.SortBookmarks();
+                NewGUI.BookmarksWindow.Instance?.ResetList();
             });
         }
 
@@ -42,6 +44,7 @@ namespace New_SSQE.Objects.Managers
 
             Replace(label, toModify, completed);
         }
+        public static void Edit(string label, Bookmark toModify, Action<Bookmark> action) => Edit(label, [toModify], action);
 
         public static void Add(string label, List<Bookmark> toAdd) => Replace(label, [], toAdd);
         public static void Add(string label, Bookmark toAdd) => Replace(label, [], [toAdd]);

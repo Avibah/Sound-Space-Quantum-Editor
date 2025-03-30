@@ -30,7 +30,7 @@ namespace New_SSQE.NewMaps.Parsing
                     {
                         string idPath = subsplit[1].Trim();
                         id = Path.GetFileNameWithoutExtension(idPath);
-                        CurrentMap.SoundID = id;
+                        Mapping.Current.SoundID = id;
 
                         File.Copy(Path.Combine(Path.GetDirectoryName(path) ?? "", idPath), Path.Combine(Assets.CACHED, $"{id}.asset"), true);
                     }
@@ -47,7 +47,7 @@ namespace New_SSQE.NewMaps.Parsing
                             bpm = (float)Math.Abs(Math.Round(60000 / bpm, 3));
 
                             if (bpm > 0 && inhereted)
-                                CurrentMap.TimingPoints.Add(new(bpm, (long)time));
+                                Mapping.Current.TimingPoints.Add(new(bpm, (long)time));
                         }
                     }
 

@@ -1,10 +1,10 @@
-﻿using New_SSQE.GUI;
-using New_SSQE.Objects.Managers;
+﻿using New_SSQE.Objects.Managers;
 using New_SSQE.Objects;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using System.Numerics;
 using System.Drawing;
+using New_SSQE.NewGUI.Windows;
 
 namespace New_SSQE.NewMaps
 {
@@ -15,17 +15,17 @@ namespace New_SSQE.NewMaps
             string pattern = "";
             long minDist = 0;
 
-            for (int i = 0; i + 1 < CurrentMap.Notes.Selected.Count; i++)
+            for (int i = 0; i + 1 < Mapping.Current.Notes.Selected.Count; i++)
             {
-                long dist = Math.Abs(CurrentMap.Notes.Selected[i].Ms - CurrentMap.Notes.Selected[i + 1].Ms);
+                long dist = Math.Abs(Mapping.Current.Notes.Selected[i].Ms - Mapping.Current.Notes.Selected[i + 1].Ms);
 
                 if (dist > 0)
                     minDist = minDist > 0 ? Math.Min(minDist, dist) : dist;
             }
 
-            foreach (Note note in CurrentMap.Notes.Selected)
+            foreach (Note note in Mapping.Current.Notes.Selected)
             {
-                long offset = CurrentMap.Notes.Selected[0].Ms;
+                long offset = Mapping.Current.Notes.Selected[0].Ms;
 
                 string x = note.X.ToString(Program.Culture);
                 string y = note.Y.ToString(Program.Culture);
@@ -37,19 +37,15 @@ namespace New_SSQE.NewMaps
             if (pattern.Length > 0)
                 pattern = pattern[1..];
 
-            if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
-                editor.ShowToast($"BOUND PATTERN {index}", Settings.color1.Value);
+            GuiWindowEditor.ShowToast($"BOUND PATTERN {index}", Settings.color1.Value);
 
             Settings.patterns.Value[index] = pattern;
         }
 
         public static void ClearPattern(int index)
         {
-            if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
-            {
-                Settings.patterns.Value[index] = "";
-                editor.ShowToast($"UNBOUND PATTERN {index}", Settings.color1.Value);
-            }
+            Settings.patterns.Value[index] = "";
+            GuiWindowEditor.ShowToast($"UNBOUND PATTERN {index}", Settings.color1.Value);
         }
 
         public static void RecallPattern(int index)
@@ -60,7 +56,7 @@ namespace New_SSQE.NewMaps
                 return;
 
             string[] patternSplit = pattern.Split(',');
-            List<Note> toAdd = new();
+            List<Note> toAdd = [];
 
             foreach (string note in patternSplit)
             {
@@ -142,57 +138,54 @@ namespace New_SSQE.NewMaps
 
         public static List<Note> DrawBezier(List<Note> nodes, int divisor)
         {
-            List<Note> final = new();
+            List<Note> final = [];
 
-            if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
+            int degree = nodes.Count - 1;
+
+            if (Settings.curveBezier.Value)
             {
-                int degree = nodes.Count - 1;
+                decimal tIncrement = 1m / (divisor * degree);
+                decimal deltaMs = nodes[degree].Ms - nodes[0].Ms;
 
-                if (Settings.curveBezier.Value)
+                for (decimal t = 0; t <= 1 + tIncrement / 2m; t += tIncrement)
                 {
-                    decimal tIncrement = 1m / (divisor * degree);
-                    decimal deltaMs = nodes[degree].Ms - nodes[0].Ms;
+                    float noteX = 0;
+                    float noteY = 0;
+                    decimal ms = nodes[0].Ms + deltaMs * t;
 
-                    for (decimal t = 0; t <= 1 + tIncrement / 2m; t += tIncrement)
-                    {
-                        float noteX = 0;
-                        float noteY = 0;
-                        decimal ms = nodes[0].Ms + deltaMs * t;
-
-                        for (int point = 0; point <= degree; point++)
-                        {
-                            Note note = nodes[point];
-                            double value = (double)BinomialCoefficient(degree, point) * (Math.Pow(1 - (double)t, degree - point) * Math.Pow((double)t, point));
-
-                            noteX += (float)(value * note.X);
-                            noteY += (float)(value * note.Y);
-                        }
-
-                        final.Add(new(noteX, noteY, (long)ms));
-                    }
-                }
-                else
-                {
-                    decimal tIncrement = 1m / divisor;
-
-                    for (int point = 0; point < degree; point++)
+                    for (int point = 0; point <= degree; point++)
                     {
                         Note note = nodes[point];
-                        Note nextnote = nodes[point + 1];
-                        decimal deltaX = (decimal)(nextnote.X - note.X);
-                        decimal deltaY = (decimal)(nextnote.Y - note.Y);
-                        decimal deltaMs = nextnote.Ms - note.Ms;
+                        double value = (double)BinomialCoefficient(degree, point) * (Math.Pow(1 - (double)t, degree - point) * Math.Pow((double)t, point));
 
-                        for (decimal t = 0; t < 1 + tIncrement / 2m; t += tIncrement)
+                        noteX += (float)(value * note.X);
+                        noteY += (float)(value * note.Y);
+                    }
+
+                    final.Add(new(noteX, noteY, (long)ms));
+                }
+            }
+            else
+            {
+                decimal tIncrement = 1m / divisor;
+
+                for (int point = 0; point < degree; point++)
+                {
+                    Note note = nodes[point];
+                    Note nextnote = nodes[point + 1];
+                    decimal deltaX = (decimal)(nextnote.X - note.X);
+                    decimal deltaY = (decimal)(nextnote.Y - note.Y);
+                    decimal deltaMs = nextnote.Ms - note.Ms;
+
+                    for (decimal t = 0; t < 1 + tIncrement / 2m; t += tIncrement)
+                    {
+                        if (t > 0)
                         {
-                            if (t > 0)
-                            {
-                                decimal x = (decimal)note.X + deltaX * t;
-                                decimal y = (decimal)note.Y + deltaY * t;
-                                decimal ms = note.Ms + deltaMs * t;
+                            decimal x = (decimal)note.X + deltaX * t;
+                            decimal y = (decimal)note.Y + deltaY * t;
+                            decimal ms = note.Ms + deltaMs * t;
 
-                                final.Add(new((float)x, (float)y, (long)ms));
-                            }
+                            final.Add(new((float)x, (float)y, (long)ms));
                         }
                     }
                 }
@@ -203,66 +196,65 @@ namespace New_SSQE.NewMaps
 
         public static void RunBezier()
         {
-            if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
+            int divisor = (int)(Settings.bezierDivisor.Value + 0.5f);
+
+            if (divisor > 0 && ((Mapping.Current.BezierNodes != null && Mapping.Current.BezierNodes.Count > 1)
+                || Mapping.Current.Notes.Selected.Count > 1))
             {
-                int divisor = (int)(Settings.bezierDivisor.Value + 0.5f);
+                bool success = true;
+                List<Note> nodes = Mapping.Current.BezierNodes != null && Mapping.Current.BezierNodes.Count > 1
+                    ? [..Mapping.Current.BezierNodes] : [..Mapping.Current.Notes.Selected];
+                List<Note> result = [];
 
-                if (divisor > 0 && (CurrentMap.BezierNodes != null && CurrentMap.BezierNodes.Count > 1 || CurrentMap.Notes.Selected.Count > 1))
+                List<int> anchored = [0];
+
+                for (int i = 1; i < nodes.Count; i++)
+                    if (nodes[i].Anchored)
+                        anchored.Add(i);
+
+                if (!anchored.Contains(nodes.Count - 1))
+                    anchored.Add(nodes.Count - 1);
+
+                for (int i = 1; i < anchored.Count; i++)
                 {
-                    bool success = true;
-                    List<Note> nodes = CurrentMap.BezierNodes != null && CurrentMap.BezierNodes.Count > 1 ? CurrentMap.BezierNodes.ToList() : CurrentMap.Notes.Selected.ToList();
-                    List<Note> result = new();
+                    List<Note> newNodes = [];
 
-                    List<int> anchored = new() { 0 };
+                    for (int j = anchored[i - 1]; j <= anchored[i]; j++)
+                        newNodes.Add(nodes[j]);
 
-                    for (int i = 1; i < nodes.Count; i++)
-                        if (nodes[i].Anchored)
-                            anchored.Add(i);
-
-                    if (!anchored.Contains(nodes.Count - 1))
-                        anchored.Add(nodes.Count - 1);
-
-                    for (int i = 1; i < anchored.Count; i++)
+                    try
                     {
-                        List<Note> newNodes = new();
+                        List<Note> finalbez = DrawBezier(newNodes, divisor);
+                        success = finalbez.Count > 0;
 
-                        for (int j = anchored[i - 1]; j <= anchored[i]; j++)
-                            newNodes.Add(nodes[j]);
-
-                        try
-                        {
-                            List<Note> finalbez = DrawBezier(newNodes, divisor);
-                            success = finalbez.Count > 0;
-
-                            if (success)
-                                for (int j = 1; j < finalbez.Count; j++)
-                                    result.Add(finalbez[j]);
-                        }
-                        catch (OverflowException)
-                        {
-                            editor.ShowToast("TOO MANY NODES", Color.FromArgb(255, 255, 200, 0));
-                            return;
-                        }
-                        catch
-                        {
-                            editor.ShowToast("FAILED TO DRAW BEZIER", Color.FromArgb(255, 255, 200, 0));
-                            return;
-                        }
+                        if (success)
+                            for (int j = 1; j < finalbez.Count; j++)
+                                result.Add(finalbez[j]);
                     }
-
-                    CurrentMap.Notes.ClearSelection();
-
-                    result.Add(nodes[0]);
-
-                    if (success)
-                        NoteManager.Replace("DRAW BEZIER", nodes, result);
+                    catch (OverflowException)
+                    {
+                        GuiWindowEditor.ShowToast("TOO MANY NODES", Color.FromArgb(255, 255, 200, 0));
+                        return;
+                    }
+                    catch
+                    {
+                        GuiWindowEditor.ShowToast("FAILED TO DRAW BEZIER", Color.FromArgb(255, 255, 200, 0));
+                        return;
+                    }
                 }
 
-                foreach (Note note in CurrentMap.Notes)
-                    note.Anchored = false;
+                Mapping.ClearSelection();
 
-                CurrentMap.BezierNodes?.Clear();
+                result.Add(nodes[0]);
+
+                if (success)
+                    NoteManager.Replace("DRAW BEZIER", nodes, result);
             }
+
+            foreach (Note note in Mapping.Current.Notes)
+                note.Anchored = false;
+
+            Mapping.Current.BezierNodes?.Clear();
         }
     }
 }

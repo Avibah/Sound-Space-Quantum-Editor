@@ -8,6 +8,7 @@ using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
 using System.Collections;
 using System.Collections.ObjectModel;
+using New_SSQE.Objects.Managers;
 
 namespace New_SSQE.NewGUI
 {
@@ -49,12 +50,11 @@ namespace New_SSQE.NewGUI
                 if (endOffset < offset)
                     endOffset = offset;
 
-                foreach (Bookmark item in CurrentMap.Bookmarks)
+                foreach (Bookmark item in Mapping.Current.Bookmarks)
                     if (item.Ms == offset && item.EndMs == endOffset)
                         return;
 
-                CurrentMap.Bookmarks.Add(new(BookmarkTextBox.Text ?? "", offset, endOffset));
-                CurrentMap.SortBookmarks();
+                BookmarkManager.Add("ADD BOOKMARK", new Bookmark(BookmarkTextBox.Text ?? "", offset, endOffset));
             }
         }
 
@@ -66,28 +66,28 @@ namespace New_SSQE.NewGUI
 
                 if (long.TryParse(BookmarkOffsetBox.Text, out long offset) && long.TryParse(BookmarkEndOffsetBox.Text, out long endOffset))
                 {
-                    foreach (Bookmark item in CurrentMap.Bookmarks)
+                    foreach (Bookmark item in Mapping.Current.Bookmarks)
                         if (item.Text == BookmarkTextBox.Text && item.Ms == offset && item.EndMs == endOffset)
                             return;
 
-                    bookmark.Text = BookmarkTextBox.Text;
-                    bookmark.Ms = offset;
-                    bookmark.EndMs = endOffset;
-
-                    CurrentMap.SortBookmarks();
+                    BookmarkManager.Edit("EDIT BOOKMARK", bookmark, n =>
+                    {
+                        n.Text = BookmarkTextBox.Text;
+                        n.Ms = offset;
+                        n.EndMs = endOffset;
+                    });
                 }
             }
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            for (int i = 0; i < BookmarkList.SelectedItems.Count; i++)
-            {
-                Bookmark bookmark = GetBookmarkFromSelected(i);
-                CurrentMap.Bookmarks.Remove(bookmark);
-            }
+            List<Bookmark> toRemove = [];
 
-            CurrentMap.SortBookmarks();
+            for (int i = 0; i < BookmarkList.SelectedItems.Count; i++)
+                toRemove.Add(GetBookmarkFromSelected(i));
+
+            BookmarkManager.Remove("DELETE BOOKMARK[S]", toRemove);
         }
 
         private void CurrentPosButton_Click(object sender, RoutedEventArgs e)
@@ -112,7 +112,7 @@ namespace New_SSQE.NewGUI
         private Bookmark GetBookmarkFromSelected(int index)
         {
             IList selected = BookmarkList.SelectedItems;
-            List<Bookmark> bookmarks = CurrentMap.Bookmarks;
+            List<Bookmark> bookmarks = Mapping.Current.Bookmarks;
 
             Bookmark? bookmark = selected[index] as Bookmark;
 
@@ -125,7 +125,7 @@ namespace New_SSQE.NewGUI
 
         public void ResetList()
         {
-            List<Bookmark> bookmarks = CurrentMap.Bookmarks;
+            List<Bookmark> bookmarks = Mapping.Current.Bookmarks;
 
             Dataset.Clear();
             for (int i = 0; i < bookmarks.Count; i++)

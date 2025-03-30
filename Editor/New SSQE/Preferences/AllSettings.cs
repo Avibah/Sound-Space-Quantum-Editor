@@ -90,8 +90,6 @@ namespace New_SSQE.Preferences
         public static readonly Setting<string> vfxString = "";
         public static readonly Setting<ListSetting> vfxStrength = new ListSetting(0, "Low", "Medium", "High", "Extreme");
 
-        public static readonly Setting<Keybind> extrasBeat = new Keybind(Keys.S, false, false, false);
-
         public static readonly Setting<Color> color1 = Color.FromArgb(0, 255, 200);
         public static readonly Setting<Color> color2 = Color.FromArgb(255, 0, 255);
         public static readonly Setting<Color> color3 = Color.FromArgb(255, 0, 100);

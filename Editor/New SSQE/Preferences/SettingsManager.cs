@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Windowing.Common;
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Reflection;
 using System.Text.Json;

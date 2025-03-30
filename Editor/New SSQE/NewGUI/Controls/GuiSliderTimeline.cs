@@ -32,16 +32,16 @@ namespace New_SSQE.NewGUI.Controls
         {
             RectangleF lineRect = new(rect.X + rect.Height / 2f, rect.Y + rect.Height / 2f - 1.5f, rect.Width - rect.Height, 3f);
 
-            Vector4[] noteVerts = new Vector4[CurrentMap.Notes.Count];
-            Vector4[] pointVerts = new Vector4[CurrentMap.TimingPoints.Count];
-            Vector4[] objectVerts = new Vector4[CurrentMap.VfxObjects.Count + CurrentMap.SpecialObjects.Count];
+            Vector4[] noteVerts = new Vector4[Mapping.Current.Notes.Count];
+            Vector4[] pointVerts = new Vector4[Mapping.Current.TimingPoints.Count];
+            Vector4[] objectVerts = new Vector4[Mapping.Current.VfxObjects.Count + Mapping.Current.SpecialObjects.Count];
 
             float mult = lineRect.Width / setting.Value.Max;
 
             // notes
             for (int i = 0; i < noteVerts.Length; i++)
             {
-                Note note = CurrentMap.Notes[i];
+                Note note = Mapping.Current.Notes[i];
                 float x = lineRect.X + note.Ms * mult;
 
                 noteVerts[i] = (x, 0, 1, 2 * 0 + 1);
@@ -50,28 +50,28 @@ namespace New_SSQE.NewGUI.Controls
             // points
             for (int i = 0; i < pointVerts.Length; i++)
             {
-                TimingPoint point = CurrentMap.TimingPoints[i];
+                TimingPoint point = Mapping.Current.TimingPoints[i];
                 float x = lineRect.X + point.Ms * mult;
 
                 pointVerts[i] = (x, 0, 1, 2 * 0 + 1);
             }
 
             // vfx objects
-            for (int i = 0; i < CurrentMap.VfxObjects.Count; i++)
+            for (int i = 0; i < Mapping.Current.VfxObjects.Count; i++)
             {
-                MapObject obj = CurrentMap.VfxObjects[i];
+                MapObject obj = Mapping.Current.VfxObjects[i];
                 float x = lineRect.X + obj.Ms * mult;
 
                 objectVerts[i] = (x, 0, 1, 2 * 0 + 1);
             }
 
             // special objects
-            for (int i = 0; i < CurrentMap.SpecialObjects.Count; i++)
+            for (int i = 0; i < Mapping.Current.SpecialObjects.Count; i++)
             {
-                MapObject obj = CurrentMap.SpecialObjects[i];
+                MapObject obj = Mapping.Current.SpecialObjects[i];
                 float x = lineRect.X + obj.Ms * mult;
 
-                objectVerts[i + CurrentMap.VfxObjects.Count] = (x, 0, 1, 2 * 0 + 1);
+                objectVerts[i + Mapping.Current.VfxObjects.Count] = (x, 0, 1, 2 * 0 + 1);
             }
 
             notes.UploadData(noteVerts);
@@ -90,9 +90,9 @@ namespace New_SSQE.NewGUI.Controls
 
             List<float> bookmarkVerts = [];
 
-            for (int i = 0; i < CurrentMap.Bookmarks.Count; i++)
+            for (int i = 0; i < Mapping.Current.Bookmarks.Count; i++)
             {
-                Bookmark bookmark = CurrentMap.Bookmarks[i];
+                Bookmark bookmark = Mapping.Current.Bookmarks[i];
 
                 float progress = bookmark.Ms / setting.Value.Max;
                 float endProgress = bookmark.EndMs / setting.Value.Max;
@@ -151,9 +151,9 @@ namespace New_SSQE.NewGUI.Controls
 
             hoveringBookmark = null;
 
-            for (int i = 0; i < CurrentMap.Bookmarks.Count; i++)
+            for (int i = 0; i < Mapping.Current.Bookmarks.Count; i++)
             {
-                Bookmark bookmark = CurrentMap.Bookmarks[i];
+                Bookmark bookmark = Mapping.Current.Bookmarks[i];
 
                 float progress = bookmark.Ms / setting.Value.Max;
                 float endProgress = bookmark.EndMs / setting.Value.Max;

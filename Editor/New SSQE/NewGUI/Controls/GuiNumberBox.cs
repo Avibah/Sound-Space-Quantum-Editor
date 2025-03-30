@@ -19,9 +19,9 @@ namespace New_SSQE.NewGUI.Controls
 
         public GuiNumberBox(float x, float y, float w, float h, float increment, Setting<float>? setting = null, bool isFloat = false, bool isPositive = false, string text = "0", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h)
         {
-            ValueBox = new(x, y, w - w / 8, h, setting, isFloat, isPositive, text, textSize, font, centerMode);
-            UpButton = new(x + w - w / 8, y, w / 8, h / 2, "^", 16, "square");
-            DownButton = new(x + w - w / 8, y + h / 2, w / 8, h / 2, "v", 16, "square");
+            ValueBox = new(0, 0, w - w / 8 - 2, h, setting, isFloat, isPositive, text, textSize, font, centerMode) { Stretch = StretchMode.XY };
+            UpButton = new(w - w / 8, 0, w / 8, h / 2, "^", 16, "square") { Stretch = StretchMode.XY };
+            DownButton = new(w - w / 8, h / 2, w / 8, h / 2, "v", 16, "square") { Stretch = StretchMode.XY };
 
             SetControls(ValueBox, UpButton, DownButton);
 
@@ -29,7 +29,6 @@ namespace New_SSQE.NewGUI.Controls
                 Value = setting.Value;
             else if (!float.TryParse(text, out Value))
                 Value = 0;
-
 
             this.setting = setting;
             this.increment = Math.Abs(increment);

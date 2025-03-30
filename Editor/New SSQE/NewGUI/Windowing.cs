@@ -14,13 +14,10 @@ namespace New_SSQE.NewGUI
 
         public static void SwitchWindow(GuiWindow window)
         {
-            if (Current is GuiWindowEditor)
-                CurrentMap.Map?.Close();
-
             if (window is GuiWindowEditor)
             {
                 DiscordManager.SetActivity(DiscordStatus.Editor);
-                CurrentMap.StartAutosaving();
+                Mapping.StartAutosaving();
             }
             else if (window is GuiWindowMenu)
             {
@@ -37,6 +34,7 @@ namespace New_SSQE.NewGUI
 
             Current?.Close();
             Current = window;
+            Current.Open();
 
             Settings.Save();
         }

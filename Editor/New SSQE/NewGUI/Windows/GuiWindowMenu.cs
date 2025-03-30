@@ -142,7 +142,7 @@ namespace New_SSQE.NewGUI.Windows
                 }.RunWithSetting(Settings.defaultPath, out string file);
 
                 if (result == DialogResult.OK)
-                    MapManager.Load(file);
+                    Mapping.Load(file);
             };
 
             ImportButton.LeftClick += (s, e) =>
@@ -150,19 +150,18 @@ namespace New_SSQE.NewGUI.Windows
                 string clipboard = Clipboard.GetText();
 
                 if (!string.IsNullOrWhiteSpace(clipboard))
-                    MapManager.Load(clipboard);
+                    Mapping.Load(clipboard);
             };
 
-            AutosavedButton.LeftClick += (s, e) => MapManager.Load(Settings.autosavedFile.Value);
-            LastMapButton.LeftClick += (s, e) => MapManager.Load(Settings.lastFile.Value);
+            AutosavedButton.LeftClick += (s, e) => Mapping.Load(Settings.autosavedFile.Value);
+            LastMapButton.LeftClick += (s, e) => Mapping.Load(Settings.lastFile.Value);
 
             NavLeft.LeftClick += (s, e) => ScrollMapList(false);
             NavRight.LeftClick += (s, e) => ScrollMapList(true);
 
             void Open(int index)
             {
-                MapManager.Cache[mapIndex + index].Open();
-                Windowing.SwitchWindow(new GuiWindowEditor());
+                Mapping.Open(Mapping.Cache[mapIndex + index]);
             }
 
             MapSelect0.LeftClick += (s, e) => Open(0);
@@ -173,7 +172,7 @@ namespace New_SSQE.NewGUI.Windows
 
             void Close(int index)
             {
-                MapManager.CloseMap(MapManager.Cache[mapIndex + index]);
+                Mapping.Close(Mapping.Cache[mapIndex + index]);
                 AssembleMapList();
             }
 
@@ -238,19 +237,19 @@ namespace New_SSQE.NewGUI.Windows
 
         private void AssembleMapList()
         {
-            mapIndex = MathHelper.Clamp(mapIndex, 0, MapManager.Cache.Count - mapSelects.Count);
+            mapIndex = MathHelper.Clamp(mapIndex, 0, Mapping.Cache.Count - mapSelects.Count);
 
             NavLeft.Visible = mapIndex > 0;
-            NavRight.Visible = mapIndex < MapManager.Cache.Count - mapSelects.Count;
+            NavRight.Visible = mapIndex < Mapping.Cache.Count - mapSelects.Count;
 
             for (int i = 0; i < mapSelects.Count; i++)
             {
                 GuiButton select = mapSelects[i].Item1;
-                select.Visible = i + mapIndex < MapManager.Cache.Count;
+                select.Visible = i + mapIndex < Mapping.Cache.Count;
 
                 if (select.Visible)
                 {
-                    Map map = MapManager.Cache[i + mapIndex];
+                    Map map = Mapping.Cache[i + mapIndex];
                     string fileId = (!map.IsSaved ? "[!] " : "") + map.FileID;
 
                     select.SetText(FontRenderer.TrimText(fileId, select.TextSize, select.Font, (int)select.GetRect().Width - 10));

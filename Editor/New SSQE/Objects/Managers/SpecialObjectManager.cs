@@ -5,14 +5,14 @@ namespace New_SSQE.Objects.Managers
 {
     internal class SpecialObjectManager : IObjectManager<MapObject>
     {
-        private static ObjectList<MapObject> Objects => CurrentMap.SpecialObjects;
+        private static ObjectList<MapObject> Objects => Mapping.Current.SpecialObjects;
 
         public static void Replace(string label, List<MapObject> oldObjects, List<MapObject> newObjects)
         {
             label = label.Replace("[S]", Math.Max(oldObjects.Count, newObjects.Count) > 1 ? "S" : "");
 
-            oldObjects = oldObjects.ToList();
-            newObjects = newObjects.ToList();
+            oldObjects = [..oldObjects];
+            newObjects = [..newObjects];
 
             UndoRedoManager.Add(label, () =>
             {

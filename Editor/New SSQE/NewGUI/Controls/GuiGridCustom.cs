@@ -11,45 +11,20 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace New_SSQE.NewGUI.Controls
 {
-    internal class GuiGrid : InteractiveControl
+    internal class GuiGridCustom : InteractiveControl
     {
+        private static readonly Vector2i CELL_DIMS = (4, 5);
+        private static readonly Vector2i CELL_MAX = CELL_DIMS - (1, 1);
         private const string FONT = "main";
-
-        private static readonly Dictionary<IndividualObjectMode, Dictionary<Vector2, MapObject>> objectLookup = new()
-        {
-            {IndividualObjectMode.Beat, new()
-            {
-                {(1, 1), new Beat(0) }
-            } },
-            {IndividualObjectMode.Mine, new()
-            {
-                {(0, 0), new Mine(0, 0, 0) },
-                {(0, 1), new Mine(0, 1, 0) },
-                {(0, 2), new Mine(0, 2, 0) },
-                {(1, 0), new Mine(1, 0, 0) },
-                {(1, 1), new Mine(1, 1, 0) },
-                {(1, 2), new Mine(1, 2, 0) },
-                {(2, 0), new Mine(2, 0, 0) },
-                {(2, 1), new Mine(2, 1, 0) },
-                {(2, 2), new Mine(2, 2, 0) }
-            } },
-            {IndividualObjectMode.Glide, new()
-            {
-                {(1, 2), new Glide(0, GlideDirection.Up) },
-                {(1, 0), new Glide(0, GlideDirection.Down) },
-                {(2, 1), new Glide(0, GlideDirection.Left) },
-                {(0, 1), new Glide(0, GlideDirection.Right) }
-            } }
-        };
 
         private readonly VertexArrayHandle bezierPreviewLineVAO;
         private readonly BufferHandle bezierPreviewLineVBO;
 
-        private float CellSize => rect.Width / 3f;
-        private float NoteSize => CellSize * 0.75f;
-        private float PreviewSize => CellSize * 0.65f;
-        private float CellGap => (CellSize - NoteSize) / 2f;
-        private float PreviewGap => (CellSize - PreviewSize) / 2f;
+        private Vector2 CellSize => (rect.Width / CELL_DIMS.X, rect.Height / CELL_DIMS.Y);
+        private Vector2 NoteSize => CellSize * 0.75f;
+        private Vector2 PreviewSize => CellSize * 0.65f;
+        private Vector2 CellGap => (CellSize - NoteSize) / 2f;
+        private Vector2 PreviewGap => (CellSize - PreviewSize) / 2f;
 
         private readonly Instance autoplayCursor;
 
@@ -78,11 +53,12 @@ namespace New_SSQE.NewGUI.Controls
         private float[] gridNumAlphaData = [];
         private List<Vector2> bezierPositions = [];
 
-        public static Vector2 CellBounds => Settings.enableQuantum.Value ? (-0.85f, 2.85f) : (0, 2);
+        public Vector2 CellBoundsX => Settings.enableQuantum.Value ? (-0.85f, CELL_MAX.X + 0.85f) : (0, CELL_MAX.X);
+        public Vector2 CellBoundsY => Settings.enableQuantum.Value ? (-0.85f, CELL_MAX.Y - 1 + 0.85f) : (0, CELL_MAX.Y);
 
         private readonly bool respectObjectMode;
 
-        public GuiGrid(float x, float y, float w, float h, bool respectObjectMode = true) : base(x, y, w, h)
+        public GuiGridCustom(float x, float y, float w, float h, bool respectObjectMode = true) : base(x, y, w, h)
         {
             this.respectObjectMode = respectObjectMode;
 
@@ -107,8 +83,8 @@ namespace New_SSQE.NewGUI.Controls
             bool quantum = Settings.enableQuantum.Value;
 
             float increment = quantum ? (Settings.quantumSnapping.Value.Value + 3) / 3 : 1;
-            float x = (mousex - rect.X - rect.Width / 2) / rect.Width * 3 + 1 / increment;
-            float y = (mousey - rect.Y - rect.Height / 2) / rect.Height * 3 + 1 / increment;
+            float x = (mousex - rect.X - rect.Width / 2) / rect.Width * CELL_DIMS.X + 1 / increment;
+            float y = (mousey - rect.Y - rect.Height / 2) / rect.Height * CELL_DIMS.Y + 1 / increment;
 
             if (Settings.quantumGridSnap.Value || !quantum)
             {
@@ -116,18 +92,18 @@ namespace New_SSQE.NewGUI.Controls
                 y = (float)Math.Floor((y + 1 / increment / 2) * increment) / increment;
             }
 
-            x = x - 1 / increment + 1;
-            y = y - 1 / increment + 1;
+            x = x - 1 / increment + CELL_DIMS.X / 2;
+            y = y - 1 / increment + CELL_DIMS.Y / 2;
 
-            return (2 - x, 2 - y);
+            return (CELL_DIMS.X - x, CELL_DIMS.Y - y);
         }
 
         private Vector2 MouseToGridSpace(float mousex, float mousey)
         {
             Vector2 pos = MouseToGridSpaceUnclamped(mousex, mousey);
 
-            float x = MathHelper.Clamp(pos.X, CellBounds.X, CellBounds.Y);
-            float y = MathHelper.Clamp(pos.Y, CellBounds.X, CellBounds.Y);
+            float x = MathHelper.Clamp(pos.X, CellBoundsX.X, CellBoundsX.Y);
+            float y = MathHelper.Clamp(pos.Y, CellBoundsY.X, CellBoundsY.Y);
 
             return (x, y);
         }
@@ -175,23 +151,25 @@ namespace New_SSQE.NewGUI.Controls
                 Note note = notes[i];
                 int c = i % colorCount;
 
-                float x = rect.X + (2 - note.X) * CellSize + CellGap;
-                float y = rect.Y + (2 - note.Y) * CellSize + CellGap;
+                float x = rect.X + (CELL_MAX.X - note.X) * CellSize.X + CellGap.X;
+                float y = rect.Y + (CELL_MAX.Y - note.Y) * CellSize.Y + CellGap.Y;
 
                 float progress = (float)Math.Min(1, Math.Pow(1 - Math.Min(1, (note.Ms - currentTime) * approachRate / 750), 2));
-                float approachSize = 4 + NoteSize + NoteSize * (1 - progress) * 2 + 0.5f;
+                Vector2 approachSize = (4, 4) + NoteSize + NoteSize * (1 - progress) * 2 + (0.5f, 0.5f);
+                float approachScale = approachSize.X;
+                approachSize = approachSize / 2 - NoteSize / 2;
 
                 noteConstants[i - low] = (x, y, 1, 2 * c + progress);
-                noteApproaches[i - low] = (x - approachSize / 2 + NoteSize / 2, y - approachSize / 2 + NoteSize / 2, approachSize, 2 * c + progress);
+                noteApproaches[i - low] = (approachSize.X, approachSize.Y, approachScale, 2 * c + progress);
 
                 if (Mapping.ClickMode.HasFlag(ClickMode.Select))
                 {
-                    if (Math.Abs(mousex - NoteSize / 2 - x) <= NoteSize / 2 && Math.Abs(mousey - NoteSize / 2 - y) <= NoteSize / 2)
+                    if (Math.Abs(mousex - NoteSize.X / 2 - x) <= NoteSize.X / 2 && Math.Abs(mousey - NoteSize.Y / 2 - y) <= NoteSize.Y / 2)
                         hoveringXY ??= note;
                     if (hoveringXY == note)
                         noteHovers = (x, y, 1, 2 * 5 + 1);
                 }
-                
+
                 if (note.Selected)
                     noteSelects[selectIndex++] = (x, y, 1, 2 * 6 + progress);
 
@@ -201,7 +179,7 @@ namespace New_SSQE.NewGUI.Controls
                     int width = FontRenderer.GetWidth(numText, gridNumberSize, FONT);
                     int height = FontRenderer.GetHeight(gridNumberSize, FONT);
 
-                    gridNumStrings.Add(((x + NoteSize / 2 - width / 2, y + NoteSize / 2 - height / 2, 1 - progress), numText));
+                    gridNumStrings.Add(((x + NoteSize.X / 2 - width / 2, y + NoteSize.Y / 2 - height / 2, 1 - progress), numText));
                     gridNumLength += numText.Length;
                 }
             }
@@ -231,20 +209,20 @@ namespace New_SSQE.NewGUI.Controls
                 next ??= last;
                 long msDiff = next.Ms - last.Ms;
                 float timePos = currentTime - last.Ms;
-                
+
                 float progress = msDiff == 0 ? 1 : timePos / msDiff;
                 progress = (float)Math.Sin(progress * MathHelper.PiOver2);
 
                 float width = (float)Math.Sin(progress * MathHelper.Pi) * 8 + 16;
 
-                float lastX = rect.X + (2 - last.X) * CellSize;
-                float lastY = rect.Y + (2 - last.Y) * CellSize;
+                float lastX = rect.X + (CELL_MAX.X - last.X) * CellSize.X;
+                float lastY = rect.Y + (CELL_MAX.Y - last.Y) * CellSize.Y;
 
-                float nextX = rect.X + (2 - next.X) * CellSize;
-                float nextY = rect.Y + (2 - next.Y) * CellSize;
+                float nextX = rect.X + (CELL_MAX.X - next.X) * CellSize.X;
+                float nextY = rect.Y + (CELL_MAX.Y - next.Y) * CellSize.Y;
 
-                float x = CellSize / 2 + lastX + (nextX - lastX) * progress;
-                float y = CellSize / 2 + lastY + (nextY - lastY) * progress;
+                float x = CellSize.X / 2 + lastX + (nextX - lastX) * progress;
+                float y = CellSize.Y / 2 + lastY + (nextY - lastY) * progress;
 
                 autoplayCursor.UploadData([(x - width / 2, y - width / 2, width, 2 * 4 + 1)]);
             }
@@ -271,7 +249,7 @@ namespace New_SSQE.NewGUI.Controls
                     {
                         case 12:
                             float approachSize = 4 + rect.Width + rect.Width * (1 - progress) + 0.5f;
-                            
+
                             beatConstants.Add((rect.X, rect.Y, 1, 2 * 4 + progress));
                             beatApproaches.Add((rect.X + rect.Width / 2 - approachSize / 2, rect.Y + rect.Height / 2 - approachSize / 2, approachSize, 2 * 4 + progress));
                             break;
@@ -288,8 +266,8 @@ namespace New_SSQE.NewGUI.Controls
             if (hoveringCell != null && hoveringXY == null && Mapping.ClickMode.HasFlag(ClickMode.Place))
             {
                 Vector2 hover = hoveringCell ?? Vector2.One;
-                float x = rect.X + (2 - hover.X) * CellSize + PreviewGap;
-                float y = rect.Y + (2 - hover.Y) * CellSize + PreviewGap;
+                float x = rect.X + (CELL_MAX.X - hover.X) * CellSize.X + PreviewGap.X;
+                float y = rect.Y + (CELL_MAX.Y - hover.Y) * CellSize.Y + PreviewGap.Y;
 
                 notePreviews.Add((x, y, 1, 2 * 9 + 1));
             }
@@ -322,8 +300,8 @@ namespace New_SSQE.NewGUI.Controls
                 {
                     Note note = result[i];
 
-                    float x = rect.X + (2 - note.X) * CellSize + PreviewGap;
-                    float y = rect.Y + (2 - note.Y) * CellSize + PreviewGap;
+                    float x = rect.X + (CELL_MAX.X - note.X) * CellSize.X + PreviewGap.X;
+                    float y = rect.Y + (CELL_MAX.Y - note.Y) * CellSize.Y + PreviewGap.Y;
 
                     notePreviews.Add((x, y, 1, 2 * 2 + 1));
                     bezierPositions.Add((x, y));
@@ -341,17 +319,17 @@ namespace New_SSQE.NewGUI.Controls
             autoplayCursor.UploadStaticData(autoplayVerts.ToArray());
 
             List<float> noteVerts = [];
-            noteVerts.AddRange(GLVerts.Outline(0, 0, NoteSize, NoteSize, 2, 1f, 1f, 1f, 1f));
-            noteVerts.AddRange(GLVerts.Rect(0, 0, NoteSize, NoteSize, 1f, 1f, 1f, 0.15f));
+            noteVerts.AddRange(GLVerts.Outline(0, 0, NoteSize.X, NoteSize.Y, 2, 1f, 1f, 1f, 1f));
+            noteVerts.AddRange(GLVerts.Rect(0, 0, NoteSize.X, NoteSize.Y, 1f, 1f, 1f, 0.15f));
             noteConstant.UploadStaticData(noteVerts.ToArray());
 
             noteApproach.UploadStaticData(GLVerts.Outline(0, 0, 1, 1, 0.0125f, 1f, 1f, 1f, 1f));
-            noteHover.UploadStaticData(GLVerts.Outline(-4, -4, NoteSize + 8, NoteSize + 8, 2, 1f, 1f, 1f, 0.25f));
-            noteSelect.UploadStaticData(GLVerts.Outline(-4, -4, NoteSize + 8, NoteSize + 8, 2, 1f, 1f, 1f, 1f));
+            noteHover.UploadStaticData(GLVerts.Outline(-4, -4, NoteSize.X + 8, NoteSize.Y + 8, 2, 1f, 1f, 1f, 0.25f));
+            noteSelect.UploadStaticData(GLVerts.Outline(-4, -4, NoteSize.X + 8, NoteSize.Y + 8, 2, 1f, 1f, 1f, 1f));
 
             List<float> previewVerts = [];
-            previewVerts.AddRange(GLVerts.Outline(0, 0, PreviewSize, PreviewSize, 2, 1f, 1f, 1f, 0.09375f));
-            previewVerts.AddRange(GLVerts.Rect(0, 0, PreviewSize, PreviewSize, 1f, 1f, 1f, 0.125f));
+            previewVerts.AddRange(GLVerts.Outline(0, 0, PreviewSize.X, PreviewSize.Y, 2, 1f, 1f, 1f, 0.09375f));
+            previewVerts.AddRange(GLVerts.Rect(0, 0, PreviewSize.X, PreviewSize.Y, 1f, 1f, 1f, 0.125f));
             notePreview.UploadStaticData(previewVerts.ToArray());
 
             beatConstant.UploadStaticData(GLVerts.Outline(-5, -5, rect.Width + 10, rect.Width + 10, 3, Settings.color5.Value));
@@ -361,12 +339,15 @@ namespace New_SSQE.NewGUI.Controls
             verts.AddRange(GLVerts.Rect(rect, Style.Primary, Settings.gridOpacity.Value / 255f));
             verts.AddRange(GLVerts.Outline(rect, 1, Style.Secondary));
 
-            for (int i = 1; i < 3; i++)
+            for (int i = 1; i < CELL_DIMS.X; i++)
             {
-                float x = rect.X + rect.Width / 3 * i;
-                float y = rect.Y + rect.Height / 3 * i;
-
+                float x = rect.X + CellSize.X * i;
                 verts.AddRange(GLVerts.Line(x, rect.Y, x, rect.Bottom, 1, Style.Tertiary));
+            }
+
+            for (int i = 1; i < CELL_DIMS.Y; i++)
+            {
+                float y = rect.Y + CellSize.Y * i;
                 verts.AddRange(GLVerts.Line(rect.X, y, rect.Right, y, 1, Style.Tertiary));
             }
 
@@ -391,21 +372,10 @@ namespace New_SSQE.NewGUI.Controls
 
                 foreach (KeyValuePair<Keys, Tuple<int, int>> key in keybinds)
                 {
-                    int gx = key.Value.Item1;
-                    int gy = key.Value.Item2;
-
-                    if (Mapping.RenderMode != ObjectRenderMode.Notes)
-                    {
-                        if (!objectLookup.TryGetValue(Mapping.ObjectMode, out Dictionary<Vector2, MapObject>? subLookup))
-                            continue;
-                        if (subLookup == null || !subLookup.ContainsKey((2 - gx, 2 - gy)))
-                            continue;
-                    }
-
                     string letter = key.Key.ToString().Replace("KeyPad", "");
 
-                    float x = rect.X + gx * CellSize + CellSize / 2;
-                    float y = rect.Y + gy * CellSize + CellSize / 2;
+                    float x = rect.X + key.Value.Item1 * CellSize.X + CellSize.X / 2;
+                    float y = rect.Y + key.Value.Item2 * CellSize.Y + CellSize.Y / 2;
 
                     int width = FontRenderer.GetWidth(letter, gridLetterSize, FONT);
                     int height = FontRenderer.GetHeight(gridLetterSize, FONT);
@@ -525,10 +495,10 @@ namespace New_SSQE.NewGUI.Controls
             else if (draggingXY.Count > 0)
             {
                 XYMapObject drag = draggingXY[0];
-                
+
                 float xOffset = hover.X - drag.X;
                 float yOffset = hover.Y - drag.Y;
-                
+
                 if (xOffset == 0 && yOffset == 0)
                     return;
 
@@ -545,10 +515,10 @@ namespace New_SSQE.NewGUI.Controls
                     maxY = Math.Max(maxY, obj.Y);
                 }
 
-                xOffset = Math.Max(CellBounds.X, minX + xOffset) - minX;
-                xOffset = Math.Min(CellBounds.Y, maxX + xOffset) - maxX;
-                yOffset = Math.Max(CellBounds.X, minY + yOffset) - minY;
-                yOffset = Math.Min(CellBounds.Y, maxY + yOffset) - maxY;
+                xOffset = Math.Max(CellBoundsX.X, minX + xOffset) - minX;
+                xOffset = Math.Min(CellBoundsX.Y, maxX + xOffset) - maxX;
+                yOffset = Math.Max(CellBoundsY.X, minY + yOffset) - minY;
+                yOffset = Math.Min(CellBoundsY.Y, maxY + yOffset) - maxY;
 
                 for (int i = 1; i < draggingXY.Count; i++)
                 {
@@ -613,7 +583,7 @@ namespace New_SSQE.NewGUI.Controls
 
                 if (hoveringXY.Selected)
                 {
-                    draggingXY = [hoveringXY, ..selected];
+                    draggingXY = [hoveringXY, .. selected];
                     dragCellStart = (hoveringXY.X, hoveringXY.Y);
                 }
 
@@ -632,7 +602,7 @@ namespace New_SSQE.NewGUI.Controls
             if (draggingXY.Count > 0)
             {
                 Vector2 cellDiff = (draggingXY[0].X, draggingXY[0].Y) - dragCellStart;
-                
+
                 if (cellDiff.LengthSquared > 0)
                 {
                     for (int i = 1; i < draggingXY.Count; i++)
@@ -650,42 +620,6 @@ namespace New_SSQE.NewGUI.Controls
 
                 draggingXY = [];
             }
-        }
-
-        public override void KeybindUsed(string keybind)
-        {
-            base.KeybindUsed(keybind);
-            if (!keybind.Contains("gridKey"))
-                return;
-
-            string rep = keybind.Replace("gridKey", "");
-            string[] xy = rep.Split('|');
-
-            int x = 2 - int.Parse(xy[0]);
-            int y = 2 - int.Parse(xy[1]);
-            long ms = Timing.GetClosestBeat(Settings.currentTime.Value.Value);
-
-            if (Mapping.RenderMode == ObjectRenderMode.Notes)
-            {
-                Note note = new(x, y, (long)(ms >= 0 ? ms : Settings.currentTime.Value.Value));
-                NoteManager.Add("ADD NOTE", note);
-            }
-            else if (Mapping.RenderMode == ObjectRenderMode.Special &&
-                objectLookup.TryGetValue(Mapping.ObjectMode, out Dictionary<Vector2, MapObject>? subLookup) && subLookup != null)
-            {
-                if (!subLookup.TryGetValue((x, y), out MapObject? value) || value == null)
-                    return;
-
-                MapObject obj = value.Clone();
-                obj.Ms = ms;
-
-                SpecialObjectManager.Add($"ADD {obj.Name?.ToUpper()}", obj);
-            }
-            else
-                return;
-
-            if (Settings.autoAdvance.Value)
-                Timing.Advance();
         }
     }
 }

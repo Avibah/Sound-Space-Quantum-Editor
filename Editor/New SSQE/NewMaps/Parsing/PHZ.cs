@@ -51,7 +51,7 @@ namespace New_SSQE.NewMaps.Parsing
                 }
             }
 
-            CurrentMap.SoundID = id;
+            Mapping.Current.SoundID = id;
 
             foreach (JsonElement beat in beats)
             {
@@ -62,7 +62,7 @@ namespace New_SSQE.NewMaps.Parsing
                     int tile = values[0].GetInt32();
                     double time = values[1].GetDouble() / (bpm / 60) + offset;
 
-                    CurrentMap.Notes.Add(new(2 - tile % 3, 2 - tile / 3, (long)(time * 1000)));
+                    Mapping.Current.Notes.Add(new(2 - tile % 3, 2 - tile / 3, (long)(time * 1000)));
                 }
             }
 

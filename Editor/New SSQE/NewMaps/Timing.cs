@@ -10,13 +10,13 @@ namespace New_SSQE.NewMaps
     {
         public static List<Note> GetNotesFromPoint(TimingPoint point)
         {
-            int index = CurrentMap.TimingPoints.IndexOf(point);
-            long next = index + 1 < CurrentMap.TimingPoints.Count ? CurrentMap.TimingPoints[index + 1].Ms : (long)Settings.currentTime.Value.Max;
+            int index = Mapping.Current.TimingPoints.IndexOf(point);
+            long next = index + 1 < Mapping.Current.TimingPoints.Count ? Mapping.Current.TimingPoints[index + 1].Ms : (long)Settings.currentTime.Value.Max;
             List<Note> notes = [];
 
-            for (int i = 0; i < CurrentMap.Notes.Count; i++)
+            for (int i = 0; i < Mapping.Current.Notes.Count; i++)
             {
-                Note note = CurrentMap.Notes[i];
+                Note note = Mapping.Current.Notes[i];
 
                 if (note.Ms >= point.Ms && note.Ms < next)
                     notes.Add(note);
@@ -30,7 +30,7 @@ namespace New_SSQE.NewMaps
             float mult = point.BPM / newBpm;
             List<Note> notes = GetNotesFromPoint(point);
 
-            NoteManager.Edit("ADJUST NOTE[S]", notes, (n) => n.Ms = (long)((n.Ms - point.Ms) * mult) + point.Ms);
+            NoteManager.Edit("ADJUST NOTE[S]", notes, n => n.Ms = (long)((n.Ms - point.Ms) * mult) + point.Ms);
         }
 
         public static void MovePoints(List<TimingPoint> points, long offset)
@@ -46,12 +46,12 @@ namespace New_SSQE.NewMaps
                     toAdjust.Add(notes[j]);
             }
 
-            NoteManager.Edit("ADJUST NOTE[S]", toAdjust, (n) => n.Ms += offset);
+            NoteManager.Edit("ADJUST NOTE[S]", toAdjust, n => n.Ms += offset);
         }
 
 
 
-        public static long GetClosestBeat(float currentMs, bool draggingPoint = false)
+        public static long GetClosestBeat(float currentMs, TimingPoint? draggingPoint = null)
         {
             long closestMs = -1;
             TimingPoint point = GetCurrentBpm(currentMs, draggingPoint);
@@ -76,12 +76,12 @@ namespace New_SSQE.NewMaps
 
             for (int i = 0; i < iterations; i++)
             {
-                TimingPoint currentPoint = GetCurrentBpm(currentMs, negative);
+                TimingPoint currentPoint = GetCurrentBpm(currentMs, negative ? new(0, 0) : null);
                 float interval = 60000 / currentPoint.BPM / (Settings.beatDivisor.Value.Value + 1f);
 
                 if (negative)
                 {
-                    closestMs = GetClosestBeat(currentMs, true);
+                    closestMs = GetClosestBeat(currentMs, new(0, 0));
 
                     if (closestMs >= currentMs)
                         closestMs = GetClosestBeat(closestMs - (long)interval);
@@ -92,7 +92,7 @@ namespace New_SSQE.NewMaps
                         closestMs = GetClosestBeat(closestMs + (long)interval);
 
                     if (GetCurrentBpm(currentMs).Ms != GetCurrentBpm(closestMs).Ms)
-                        closestMs = GetCurrentBpm(closestMs, false).Ms;
+                        closestMs = GetCurrentBpm(closestMs).Ms;
                 }
 
                 currentMs = closestMs;
@@ -104,15 +104,17 @@ namespace New_SSQE.NewMaps
             return (long)MathHelper.Clamp(closestMs, 0, Settings.currentTime.Value.Max);
         }
 
-        public static TimingPoint GetCurrentBpm(float currentMs, bool draggingPoint = false)
+        public static TimingPoint GetCurrentBpm(float currentMs, TimingPoint? draggingPoint = null)
         {
             TimingPoint currentPoint = new(0, 0);
 
-            for (int i = 0; i < CurrentMap.TimingPoints.Count; i++)
+            for (int i = 0; i < Mapping.Current.TimingPoints.Count; i++)
             {
-                TimingPoint point = CurrentMap.TimingPoints[i];
+                TimingPoint point = Mapping.Current.TimingPoints[i];
 
-                if (point.Ms < currentMs || !draggingPoint && point.Ms == currentMs)
+                if (point == draggingPoint)
+                    continue;
+                if (point.Ms < currentMs || (draggingPoint == null && point.Ms == currentMs))
                     currentPoint = point;
             }
 
@@ -138,7 +140,7 @@ namespace New_SSQE.NewMaps
 
             if (MusicPlayer.IsPlaying && !Settings.pauseScroll.Value)
             {
-                currentTime += delta * 500f * CurrentMap.Tempo;
+                currentTime += delta * 500f * Mapping.Current.Tempo;
                 currentTime = MathHelper.Clamp(currentTime, 0f, totalTime);
 
                 setting.Value = currentTime;
@@ -153,7 +155,7 @@ namespace New_SSQE.NewMaps
                 long closest = GetClosestBeatScroll(currentTime, delta < 0);
                 TimingPoint bpm = GetCurrentBpm(0);
 
-                currentTime = closest >= 0 || bpm.BPM > 0 ? closest : currentTime + delta / 10f * 1000f / CurrentMap.Zoom * 0.5f;
+                currentTime = closest >= 0 || bpm.BPM > 0 ? closest : currentTime + delta / 10f * 1000f / Mapping.Current.Zoom * 0.5f;
 
                 if (GetCurrentBpm(setting.Value).BPM == 0 && GetCurrentBpm(currentTime).BPM != 0)
                     currentTime = GetCurrentBpm(currentTime).Ms;

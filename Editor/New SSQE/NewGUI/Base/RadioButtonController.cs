@@ -16,9 +16,9 @@ namespace New_SSQE.NewGUI.Base
     {
         public EventHandler<RadioButtonEventArgs>? SelectionChanged;
 
-        private GuiButton[] controls;
+        private readonly Dictionary<GuiButton, string> texts = [];
+        private readonly GuiButton[] controls;
         private GuiButton? active;
-        private Dictionary<GuiButton, string> texts = [];
 
         private int? initialIndex = null;
 
@@ -38,6 +38,7 @@ namespace New_SSQE.NewGUI.Base
                     active.Text = texts[active];
 
                 active = active == control ? null : control;
+                initialIndex = active == null ? null : Array.IndexOf(controls, control);
                 control.Text = active == control ? $"[{text}]" : text;
 
                 SelectionChanged?.Invoke(active, new(Active));
@@ -56,6 +57,8 @@ namespace New_SSQE.NewGUI.Base
 
             if (initialIndex != null)
             {
+                ClearSelection();
+
                 GuiButton control = controls[initialIndex.Value];
                 UpdateSelection(control, texts[control]);
             }

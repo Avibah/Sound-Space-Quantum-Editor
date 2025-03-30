@@ -29,7 +29,7 @@ namespace New_SSQE.EditHistory
 
 
                 // cause people hate bpm now?
-                if (label == "ADD NOTE" && runRedo && CurrentMap.TimingPoints.Count == 0)
+                if (label == "ADD NOTE" && runRedo && Mapping.Current.TimingPoints.Count == 0)
                 {
                     DateTime curTime = DateTime.Now;
 

@@ -14,7 +14,7 @@ namespace New_SSQE.NewMaps.Parsing
             if (split.Length == 1)
             {
                 string[] mapData = split[0].Split(',');
-                CurrentMap.SoundID = mapData[0];
+                Mapping.Current.SoundID = mapData[0];
 
                 for (int i = 1; i < mapData.Length; i++)
                 {
@@ -28,7 +28,7 @@ namespace New_SSQE.NewMaps.Parsing
                             float y = float.Parse(subData[1], Program.Culture);
                             long ms = long.Parse(subData[2]);
 
-                            CurrentMap.Notes.Add(new(x, y, ms));
+                            Mapping.Current.Notes.Add(new(x, y, ms));
                         }
                         catch (Exception ex)
                         {
@@ -50,7 +50,7 @@ namespace New_SSQE.NewMaps.Parsing
                         string diffName = FormatUtils.Difficulties.Keys.ToArray()[diffID];
                         string customDiff = split[3];
 
-                        CurrentMap.SoundID = split[1];
+                        Mapping.Current.SoundID = split[1];
                         Settings.difficulty.Value = diffName;
                         Settings.customDifficulty.Value = customDiff == diffName ? "" : customDiff;
 
@@ -72,13 +72,13 @@ namespace New_SSQE.NewMaps.Parsing
                                 if (obj != null)
                                 {
                                     if (obj is Note n)
-                                        CurrentMap.Notes.Add(n);
+                                        Mapping.Current.Notes.Add(n);
                                     else if (obj is TimingPoint p)
-                                        CurrentMap.TimingPoints.Add(p);
+                                        Mapping.Current.TimingPoints.Add(p);
                                     else if (FormatUtils.VfxLookup[i])
-                                        CurrentMap.VfxObjects.Add(obj);
+                                        Mapping.Current.VfxObjects.Add(obj);
                                     else
-                                        CurrentMap.SpecialObjects.Add(obj);
+                                        Mapping.Current.SpecialObjects.Add(obj);
 
                                     obj.Ms = FormatUtils.DecodeTimestamp(obj.Ms);
                                 }
@@ -110,11 +110,11 @@ namespace New_SSQE.NewMaps.Parsing
 
         public static string CopyLegacy(bool correctNotes = false)
         {
-            List<Note> notes = CurrentMap.Notes;
+            List<Note> notes = Mapping.Current.Notes;
 
             long offset = (long)Settings.exportOffset.Value;
             string[] final = new string[notes.Count + 1];
-            final[0] = CurrentMap.SoundID.Replace(",", "");
+            final[0] = Mapping.Current.SoundID.Replace(",", "");
 
             for (int i = 0; i < notes.Count; i++)
             {
@@ -142,16 +142,16 @@ namespace New_SSQE.NewMaps.Parsing
         {
             return CopyLegacy(correctNotes);
 
-            ObjectList<Note> notes = CurrentMap.Notes;
-            ObjectList<MapObject> vfxObjects = new(CurrentMap.VfxObjects.OrderBy(n => n.ID).ThenBy(n => n.Ms));
-            ObjectList<MapObject> specObjects = new(CurrentMap.SpecialObjects.OrderBy(n => n.ID).ThenBy(n => n.Ms));
-            List<TimingPoint> timingPoints = CurrentMap.TimingPoints;
+            ObjectList<Note> notes = Mapping.Current.Notes;
+            ObjectList<MapObject> vfxObjects = new(Mapping.Current.VfxObjects.OrderBy(n => n.ID).ThenBy(n => n.Ms));
+            ObjectList<MapObject> specObjects = new(Mapping.Current.SpecialObjects.OrderBy(n => n.ID).ThenBy(n => n.Ms));
+            List<TimingPoint> timingPoints = Mapping.Current.TimingPoints;
 
             long staticOffset = (long)Settings.exportOffset.Value;
 
             List<string> final =
             [
-                "ssmapv2", CurrentMap.SoundID,
+                "ssmapv2", Mapping.Current.SoundID,
                 FormatUtils.Difficulties[Settings.difficulty.Value].ToString(),
                 string.IsNullOrWhiteSpace(Settings.customDifficulty.Value) ? Settings.difficulty.Value : Settings.customDifficulty.Value
             ];

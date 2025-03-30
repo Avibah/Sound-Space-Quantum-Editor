@@ -345,7 +345,7 @@ namespace New_SSQE.GUI.Input
                             float bpm = (float)Math.Round(60000f / (maxMs - minMs) * 4) / 4;
 
                             if (bpm > 0)
-                                PointManager.Add("CREATE TIMING POINT", new(bpm, minMs));
+                                PointManager.Add("CREATE TIMING POINT", new TimingPoint(bpm, minMs));
                         }
 
                         break;

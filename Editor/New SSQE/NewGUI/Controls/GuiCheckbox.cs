@@ -69,13 +69,13 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void MouseClickLeft(float x, float y)
         {
-            base.MouseClickLeft(x, y);
-
             if (Hovering)
             {
                 SoundPlayer.Play(Settings.clickSound.Value);
                 Toggle ^= true;
             }
+
+            base.MouseClickLeft(x, y);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace New_SSQE.NewGUI.Windows
                 audioId = FormatUtils.FixID(audioId);
 
                 if (!string.IsNullOrWhiteSpace(audioId))
-                    MapManager.Load(audioId);
+                    Mapping.Load(audioId);
             };
 
             ImportButton.LeftClick += (s, e) =>
@@ -38,8 +38,8 @@ namespace New_SSQE.NewGUI.Windows
                 string audioId = IDBox.Text.Trim();
                 audioId = FormatUtils.FixID(audioId);
 
-                if (MapManager.ImportAudio(audioId))
-                    MapManager.Load(audioId);
+                if (Mapping.ImportAudio(audioId))
+                    Mapping.Load(audioId);
             };
 
             BackButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowMenu());

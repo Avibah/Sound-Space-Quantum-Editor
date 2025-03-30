@@ -34,7 +34,7 @@ namespace New_SSQE.NewGUI.Controls
             float approachRate = (Settings.approachRate.Value.Value + 1f) / 10f;
             float maxMs = currentTime + 1000f / approachRate;
 
-            ObjectList<Note> notes = CurrentMap.Notes;
+            ObjectList<Note> notes = Mapping.Current.Notes;
             (int low, int high) = notes.SearchRange(currentTime, maxMs);
             int range = high - low;
 
@@ -83,7 +83,7 @@ namespace New_SSQE.NewGUI.Controls
             float approachRate = 1;
             string text = "";
 
-            ObjectList<MapObject> objects = CurrentMap.VfxObjects;
+            ObjectList<MapObject> objects = Mapping.Current.VfxObjects;
             MapObject?[] curObjects = new MapObject?[12];
 
             float currentTime = Settings.currentTime.Value.Value;

@@ -32,16 +32,23 @@ namespace New_SSQE.NewGUI.Base
         private readonly ControlContainer container;
         public static bool LockClick = false;
 
+        private bool connected = false;
+
         public GuiWindow(float width, float height, params Control[] controls)
         {
-            ConnectEvents();
-
             container = new(controls);
             container.Resize(width, height);
         }
         public GuiWindow(params Control[] controls) : this(MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y, controls) { }
 
         public abstract void ConnectEvents();
+
+        public virtual void Open()
+        {
+            if (!connected)
+                ConnectEvents();
+            connected = true;
+        }
 
         public virtual void Close()
         {
@@ -103,12 +110,7 @@ namespace New_SSQE.NewGUI.Base
         public virtual void KeyDown(Keys key)
         {
             container.KeyDown(key);
-
-            List<string> keybinds = Settings.CompareKeybind(key, KeybindManager.CtrlHeld, KeybindManager.AltHeld, KeybindManager.ShiftHeld);
             KeybindManager.Run(key);
-
-            foreach (string keybind in keybinds)
-                container.KeybindUsed(keybind);
         }
 
         public virtual void KeyUp(Keys key)
@@ -121,43 +123,28 @@ namespace New_SSQE.NewGUI.Base
             container.Dispose();
         }
 
-        public virtual void FileDrop(FileDropEventArgs e)
+        public virtual void FileDrop(string file)
         {
-            for (int i = 0; i < e.FileNames.Length; i++)
+            bool loaded = true;
+            Map? prev = Mapping.Current;
+
+            if (MusicPlayer.SupportedExtensions.Contains(Path.GetExtension(file)))
             {
-                string file = e.FileNames[i];
+                string id = Exporting.FixID(Path.GetFileNameWithoutExtension(file));
+                if (file != Path.Combine(Assets.CACHED, $"{id}.asset"))
+                    File.Copy(file, Path.Combine(Assets.CACHED, $"{id}.asset"), true);
 
-                if (File.Exists(file))
-                {
-                    bool loaded = true;
-                    Map? prev = CurrentMap.Map;
-
-                    if (MusicPlayer.SupportedExtensions.Contains(Path.GetExtension(file)))
-                    {
-                        string id = Exporting.FixID(Path.GetFileNameWithoutExtension(file));
-                        if (file != Path.Combine(Assets.CACHED, $"{id}.asset"))
-                            File.Copy(file, Path.Combine(Assets.CACHED, $"{id}.asset"), true);
-
-                        loaded = MapManager.Load(id);
-                    }
-                    else if (Path.GetExtension(file) != ".ini")
-                        loaded = MapManager.Load(file);
-
-                    if (!loaded && prev != null)
-                        prev.Open();
-                }
+                loaded = Mapping.Load(id);
             }
+            else if (Path.GetExtension(file) != ".ini")
+                loaded = Mapping.Load(file);
+
+            if (!loaded && prev != null)
+                Mapping.Open(prev);
         }
 
-        public virtual bool TextboxFocused()
-        {
-            foreach (Control control in container.Children)
-            {
-                if (control is GuiTextbox textbox && textbox.Focused)
-                    return true;
-            }
-
-            return false;
-        }
+        public virtual bool TextboxFocused() => container.TextboxFocused();
+        public virtual bool HoveringInteractive(InteractiveControl? exclude = null) => container.HoveringInteractive(exclude);
+        public virtual void KeybindUsed(string keybind) => container.KeybindUsed(keybind);
     }
 }

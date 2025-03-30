@@ -60,7 +60,7 @@ namespace New_SSQE.NewGUI.Controls
             base.KeybindUsed(keybind);
 
             if (keybind == this.keybind)
-                InvokeLeftClick(new(0, 0, ClickType.Left));
+                InvokeLeftClick(new(0, 0));
         }
     }
 }

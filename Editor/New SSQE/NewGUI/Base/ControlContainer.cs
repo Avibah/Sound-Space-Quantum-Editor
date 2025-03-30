@@ -1,10 +1,14 @@
-﻿using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Drawing;
+﻿using New_SSQE.NewGUI.Controls;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace New_SSQE.NewGUI.Base
 {
     internal class ControlContainer : InteractiveControl
     {
+        private bool leftClick = false;
+        private bool rightClick = false;
+        private bool textInput = false;
+
         private Control[] controls = [];
         private InteractiveControl[] interactives = [];
 
@@ -30,7 +34,15 @@ namespace New_SSQE.NewGUI.Base
             foreach (Control control in controls)
             {
                 if (control is InteractiveControl interactive)
+                {
                     interactives.Add(interactive);
+                    if (interactive is ControlContainer)
+                        continue;
+
+                    interactive.LeftClick += (s, e) => leftClick = true;
+                    interactive.RightClick += (s, e) => rightClick = true;
+                    interactive.TextEntered += (s, e) => textInput = true;
+                }
             }
 
             this.controls = controls;
@@ -91,21 +103,14 @@ namespace New_SSQE.NewGUI.Base
             }
         }
 
-        public override void Resize(float width, float height)
+        public override void Resize(float screenWidth, float screenHeight)
         {
-            base.Resize(width, height);
-
-            float wMult = rect.Width / startRect.Width;
-            float hMult = rect.Height / startRect.Height;
+            base.Resize(screenWidth, screenHeight);
 
             foreach (Control control in controls)
             {
-                control.Resize(width, height);
-
-                RectangleF controlRect = control.GetRect();
-                RectangleF controlOrigin = control.GetOrigin();
-
-                control.SetRect(rect.X + controlOrigin.X * wMult, rect.Y + controlOrigin.Y * hMult, controlRect.Width, controlRect.Height);
+                control.RectOffset = (startRect.X, startRect.Y) + RectOffset;
+                control.Resize(screenWidth, screenHeight);
             }
         }
 
@@ -115,11 +120,13 @@ namespace New_SSQE.NewGUI.Base
                 return;
 
             base.MouseClickLeft(x, y);
+            leftClick = false;
+
             for (int i = interactives.Length - 1; i >= 0; i--)
             {
                 InteractiveControl control = interactives[i];
 
-                if (control.Visible)
+                if (control.Visible && !leftClick)
                     control.MouseClickLeft(x, y);
             }
         }
@@ -130,12 +137,13 @@ namespace New_SSQE.NewGUI.Base
                 return;
 
             base.MouseClickRight(x, y);
+            rightClick = false;
 
             for (int i = interactives.Length - 1; i >= 0; i--)
             {
                 InteractiveControl control = interactives[i];
 
-                if (control.Visible)
+                if (control.Visible && !rightClick)
                     control.MouseClickRight(x, y);
             }
         }
@@ -209,10 +217,13 @@ namespace New_SSQE.NewGUI.Base
                 return;
 
             base.KeyDown(key);
+            textInput = false;
 
-            foreach (InteractiveControl control in interactives)
+            for (int i = interactives.Length - 1; i >= 0; i--)
             {
-                if (control.Visible)
+                InteractiveControl control = interactives[i];
+
+                if (control.Visible && !textInput)
                     control.KeyDown(key);
             }
         }
@@ -243,6 +254,44 @@ namespace New_SSQE.NewGUI.Base
                 if (control.Visible)
                     control.KeybindUsed(keybind);
             }
+        }
+
+        public bool TextboxFocused()
+        {
+            foreach (InteractiveControl control in interactives)
+            {
+                if (!control.Visible)
+                    continue;
+
+                if (control is ControlContainer container)
+                {
+                    if (container.TextboxFocused())
+                        return true;
+                }
+                else if (control is GuiTextbox textbox && textbox.Focused)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool HoveringInteractive(InteractiveControl? exclude = null)
+        {
+            foreach (InteractiveControl control in interactives)
+            {
+                if (!control.Visible)
+                    continue;
+
+                if (control is ControlContainer container)
+                {
+                    if (container.HoveringInteractive(exclude))
+                        return true;
+                }
+                else if (control.Hovering && control != exclude)
+                    return true;
+            }
+
+            return false;
         }
 
         public override void DisconnectAll()

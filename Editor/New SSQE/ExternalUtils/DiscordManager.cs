@@ -1,7 +1,6 @@
 ﻿using DiscordRPC;
 using DiscordRPC.Logging;
-using New_SSQE.GUI;
-using New_SSQE.Maps;
+using New_SSQE.NewMaps;
 
 namespace New_SSQE.ExternalUtils
 {
@@ -9,7 +8,9 @@ namespace New_SSQE.ExternalUtils
     {
         None,
         Menu,
-        Editor
+        Editor,
+        Special,
+        VFX
     }
 
     internal class DiscordManager
@@ -43,20 +44,19 @@ namespace New_SSQE.ExternalUtils
 
         private static double time = 0;
 
+        private static DiscordStatus prevStatus = DiscordStatus.None;
+        private static DateTime prevTimestamp = DateTime.UtcNow;
+
         public static void Process(double frametime)
         {
             time += frametime;
 
             if (time >= 5)
             {
-                if (MainWindow.Instance.CurrentWindow is GuiWindowEditor)
-                    SetActivity(DiscordStatus.Editor);
+                SetActivity(prevStatus);
                 time %= 5;
             }
         }
-
-        private static DiscordStatus prevStatus = DiscordStatus.None;
-        private static DateTime prevTimestamp = DateTime.UtcNow;
 
         public static void SetActivity(DiscordStatus status)
         {
@@ -66,13 +66,16 @@ namespace New_SSQE.ExternalUtils
             string details = status switch
             {
                 DiscordStatus.Menu => "Watching the sunset",
-                DiscordStatus.Editor => $"Editing a map - {CurrentMap.Notes.Count} notes",
+                DiscordStatus.Editor => $"Editing a map - {Mapping.Current.Notes.Count} notes",
+                DiscordStatus.Special => $"Editing objects - {Mapping.Current.SpecialObjects.Count} objects",
+                DiscordStatus.VFX => $"Editing VFX - {Mapping.Current.VfxObjects.Count} objects",
                 _ => ""
             };
 
             string state = status switch
             {
-                DiscordStatus.Editor => CurrentMap.FileID[..Math.Min(CurrentMap.FileID.Length, 128)],
+                DiscordStatus.Editor or DiscordStatus.Special or DiscordStatus.VFX =>
+                    Mapping.Current.FileID[..Math.Min(Mapping.Current.FileID.Length, 128)],
                 _ => ""
             };
 

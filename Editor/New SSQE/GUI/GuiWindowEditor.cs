@@ -175,7 +175,7 @@ namespace New_SSQE.GUI
 
         // special objects
         private readonly GuiButton ExitSpecial = new(10, 60, 545, 50, 46, "CLOSE EXTRA OBJECTS", 31, false, true) { Visible = false };
-        private readonly GuiButton NavBeat = new(10, 120, 150, 40, 47, $"[{Settings.extrasBeat.Value.Key}] Beat", 27, false, true) { Visible = false };
+        private readonly GuiButton NavBeat = new(10, 120, 150, 40, 47, $"[] Beat", 27, false, true) { Visible = false };
 
 
         private readonly GuiButtonList GameSwitch = new(10, 0, 545, 50, Settings.modchartGame, 31, 48) { Visible = false };

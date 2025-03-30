@@ -50,7 +50,7 @@ namespace New_SSQE.NewMaps.Parsing
                 string mapName = GetNextVariableString();
                 string mappers = GetNextVariableString();
 
-                CurrentMap.SoundID = mapID;
+                Mapping.Current.SoundID = mapID;
                 Settings.songName.Value = mapName;
                 Settings.mappers.Value = mappers;
 
@@ -109,7 +109,7 @@ namespace New_SSQE.NewMaps.Parsing
                         y = reader.ReadByte();
                     }
 
-                    CurrentMap.Notes.Add(new(x, y, ms));
+                    Mapping.Current.Notes.Add(new(x, y, ms));
                 }
 
                 return true;
@@ -163,7 +163,7 @@ namespace New_SSQE.NewMaps.Parsing
                 string mapName = GetNextVariableString();
                 string songName = GetNextVariableString();
 
-                CurrentMap.SoundID = mapID;
+                Mapping.Current.SoundID = mapID;
                 Settings.songName.Value = mapName;
 
                 ushort mapperCount = reader.ReadUInt16();
@@ -306,7 +306,7 @@ namespace New_SSQE.NewMaps.Parsing
                         y = reader.ReadByte();
                     }
 
-                    CurrentMap.Notes.Add(new(x, y, ms));
+                    Mapping.Current.Notes.Add(new(x, y, ms));
                 }
 
                 return true;
@@ -320,7 +320,7 @@ namespace New_SSQE.NewMaps.Parsing
 
         public static bool Write(string path)
         {
-            List<Note> notes = CurrentMap.Notes;
+            List<Note> notes = Mapping.Current.Notes;
 
             using FileStream file = new(path, FileMode.Create, FileAccess.Write);
             using BinaryWriter writer = new(file);
@@ -388,7 +388,7 @@ namespace New_SSQE.NewMaps.Parsing
 
             // audio
             long audioOffset = writer.BaseStream.Position;
-            writer.Write(File.ReadAllBytes(Path.Combine(Assets.CACHED, $"{CurrentMap.SoundID}.asset"))); // audio in bytes
+            writer.Write(File.ReadAllBytes(Path.Combine(Assets.CACHED, $"{Mapping.Current.SoundID}.asset"))); // audio in bytes
             long audioLength = writer.BaseStream.Position - audioOffset;
 
             // cover

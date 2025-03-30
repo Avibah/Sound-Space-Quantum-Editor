@@ -79,12 +79,6 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiTextboxKeybind CreateBPMBox = new(150, 650, 128, 40, Settings.createBPM, "", 28) { Style = new(ControlStyles.Textbox_Uncolored) };
         public static readonly GuiButton CreateBPMReset = new(288, 650, 128, 40, "RESET", 28);
 
-        public static readonly GuiLabel ExtrasLabel = new(1366, 540, 128, 26, null, "Extra Objects:", 28, "main", CenterMode.None);
-        public static readonly GuiLabel BeatLabel = new(1366, 580, 128, 26, null, "Beat", 28, "main", CenterMode.None);
-        public static readonly GuiLabel BeatCAS = new(1642, 610, 256, 40, null, "", 28, "main", CenterMode.None);
-        public static readonly GuiTextboxKeybind BeatBox = new(1366, 610, 128, 40, Settings.extrasBeat, "", 28) { Style = new(ControlStyles.Textbox_Uncolored) };
-        public static readonly GuiButton BeatReset = new(1504, 610, 128, 40, "RESET", 28);
-
 
 
         public static readonly GuiLabel GridLabel = new(778, 49, 128, 26, null, "Grid", 28, "main", CenterMode.None);
@@ -117,8 +111,8 @@ namespace New_SSQE.NewGUI.Windows
             SwitchClickLabel, SwitchClickCAS, SwitchClickBox, SwitchClickReset, ToggleQuantumLabel, ToggleQuantumCAS, ToggleQuantumBox, ToggleQuantumReset,
             OpenTimingsLabel, OpenTimingsCAS, OpenTimingsBox, OpenTimingsReset, OpenBookmarksLabel, OpenBookmarksCAS, OpenBookmarksBox, OpenBookmarksReset,
             OpenDirectoryLabel, OpenDirectoryCAS, OpenDirectoryBox, OpenDirectoryReset, ExportSSPMLabel, ExportSSPMCAS, ExportSSPMBox, ExportSSPMReset,
-            CreateBPMLabel, CreateBPMCAS, CreateBPMBox, CreateBPMReset, ExtrasLabel, BeatLabel, BeatCAS, BeatBox, BeatReset,
-            GridLabel, Grid0Box, Grid0Reset, Grid1Box, Grid1Reset, Grid2Box, Grid2Reset, Grid3Box, Grid3Reset, Grid4Box, Grid4Reset,
+            CreateBPMLabel, CreateBPMCAS, CreateBPMBox, CreateBPMReset, GridLabel, Grid0Box,
+            Grid0Reset, Grid1Box, Grid1Reset, Grid2Box, Grid2Reset, Grid3Box, Grid3Reset, Grid4Box, Grid4Reset,
             Grid5Box, Grid5Reset, Grid6Box, Grid6Reset, Grid7Box, Grid7Reset, Grid8Box, Grid8Reset)
         {
             StaticKeysLabel.SetText(string.Join('\n',
@@ -174,7 +168,6 @@ namespace New_SSQE.NewGUI.Windows
             OpenDirectoryReset.LeftClick += (s, e) => ResetKeybind(Settings.openDirectory, new(Keys.D, true, false, true), OpenDirectoryBox);
             ExportSSPMReset.LeftClick += (s, e) => ResetKeybind(Settings.exportSSPM, new(Keys.E, true, true, false), ExportSSPMBox);
             CreateBPMReset.LeftClick += (s, e) => ResetKeybind(Settings.createBPM, new(Keys.B, true, false, true), CreateBPMBox);
-            BeatReset.LeftClick += (s, e) => ResetKeybind(Settings.extrasBeat, new(Keys.S, false, false, false), BeatBox);
 
             void ResetGridKey(int index, Keys key, GuiTextboxGridKeybind control)
             {
@@ -211,7 +204,6 @@ namespace New_SSQE.NewGUI.Windows
             OpenDirectoryCAS.SetText(CAS(Settings.openDirectory.Value));
             ExportSSPMCAS.SetText(CAS(Settings.exportSSPM.Value));
             CreateBPMCAS.SetText(CAS(Settings.createBPM.Value));
-            BeatCAS.SetText(CAS(Settings.extrasBeat.Value));
 
             base.Render(mousex, mousey, frametime);
         }

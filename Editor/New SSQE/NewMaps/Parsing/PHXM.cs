@@ -68,7 +68,7 @@ namespace New_SSQE.NewMaps.Parsing
                 Settings.songName.Value = $"{Settings.songArtist.Value} - {Settings.songTitle.Value}";
             }
 
-            CurrentMap.SoundID = audioId;
+            Mapping.Current.SoundID = audioId;
 
             if (hasAudio)
                 File.Copy(Path.Combine(temp, $"audio.{audioExt}"), Path.Combine(Assets.CACHED, $"{audioId}.asset"), true);
@@ -118,7 +118,7 @@ namespace New_SSQE.NewMaps.Parsing
                     y = reader.ReadByte();
                 }
 
-                CurrentMap.Notes.Add(new(x, y, FormatUtils.EncodeTimestamp(ms)));
+                Mapping.Current.Notes.Add(new(x, y, FormatUtils.EncodeTimestamp(ms)));
             }
 
             string ReadString()
@@ -220,7 +220,7 @@ namespace New_SSQE.NewMaps.Parsing
                     MapObject? mapObject = MOParser.Parse(i, obj.Split('|'));
 
                     if (mapObject != null)
-                        CurrentMap.VfxObjects.Add(mapObject);
+                        Mapping.Current.VfxObjects.Add(mapObject);
                 }
             }
 

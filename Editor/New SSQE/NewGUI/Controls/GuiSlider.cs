@@ -124,7 +124,7 @@ namespace New_SSQE.NewGUI.Controls
                     break;
 
                 case "tempo":
-                    CurrentMap.Tempo = setting.Value.Value;
+                    Mapping.Current.Tempo = setting.Value.Value;
                     break;
             }
 

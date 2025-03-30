@@ -36,10 +36,10 @@ namespace New_SSQE.NewMaps.Parsing
                             }
 
                             if (pointsplit.Length == 2 && float.TryParse(pointsplit[0], out float bpm) && long.TryParse(pointsplit[1], out long ms))
-                                CurrentMap.TimingPoints.Add(new(bpm, ms));
+                                Mapping.Current.TimingPoints.Add(new(bpm, ms));
                         }
 
-                        CurrentMap.SortTimings();
+                        Mapping.SortTimings();
 
                         break;
 
@@ -51,30 +51,30 @@ namespace New_SSQE.NewMaps.Parsing
                             string[] bookmarksplit = bookmark.Split('|');
 
                             if (bookmarksplit.Length == 2 && long.TryParse(bookmarksplit[1], out long ms))
-                                CurrentMap.Bookmarks.Add(new(bookmarksplit[0], ms, ms));
+                                Mapping.Current.Bookmarks.Add(new(bookmarksplit[0], ms, ms));
                             else if (bookmarksplit.Length == 3 && long.TryParse(bookmarksplit[1], out long startMs) && long.TryParse(bookmarksplit[2], out long endMs))
-                                CurrentMap.Bookmarks.Add(new(bookmarksplit[0], startMs, endMs));
+                                Mapping.Current.Bookmarks.Add(new(bookmarksplit[0], startMs, endMs));
                         }
 
-                        CurrentMap.SortBookmarks();
+                        Mapping.SortBookmarks();
 
                         break;
 
                     case "Offset":
                         if (oldVer) // back when timing points didnt exist and the offset meant bpm/note offset
                         {
-                            if (CurrentMap.TimingPoints.Count > 0 && long.TryParse(split[1], out long bpmOffset))
-                                CurrentMap.TimingPoints[0].Ms = bpmOffset;
+                            if (Mapping.Current.TimingPoints.Count > 0 && long.TryParse(split[1], out long bpmOffset))
+                                Mapping.Current.TimingPoints[0].Ms = bpmOffset;
                         }
                         else
                         {
-                            foreach (Note note in CurrentMap.Notes)
+                            foreach (Note note in Mapping.Current.Notes)
                                 note.Ms += (long)Settings.exportOffset.Value;
 
                             if (long.TryParse(split[1], out long offset))
                                 Settings.exportOffset.Value = offset;
 
-                            foreach (Note note in CurrentMap.Notes)
+                            foreach (Note note in Mapping.Current.Notes)
                                 note.Ms -= (long)Settings.exportOffset.Value;
                         }
 
@@ -104,8 +104,8 @@ namespace New_SSQE.NewMaps.Parsing
         {
             string data = File.ReadAllText(path);
 
-            CurrentMap.TimingPoints.Clear();
-            CurrentMap.Bookmarks.Clear();
+            Mapping.Current.TimingPoints.Clear();
+            Mapping.Current.Bookmarks.Clear();
 
             try
             {
@@ -123,7 +123,7 @@ namespace New_SSQE.NewMaps.Parsing
                             foreach (JsonElement timing in timings)
                             {
                                 JsonElement[] values = timing.Deserialize<JsonElement[]>() ?? [];
-                                CurrentMap.TimingPoints.Add(new(values[0].GetSingle(), values[1].GetInt64()));
+                                Mapping.Current.TimingPoints.Add(new(values[0].GetSingle(), values[1].GetInt64()));
                             }
 
                             break;
@@ -134,7 +134,7 @@ namespace New_SSQE.NewMaps.Parsing
                             foreach (JsonElement bookmark in bookmarks)
                             {
                                 JsonElement[] values = bookmark.Deserialize<JsonElement[]>() ?? [];
-                                CurrentMap.Bookmarks.Add(new(values[0].GetString() ?? "", values[1].GetInt64(), values[^1].GetInt64()));
+                                Mapping.Current.Bookmarks.Add(new(values[0].GetString() ?? "", values[1].GetInt64(), values[^1].GetInt64()));
                             }
 
                             break;
@@ -150,8 +150,8 @@ namespace New_SSQE.NewMaps.Parsing
                                     vfxObjects.Add(final);
                             }
 
-                            if (CurrentMap.VfxObjects.Count + vfxObjects.Count > 0)
-                                VfxObjectManager.Replace("IMPORT VFX", CurrentMap.VfxObjects, vfxObjects);
+                            if (Mapping.Current.VfxObjects.Count + vfxObjects.Count > 0)
+                                VfxObjectManager.Replace("IMPORT VFX", Mapping.Current.VfxObjects, vfxObjects);
 
                             break;
 
@@ -166,8 +166,8 @@ namespace New_SSQE.NewMaps.Parsing
                                     specialObjects.Add(final);
                             }
 
-                            if (CurrentMap.SpecialObjects.Count + specialObjects.Count > 0)
-                                SpecialObjectManager.Replace("IMPORT EXTRA", CurrentMap.SpecialObjects, specialObjects);
+                            if (Mapping.Current.SpecialObjects.Count + specialObjects.Count > 0)
+                                SpecialObjectManager.Replace("IMPORT EXTRA", Mapping.Current.SpecialObjects, specialObjects);
 
                             break;
 
@@ -180,12 +180,12 @@ namespace New_SSQE.NewMaps.Parsing
                             break;
 
                         case "exportOffset":
-                            foreach (Note note in CurrentMap.Notes)
+                            foreach (Note note in Mapping.Current.Notes)
                                 note.Ms += (long)Settings.exportOffset.Value;
 
                             Settings.exportOffset.Value = value.GetSingle();
 
-                            foreach (Note note in CurrentMap.Notes)
+                            foreach (Note note in Mapping.Current.Notes)
                                 note.Ms -= (long)Settings.exportOffset.Value;
 
                             break;
@@ -270,22 +270,22 @@ namespace New_SSQE.NewMaps.Parsing
         {
             List<object[]> timingfinal = [];
 
-            foreach (TimingPoint point in CurrentMap.TimingPoints)
+            foreach (TimingPoint point in Mapping.Current.TimingPoints)
                 timingfinal.Add([point.BPM, point.Ms]);
 
             List<object[]> bookmarkfinal = [];
 
-            foreach (Bookmark bookmark in CurrentMap.Bookmarks)
+            foreach (Bookmark bookmark in Mapping.Current.Bookmarks)
                 bookmarkfinal.Add([bookmark.Text, bookmark.Ms, bookmark.EndMs]);
 
             List<string> vfxFinal = [];
 
-            foreach (MapObject obj in CurrentMap.VfxObjects)
+            foreach (MapObject obj in Mapping.Current.VfxObjects)
                 vfxFinal.Add($"{obj.ID}|{obj.ToString()}");
 
             List<string> specialFinal = [];
 
-            foreach (MapObject obj in CurrentMap.SpecialObjects)
+            foreach (MapObject obj in Mapping.Current.SpecialObjects)
                 specialFinal.Add($"{obj.ID}|{obj.ToString()}");
 
             Dictionary<string, object> json = new()

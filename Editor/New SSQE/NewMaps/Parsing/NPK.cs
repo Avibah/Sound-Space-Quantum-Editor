@@ -97,7 +97,7 @@ namespace New_SSQE.NewMaps.Parsing
                 Settings.useCover.Value = true;
             }
 
-            CurrentMap.SoundID = id;
+            Mapping.Current.SoundID = id;
             Settings.songName.Value = $"{Settings.songArtist.Value} - {Settings.songTitle.Value}";
             Settings.mappers.Value = Settings.mapCreator.Value;
 
@@ -132,7 +132,7 @@ namespace New_SSQE.NewMaps.Parsing
                             prevDiffN = diff;
                             prevMsN = t;
 
-                            CurrentMap.Notes.Add(new(x, y, offset));
+                            Mapping.Current.Notes.Add(new(x, y, offset));
                         }
 
                         break;
@@ -154,7 +154,7 @@ namespace New_SSQE.NewMaps.Parsing
                             prevDiffB = diff;
                             prevMsB = t;
 
-                            CurrentMap.SpecialObjects.Add(new Beat(offset));
+                            Mapping.Current.SpecialObjects.Add(new Beat(offset));
                         }
 
                         break;
@@ -166,7 +166,7 @@ namespace New_SSQE.NewMaps.Parsing
 
         public static bool Write(string path)
         {
-            string id = CurrentMap.SoundID;
+            string id = Mapping.Current.SoundID;
 
             string temp = Path.Combine(Assets.TEMP, "nova");
             Directory.CreateDirectory(temp);
@@ -184,10 +184,10 @@ namespace New_SSQE.NewMaps.Parsing
             File.Copy(Metadata["iconPath"], Path.Combine(temp, $"profile{Path.GetExtension(Metadata["iconPath"])}"), true);
             File.Copy(Path.Combine(Assets.CACHED, $"{id}.asset"), Path.Combine(temp, $"{id}{extension}"), true);
 
-            Dictionary<string, object>[] notes = new Dictionary<string, object>[CurrentMap.Notes.Count];
-            for (int i = 0; i < CurrentMap.Notes.Count; i++)
+            Dictionary<string, object>[] notes = new Dictionary<string, object>[Mapping.Current.Notes.Count];
+            for (int i = 0; i < Mapping.Current.Notes.Count; i++)
             {
-                Note note = CurrentMap.Notes[i];
+                Note note = Mapping.Current.Notes[i];
 
                 notes[i] = new()
                 {
@@ -198,7 +198,7 @@ namespace New_SSQE.NewMaps.Parsing
             }
 
             List<Dictionary<string, object>> beats = [];
-            foreach (MapObject obj in CurrentMap.SpecialObjects)
+            foreach (MapObject obj in Mapping.Current.SpecialObjects)
             {
                 if (obj is Beat beat)
                 {

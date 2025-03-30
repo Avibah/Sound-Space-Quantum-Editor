@@ -5,16 +5,16 @@ namespace New_SSQE.Objects.Managers
 {
     internal class NoteManager : IObjectManager<Note>
     {
-        private static ObjectList<Note> Notes => CurrentMap.Notes;
-        private static List<Note> BezierNodes => CurrentMap.BezierNodes;
+        private static ObjectList<Note> Notes => Mapping.Current.Notes;
+        private static List<Note> BezierNodes => Mapping.Current.BezierNodes;
 
         public static void Replace(string label, List<Note> oldNotes, List<Note> newNotes)
         {
-            bool bezier = CurrentMap.BezierNodes.Count > 0;
+            bool bezier = Mapping.Current.BezierNodes.Count > 0;
             label = label.Replace("[S]", Math.Max(oldNotes.Count, newNotes.Count) > 1 ? "S" : "");
 
-            oldNotes = oldNotes.ToList();
-            newNotes = newNotes.ToList();
+            oldNotes = [..oldNotes];
+            newNotes = [..newNotes];
 
             UndoRedoManager.Add(label, () =>
             {
@@ -32,7 +32,7 @@ namespace New_SSQE.Objects.Managers
                             BezierNodes.Add(oldNotes[i]);
                     }
 
-                    CurrentMap.BezierNodes = BezierNodes.OrderBy(n => n.Ms).ToList();
+                    Mapping.Current.BezierNodes = [..BezierNodes.OrderBy(n => n.Ms)];
                 }
             }, () =>
             {
@@ -50,7 +50,7 @@ namespace New_SSQE.Objects.Managers
                             BezierNodes.Add(newNotes[i]);
                     }
 
-                    CurrentMap.BezierNodes = BezierNodes.OrderBy(n => n.Ms).ToList();
+                    Mapping.Current.BezierNodes = [..BezierNodes.OrderBy(n => n.Ms)];
                 }
             });
         }

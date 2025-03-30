@@ -2,25 +2,15 @@
 
 namespace New_SSQE.NewGUI.Base
 {
-    internal enum ClickType
-    {
-        Left,
-        Right
-    }
-
     internal class ClickEventArgs : EventArgs
     {
         public float X;
         public float Y;
 
-        public ClickType ClickType;
-
-        public ClickEventArgs(float x, float y, ClickType clickType)
+        public ClickEventArgs(float x, float y)
         {
             X = x;
             Y = y;
-
-            ClickType = clickType;
         }
     }
 
@@ -69,7 +59,7 @@ namespace New_SSQE.NewGUI.Base
             {
                 Focused = true;
                 Dragging = true;
-                LeftClick?.Invoke(this, new ClickEventArgs(x, y, ClickType.Left));
+                LeftClick?.Invoke(this, new ClickEventArgs(x, y));
                 MouseMove(x, y);
             }
             else
@@ -79,7 +69,7 @@ namespace New_SSQE.NewGUI.Base
         public virtual void MouseClickRight(float x, float y)
         {
             if (Hovering)
-                RightClick?.Invoke(this, new ClickEventArgs(x, y, ClickType.Right));
+                RightClick?.Invoke(this, new ClickEventArgs(x, y));
         }
 
         public virtual void MouseUpLeft(float x, float y)

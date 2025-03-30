@@ -34,14 +34,11 @@ namespace New_SSQE.NewGUI.Base
 
                 control.LeftClick += (s, e) =>
                 {
-                    foreach (GuiCheckbox checkbox in controls)
-                    {
-                        if (control != checkbox)
-                            checkbox.Toggle = false;
-                    }
-
                     active = control;
                     SelectionChanged?.Invoke(control, new(control.Text));
+
+                    foreach (GuiCheckbox checkbox in controls)
+                        checkbox.Toggle = checkbox == active;
                 };
             }
         }
