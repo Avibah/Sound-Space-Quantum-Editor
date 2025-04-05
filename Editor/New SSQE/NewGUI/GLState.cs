@@ -9,6 +9,8 @@ namespace New_SSQE.NewGUI
 {
     internal static class GLState
     {
+        public static BufferHandle? testBuffer = null;
+
         private static ProgramHandle? _program;
         private static TextureHandle? _texture;
         private static VertexArrayHandle? _vao;
@@ -60,6 +62,9 @@ namespace New_SSQE.NewGUI
 
         public static void BufferData(BufferHandle vbo, float[] data)
         {
+            if (vbo == testBuffer)
+                Console.WriteLine("hi");
+
             EnableVBO(vbo);
             GL.BufferData(BufferTargetARB.ArrayBuffer, data, BufferUsageARB.StaticDraw);
         }
@@ -175,11 +180,44 @@ namespace New_SSQE.NewGUI
             DrawArrays(type, first, count);
         }
 
-        public static void Clean(VertexArrayHandle vao) => GL.DeleteVertexArray(vao);
-        public static void Clean(BufferHandle vbo) => GL.DeleteBuffer(vbo);
-        public static void Clean(TextureHandle texture) => GL.DeleteTexture(texture);
-        public static void Clean(FramebufferHandle fbo) => GL.DeleteFramebuffer(fbo);
-        public static void Clean(RenderbufferHandle rbo) => GL.DeleteRenderbuffer(rbo);
+        public static void Clean(VertexArrayHandle vao)
+        {
+            if (_vao == vao)
+                _vao = null;
+            GL.DeleteVertexArray(vao);
+        }
+
+        public static void Clean(BufferHandle vbo)
+        {
+            if (_vbo == vbo)
+                _vbo = null;
+            GL.DeleteBuffer(vbo);
+        }
+
+        public static void Clean(TextureHandle texture)
+        {
+            if (_texture == texture)
+                _texture = null;
+            GL.DeleteTexture(texture);
+        }
+
+        public static void Clean(FramebufferHandle fbo)
+        {
+            foreach (KeyValuePair<FramebufferTarget, FramebufferHandle?> _fboTemp in _fbo)
+            {
+                if (_fboTemp.Value == fbo)
+                    _fbo[_fboTemp.Key] = null;
+            }
+
+            GL.DeleteFramebuffer(fbo);
+        }
+
+        public static void Clean(RenderbufferHandle rbo)
+        {
+            if (_rbo == rbo)
+                _rbo = null;
+            GL.DeleteRenderbuffer(rbo);
+        }
 
         public static void Uniform1(ProgramHandle program, string uniform, float[] values)
         {

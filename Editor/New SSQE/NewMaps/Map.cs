@@ -13,7 +13,7 @@ namespace New_SSQE.NewMaps
         public ObjectList<MapObject> VfxObjects = [];
         public ObjectList<MapObject> SpecialObjects = [];
 
-        public List<Note> BezierNodes = [];
+        public List<int> BezierNodes = [];
         public List<Bookmark> Bookmarks = [];
         public List<TimingPoint> TimingPoints = [];
 

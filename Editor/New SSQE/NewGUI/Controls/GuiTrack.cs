@@ -84,7 +84,7 @@ namespace New_SSQE.NewGUI.Controls
             noteSelect = Instancing.Generate("track_noteSelect", Shader.InstancedMain);
 
             objConstant = Instancing.Generate("track_objConstant", Shader.InstancedObject);
-            objIcon = Instancing.Generate("track_objIcon", Shader.Sprite);
+            objIcon = Instancing.Generate("track_objIcon", Shader.Sprite, true);
             objHover = Instancing.Generate("track_objHover", Shader.InstancedMain);
             objSelect = Instancing.Generate("track_objSelect", Shader.InstancedMain);
 
@@ -104,7 +104,7 @@ namespace New_SSQE.NewGUI.Controls
             bpmHover = Instancing.Generate("track_bpmHover", Shader.InstancedMain);
             bpmSelect = Instancing.Generate("track_bpmSelect", Shader.InstancedMain);
 
-            spriteSheet = new("sprites", null, true, TextureUnit.Texture2);
+            spriteSheet = new("sprites", null, true, TextureUnit.Texture2) { Shader = Shader.Sprite };
 
             Style = new(ControlStyles.Track_Colored);
         }
@@ -234,12 +234,14 @@ namespace New_SSQE.NewGUI.Controls
                 bool shouldCheckID = Mapping.RenderMode == ObjectRenderMode.Special && Mapping.ObjectMode != IndividualObjectMode.Disabled;
                 List<int> indices = [];
 
+                int? first = null;
+                int i;
+                
                 Vector4[] objConstants = new Vector4[objects.Count];
                 Vector4[] objIcons = new Vector4[objects.Count];
                 Vector3[] objIconsSecondary = new Vector3[objects.Count];
                 Vector4 objHovers = Vector4.Zero;
-                Vector4[] objSelects = new Vector4[objects.Selected.Count];
-                int selectIndex = 0;
+                List<Vector4> objSelects = [];
 
                 Vector4[] objDurationMarkers = new Vector4[objects.Count];
                 Vector4[] objDurationBars = new Vector4[objects.Count];
@@ -248,11 +250,11 @@ namespace New_SSQE.NewGUI.Controls
                 Vector4 objDurationSelects = Vector4.Zero;
 
                 Vector4[] textLines = new Vector4[objects.Count];
-                Vector4[] dragLines = new Vector4[objSelects.Length];
+                List<Vector4> dragLines = [];
 
                 bool dragging = draggingObjects.Count > 0;
 
-                for (int i = 0; i < objects.Count; i++)
+                for (i = 0; i < objects.Count; i++)
                 {
                     MapObject obj = objects[i];
                     for (int j = indices.Count; j <= obj.ID; j++)
@@ -266,10 +268,12 @@ namespace New_SSQE.NewGUI.Controls
                     if (shouldCheckID && obj.ID != (int)Mapping.ObjectMode)
                         continue;
 
+                    first ??= i;
+
                     float x = cursorPos - currentPos + obj.Ms * MS_TO_PX;
                     float a = obj.Ms < currentTime - 1 ? 0.35f : 1f;
 
-                    int c = i % colorCount;
+                    int c = (shouldCheckID ? indices[obj.ID] : i) % colorCount;
 
                     objConstants[i] = (x, 0, 1, 2 * c + a);
                     objIcons[i] = (x, 0, 1, a);
@@ -301,12 +305,12 @@ namespace New_SSQE.NewGUI.Controls
                     else if (obj.Selected)
                     {
                         if (dragging)
-                            dragLines[selectIndex++] = (cursorPos - currentPos + obj.DragStartMs * MS_TO_PX, 0, 1, 2 * 7 + 1);
+                            dragLines.Add((cursorPos - currentPos + obj.DragStartMs * MS_TO_PX, 0, 1, 2 * 7 + 1));
                         else
-                            objSelects[selectIndex++] = (x, 0, 1, 2 * 6 + 1);
+                            objSelects.Add((x, 0, 1, 2 * 6 + 1));
                     }
 
-                    if (Mapping.RenderMode == ObjectRenderMode.Special && obj.Ms <= currentTime - sfxOffset)
+                    if (Mapping.RenderMode == ObjectRenderMode.Special && obj.Ms <= currentTime - sfxOffset && obj.PlayHitsound)
                         toPlay = obj;
 
                     if (x - 8 > (lastRenderedText ?? float.MinValue))
@@ -325,18 +329,20 @@ namespace New_SSQE.NewGUI.Controls
                     }
                 }
 
-                objConstant.UploadData(objConstants);
-                objIcon.UploadData(objIcons, objIconsSecondary);
-                objHover.UploadData([objHovers]);
-                objSelect.UploadData(objSelects);
+                Range range = new(first ?? i, i);
 
-                objDurationMarker.UploadData(objDurationMarkers);
-                objDurationBar.UploadData(objDurationBars, objDurationBarsSecondary);
+                objConstant.UploadData(objConstants[range]);
+                objIcon.UploadData(objIcons[range], objIconsSecondary[range]);
+                objHover.UploadData([objHovers]);
+                objSelect.UploadData([..objSelects]);
+
+                objDurationMarker.UploadData(objDurationMarkers[range]);
+                objDurationBar.UploadData(objDurationBars[range], objDurationBarsSecondary[range]);
                 objDurationHover.UploadData([objDurationHovers]);
                 objDurationSelect.UploadData([objDurationSelects]);
 
-                textLine.UploadData(textLines);
-                dragLine.UploadData(dragLines);
+                textLine.UploadData(textLines[range]);
+                dragLine.UploadData([..dragLines]);
             }
 
             float selectXStart = cursorPos - currentPos + selectMsStart * MS_TO_PX;
@@ -552,7 +558,7 @@ namespace New_SSQE.NewGUI.Controls
             objVerts.AddRange(GLVerts.Polygon(NoteSize / 2, NoteSize / 2 + CellGap, NoteSize / 2, 20, 0, 1f, 1f, 1f, 1 / 20f));
 
             objConstant.UploadStaticData(objVerts.ToArray());
-            objIcon.UploadStaticData(GLVerts.Icon(NoteSize / 8, NoteSize / 8 + CellGap, NoteSize * 3 / 4f, NoteSize * 3 / 4f));
+            objIcon.UploadStaticData(GLVerts.Icon(NoteSize / 16, NoteSize / 16 + CellGap, NoteSize * 7 / 8f, NoteSize * 7 / 8f));
             objHover.UploadStaticData(GLVerts.PolygonOutline(NoteSize / 2, NoteSize / 2 + CellGap, NoteSize / 2 + 4, 1, 20, 0, 1f, 1f, 1f, 1f));
             objSelect.UploadStaticData(GLVerts.PolygonOutline(NoteSize / 2, NoteSize / 2 + CellGap, NoteSize / 2 + 4, 1, 20, 0, 1f, 1f, 1f, 1f));
 
@@ -595,13 +601,12 @@ namespace New_SSQE.NewGUI.Controls
 
                 float start = Math.Min(selectMsStart, selectMsEnd) - NoteSize * PX_TO_MS;
                 float end = Math.Max(selectMsStart, selectMsEnd);
-                (int low, int high) = Mapping.Current.Notes.SearchRange(start, end);
-                
-                List<Note> selected = [];
-                if (Mapping.Current.Notes.Count > 0)
-                    selected = Mapping.Current.Notes.Take(new Range(low, high)).ToList();
 
-                Mapping.Current.Notes.Selected = new(selected);
+                List<MapObject> objects = Mapping.GetObjectsInRange(start, end);
+                if (Mapping.RenderMode != ObjectRenderMode.Notes && Mapping.ObjectMode != IndividualObjectMode.Disabled)
+                    objects = objects.Where(n => n.ID == (int)Mapping.ObjectMode).ToList();
+
+                Mapping.SetSelected(objects);
             }
         }
 
@@ -682,6 +687,8 @@ namespace New_SSQE.NewGUI.Controls
             float cursorPos = Settings.cursorPos.Value.Value;
 
             float cursorMs = (x - rect.Width * cursorPos / 100f) * PX_TO_MS + currentTime;
+            if (x == dragXStart)
+                return;
 
             float bpm = Timing.GetCurrentBpm(cursorMs).BPM;
             float stepX = 60f / bpm * MS_TO_PX / Settings.beatDivisor.Value.Value;
@@ -785,7 +792,7 @@ namespace New_SSQE.NewGUI.Controls
                     else
                         selected.Add(hoveringObject);
                 }
-                else if (selected.Count == 0)
+                else if (!selected.Contains(hoveringObject))
                     selected = [hoveringObject];
 
                 Mapping.ClearSelection();
@@ -912,11 +919,11 @@ namespace New_SSQE.NewGUI.Controls
                                 break;
 
                             case ObjectRenderMode.VFX:
-                                NoteManager.Remove("DELETE OBJECT[S]");
+                                VfxObjectManager.Remove("DELETE OBJECT[S]");
                                 break;
 
                             case ObjectRenderMode.Special:
-                                NoteManager.Remove("DELETE OBJECT[S]");
+                                SpecialObjectManager.Remove("DELETE OBJECT[S]");
                                 break;
                         }
                     }

@@ -50,48 +50,15 @@ void main()
     float S = clamp(C / Max * Saturation * 2.0f, 0.0f, 1.0f);
     float V = clamp(Max * Brightness * 2.0f, 0.0f, 1.0f);
     
-    int i = int(H * 6.0f);
-    float f = H * 6.0f - i;
-    float p = V * (1.0f - S);
-    float q = V * (1.0f - f * S);
-    float t = V * (1.0f - (1.0f - f) * S);
+    float h6 = 6.0f * H;
+    float r = abs(h6 - 3.0f) - 1.0f;
+    float g = 2.0f - abs(h6 - 2.0f);
+    float b = 2.0f - abs(h6 - 4.0f);
 
-    float r = 0.0f;
-    float g = 0.0f;
-    float b = 0.0f;
-
-    int ih = int(mod(i, 6.0f));
-
-    if (ih == 0) {
-        r = V;
-        g = t;
-        b = p;
-    }
-    else if (ih == 1) {
-        r = q;
-        g = V;
-        b = p;
-    }
-    else if (ih == 2) {
-        r = p;
-        g = V;
-        b = t;
-    }
-    else if (ih == 3) {
-        r = p;
-        g = q;
-        b = V;
-    }
-    else if (ih == 4) {
-        r = t;
-        g = p;
-        b = V;
-    }
-    else {
-        r = V;
-        g = p;
-        b = q;
-    }
+    float is = 1.0f - S;
+    r = V * (S * clamp(r, 0.0f, 1.0f) + is);
+    g = V * (S * clamp(g, 0.0f, 1.0f) + is);
+    b = V * (S * clamp(b, 0.0f, 1.0f) + is);
 
     color = vec3(r - 0.5f, g - 0.5f, b - 0.5f) * Contrast * 2.0f + vec3(0.5f, 0.5f, 0.5f);
     vertexColor = vec4(color * Tint, aColor.w);

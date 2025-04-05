@@ -5,6 +5,7 @@ using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Controls;
 using New_SSQE.NewGUI.Font;
 using New_SSQE.NewMaps;
+using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -153,7 +154,16 @@ namespace New_SSQE.NewGUI.Windows
                     Mapping.Load(clipboard);
             };
 
-            AutosavedButton.LeftClick += (s, e) => Mapping.Load(Settings.autosavedFile.Value);
+            string autosaveTXT = Path.Combine(Assets.TEMP, "tempAutosave.txt");
+            string autosaveINI = Path.ChangeExtension(autosaveTXT, ".ini");
+
+            AutosavedButton.LeftClick += (s, e) =>
+            {
+                File.WriteAllText(autosaveTXT, Settings.autosavedFile.Value);
+                File.WriteAllText(autosaveINI, Settings.autosavedProperties.Value);
+                Mapping.Load(autosaveTXT);
+            };
+
             LastMapButton.LeftClick += (s, e) => Mapping.Load(Settings.lastFile.Value);
 
             NavLeft.LeftClick += (s, e) => ScrollMapList(false);

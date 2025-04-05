@@ -41,6 +41,8 @@ namespace New_SSQE.NewGUI.Base
                         checkbox.Toggle = checkbox == active;
                 };
             }
+
+            SelectionChanged?.Invoke(active, new(active.Text));
         }
     }
 }

@@ -15,6 +15,10 @@ namespace New_SSQE.NewGUI.Base
         private readonly VertexArrayHandle vao;
         private readonly BufferHandle vbo;
 
+        public bool Loaded { get; private set; }
+
+        public Shader Shader = Shader.Texture;
+
         public Texture(string texture, SKBitmap? img = null, bool smooth = false, TextureUnit unit = TextureUnit.Texture0)
         {
             this.texture = Texturing.Generate(texture, img, smooth, unit);
@@ -31,6 +35,9 @@ namespace New_SSQE.NewGUI.Base
         public void Draw(float x, float y, float w, float h,
             float tx = 0, float ty = 0, float tw = 1, float th = 1, float alpha = 1)
         {
+            if (_disposed)
+                return;
+
             float[] vertices = GLVerts.Texture(x, y, w, h, tx, ty, tw, th, alpha);
 
             GLState.BufferData(vbo, vertices);
@@ -44,7 +51,10 @@ namespace New_SSQE.NewGUI.Base
 
         public void Activate()
         {
-            GLState.EnableTextureUnit(Shader.Texture, texUnit);
+            if (_disposed)
+                return;
+
+            GLState.EnableTextureUnit(Shader, texUnit);
             GLState.EnableTexture(texture);
         }
 
@@ -58,16 +68,16 @@ namespace New_SSQE.NewGUI.Base
         }
 
 
-
         private bool _disposed = false;
 
-        public virtual void Dispose()
+        public void Dispose()
         {
             if (_disposed)
                 return;
 
-            GLState.Clean(vbo);
             GLState.Clean(texture);
+            GLState.Clean(vbo);
+            GLState.Clean(vao);
 
             _disposed = true;
         }

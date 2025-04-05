@@ -12,7 +12,7 @@ namespace New_SSQE.NewGUI.Base
         XY = 6
     }
 
-    internal abstract class Control : IDisposable
+    internal abstract class Control
     {
         protected Shader shader;
         protected Texture[] textures;
@@ -113,19 +113,6 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual RectangleF GetOrigin() => startRect;
 
-
-        private bool _disposed = false;
-
-        public virtual void Dispose()
-        {
-            if (_disposed)
-                return;
-
-            GLState.Clean(vbo);
-            foreach (Texture tex in textures)
-                tex.Dispose();
-
-            _disposed = true;
-        }
+        public virtual void Reset() { }
     }
 }

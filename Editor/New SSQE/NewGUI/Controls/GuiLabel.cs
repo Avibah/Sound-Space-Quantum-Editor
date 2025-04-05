@@ -32,5 +32,14 @@ namespace New_SSQE.NewGUI.Controls
             textColor = color;
             Update();
         }
+
+        public override void Reset()
+        {
+            base.Reset();
+
+            text = startText;
+            textSize = startTextSize;
+            font = startFont;
+        }
     }
 }

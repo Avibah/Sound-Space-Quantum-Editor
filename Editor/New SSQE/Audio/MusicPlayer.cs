@@ -1,7 +1,7 @@
 ﻿using New_SSQE.ExternalUtils;
-using New_SSQE.Maps;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
+using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Fx;
@@ -11,14 +11,14 @@ namespace New_SSQE.Audio
 {
     internal class MusicPlayer
     {
+        public const long GLOBAL_OFFSET = 0;
+
         private static int streamFileID;
         private static int streamID;
         private static string lastFile;
         public static BASSChannelType ctype;
 
         private static float originVal;
-
-        public static float[] WaveModel = Array.Empty<float>();
 
         private static readonly SYNCPROC sync;
 
@@ -136,7 +136,7 @@ namespace New_SSQE.Audio
                 Logging.Register($"Audio failed to load - {err}\n{file}", LogSeverity.ERROR);
                 DialogResult message = MessageBox.Show($"Audio file with id '{id}' is corrupt.\n\nWould you like to try importing a new file?", MBoxIcon.Warning, MBoxButtons.OK_Cancel);
 
-                return message == DialogResult.OK && MapManager.ImportAudio(id);
+                return message == DialogResult.OK && Mapping.ImportAudio(id);
             }
 
             Bass.BASS_StreamFree(streamID);
@@ -177,7 +177,7 @@ namespace New_SSQE.Audio
         {
             Pause();
             CurrentTime = TotalTime;
-            Settings.currentTime.Value.Value = (float)(CurrentTime.TotalMilliseconds + 0.03 * (1 + (CurrentMap.Tempo - 1) * 1.5));
+            Settings.currentTime.Value.Value = (float)(CurrentTime.TotalMilliseconds + 0.03 * (1 + (Mapping.Current.Tempo - 1) * 1.5 + GLOBAL_OFFSET / 1000d));
         }
 
         public static void Play()
@@ -286,7 +286,7 @@ namespace New_SSQE.Audio
             {
                 CheckDevice();
 
-                long pos = Bass.BASS_ChannelSeconds2Bytes(streamID, value.TotalSeconds - 0.03 * (1 + (CurrentMap.Tempo - 1) * 1.5));
+                long pos = Bass.BASS_ChannelSeconds2Bytes(streamID, value.TotalSeconds - 0.03 * (1 + (Mapping.Current.Tempo - 1) * 1.5 - GLOBAL_OFFSET / 1000d));
 
                 Bass.BASS_ChannelSetPosition(streamID, Math.Max(pos, 0), BASSMode.BASS_POS_BYTE);
             }
@@ -296,7 +296,7 @@ namespace New_SSQE.Audio
 
                 long pos = Bass.BASS_ChannelGetPosition(streamID, BASSMode.BASS_POS_BYTE);
 
-                return TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, pos) + 0.03 * (1 + (CurrentMap.Tempo - 1) * 1.5));
+                return TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, pos) + 0.03 * (1 + (Mapping.Current.Tempo - 1) * 1.5 + GLOBAL_OFFSET / 1000d));
             }
         }
 
@@ -317,7 +317,8 @@ namespace New_SSQE.Audio
 
         private static void Init()
         {
-            Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT, nint.Zero);
+            BASSInit channelType = Settings.monoAudio.Value ? BASSInit.BASS_DEVICE_MONO : BASSInit.BASS_DEVICE_STEREO;
+            Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT | channelType, nint.Zero);
 
             Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_BUFFER, 250);
             Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATEPERIOD, 5);

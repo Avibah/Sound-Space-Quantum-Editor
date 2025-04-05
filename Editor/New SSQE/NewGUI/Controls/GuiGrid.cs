@@ -48,8 +48,20 @@ namespace New_SSQE.NewGUI.Controls
         private float CellSize => rect.Width / 3f;
         private float NoteSize => CellSize * 0.75f;
         private float PreviewSize => CellSize * 0.65f;
-        private float CellGap => (CellSize - NoteSize) / 2f;
+        private float NoteGap => (CellSize - NoteSize) / 2f;
         private float PreviewGap => (CellSize - PreviewSize) / 2f;
+
+        private float[] objectSizes = new float[16];
+        private float[] objectGaps = new float[16];
+
+        private void UpdateObjectMetrics()
+        {
+            objectSizes = new float[16];
+            objectSizes[14] = CellSize * 0.6f;
+
+            objectGaps = new float[16];
+            objectGaps[14] = (CellSize - objectSizes[14]) / 2f;
+        }
 
         private readonly Instance autoplayCursor;
 
@@ -61,6 +73,14 @@ namespace New_SSQE.NewGUI.Controls
 
         private readonly Instance beatConstant;
         private readonly Instance beatApproach;
+
+        private readonly Instance mineConstant;
+        private readonly Instance mineApproach;
+        private readonly Instance mineHover;
+        private readonly Instance mineSelect;
+
+        private readonly Instance glideConstant;
+        private readonly Instance glideApproach;
 
         private Vector2? hoveringCell;
         private bool placing = false;
@@ -99,7 +119,23 @@ namespace New_SSQE.NewGUI.Controls
             beatConstant = Instancing.Generate("grid_beatConstant", Shader.InstancedMain);
             beatApproach = Instancing.Generate("grid_beatApproach", Shader.InstancedMain);
 
+            mineConstant = Instancing.Generate("grid_mineConstant", Shader.InstancedMain);
+            mineApproach = Instancing.Generate("grid_mineApproach", Shader.InstancedMain);
+            mineHover = Instancing.Generate("grid_mineHover", Shader.InstancedMain);
+            mineSelect = Instancing.Generate("grid_mineSelect", Shader.InstancedMain);
+
+            glideConstant = Instancing.Generate("grid_glideConstant", Shader.InstancedMainExtra, true);
+            glideApproach = Instancing.Generate("grid_glideApproach", Shader.InstancedMain);
+
             Style = new ControlStyle(ControlStyles.Grid_Colored);
+
+            UpdateObjectMetrics();
+        }
+
+        public override void Resize(float screenWidth, float screenHeight)
+        {
+            base.Resize(screenWidth, screenHeight);
+            UpdateObjectMetrics();
         }
 
         private Vector2 MouseToGridSpaceUnclamped(float mousex, float mousey)
@@ -175,8 +211,8 @@ namespace New_SSQE.NewGUI.Controls
                 Note note = notes[i];
                 int c = i % colorCount;
 
-                float x = rect.X + (2 - note.X) * CellSize + CellGap;
-                float y = rect.Y + (2 - note.Y) * CellSize + CellGap;
+                float x = rect.X + (2 - note.X) * CellSize + NoteGap;
+                float y = rect.Y + (2 - note.Y) * CellSize + NoteGap;
 
                 float progress = (float)Math.Min(1, Math.Pow(1 - Math.Min(1, (note.Ms - currentTime) * approachRate / 750), 2));
                 float approachSize = 4 + NoteSize + NoteSize * (1 - progress) * 2 + 0.5f;
@@ -251,35 +287,99 @@ namespace New_SSQE.NewGUI.Controls
 
             if (Mapping.RenderMode == ObjectRenderMode.Special)
             {
+                hoveringXY = null;
                 bool shouldCheckID = respectObjectMode && Mapping.ObjectMode != IndividualObjectMode.Disabled;
 
                 List<Vector4> beatConstants = [];
                 List<Vector4> beatApproaches = [];
 
+                List<Vector4> mineConstants = [];
+                List<Vector4> mineApproaches = [];
+                Vector4 mineHovers = Vector4.Zero;
+                List<Vector4> mineSelects = [];
+
+                List<Vector4> glideConstants = [];
+                List<Vector3> glideConstantsSecondary = [];
+                List<Vector4> glideApproaches = [];
+
                 ObjectList<MapObject> objects = Mapping.Current.SpecialObjects;
                 (low, high) = objects.SearchRange(currentTime, maxMs);
 
-                for (int i = low; i < high; i++)
+                List<int> indices = [];
+
+                for (int i = 0; i < high; i++)
                 {
                     MapObject obj = objects[i];
-                    float progress = (float)Math.Min(1, (float)Math.Pow(1 - Math.Min(1, (obj.Ms - currentTime) * approachRate / 750), 2));
+                    for (int j = indices.Count; j <= obj.ID; j++)
+                        indices.Add(0);
+                    indices[obj.ID]++;
 
+                    if (obj.Ms < currentTime)
+                        continue;
                     if (shouldCheckID && obj.ID != (int)Mapping.ObjectMode)
                         continue;
 
-                    switch (obj.ID)
+                    float progress = (float)Math.Min(1, (float)Math.Pow(1 - Math.Min(1, (obj.Ms - currentTime) * approachRate / 750), 2));
+                    int c = (shouldCheckID ? indices[obj.ID] : i) % colorCount;
+
+                    if (obj is XYMapObject xy)
                     {
-                        case 12:
-                            float approachSize = 4 + rect.Width + rect.Width * (1 - progress) + 0.5f;
-                            
-                            beatConstants.Add((rect.X, rect.Y, 1, 2 * 4 + progress));
-                            beatApproaches.Add((rect.X + rect.Width / 2 - approachSize / 2, rect.Y + rect.Height / 2 - approachSize / 2, approachSize, 2 * 4 + progress));
-                            break;
+                        float size = objectSizes[obj.ID];
+                        float gap = objectGaps[obj.ID];
+
+                        float x = rect.X + (2 - xy.X) * CellSize + gap;
+                        float y = rect.Y + (2 - xy.Y) * CellSize + gap;
+
+                        float approachSize = 4 + size + size * (1 - progress) * 2 + 0.5f;
+
+                        if (Mapping.ClickMode.HasFlag(ClickMode.Select))
+                        {
+                            if (Math.Abs(mousex - size / 2 - x) <= size / 2 && Math.Abs(mousey - size / 2 - y) <= size / 2)
+                                hoveringXY ??= xy;
+                        }
+
+                        switch (obj.ID)
+                        {
+                            case 14:
+                                mineConstants.Add((x, y, 1, 2 * 8 + progress));
+                                mineApproaches.Add((x - approachSize / 2 + size / 2, y - approachSize / 2 + size / 2, approachSize, 2 * 8 + progress));
+
+                                if (hoveringXY == xy)
+                                    mineHovers = (x, y, 1, 2 * 5 + 1);
+                                if (xy.Selected)
+                                    mineSelects.Add((x, y, 1, 2 * 6 + progress));
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        float approachSize = 4 + rect.Width + rect.Width * (1 - progress) + 0.5f;
+
+                        switch (obj.ID)
+                        {
+                            case 12:
+                                beatConstants.Add((rect.X, rect.Y, 1, 2 * 4 + progress));
+                                beatApproaches.Add((rect.X + rect.Width / 2 - approachSize / 2, rect.Y + rect.Height / 2 - approachSize / 2, approachSize, 2 * 4 + progress));
+                                break;
+                            case 13 when obj is Glide glide:
+                                glideConstants.Add((rect.X + rect.Width / 2, rect.Y + rect.Height / 2, 1, 2 * 4 + progress));
+                                glideConstantsSecondary.Add((1, 1, (int)glide.Direction * MathHelper.PiOver2));
+                                glideApproaches.Add((rect.X + rect.Width / 2 - approachSize / 2, rect.Y + rect.Height / 2 - approachSize / 2, approachSize, 2 * 4 + progress));
+                                break;
+                        }
                     }
                 }
 
                 beatConstant.UploadData(beatConstants.ToArray());
                 beatApproach.UploadData(beatApproaches.ToArray());
+
+                mineConstant.UploadData(mineConstants.ToArray());
+                mineApproach.UploadData(mineApproaches.ToArray());
+                mineHover.UploadData([mineHovers]);
+                mineSelect.UploadData(mineSelects.ToArray());
+
+                glideConstant.UploadData(glideConstants.ToArray(), glideConstantsSecondary.ToArray());
+                glideApproach.UploadData(glideApproaches.ToArray());
             }
 
             List<Vector4> notePreviews = [];
@@ -294,7 +394,7 @@ namespace New_SSQE.NewGUI.Controls
                 notePreviews.Add((x, y, 1, 2 * 9 + 1));
             }
 
-            List<Note> bezierNodes = Mapping.Current.BezierNodes;
+            List<int> bezierNodes = Mapping.Current.BezierNodes;
 
             if (bezierNodes.Count > 0)
             {
@@ -302,8 +402,12 @@ namespace New_SSQE.NewGUI.Controls
                 List<int> anchored = [0];
 
                 for (int i = 1; i < bezierNodes.Count; i++)
-                    if (bezierNodes[i].Anchored)
+                {
+                    Note note = notes[bezierNodes[i]];
+
+                    if (note.Anchored)
                         anchored.Add(i);
+                }
 
                 if (!anchored.Contains(bezierNodes.Count - 1))
                     anchored.Add(bezierNodes.Count - 1);
@@ -313,7 +417,10 @@ namespace New_SSQE.NewGUI.Controls
                     List<Note> toDraw = [];
 
                     for (int j = anchored[i - 1]; j <= anchored[i]; j++)
-                        toDraw.Add(bezierNodes[j]);
+                    {
+                        Note note = notes[bezierNodes[j]];
+                        toDraw.Add(note);
+                    }
 
                     result.AddRange(Patterns.DrawBezier(toDraw, (int)(Settings.bezierDivisor.Value + 0.5f)));
                 }
@@ -354,8 +461,27 @@ namespace New_SSQE.NewGUI.Controls
             previewVerts.AddRange(GLVerts.Rect(0, 0, PreviewSize, PreviewSize, 1f, 1f, 1f, 0.125f));
             notePreview.UploadStaticData(previewVerts.ToArray());
 
-            beatConstant.UploadStaticData(GLVerts.Outline(-5, -5, rect.Width + 10, rect.Width + 10, 3, Settings.color5.Value));
+            beatConstant.UploadStaticData(GLVerts.Outline(-5, -5, rect.Width + 10, rect.Height + 10, 3, Settings.color5.Value));
             beatApproach.UploadStaticData(GLVerts.Outline(0, 0, 1, 1, 0.0075f, Settings.color5.Value));
+
+            float mineSize = objectSizes[14];
+
+            List<float> mineVerts = [];
+            mineVerts.AddRange(GLVerts.PolygonOutline(mineSize / 2, mineSize / 2, mineSize / 2, 2, 4, 0, 1f, 1f, 1f, 1f));
+            mineVerts.AddRange(GLVerts.Polygon(mineSize / 2, mineSize / 2, mineSize / 2, 4, 0, 1f, 1f, 1f, 0.15f));
+            mineConstant.UploadStaticData(mineVerts.ToArray());
+
+            mineApproach.UploadStaticData(GLVerts.PolygonOutline(0.5f, 0.5f, 0.5f, 0.0125f, 4, 0, 1f, 1f, 1f, 1f));
+            mineHover.UploadStaticData(GLVerts.PolygonOutline(mineSize / 2, mineSize / 2, mineSize / 2 + 4, 2, 4, 0, 1f, 1f, 1f, 0.25f));
+            mineSelect.UploadStaticData(GLVerts.PolygonOutline(mineSize / 2, mineSize / 2, mineSize / 2 + 4, 2, 4, 0, 1f, 1f, 1f, 1f));
+
+            List<float> glideVerts = [];
+            glideVerts.AddRange(GLVerts.Outline(-rect.Width / 2 - 5, -rect.Width / 2 - 5, rect.Width + 10, rect.Height + 10, 3, Settings.color5.Value));
+            glideVerts.AddRange(GLVerts.PolygonOutline(0, -rect.Height / 5, rect.Width / 10, 8, 3, -30, Settings.color5.Value));
+            glideVerts.AddRange(GLVerts.PolygonOutline(0, rect.Height / 5, rect.Width / 10, 8, 3, -30, Settings.color5.Value));
+            glideConstant.UploadStaticData(glideVerts.ToArray());
+
+            glideApproach.UploadStaticData(GLVerts.Outline(0, 0, 1, 1, 0.0075f, Settings.color5.Value));
 
             List<float> verts = [];
             verts.AddRange(GLVerts.Rect(rect, Style.Primary, Settings.gridOpacity.Value / 255f));
@@ -448,22 +574,36 @@ namespace New_SSQE.NewGUI.Controls
                 FontRenderer.SetColor(Style.Secondary);
                 FontRenderer.RenderData(FONT, keybindVerts);
             }
-
+            
             noteConstant.Render();
             if (Settings.approachSquares.Value)
                 noteApproach.Render();
-            noteSelect.Render();
-            noteHover.Render();
-            if (Settings.autoplay.Value)
-                autoplayCursor.Render();
-            notePreview.Render();
 
-            if (Mapping.RenderMode == ObjectRenderMode.Special)
+            if (Mapping.RenderMode == ObjectRenderMode.Notes)
+            {
+                noteSelect.Render();
+                noteHover.Render();
+                notePreview.Render();
+            }
+            else if (Mapping.RenderMode == ObjectRenderMode.Special)
             {
                 beatConstant.Render();
                 if (Settings.approachSquares.Value)
                     beatApproach.Render();
+
+                mineConstant.Render();
+                if (Settings.approachSquares.Value)
+                    mineApproach.Render();
+                mineSelect.Render();
+                mineHover.Render();
+
+                glideConstant.Render();
+                if (Settings.approachSquares.Value)
+                    glideApproach.Render();
             }
+
+            if (Settings.autoplay.Value)
+                autoplayCursor.Render();
         }
 
         public override void PostRender(float mousex, float mousey, float frametime)
@@ -606,7 +746,7 @@ namespace New_SSQE.NewGUI.Controls
                     else
                         selected.Add(hoveringXY);
                 }
-                else if (selected.Count == 0)
+                else if (selected.Count == 0 || !selected.Contains(hoveringXY))
                     selected = [hoveringXY];
 
                 Mapping.SetSelected(new List<MapObject>(selected));
@@ -641,11 +781,36 @@ namespace New_SSQE.NewGUI.Controls
                         draggingXY[i].Y -= cellDiff.Y;
                     }
 
-                    NoteManager.Edit($"MOVE {(draggingXY[0] is Note ? "NOTE" : "OBJECT")}[S]", n =>
+                    switch (Mapping.RenderMode)
                     {
-                        n.X += cellDiff.X;
-                        n.Y += cellDiff.Y;
-                    });
+                        case ObjectRenderMode.Notes:
+                            NoteManager.Edit("MOVE NOTE[S]", n =>
+                            {
+                                n.X += cellDiff.X;
+                                n.Y += cellDiff.Y;
+                            });
+                            break;
+                        case ObjectRenderMode.VFX:
+                            VfxObjectManager.Edit("MOVE OBJECT[S]", n =>
+                            {
+                                if (n is XYMapObject xy)
+                                {
+                                    xy.X += cellDiff.X;
+                                    xy.Y += cellDiff.Y;
+                                }
+                            });
+                            break;
+                        case ObjectRenderMode.Special:
+                            SpecialObjectManager.Edit("MOVE OBJECT[S]", n =>
+                            {
+                                if (n is XYMapObject xy)
+                                {
+                                    xy.X += cellDiff.X;
+                                    xy.Y += cellDiff.Y;
+                                }
+                            });
+                            break;
+                    }
                 }
 
                 draggingXY = [];
@@ -663,11 +828,14 @@ namespace New_SSQE.NewGUI.Controls
 
             int x = 2 - int.Parse(xy[0]);
             int y = 2 - int.Parse(xy[1]);
-            long ms = Timing.GetClosestBeat(Settings.currentTime.Value.Value);
+
+            long ms = Math.Min(Timing.GetClosestBeat(Settings.currentTime.Value.Value), (long)Settings.currentTime.Value.Max);
+            if (ms < 0)
+                ms = (long)Settings.currentTime.Value.Value;
 
             if (Mapping.RenderMode == ObjectRenderMode.Notes)
             {
-                Note note = new(x, y, (long)(ms >= 0 ? ms : Settings.currentTime.Value.Value));
+                Note note = new(x, y, ms);
                 NoteManager.Add("ADD NOTE", note);
             }
             else if (Mapping.RenderMode == ObjectRenderMode.Special &&

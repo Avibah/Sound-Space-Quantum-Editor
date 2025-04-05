@@ -19,7 +19,7 @@ namespace New_SSQE.Audio
         private static double resolution = 0.0d;
         private static bool classic = false;
 
-        public static long Offset = -15;
+        public static long Offset = -15 - MusicPlayer.GLOBAL_OFFSET;
 
         private struct Level
         {
@@ -117,7 +117,7 @@ namespace New_SSQE.Audio
             }
 
             if (isUploaded)
-                Dispose();
+                Reset();
             Upload();
         }
 
@@ -125,6 +125,7 @@ namespace New_SSQE.Audio
         {
             Shader.Waveform.Uniform3("LineColor", Settings.color4.Value);
             (vao, vbo) = GLState.NewVAO_VBO(2);
+            GLState.testBuffer = vbo;
             GLState.BufferData(vbo, WaveModel);
 
             waveLength = WaveModel.Length / 2;
@@ -145,8 +146,11 @@ namespace New_SSQE.Audio
             GLState.DrawArrays(vao, PrimitiveType.LineStrip, start, end - start);
         }
 
-        public static void Dispose()
+        public static void Reset()
         {
+            if (!isUploaded)
+                return;
+
             GLState.BufferData(vbo, Array.Empty<float>());
             GLState.Clean(vbo);
             GLState.Clean(vao);

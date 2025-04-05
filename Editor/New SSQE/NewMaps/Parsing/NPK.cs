@@ -12,6 +12,8 @@ namespace New_SSQE.NewMaps.Parsing
 {
     internal class NPK : IFormatParser
     {
+        private const int CURRENT_VERSION = 1;
+
         public static bool Read(string path)
         {
             string directory = Path.GetDirectoryName(path) ?? "";
@@ -19,6 +21,8 @@ namespace New_SSQE.NewMaps.Parsing
             string id = "";
             string profile = "";
             string icon = "";
+
+            int formatVersion;
 
             foreach (string file in Directory.GetFiles(directory))
             {
@@ -54,6 +58,9 @@ namespace New_SSQE.NewMaps.Parsing
                                         break;
                                     case "previewDuration":
                                         Settings.previewDuration.Value = ((long)(value.GetDouble() * 1000d)).ToString();
+                                        break;
+                                    case "formatVersion":
+                                        formatVersion = value.GetInt32();
                                         break;
                                 }
                             }
@@ -116,9 +123,6 @@ namespace New_SSQE.NewMaps.Parsing
                     case "notes":
                         Dictionary<string, JsonElement>[] noteSet = value.Deserialize<Dictionary<string, JsonElement>[]>() ?? [];
 
-                        long prevDiffN = 0;
-                        long prevMsN = 0;
-
                         for (int i = 0; i < noteSet.Length; i++)
                         {
                             Dictionary<string, JsonElement> note = noteSet[i];
@@ -126,13 +130,12 @@ namespace New_SSQE.NewMaps.Parsing
                             float y = note["y"].GetSingle() + 1;
                             long t = note["t"].GetInt64();
 
-                            long diff = t - prevMsN;
-                            long offset = diff - prevDiffN;
+                            bool m = note.TryGetValue("m", out JsonElement tempM) && tempM.GetBoolean();
 
-                            prevDiffN = diff;
-                            prevMsN = t;
-
-                            Mapping.Current.Notes.Add(new(x, y, offset));
+                            if (m)
+                                Mapping.Current.SpecialObjects.Add(new Mine(x, y, t));
+                            else
+                                Mapping.Current.Notes.Add(new(x, y, t));
                         }
 
                         break;
@@ -140,21 +143,33 @@ namespace New_SSQE.NewMaps.Parsing
                     case "beats":
                         Dictionary<string, JsonElement>[] beatSet = value.Deserialize<Dictionary<string, JsonElement>[]>() ?? [];
 
-                        long prevDiffB = 0;
-                        long prevMsB = 0;
-
                         for (int i = 0; i < beatSet.Length; i++)
                         {
                             Dictionary<string, JsonElement> beat = beatSet[i];
                             long t = beat["t"].GetInt64();
 
-                            long diff = t - prevMsB;
-                            long offset = diff - prevDiffB;
+                            Mapping.Current.SpecialObjects.Add(new Beat(t));
+                        }
 
-                            prevDiffB = diff;
-                            prevMsB = t;
+                        break;
 
-                            Mapping.Current.SpecialObjects.Add(new Beat(offset));
+                    case "glides":
+                        Dictionary<string, JsonElement>[] glideSet = value.Deserialize<Dictionary<string, JsonElement>[]>() ?? [];
+
+                        for (int i = 0; i < glideSet.Length; i++)
+                        {
+                            Dictionary<string, JsonElement> glide = glideSet[i];
+                            long t = glide["t"].GetInt64();
+                            string d = glide["d"].GetString() ?? "none";
+
+                            Mapping.Current.SpecialObjects.Add(new Glide(t, d switch
+                            {
+                                "up" => GlideDirection.Up,
+                                "right" => GlideDirection.Right,
+                                "down" => GlideDirection.Down,
+                                "left" => GlideDirection.Left,
+                                _ => GlideDirection.None
+                            }));
                         }
 
                         break;
@@ -184,7 +199,10 @@ namespace New_SSQE.NewMaps.Parsing
             File.Copy(Metadata["iconPath"], Path.Combine(temp, $"profile{Path.GetExtension(Metadata["iconPath"])}"), true);
             File.Copy(Path.Combine(Assets.CACHED, $"{id}.asset"), Path.Combine(temp, $"{id}{extension}"), true);
 
-            Dictionary<string, object>[] notes = new Dictionary<string, object>[Mapping.Current.Notes.Count];
+            List<Dictionary<string, object>> notes = new(Mapping.Current.Notes.Count);
+            List<Dictionary<string, object>> beats = [];
+            List<Dictionary<string, object>> glides = [];
+
             for (int i = 0; i < Mapping.Current.Notes.Count; i++)
             {
                 Note note = Mapping.Current.Notes[i];
@@ -197,15 +215,41 @@ namespace New_SSQE.NewMaps.Parsing
                 };
             }
 
-            List<Dictionary<string, object>> beats = [];
             foreach (MapObject obj in Mapping.Current.SpecialObjects)
             {
-                if (obj is Beat beat)
+                switch (obj.ID)
                 {
-                    beats.Add(new()
-                    {
-                        {"t", beat.Ms }
-                    });
+                    case 12 when obj is Beat beat:
+                        beats.Add(new()
+                        {
+                            {"t", beat.Ms }
+                        });
+                        break;
+
+                    case 13 when obj is Glide glide:
+                        glides.Add(new()
+                        {
+                            {"t", glide.Ms },
+                            {"d", glide.Direction switch
+                            {
+                                GlideDirection.Up => "up",
+                                GlideDirection.Right => "right",
+                                GlideDirection.Down => "down",
+                                GlideDirection.Left => "left",
+                                _ => "none"
+                            } }
+                        });
+                        break;
+
+                    case 14 when obj is Mine mine:
+                        notes.Add(new()
+                        {
+                            {"x", 1 - mine.X },
+                            {"y", mine.Y - 1 },
+                            {"t", mine.Ms },
+                            {"m", true }
+                        });
+                        break;
                 }
             }
 
@@ -213,7 +257,8 @@ namespace New_SSQE.NewMaps.Parsing
             {
                 {"songOffset", long.Parse(Metadata["songOffset"]) },
                 {"notes", notes },
-                {"beats", beats }
+                {"beats", beats },
+                {"glides", glides }
             };
 
             File.WriteAllText(Path.Combine(temp, "chart.nch"), JsonSerializer.Serialize(chart, Program.JsonOptions));
@@ -225,7 +270,8 @@ namespace New_SSQE.NewMaps.Parsing
                 {"mapCreator", Metadata["mapCreator"] },
                 {"mapCreatorPersonalLink", Metadata["mapCreatorPersonalLink"] },
                 {"previewStartTime", long.Parse(Metadata["previewStartTime"]) / 1000f },
-                {"previewDuration", long.Parse(Metadata["previewDuration"]) / 1000f }
+                {"previewDuration", long.Parse(Metadata["previewDuration"]) / 1000f },
+                {"formatVersion", CURRENT_VERSION }
             };
 
             File.WriteAllText(Path.Combine(temp, "metadata.json"), JsonSerializer.Serialize(metadata, Program.JsonOptions));

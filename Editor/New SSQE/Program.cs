@@ -1,8 +1,8 @@
 ﻿using Avalonia;
 using New_SSQE.ExternalUtils;
-using New_SSQE.Maps;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
+using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
 using System.Diagnostics;
 using System.Globalization;
@@ -57,8 +57,8 @@ namespace New_SSQE
             {
                 if (MainWindow.Instance != null)
                 {
-                    CurrentMap.LoadedMap?.Save();
-                    MapManager.SaveCache();
+                    Mapping.Autosave();
+                    Mapping.SaveCache();
                 }
             }
             catch (Exception ex) { Logging.Register("Map(s) failed to save on abort", LogSeverity.WARN, ex); }

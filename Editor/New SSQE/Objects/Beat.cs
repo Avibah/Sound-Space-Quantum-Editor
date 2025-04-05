@@ -2,9 +2,9 @@
 {
     internal class Beat : MapObject
     {
-        public Beat(long ms) : base(12, ms, "Beat", false)
+        public Beat(long ms) : base(12, ms, "Beat")
         {
-
+            HasDuration = false;
         }
 
         public override Beat Clone()

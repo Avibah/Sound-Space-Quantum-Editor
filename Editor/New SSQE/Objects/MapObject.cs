@@ -15,15 +15,15 @@
         public bool Selected;
         public long DragStartMs;
 
-        public bool HasDuration;
+        public bool HasDuration = true;
+        public bool PlayHitsound = true;
 
-        public MapObject(int id, long ms, string? name = null, bool hasDuration = true)
+        public MapObject(int id, long ms, string? name = null)
         {
             ID = id;
             Ms = ms;
 
             Name = name;
-            HasDuration = hasDuration;
 
             ExtraData = [];
         }

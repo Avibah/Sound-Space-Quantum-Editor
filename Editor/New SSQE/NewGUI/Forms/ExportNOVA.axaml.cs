@@ -2,9 +2,9 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using New_SSQE.ExternalUtils;
-using New_SSQE.FileParsing;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
+using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Preferences;
 using OpenFileDialog = New_SSQE.Misc.Dialogs.OpenFileDialog;
 
@@ -49,29 +49,29 @@ namespace New_SSQE.NewGUI
 
         private void FinishButton_Click(object sender, RoutedEventArgs e)
         {
-            Exporting.NovaInfo["songOffset"] = long.TryParse(SongOffsetBox.Text, out long offset) ? offset.ToString() : "0";
-            Exporting.NovaInfo["songTitle"] = TitleBox.Text;
-            Exporting.NovaInfo["songArtist"] = ArtistBox.Text;
-            Exporting.NovaInfo["mapCreator"] = MapperBox.Text;
-            Exporting.NovaInfo["mapCreatorPersonalLink"] = LinkBox.Text;
-            Exporting.NovaInfo["previewStartTime"] = long.TryParse(PreviewStartBox.Text, out long start) ? start.ToString() : "0";
-            Exporting.NovaInfo["previewDuration"] = long.TryParse(PreviewDurationBox.Text, out long duration) ? duration.ToString() : "0";
-            Exporting.NovaInfo["coverPath"] = CoverPathBox.Text;
-            Exporting.NovaInfo["iconPath"] = IconPathBox.Text;
+            NPK.Metadata["songOffset"] = long.TryParse(SongOffsetBox.Text, out long offset) ? offset.ToString() : "0";
+            NPK.Metadata["songTitle"] = TitleBox.Text;
+            NPK.Metadata["songArtist"] = ArtistBox.Text;
+            NPK.Metadata["mapCreator"] = MapperBox.Text;
+            NPK.Metadata["mapCreatorPersonalLink"] = LinkBox.Text;
+            NPK.Metadata["previewStartTime"] = long.TryParse(PreviewStartBox.Text, out long start) ? start.ToString() : "0";
+            NPK.Metadata["previewDuration"] = long.TryParse(PreviewDurationBox.Text, out long duration) ? duration.ToString() : "0";
+            NPK.Metadata["coverPath"] = CoverPathBox.Text;
+            NPK.Metadata["iconPath"] = IconPathBox.Text;
 
-            Settings.songOffset.Value = Exporting.NovaInfo["songOffset"];
-            Settings.songTitle.Value = Exporting.NovaInfo["songTitle"];
-            Settings.songArtist.Value = Exporting.NovaInfo["songArtist"];
-            Settings.mapCreator.Value = Exporting.NovaInfo["mapCreator"];
-            Settings.mapCreatorPersonalLink.Value = Exporting.NovaInfo["mapCreatorPersonalLink"];
-            Settings.previewStartTime.Value = Exporting.NovaInfo["previewStartTime"];
-            Settings.previewDuration.Value = Exporting.NovaInfo["previewDuration"];
-            Settings.novaCover.Value = Exporting.NovaInfo["coverPath"];
-            Settings.novaIcon.Value = Exporting.NovaInfo["iconPath"];
+            Settings.songOffset.Value = NPK.Metadata["songOffset"];
+            Settings.songTitle.Value = NPK.Metadata["songTitle"];
+            Settings.songArtist.Value = NPK.Metadata["songArtist"];
+            Settings.mapCreator.Value = NPK.Metadata["mapCreator"];
+            Settings.mapCreatorPersonalLink.Value = NPK.Metadata["mapCreatorPersonalLink"];
+            Settings.previewStartTime.Value = NPK.Metadata["previewStartTime"];
+            Settings.previewDuration.Value = NPK.Metadata["previewDuration"];
+            Settings.novaCover.Value = NPK.Metadata["coverPath"];
+            Settings.novaIcon.Value = NPK.Metadata["iconPath"];
 
             Close();
 
-            Exporting.ExportNOVA();
+            NPK.Export();
         }
 
         private void SelectCover_Click(object sender, RoutedEventArgs e)

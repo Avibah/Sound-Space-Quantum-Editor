@@ -38,10 +38,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <UpToDateCheckInput Remove="GUI\Forms\MessageBox.axaml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="deps\Icon.ico" />
   </ItemGroup>
 

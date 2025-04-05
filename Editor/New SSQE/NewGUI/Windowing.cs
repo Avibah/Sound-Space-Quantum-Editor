@@ -20,10 +20,10 @@ namespace New_SSQE.NewGUI
                 Mapping.StartAutosaving();
             }
             else if (window is GuiWindowMenu)
-            {
                 DiscordManager.SetActivity(DiscordStatus.Menu);
-                Waveform.Dispose();
-            }
+
+            if (Current is GuiWindowEditor)
+                MusicPlayer.Reset();
 
             ExportSSPM.Instance?.Close();
             BPMTapper.Instance?.Close();

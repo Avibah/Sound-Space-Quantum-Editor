@@ -179,7 +179,7 @@ namespace New_SSQE.NewMaps
 
                     for (decimal t = 0; t < 1 + tIncrement / 2m; t += tIncrement)
                     {
-                        if (t > 0)
+                        if (t > 0 || point == 0)
                         {
                             decimal x = (decimal)note.X + deltaX * t;
                             decimal y = (decimal)note.Y + deltaY * t;
@@ -202,8 +202,19 @@ namespace New_SSQE.NewMaps
                 || Mapping.Current.Notes.Selected.Count > 1))
             {
                 bool success = true;
-                List<Note> nodes = Mapping.Current.BezierNodes != null && Mapping.Current.BezierNodes.Count > 1
-                    ? [..Mapping.Current.BezierNodes] : [..Mapping.Current.Notes.Selected];
+                List<Note> nodes = [];
+
+                if (Mapping.Current.BezierNodes != null && Mapping.Current.BezierNodes.Count > 1)
+                {
+                    for (int i = 0; i < Mapping.Current.BezierNodes.Count; i++)
+                    {
+                        Note note = Mapping.Current.Notes[Mapping.Current.BezierNodes[i]];
+                        nodes.Add(note);
+                    }
+                }
+                else
+                    nodes = Mapping.Current.Notes.Selected;
+
                 List<Note> result = [];
 
                 List<int> anchored = [0];

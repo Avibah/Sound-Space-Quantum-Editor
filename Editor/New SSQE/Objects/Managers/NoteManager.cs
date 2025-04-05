@@ -6,7 +6,7 @@ namespace New_SSQE.Objects.Managers
     internal class NoteManager : IObjectManager<Note>
     {
         private static ObjectList<Note> Notes => Mapping.Current.Notes;
-        private static List<Note> BezierNodes => Mapping.Current.BezierNodes;
+        private static List<int> BezierNodes => Mapping.Current.BezierNodes;
 
         public static void Replace(string label, List<Note> oldNotes, List<Note> newNotes)
         {
@@ -26,13 +26,26 @@ namespace New_SSQE.Objects.Managers
 
                 if (bezier)
                 {
-                    for (int i = 0; i < newNotes.Count; i++)
+                    List<Note> temp = [];
+                    for (int i = 0; i < BezierNodes.Count; i++)
+                        temp.Add(newNotes[BezierNodes[i]]);
+
+                    int index = 0;
+                    List<int> nodes = [];
+
+                    for (int i = 0; i < oldNotes.Count; i++)
                     {
-                        if (BezierNodes.Remove(newNotes[i]))
-                            BezierNodes.Add(oldNotes[i]);
+                        if (index >= temp.Count)
+                            break;
+
+                        if (oldNotes[i] == temp[index])
+                        {
+                            nodes.Add(i);
+                            index++;
+                        }
                     }
 
-                    Mapping.Current.BezierNodes = [..BezierNodes.OrderBy(n => n.Ms)];
+                    Mapping.Current.BezierNodes = nodes;
                 }
             }, () =>
             {
@@ -44,13 +57,26 @@ namespace New_SSQE.Objects.Managers
 
                 if (bezier)
                 {
-                    for (int i = 0; i < oldNotes.Count; i++)
+                    List<Note> temp = [];
+                    for (int i = 0; i < BezierNodes.Count; i++)
+                        temp.Add(oldNotes[BezierNodes[i]]);
+
+                    int index = 0;
+                    List<int> nodes = [];
+
+                    for (int i = 0; i < newNotes.Count; i++)
                     {
-                        if (BezierNodes.Remove(oldNotes[i]))
-                            BezierNodes.Add(newNotes[i]);
+                        if (index >= temp.Count)
+                            break;
+
+                        if (newNotes[i] == temp[index])
+                        {
+                            nodes.Add(i);
+                            index++;
+                        }
                     }
 
-                    Mapping.Current.BezierNodes = [..BezierNodes.OrderBy(n => n.Ms)];
+                    Mapping.Current.BezierNodes = nodes;
                 }
             });
         }

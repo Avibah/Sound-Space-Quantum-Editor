@@ -9,8 +9,8 @@ namespace New_SSQE.NewGUI
         {
             float a = c.Length == 4 ? c[3] : 1f;
 
-            return new float[]
-            {
+            return
+            [
                 x, y, c[0], c[1], c[2], a,
                 x + w, y, c[0], c[1], c[2], a,
                 x, y + h, c[0], c[1], c[2], a,
@@ -18,7 +18,7 @@ namespace New_SSQE.NewGUI
                 x + w, y + h, c[0], c[1], c[2], a,
                 x, y + h, c[0], c[1], c[2], a,
                 x + w, y, c[0], c[1], c[2], a
-            };
+            ];
         }
 
         public static float[] Rect(RectangleF rect, params float[] c)
@@ -37,8 +37,8 @@ namespace New_SSQE.NewGUI
             x -= lw / 2;
             y -= lw / 2;
 
-            return new float[]
-            {
+            return
+            [
                 x, y, c[0], c[1], c[2], a,
                 x + w, y, c[0], c[1], c[2], a,
                 x, y + lw, c[0], c[1], c[2], a,
@@ -70,7 +70,7 @@ namespace New_SSQE.NewGUI
                 x + lw, y + lw, c[0], c[1], c[2], a,
                 x + lw, y + h + lw, c[0], c[1], c[2], a,
                 x, y + lw, c[0], c[1], c[2], a,
-            };
+            ];
         }
 
         public static float[] Outline(RectangleF rect, float lw, params float[] c)
@@ -84,8 +84,8 @@ namespace New_SSQE.NewGUI
 
         public static float[] Texture(float x, float y, float w, float h, float tx = 0, float ty = 0, float tw = 1, float th = 1, float alpha = 1)
         {
-            return new float[]
-            {
+            return
+            [
                 x, y, tx, ty, alpha,
                 x + w, y, tx + tw, ty, alpha,
                 x, y + h, tx, ty + th, alpha,
@@ -93,13 +93,13 @@ namespace New_SSQE.NewGUI
                 x + w, y + h, tx + tw, ty + th, alpha,
                 x, y + h, tx, ty + th, alpha,
                 x + w, y, tx + tw, ty, alpha
-            };
+            ];
         }
 
         public static float[] TextureWithoutAlpha(float x, float y, float w, float h, float tx = 0, float ty = 0, float tw = 1, float th = 1)
         {
-            return new float[]
-            {
+            return
+            [
                 x, y, tx, ty,
                 x + w, y, tx + tw, ty,
                 x, y + h, tx, ty + th,
@@ -107,13 +107,13 @@ namespace New_SSQE.NewGUI
                 x + w, y + h, tx + tw, ty + th,
                 x, y + h, tx, ty + th,
                 x + w, y, tx + tw, ty
-            };
+            ];
         }
 
         public static float[] Icon(float x, float y, float w, float h)
         {
-            return new float[]
-            {
+            return
+            [
                 x, y, 0f, 0f, 0, 0,
                 x + w, y, 1f, 0f, 0, 0,
                 x, y + h, 0f, 1f, 0, 0,
@@ -121,7 +121,7 @@ namespace New_SSQE.NewGUI
                 x + w, y + h, 1f, 1f, 0, 0,
                 x, y + h, 0f, 1f, 0, 0,
                 x + w, y, 1f, 0f, 0, 0
-            };
+            ];
         }
 
 
@@ -142,8 +142,8 @@ namespace New_SSQE.NewGUI
                 x2 += lw / 2;
             }
 
-            return new float[]
-            {
+            return
+            [
                 x1, y1, c[0], c[1], c[2], a,
                 x2, y1, c[0], c[1], c[2], a,
                 x1, y2, c[0], c[1], c[2], a,
@@ -151,7 +151,7 @@ namespace New_SSQE.NewGUI
                 x2, y2, c[0], c[1], c[2], a,
                 x1, y2, c[0], c[1], c[2], a,
                 x2, y1, c[0], c[1], c[2], a,
-            };
+            ];
         }
 
         public static float[] Line(float x1, float y1, float x2, float y2, float lw, Color color, float alpha = 1)

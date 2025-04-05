@@ -161,9 +161,9 @@ namespace New_SSQE.NewMaps
             float zoom = Current.Zoom;
             float step = zoom < 0.1f || (zoom == 0.1f && increment < 0) ? 0.01f : 0.1f;
 
-            Current.Zoom = (float)Math.Round(zoom + increment * step, 2);
+            zoom = (float)Math.Round(zoom + increment * step, 2);
             if (zoom > 0.1f)
-                Current.Zoom = (float)Math.Round(zoom * 10) / 10;
+                zoom = (float)Math.Round(zoom * 10) / 10;
 
             Current.Zoom = MathHelper.Clamp(zoom, 0.01f, 10f);
         }
@@ -396,6 +396,8 @@ namespace New_SSQE.NewMaps
             Current = map;
             map.OpenSettings();
 
+            SortAll();
+
             if (loadAudio)
             {
                 if (!LoadAudio(map.SoundID))
@@ -520,8 +522,9 @@ namespace New_SSQE.NewMaps
             {
                 if (File.Exists(data))
                 {
-                    Settings.lastFile.Value = data;
                     string extension = Path.GetExtension(data);
+                    if (extension == ".txt")
+                        Settings.lastFile.Value = data;
 
                     if (extension == ".npk")
                     {

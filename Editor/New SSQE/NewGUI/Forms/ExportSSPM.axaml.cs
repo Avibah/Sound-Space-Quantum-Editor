@@ -2,9 +2,9 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using New_SSQE.ExternalUtils;
-using New_SSQE.FileParsing;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
+using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Preferences;
 using OpenFileDialog = New_SSQE.Misc.Dialogs.OpenFileDialog;
 
@@ -113,24 +113,24 @@ namespace New_SSQE.NewGUI
 
         private void FinishButton_Click(object sender, RoutedEventArgs e)
         {
-            Exporting.Info["songId"] = MapIDBox.Text ?? "";
-            Exporting.Info["mapName"] = GetSongName();
-            Exporting.Info["mappers"] = string.Join("\n", GetMappers());
-            Exporting.Info["coverPath"] = (UseCover.IsChecked ?? false) ? CoverPathBox.Text : "";
+            SSPM.Metadata["songId"] = MapIDBox.Text ?? "";
+            SSPM.Metadata["mapName"] = GetSongName();
+            SSPM.Metadata["mappers"] = string.Join("\n", GetMappers());
+            SSPM.Metadata["coverPath"] = (UseCover.IsChecked ?? false) ? CoverPathBox.Text : "";
             ComboBoxItem? item = DifficultyBox.SelectedItem as ComboBoxItem;
-            Exporting.Info["difficulty"] = Exporting.Difficulties.ContainsKey(item?.Content.ToString() ?? "") ? (item?.Content.ToString() ?? "") : "N/A";
-            Exporting.Info["customDifficulty"] = CustomDifficultyBox.Text;
+            SSPM.Metadata["difficulty"] = FormatUtils.Difficulties.ContainsKey(item?.Content.ToString() ?? "") ? (item?.Content.ToString() ?? "") : "N/A";
+            SSPM.Metadata["customDifficulty"] = CustomDifficultyBox.Text;
 
-            Settings.mappers.Value = Exporting.Info["mappers"];
-            Settings.songName.Value = Exporting.Info["mapName"];
-            Settings.difficulty.Value = Exporting.Info["difficulty"];
+            Settings.mappers.Value = SSPM.Metadata["mappers"];
+            Settings.songName.Value = SSPM.Metadata["mapName"];
+            Settings.difficulty.Value = SSPM.Metadata["difficulty"];
             Settings.useCover.Value = UseCover.IsChecked ?? false;
             Settings.cover.Value = CoverPathBox.Text;
             Settings.customDifficulty.Value = CustomDifficultyBox.Text;
 
             Close();
 
-            Exporting.ExportSSPM();
+            SSPM.Export();
         }
 
         private void SelectButton_Click(object sender, RoutedEventArgs e)

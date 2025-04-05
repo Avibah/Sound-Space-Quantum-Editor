@@ -25,28 +25,36 @@ namespace New_SSQE.NewGUI.Base
         public void SetControls(params Control[] controls)
         {
             this.controls = [];
-            this.interactives = [];
+            interactives = [];
 
             Resize(1920, 1080);
 
-            List<InteractiveControl> interactives = [];
-
-            foreach (Control control in controls)
+            InteractiveControl[] ConnectInteractives(Control[] toConnect)
             {
-                if (control is InteractiveControl interactive)
-                {
-                    interactives.Add(interactive);
-                    if (interactive is ControlContainer)
-                        continue;
+                List<InteractiveControl> interactives = [];
 
-                    interactive.LeftClick += (s, e) => leftClick = true;
-                    interactive.RightClick += (s, e) => rightClick = true;
-                    interactive.TextEntered += (s, e) => textInput = true;
+                foreach (Control control in toConnect)
+                {
+                    if (control is InteractiveControl interactive)
+                    {
+                        interactives.Add(interactive);
+                        if (interactive is ControlContainer container)
+                        {
+                            ConnectInteractives(container.Children);
+                            continue;
+                        }
+
+                        interactive.LeftClick += (s, e) => leftClick = true;
+                        interactive.RightClick += (s, e) => rightClick = true;
+                        interactive.TextEntered += (s, e) => textInput = true;
+                    }
                 }
+
+                return [..interactives];
             }
 
             this.controls = controls;
-            this.interactives = [..interactives];
+            interactives = ConnectInteractives(controls);
 
             Resize(MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y);
         }
@@ -302,13 +310,12 @@ namespace New_SSQE.NewGUI.Base
                 control.DisconnectAll();
         }
 
-
-        public override void Dispose()
+        public override void Reset()
         {
-            base.Dispose();
+            base.Reset();
 
             foreach (Control control in controls)
-                control.Dispose();
+                control.Reset();
         }
     }
 }

@@ -5,15 +5,17 @@
         Up,
         Right,
         Down,
-        Left
+        Left,
+        None
     }
 
     internal class Glide : MapObject
     {
         public GlideDirection Direction;
 
-        public Glide(long ms, GlideDirection direction) : base(13, ms, "Glide", false)
+        public Glide(long ms, GlideDirection direction) : base(13, ms, "Glide")
         {
+            HasDuration = false;
             Direction = direction;
         }
 

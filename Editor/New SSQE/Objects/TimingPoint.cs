@@ -8,12 +8,13 @@ namespace New_SSQE.Objects
         public float BPM { get; set; }
         public Vector2 TimeSignature { get; set; }
 
-        public TimingPoint(float bpm, long ms, Vector2? timeSignature = null) : base(1, ms, "BPM", false)
+        public TimingPoint(float bpm, long ms, Vector2? timeSignature = null) : base(1, ms, "BPM")
         {
             BPM = bpm;
             Ms = ms;
 
             TimeSignature = timeSignature ?? (4, 4);
+            HasDuration = false;
         }
 
         public TimingPoint(string data) : this(0, 0)

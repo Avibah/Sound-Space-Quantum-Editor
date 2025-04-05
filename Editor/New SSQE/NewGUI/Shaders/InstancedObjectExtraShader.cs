@@ -23,8 +23,10 @@ void main()
     float sinR = sin(aExtra.z);
     float cosR = cos(aExtra.z);
 
-    float x = cosR * aPosition.x - sinR * aPosition.y;
-    float y = sinR * aPosition.x + cosR * aPosition.y;
+    vec2 half = aPosition / 2.0f;
+
+    float x = cosR * (aPosition.x - half.x) - sinR * (aPosition.y - half.y) + half.x;
+    float y = sinR * (aPosition.x - half.x) + cosR * (aPosition.y - half.y) + half.y;
 
     gl_Position = Projection * vec4(vec2(x * aExtra.x, y * aExtra.y) * aOffset.z + aOffset.xy, 0.0f, 1.0f);
     vertexColor = vec4(NoteColors[c].xyz, aColor.w * a);

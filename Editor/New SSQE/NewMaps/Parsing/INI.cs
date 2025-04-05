@@ -1,5 +1,4 @@
-﻿using New_SSQE.GUI;
-using New_SSQE.Objects;
+﻿using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
@@ -93,9 +92,6 @@ namespace New_SSQE.NewMaps.Parsing
                         break;
                 }
             }
-
-            if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
-                editor.Timeline.GenerateOffsets();
 
             return true;
         }
@@ -248,9 +244,6 @@ namespace New_SSQE.NewMaps.Parsing
                             break;
                     }
                 }
-
-                if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
-                    editor.Timeline.GenerateOffsets();
 
                 return true;
             }

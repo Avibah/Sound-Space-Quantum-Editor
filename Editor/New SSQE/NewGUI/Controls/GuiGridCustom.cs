@@ -272,7 +272,7 @@ namespace New_SSQE.NewGUI.Controls
                 notePreviews.Add((x, y, 1, 2 * 9 + 1));
             }
 
-            List<Note> bezierNodes = Mapping.Current.BezierNodes;
+            List<int> bezierNodes = Mapping.Current.BezierNodes;
 
             if (bezierNodes.Count > 0)
             {
@@ -280,8 +280,12 @@ namespace New_SSQE.NewGUI.Controls
                 List<int> anchored = [0];
 
                 for (int i = 1; i < bezierNodes.Count; i++)
-                    if (bezierNodes[i].Anchored)
+                {
+                    Note note = notes[bezierNodes[i]];
+
+                    if (note.Anchored)
                         anchored.Add(i);
+                }
 
                 if (!anchored.Contains(bezierNodes.Count - 1))
                     anchored.Add(bezierNodes.Count - 1);
@@ -291,7 +295,10 @@ namespace New_SSQE.NewGUI.Controls
                     List<Note> toDraw = [];
 
                     for (int j = anchored[i - 1]; j <= anchored[i]; j++)
-                        toDraw.Add(bezierNodes[j]);
+                    {
+                        Note note = notes[bezierNodes[j]];
+                        toDraw.Add(note);
+                    }
 
                     result.AddRange(Patterns.DrawBezier(toDraw, (int)(Settings.bezierDivisor.Value + 0.5f)));
                 }

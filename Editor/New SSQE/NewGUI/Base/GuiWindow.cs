@@ -1,10 +1,8 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.FileParsing;
 using New_SSQE.Misc.Static;
-using New_SSQE.NewGUI.Controls;
 using New_SSQE.NewGUI.Input;
 using New_SSQE.NewMaps;
-using New_SSQE.Preferences;
+using New_SSQE.NewMaps.Parsing;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -38,6 +36,8 @@ namespace New_SSQE.NewGUI.Base
         {
             container = new(controls);
             container.Resize(width, height);
+
+            container.Reset();
         }
         public GuiWindow(params Control[] controls) : this(MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y, controls) { }
 
@@ -118,11 +118,6 @@ namespace New_SSQE.NewGUI.Base
             container.KeyUp(key);
         }
 
-        public virtual void Dispose()
-        {
-            container.Dispose();
-        }
-
         public virtual void FileDrop(string file)
         {
             bool loaded = true;
@@ -130,7 +125,7 @@ namespace New_SSQE.NewGUI.Base
 
             if (MusicPlayer.SupportedExtensions.Contains(Path.GetExtension(file)))
             {
-                string id = Exporting.FixID(Path.GetFileNameWithoutExtension(file));
+                string id = FormatUtils.FixID(Path.GetFileNameWithoutExtension(file));
                 if (file != Path.Combine(Assets.CACHED, $"{id}.asset"))
                     File.Copy(file, Path.Combine(Assets.CACHED, $"{id}.asset"), true);
 

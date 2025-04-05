@@ -7,6 +7,7 @@ using New_SSQE.NewGUI.Controls;
 using New_SSQE.NewGUI.Input;
 using New_SSQE.NewMaps;
 using New_SSQE.NewMaps.Parsing;
+using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
@@ -43,7 +44,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton SwapClickMode = new(0, 90, 200, 40, "Swap Click Mode", 26) { Stretch = StretchMode.X };
         public static readonly GuiCheckbox JumpOnPaste = new(0, 140, 30, 30, Settings.jumpPaste, "Jump on Paste", 26) { Stretch = StretchMode.X };
         public static readonly GuiCheckbox PauseOnScroll = new(0, 180, 30, 30, Settings.pauseScroll, "Pause on Seek", 26) { Stretch = StretchMode.X };
-        public static readonly GuiButton EditMapVFX = new(0, 240, 200, 40, "Edit Map VFX", 26) { Stretch = StretchMode.X };
+        public static readonly GuiButton EditMapVFX = new(0, 240, 200, 40, "Edit Map VFX", 26) { Stretch = StretchMode.X, Visible = false };
         public static readonly GuiButton EditSpecial = new(0, 290, 200, 40, "Edit Extra Objects", 26) { Stretch = StretchMode.X };
 
         public static readonly ControlContainer OptionsNav = new(10, 190, 545, 756, Numpad, SeparateClickTools, SwapClickMode, JumpOnPaste, PauseOnScroll, EditMapVFX, EditSpecial) { Stretch = StretchMode.XY };
@@ -132,14 +133,14 @@ namespace New_SSQE.NewGUI.Windows
          *************************************
          */
 
-        public static readonly GuiCheckbox SpecialNavBeat = new(0, 10, 30, 30, null, "Beats", 26) { Stretch = StretchMode.X };
-        public static readonly GuiCheckbox SpecialNavMine = new(0, 50, 30, 30, null, "Mines", 26) { Stretch = StretchMode.X };
-        public static readonly GuiCheckbox SpecialNavGlide = new(0, 90, 30, 30, null, "Glides", 26) { Stretch = StretchMode.X };
-        public static readonly RadioCheckboxController SpecialNavController = new(0, SpecialNavBeat, SpecialNavMine, SpecialNavGlide);
+        public static readonly GuiButton SpecialNavBeat = new(0, 10, 150, 30, "Beats", 26) { Stretch = StretchMode.X };
+        public static readonly GuiButton SpecialNavMine = new(0, 50, 150, 30, "Mines", 26) { Stretch = StretchMode.X };
+        public static readonly GuiButton SpecialNavGlide = new(0, 90, 150, 30, "Glides", 26) { Stretch = StretchMode.X };
+        public static readonly RadioButtonController SpecialNavController = new(null, SpecialNavBeat, SpecialNavMine, SpecialNavGlide);
 
         public static readonly ControlContainer SpecialNavNova = new(10, 190, 545, 756, SpecialNavBeat, SpecialNavMine, SpecialNavGlide) { Stretch = StretchMode.XY };
         public static readonly GuiButtonList GameSwitch = new(10, 946, 545, 50, Settings.modchartGame, "GAME: ", 31) { Stretch = StretchMode.X };
-        public static readonly GuiButton SpecialNavExit = new(10, 140, 545, 50, "CLOSE SPECIAL OBJECTS", 31) { Stretch = StretchMode.X };
+        public static readonly GuiButton SpecialNavExit = new(10, 140, 545, 50, "CLOSE EXTRA OBJECTS", 31) { Stretch = StretchMode.X };
 
         public static readonly ControlContainer SpecialMapNavs = new(SpecialNavNova, GameSwitch, SpecialNavExit) { Visible = false, Stretch = StretchMode.XY };
 
@@ -341,7 +342,24 @@ namespace New_SSQE.NewGUI.Windows
             VFlip.LeftClick += (s, e) => NoteManager.Edit("VERTICAL FLIP", Patterns.VerticalFlip);
             VFlip.BindKeybind("vFlip");
 
-            StoreNodes.LeftClick += (s, e) => Mapping.Current.BezierNodes = [..Mapping.Current.Notes.Selected];
+            StoreNodes.LeftClick += (s, e) =>
+            {
+                Mapping.Current.BezierNodes = [];
+                List<Note> selected = [..Mapping.Current.Notes.Selected.OrderBy(n => n.Ms)];
+                int selectIndex = 0;
+                
+                for (int i = 0; i < Mapping.Current.Notes.Count; i++)
+                {
+                    if (selectIndex >= selected.Count)
+                        break;
+
+                    if (Mapping.Current.Notes[i] == selected[selectIndex])
+                    {
+                        Mapping.Current.BezierNodes.Add(i);
+                        selectIndex++;
+                    }
+                }
+            };
             StoreNodes.BindKeybind("storeNodes");
             ClearNodes.LeftClick += (s, e) => Mapping.Current.BezierNodes.Clear();
             BezierButton.LeftClick += (s, e) => Patterns.RunBezier();
@@ -465,34 +483,43 @@ namespace New_SSQE.NewGUI.Windows
             };
 
             Dictionary<string, (float, Dictionary<string, float>)> srCache = [];
+            bool calculating = false;
 
             CalculateSR.LeftClick += (s, e) =>
             {
-                string data = TXT.CopyLegacy();
-                byte[] bytes = Encoding.UTF8.GetBytes(data[data.IndexOf(',')..]);
-                string hash = Encoding.UTF8.GetString(SHA512.HashData(bytes));
+                if (calculating)
+                    return;
+                calculating = true;
 
-                float sr;
-                Dictionary<string, float> rp;
-
-                if (srCache.TryGetValue(hash, out (float, Dictionary<string, float>) value))
+                Task.Run(() =>
                 {
-                    sr = value.Item1;
-                    rp = value.Item2;
-                }
-                else
-                {
-                    WebClient.GetDifficultyMetrics(data, out sr, out rp);
-                    srCache.Add(hash, (sr, rp));
-                }
+                    string data = TXT.CopyLegacy();
+                    byte[] bytes = Encoding.UTF8.GetBytes(data[data.IndexOf(',')..]);
+                    string hash = Encoding.UTF8.GetString(SHA512.HashData(bytes));
 
-                string result = sr > 0 ? $"SR: {Math.Round(sr, 2)}\n" : "";
-                string suffix = sr > 0 ? "RP" : "";
+                    float sr;
+                    Dictionary<string, float> rp;
 
-                foreach (KeyValuePair<string, float> kvp in rp)
-                    result += $"\n{kvp.Key}: {Math.Round(kvp.Value, 2)} {suffix}";
+                    if (srCache.TryGetValue(hash, out (float, Dictionary<string, float>) value))
+                    {
+                        sr = value.Item1;
+                        rp = value.Item2;
+                    }
+                    else
+                    {
+                        WebClient.GetDifficultyMetrics(data, out sr, out rp);
+                        srCache.Add(hash, (sr, rp));
+                    }
 
-                SRLabel.Text = result;
+                    string result = sr > 0 ? $"SR: {Math.Round(sr, 2)}\n" : "";
+                    string suffix = sr > 0 ? "RP" : "";
+
+                    foreach (KeyValuePair<string, float> kvp in rp)
+                        result += $"\n{kvp.Key}: {Math.Round(kvp.Value, 2)} {suffix}";
+
+                    SRLabel.Text = result;
+                    calculating = false;
+                });
             };
 
             void ApproachRateChanged() => ApproachRateLabel.Text = $"Approach Rate: {Math.Round(Settings.approachRate.Value.Value + 1)}";
@@ -592,7 +619,13 @@ namespace New_SSQE.NewGUI.Windows
             CurrentMsLabel.SetRect(timelineRect.X + timelineRect.Height / 2 + (timelineRect.Width - timelineRect.Height) * progress - currentMsRect.Width / 2, currentMsRect.Y, currentMsRect.Width, currentMsRect.Height);
             CurrentMsLabel.Text = $"{(long)currentTime.Value:##,##0}ms";
 
-            NotesLabel.Text = $"{Mapping.Current.Notes.Count} Notes";
+            NotesLabel.Text = Mapping.RenderMode switch
+            {
+                ObjectRenderMode.Notes => $"{Mapping.Current.Notes.Count} Notes",
+                ObjectRenderMode.VFX => $"{Mapping.Current.VfxObjects.Count} Objects",
+                ObjectRenderMode.Special => $"{Mapping.Current.SpecialObjects.Count} Objects",
+                _ => ""
+            };
 
             base.Render(mousex, mousey, frametime);
         }
@@ -612,6 +645,7 @@ namespace New_SSQE.NewGUI.Windows
                 float step = setting.Step * (KeybindManager.CtrlHeld ? 1 : 2) * delta;
 
                 setting.Value = MathHelper.Clamp(setting.Value + step, 0f, setting.Max);
+                BeatSnapDivisor.Update();
             }
             else if (KeybindManager.CtrlHeld)
                 Mapping.IncrementZoom(delta);

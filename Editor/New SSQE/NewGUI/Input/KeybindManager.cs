@@ -242,12 +242,6 @@ namespace New_SSQE.NewGUI.Input
 
                     break;
 
-                case "storeNodes":
-                    if (Mapping.Current.Notes.Selected.Count > 1)
-                        Mapping.Current.BezierNodes = Mapping.Current.Notes.Selected.ToList();
-
-                    break;
-
                 case "drawBezier":
                     Patterns.RunBezier();
 

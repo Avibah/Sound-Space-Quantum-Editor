@@ -14,9 +14,9 @@ namespace New_SSQE.NewGUI.Base
 
     internal abstract class TextControl : Control
     {
-        protected string text;
-        protected int textSize;
-        protected string font;
+        protected string text = "";
+        protected int textSize = 0;
+        protected string font = "main";
         protected float alpha = 1;
         protected Color textColor = Color.White;
 
@@ -29,6 +29,10 @@ namespace New_SSQE.NewGUI.Base
         protected float yOffset = 0;
 
         private bool shouldUpdate = false;
+
+        protected readonly string startText;
+        protected readonly int startTextSize;
+        protected readonly string startFont;
 
         public string Text
         {
@@ -73,6 +77,10 @@ namespace New_SSQE.NewGUI.Base
 
         public TextControl(float x, float y, float w, float h, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h)
         {
+            startText = text;
+            startTextSize = textSize;
+            startFont = font;
+
             this.text = text;
             this.textSize = textSize;
             this.font = font;

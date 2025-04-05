@@ -14,12 +14,16 @@ namespace New_SSQE.NewGUI.Controls
             }
             else
                 textures = [new(texture)];
+
+            if (!textures[0].Loaded)
+                textures = [];
         }
         public GuiSquareTextured(string texture, string? fileSource = null, Color? backupColor = null) : this(0, 0, 1920, 1080, texture, fileSource, backupColor) { }
 
         public override float[] Draw()
         {
-            textures[0].Draw(rect, null, color.A / 255f);
+            if (textures.Length > 0)
+                textures[0].Draw(rect, null, color.A / 255f);
             return base.Draw();
         }
     }

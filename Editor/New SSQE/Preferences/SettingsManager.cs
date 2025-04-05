@@ -109,17 +109,20 @@ namespace New_SSQE.Preferences
 
             Vector4[] colors =
             [
-                (color1.Value.R / 255f, color1.Value.G / 255f, color1.Value.B / 255f, 1f),
-                (color2.Value.R / 255f, color2.Value.G / 255f, color2.Value.B / 255f, 1f),
-                (color3.Value.R / 255f, color3.Value.G / 255f, color3.Value.B / 255f, 1f),
-                (color4.Value.R / 255f, color4.Value.G / 255f, color4.Value.B / 255f, 1f),
-                (1f, 1f, 1f, 1f),
-                (0f, 1f, 0.25f, 1f),
-                (0f, 0.5f, 1f, 1f),
-                (0.75f, 0.75f, 0.75f, 1f),
-                (1f, 0f, 0f, 1f),
-                (0.5f, 0.5f, 0.5f, 1f),
-                (color5.Value.R / 255f, color5.Value.G / 255f, color5.Value.B / 255f, 1f)
+                // 0-3
+                (color1.Value.R / 255f, color1.Value.G / 255f, color1.Value.B / 255f, 1f), // color1
+                (color2.Value.R / 255f, color2.Value.G / 255f, color2.Value.B / 255f, 1f), // color2
+                (color3.Value.R / 255f, color3.Value.G / 255f, color3.Value.B / 255f, 1f), // color3
+                (color4.Value.R / 255f, color4.Value.G / 255f, color4.Value.B / 255f, 1f), // color4
+                // 4-9
+                (1f, 1f, 1f, 1f),          // white
+                (0f, 1f, 0.25f, 1f),       // lime
+                (0f, 0.5f, 1f, 1f),        // teal
+                (0.75f, 0.75f, 0.75f, 1f), // light gray
+                (1f, 0f, 0f, 1f),          // red
+                (0.5f, 0.5f, 0.5f, 1f),    // gray
+                // 10
+                (color5.Value.R / 255f, color5.Value.G / 255f, color5.Value.B / 255f, 1f), // color5
             ];
 
             Shader.InstancedMain.Uniform4("Colors", colors);

@@ -1,5 +1,4 @@
-﻿using New_SSQE.GUI;
-using New_SSQE.NewMaps;
+﻿using New_SSQE.NewMaps;
 using New_SSQE.Misc.Static;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
@@ -8,6 +7,7 @@ using OpenTK.Graphics;
 using OpenTK.Mathematics;
 using System.Drawing;
 using New_SSQE.NewGUI.Base;
+using New_SSQE.NewGUI.Windows;
 
 namespace New_SSQE.NewGUI.Controls
 {
@@ -195,14 +195,6 @@ namespace New_SSQE.NewGUI.Controls
                 Shader.FBOObject.Uniform3("Tint", tint.R / 255f, tint.G / 255f, tint.B / 255f);
 
                 Shader.FBOTexture.Uniform1("blur", blur);
-            }
-
-            if (MainWindow.Instance.CurrentWindow is GuiWindowEditor editor)
-            {
-                editor.SetVFXToast(text);
-
-                for (int i = 2; i < curObjects.Length; i++)
-                    editor.IconSet[i - 2].Visible = curObjects[i] != null;
             }
         }
 

@@ -68,15 +68,5 @@ namespace New_SSQE.NewGUI.Base
             renderBegan = false;
             renderEnded = false;
         }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-
-            GLState.Clean(fbo);
-            GLState.Clean(msaa_fbo);
-            GLState.Clean(rbo);
-            GLState.Clean(fbo_tex);
-        }
     }
 }

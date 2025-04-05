@@ -87,8 +87,6 @@ namespace New_SSQE
 
         public static MainWindow Instance;
 
-        public GUI.GuiWindow CurrentWindow;
-
         public readonly Dictionary<Keys, Tuple<int, int>> KeyMapping = new();
         public static bool Focused = true;
 
@@ -390,16 +388,12 @@ namespace New_SSQE
             {
                 closed = true;
 
-                //if (CurrentWindow is GuiWindowMenu menu)
-                    //menu.AssembleMapList();
-
                 Settings.Save();
 
                 TimingsWindow.Instance?.Close();
                 BookmarksWindow.Instance?.Close();
 
                 MusicPlayer.Dispose();
-                CurrentWindow?.Dispose();
                 DiscordManager.Dispose();
             }
         }
@@ -412,41 +406,6 @@ namespace New_SSQE
                 UpdateFPS(Settings.useVSync.Value ? VSyncMode.On : VSyncMode.Off, Settings.fpsLimit.Value.Value);
             else
                 UpdateFPS(VSyncMode.Off, -45f);
-        }
-
-
-
-        public void SwitchWindow(GUI.GuiWindow window)
-        {
-            /*
-            if (CurrentWindow is GuiWindowEditor)
-                CurrentMap.LoadedMap?.Save();
-
-            if (window is GuiWindowEditor)
-            {
-                DiscordManager.SetActivity(DiscordStatus.Editor);
-                MapManager.BeginAutosaveLoop(DateTime.Now.Ticks);
-            }
-            else if (window is GuiWindowMenu)
-            {
-                DiscordManager.SetActivity(DiscordStatus.Menu);
-                Waveform.Dispose();
-            }
-
-            ExportSSPM.Instance?.Close();
-            BPMTapper.Instance?.Close();
-            TimingsWindow.Instance?.Close();
-            BookmarksWindow.Instance?.Close();
-
-            FontRenderer.unicode = Settings.language.Value != "english" || window is GuiWindowLanguage;
-            foreach (WindowControl control in window.Controls)
-                control.Update();
-
-            CurrentWindow?.Dispose();
-            CurrentWindow = window;
-
-            Settings.Save();
-            */
         }
 
 
