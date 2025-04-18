@@ -1,6 +1,5 @@
 ﻿namespace New_SSQE.Objects.Other
 {
-    [Serializable]
     internal class Bookmark
     {
         public string Text { get; set; }

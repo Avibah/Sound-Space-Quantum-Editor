@@ -6,8 +6,8 @@ namespace New_SSQE.NewGUI.Controls
     internal class GuiNumberBox : ControlContainer
     {
         public readonly GuiTextboxNumeric ValueBox;
-        public readonly GuiButton UpButton;
-        public readonly GuiButton DownButton;
+        public readonly GuiButtonTextured UpButton;
+        public readonly GuiButtonTextured DownButton;
 
         public float Value = 0;
 
@@ -20,8 +20,8 @@ namespace New_SSQE.NewGUI.Controls
         public GuiNumberBox(float x, float y, float w, float h, float increment, Setting<float>? setting = null, bool isFloat = false, bool isPositive = false, string text = "0", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h)
         {
             ValueBox = new(0, 0, w - w / 8 - 2, h, setting, isFloat, isPositive, text, textSize, font, centerMode) { Stretch = StretchMode.XY };
-            UpButton = new(w - w / 8, 0, w / 8, h / 2, "^", 16, "square") { Stretch = StretchMode.XY };
-            DownButton = new(w - w / 8, h / 2, w / 8, h / 2, "v", 16, "square") { Stretch = StretchMode.XY };
+            UpButton = new(w - w / 8, 0, w / 8, h / 2, "Arrows") { Stretch = StretchMode.XY, TileSize = (2, 1) };
+            DownButton = new(w - w / 8, h / 2, w / 8, h / 2, "Arrows") { Stretch = StretchMode.XY, TileSize = (2, 1), TileIndex = 1 };
 
             SetControls(ValueBox, UpButton, DownButton);
 
@@ -35,6 +35,11 @@ namespace New_SSQE.NewGUI.Controls
 
             this.isFloat = isFloat;
             this.isPositive = isPositive;
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
 
             UpButton.LeftClick += (s, e) => IncrementUp();
             DownButton.LeftClick += (s, e) => IncrementDown();

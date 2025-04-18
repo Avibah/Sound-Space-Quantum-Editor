@@ -123,10 +123,10 @@ namespace New_SSQE.NewMaps.Parsing
 
                 if (correctNotes)
                 {
-                    clone.X = MathHelper.Clamp(clone.X, -0.85f, 2.85f);
-                    clone.Y = MathHelper.Clamp(clone.Y, -0.85f, 2.85f);
+                    clone.X = Math.Clamp(clone.X, -0.85f, 2.85f);
+                    clone.Y = Math.Clamp(clone.Y, -0.85f, 2.85f);
 
-                    clone.Ms = (long)MathHelper.Clamp(clone.Ms, 0, Settings.currentTime.Value.Max);
+                    clone.Ms = (long)Math.Clamp(clone.Ms, 0, Settings.currentTime.Value.Max);
                 }
 
                 double x = Math.Round(clone.X, 2);
@@ -165,10 +165,10 @@ namespace New_SSQE.NewMaps.Parsing
 
                 if (correctNotes && clone is Note n)
                 {
-                    n.X = MathHelper.Clamp(n.X, -0.85f, 2.85f);
-                    n.Y = MathHelper.Clamp(n.Y, -0.85f, 2.85f);
+                    n.X = Math.Clamp(n.X, -0.85f, 2.85f);
+                    n.Y = Math.Clamp(n.Y, -0.85f, 2.85f);
 
-                    n.Ms = (long)MathHelper.Clamp(n.Ms, 0, Settings.currentTime.Value.Max);
+                    n.Ms = (long)Math.Clamp(n.Ms, 0, Settings.currentTime.Value.Max);
                 }
 
                 clone.Ms = FormatUtils.EncodeTimestamp(clone.Ms);

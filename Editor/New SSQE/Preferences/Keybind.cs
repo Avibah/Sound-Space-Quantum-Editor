@@ -2,7 +2,6 @@
 
 namespace New_SSQE.Preferences
 {
-    [Serializable]
     internal class Keybind
     {
         public Keys Key;

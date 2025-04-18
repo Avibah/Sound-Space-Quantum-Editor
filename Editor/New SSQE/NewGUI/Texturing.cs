@@ -21,7 +21,7 @@ namespace New_SSQE.NewGUI
 
                 if (!File.Exists(file))
                 {
-                    Logging.Register($"Failed to load texture: {texture} (File not found)", LogSeverity.WARN);
+                    Logging.Log($"Failed to load texture: {texture} (File not found)", LogSeverity.WARN);
                     return TextureHandle.Zero;
                 }
 

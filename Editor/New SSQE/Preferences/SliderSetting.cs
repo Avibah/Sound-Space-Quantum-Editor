@@ -1,6 +1,5 @@
 ﻿namespace New_SSQE.Preferences
 {
-    [Serializable]
     internal class SliderSetting
     {
         public float Value;

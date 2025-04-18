@@ -101,7 +101,7 @@ namespace New_SSQE.NewMaps
             if (closestMs < 0)
                 return -1;
 
-            return (long)MathHelper.Clamp(closestMs, 0, Settings.currentTime.Value.Max);
+            return (long)Math.Clamp(closestMs, 0, Settings.currentTime.Value.Max);
         }
 
         public static TimingPoint GetCurrentBpm(float currentMs, TimingPoint? draggingPoint = null)
@@ -141,7 +141,7 @@ namespace New_SSQE.NewMaps
             if (MusicPlayer.IsPlaying && !Settings.pauseScroll.Value)
             {
                 currentTime += delta * 500f * Mapping.Current.Tempo;
-                currentTime = MathHelper.Clamp(currentTime, 0f, totalTime);
+                currentTime = Math.Clamp(currentTime, 0f, totalTime);
 
                 setting.Value = currentTime;
 
@@ -160,7 +160,7 @@ namespace New_SSQE.NewMaps
                 if (GetCurrentBpm(setting.Value).BPM == 0 && GetCurrentBpm(currentTime).BPM != 0)
                     currentTime = GetCurrentBpm(currentTime).Ms;
 
-                currentTime = MathHelper.Clamp(currentTime, 0f, totalTime);
+                currentTime = Math.Clamp(currentTime, 0f, totalTime);
 
                 setting.Value = currentTime;
             }

@@ -1,4 +1,5 @@
 ﻿using New_SSQE.NewGUI.Controls;
+using New_SSQE.Preferences;
 
 namespace New_SSQE.NewGUI.Base
 {
@@ -20,10 +21,19 @@ namespace New_SSQE.NewGUI.Base
         private GuiCheckbox active;
         public string Active => active.Text;
 
+        private Setting<string>? setting;
+
         public RadioCheckboxController(int activeIndex, params GuiCheckbox[] controls)
         {
             this.controls = controls;
             active = controls[activeIndex];
+        }
+
+        public RadioCheckboxController(Setting<string> setting, params GuiCheckbox[] controls)
+        {
+            this.setting = setting;
+            this.controls = controls;
+            active = controls.FirstOrDefault(n => n.Text == setting.Value) ?? controls[0];
         }
 
         public void Initialize()
@@ -39,6 +49,9 @@ namespace New_SSQE.NewGUI.Base
 
                     foreach (GuiCheckbox checkbox in controls)
                         checkbox.Toggle = checkbox == active;
+
+                    if (setting != null)
+                        setting.Value = active.Text;
                 };
             }
 

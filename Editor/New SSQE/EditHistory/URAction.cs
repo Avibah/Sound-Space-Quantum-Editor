@@ -1,6 +1,5 @@
 ﻿namespace New_SSQE.EditHistory
 {
-    [Serializable]
     internal class URAction
     {
         public string Label;

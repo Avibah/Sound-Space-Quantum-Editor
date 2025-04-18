@@ -129,6 +129,9 @@ namespace New_SSQE.NewGUI.Controls
 
             Style = new ControlStyle(ControlStyles.Grid_Colored);
 
+            PlayLeftClickSound = false;
+            PlayRightClickSound = false;
+
             UpdateObjectMetrics();
         }
 
@@ -162,8 +165,8 @@ namespace New_SSQE.NewGUI.Controls
         {
             Vector2 pos = MouseToGridSpaceUnclamped(mousex, mousey);
 
-            float x = MathHelper.Clamp(pos.X, CellBounds.X, CellBounds.Y);
-            float y = MathHelper.Clamp(pos.Y, CellBounds.X, CellBounds.Y);
+            float x = Math.Clamp(pos.X, CellBounds.X, CellBounds.Y);
+            float y = Math.Clamp(pos.Y, CellBounds.X, CellBounds.Y);
 
             return (x, y);
         }
@@ -180,8 +183,6 @@ namespace New_SSQE.NewGUI.Controls
             int gridNumLength = 0;
 
             ObjectList<Note> notes = Mapping.Current.Notes;
-            Note last = notes.FirstOrDefault() ?? new(1, 1, 0);
-            Note? next = null;
 
             (int low, int high) = notes.SearchRange(currentTime, maxMs);
             int range = high - low;
@@ -192,15 +193,6 @@ namespace New_SSQE.NewGUI.Controls
             Vector4[] noteSelects = new Vector4[notes.Selected.Count];
 
             int selectIndex = 0;
-
-            if (notes.Count > 0)
-            {
-                if (notes[low].Ms <= currentTime)
-                    last = notes[low];
-                else if (low > 0)
-                    last = notes[low - 1];
-                next = notes[low];
-            }
 
             bool gridNumbers = Settings.gridNumbers.Value;
             int gridNumberSize = (int)(28 * TextScale);
@@ -264,23 +256,67 @@ namespace New_SSQE.NewGUI.Controls
 
             if (Settings.autoplay.Value)
             {
-                next ??= last;
+                Note defaultNote = new(1, 1, 0);
+                int index = Math.Max(0, low - 1);
+
+                Note lastFar = index > 0 && index < notes.Count ? notes[index - 1] : defaultNote;
+                Note last = index < notes.Count ? notes[index] : defaultNote;
+                Note next = index + 1 < notes.Count ? notes[index + 1] : last;
+                Note nextFar = index + 2 < notes.Count ? notes[index + 2] : next;
+
+                if (currentTime > next.Ms)
+                {
+                    lastFar = last;
+                    last = next;
+                }
+
+                if (currentTime < last.Ms)
+                {
+                    nextFar = next;
+                    next = last;
+                }
+
                 long msDiff = next.Ms - last.Ms;
                 float timePos = currentTime - last.Ms;
-                
-                float progress = msDiff == 0 ? 1 : timePos / msDiff;
-                progress = (float)Math.Sin(progress * MathHelper.PiOver2);
+                float t = msDiff == 0 ? 1 : timePos / msDiff;
 
-                float width = (float)Math.Sin(progress * MathHelper.Pi) * 8 + 16;
+                float x = CellSize / 2 + rect.X;
+                float y = CellSize / 2 + rect.Y;
 
-                float lastX = rect.X + (2 - last.X) * CellSize;
-                float lastY = rect.Y + (2 - last.Y) * CellSize;
+                switch (Settings.autoplayType.Value.Current)
+                {
+                    case "linear":
+                        t = (float)Math.Sin(t * MathHelper.PiOver2);
 
-                float nextX = rect.X + (2 - next.X) * CellSize;
-                float nextY = rect.Y + (2 - next.Y) * CellSize;
+                        float lastX = (2 - last.X) * CellSize;
+                        float lastY = (2 - last.Y) * CellSize;
 
-                float x = CellSize / 2 + lastX + (nextX - lastX) * progress;
-                float y = CellSize / 2 + lastY + (nextY - lastY) * progress;
+                        float nextX = (2 - next.X) * CellSize;
+                        float nextY = (2 - next.Y) * CellSize;
+
+                        x += lastX + (nextX - lastX) * t;
+                        y += lastY + (nextY - lastY) * t;
+                        break;
+
+                    case "spline":
+                        Vector2 p0 = (lastFar.X, lastFar.Y);
+                        Vector2 p1 = (last.X, last.Y);
+                        Vector2 p2 = (next.X, next.Y);
+                        Vector2 p3 = (nextFar.X, nextFar.Y);
+
+                        Vector2 result = 0.5f * (
+                            2 * p1 +
+                            (-p0 + p2) * t +
+                            (2 * p0 - 5 * p1 + 4 * p2 - p3) * MathF.Pow(t, 2) +
+                            (-p0 + 3 * p1 - 3 * p2 + p3) * MathF.Pow(t, 3)
+                        );
+
+                        x += (2 - result.X) * CellSize;
+                        y += (2 - result.Y) * CellSize;
+                        break;
+                }
+
+                float width = (float)Math.Sin(t * MathHelper.Pi) * 8 + 16;
 
                 autoplayCursor.UploadData([(x - width / 2, y - width / 2, width, 2 * 4 + 1)]);
             }
@@ -320,7 +356,6 @@ namespace New_SSQE.NewGUI.Controls
                         continue;
 
                     float progress = (float)Math.Min(1, (float)Math.Pow(1 - Math.Min(1, (obj.Ms - currentTime) * approachRate / 750), 2));
-                    int c = (shouldCheckID ? indices[obj.ID] : i) % colorCount;
 
                     if (obj is XYMapObject xy)
                     {
@@ -433,7 +468,7 @@ namespace New_SSQE.NewGUI.Controls
                     float y = rect.Y + (2 - note.Y) * CellSize + PreviewGap;
 
                     notePreviews.Add((x, y, 1, 2 * 2 + 1));
-                    bezierPositions.Add((x, y));
+                    bezierPositions.Add((x + PreviewSize / 2, y + PreviewSize / 2));
                 }
             }
 
@@ -476,7 +511,8 @@ namespace New_SSQE.NewGUI.Controls
             mineSelect.UploadStaticData(GLVerts.PolygonOutline(mineSize / 2, mineSize / 2, mineSize / 2 + 4, 2, 4, 0, 1f, 1f, 1f, 1f));
 
             List<float> glideVerts = [];
-            glideVerts.AddRange(GLVerts.Outline(-rect.Width / 2 - 5, -rect.Width / 2 - 5, rect.Width + 10, rect.Height + 10, 3, Settings.color5.Value));
+            glideVerts.AddRange(GLVerts.Outline(-rect.Width / 2 - 5, -rect.Height / 2 - 5, rect.Width + 10, rect.Height + 10, 3, Settings.color5.Value));
+            glideVerts.AddRange(GLVerts.Line(-rect.Width / 2 + 10, -rect.Height / 2 + 13, rect.Width / 2 - 10, -rect.Height / 2 + 13, 6, Settings.color5.Value));
             glideVerts.AddRange(GLVerts.PolygonOutline(0, -rect.Height / 5, rect.Width / 10, 8, 3, -30, Settings.color5.Value));
             glideVerts.AddRange(GLVerts.PolygonOutline(0, rect.Height / 5, rect.Width / 10, 8, 3, -30, Settings.color5.Value));
             glideConstant.UploadStaticData(glideVerts.ToArray());

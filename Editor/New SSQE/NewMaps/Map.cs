@@ -1,5 +1,6 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.EditHistory;
+using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Objects.Other;
@@ -23,7 +24,24 @@ namespace New_SSQE.NewMaps
         public string? FileName;
         public string SoundID = "-1";
         public string FileID => Path.GetFileNameWithoutExtension(FileName) ?? SoundID;
-        public bool IsSaved => FileName != null && File.Exists(FileName) && File.ReadAllText(FileName) == ToString();
+
+        public bool IsSaved
+        {
+            get
+            {
+                if (FileName != null && File.Exists(FileName))
+                {
+                    Map old = Mapping.Current;
+                    Mapping.Current = this;
+
+                    bool saved = File.ReadAllText(FileName) == TXT.Copy();
+                    Mapping.Current = old;
+                    return saved;
+                }
+
+                return false;
+            }
+        }
 
         private float _tempo = Settings.tempo.Value.Default;
         public float Tempo

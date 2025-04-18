@@ -19,11 +19,11 @@
             Direction = direction;
         }
 
-        public override string ToString()
+        public override string ToString(params object[] data)
         {
             int direction = (int)Direction;
 
-            return base.ToString(direction.ToString());
+            return base.ToString(direction);
         }
 
         public override Glide Clone()

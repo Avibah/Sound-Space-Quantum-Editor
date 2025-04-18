@@ -245,6 +245,7 @@ namespace New_SSQE.NewMaps.Parsing
                     }
                 }
 
+                Mapping.ClearSelection();
                 return true;
             }
             catch

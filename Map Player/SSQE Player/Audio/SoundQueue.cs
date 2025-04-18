@@ -1,7 +1,6 @@
-﻿using New_SSQE.Preferences;
-using Un4seen.Bass;
+﻿using Un4seen.Bass;
 
-namespace New_SSQE.Audio
+namespace SSQE_Player.Audio
 {
     internal class SoundQueue
     {
@@ -41,8 +40,7 @@ namespace New_SSQE.Audio
                 sounds.Enqueue(GetNew());
 
             int stream = sounds.Dequeue();
-            int volumeMult = Settings.muteSfx.Value ? 0 : 1;
-            Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, volumeMult * (sound == Settings.clickSound.Value ? 0.035f : SoundPlayer.Volume));
+            Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, SoundPlayer.Volume);
             Bass.BASS_ChannelPlay(stream, false);
         }
     }

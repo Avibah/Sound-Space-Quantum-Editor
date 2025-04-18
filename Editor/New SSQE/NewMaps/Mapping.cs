@@ -28,7 +28,8 @@ namespace New_SSQE.NewMaps
 
         Beat = 12,
         Glide = 13,
-        Mine = 14
+        Mine = 14,
+        Lyric = 15
     }
 
     internal enum ClickMode
@@ -41,7 +42,8 @@ namespace New_SSQE.NewMaps
     internal class Mapping
     {
         public static List<Map> Cache = [];
-        public static Map Current { get; private set; } = new();
+        public static Map Current { get; set; } = new();
+        static Mapping() => Current.OpenSettings();
 
         public static ObjectRenderMode RenderMode = ObjectRenderMode.Notes;
         public static IndividualObjectMode ObjectMode = IndividualObjectMode.Disabled;
@@ -73,6 +75,13 @@ namespace New_SSQE.NewMaps
                     break;
                 case ObjectRenderMode.Special:
                     Current.SpecialObjects.Selected = new(selected);
+
+                    if (selected.Count == 1 && selected[0] is Lyric lyric)
+                    {
+                        GuiWindowEditor.LyricBox.Text = lyric.Text;
+                        GuiWindowEditor.LyricFadeIn.Toggle = lyric.FadeIn;
+                        GuiWindowEditor.LyricFadeOut.Toggle = lyric.FadeOut;
+                    }
                     break;
             }
         }
@@ -165,7 +174,7 @@ namespace New_SSQE.NewMaps
             if (zoom > 0.1f)
                 zoom = (float)Math.Round(zoom * 10) / 10;
 
-            Current.Zoom = MathHelper.Clamp(zoom, 0.01f, 10f);
+            Current.Zoom = Math.Clamp(zoom, 0.01f, 10f);
         }
 
         public static void CopyBookmarks()
@@ -273,7 +282,7 @@ namespace New_SSQE.NewMaps
             {
                 Title = "Select Audio File",
                 Filter = $"Audio Files ({MusicPlayer.SupportedExtensionsString})|{MusicPlayer.SupportedExtensionsString}"
-            }.RunWithSetting(Settings.audioPath, out string fileName);
+            }.Show(Settings.audioPath, out string fileName);
 
             if (result == DialogResult.OK)
             {
@@ -303,14 +312,14 @@ namespace New_SSQE.NewMaps
                         return message == DialogResult.OK && ImportAudio(id);
                     }
                     else
-                        WebClient.DownloadFile($"https://assetdelivery.roblox.com/v1/asset/?id={id}", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Roblox);
+                        Networking.DownloadFile($"https://assetdelivery.roblox.com/v1/asset/?id={id}", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Roblox);
                 }
 
                 return MusicPlayer.Load(Path.Combine(Assets.CACHED, $"{id}.asset"));
             }
             catch (Exception e)
             {
-                Logging.Register("Failed to load audio", LogSeverity.WARN, e);
+                Logging.Log("Failed to load audio", LogSeverity.WARN, e);
                 DialogResult message = MessageBox.Show($"Failed to download asset with id '{id}':\n\n{e.Message}\n\nWould you like to import a file with this id instead?", MBoxIcon.Error, MBoxButtons.OK_Cancel);
 
                 if (message == DialogResult.OK)
@@ -350,19 +359,24 @@ namespace New_SSQE.NewMaps
             Current.CloseSettings();
             Current = new();
 
-            string[] data = cache.Split('\n');
-
-            File.WriteAllText(tempCacheTXT, data[0]);
-            File.WriteAllText(tempCacheINI, data[1]);
-
             try
             {
+                string[] data = cache.Split('\n');
+
+                File.WriteAllText(tempCacheTXT, data[0]);
+                File.WriteAllText(tempCacheINI, data[1]);
+                string fileName = data[2][1..^1];
+
                 if (TXT.Read(tempCacheTXT))
+                {
+                    if (!string.IsNullOrWhiteSpace(fileName))
+                        Current.FileName = fileName;
                     return Current;
+                }
             }
             catch (Exception ex)
             {
-                Logging.Register("Failed to load map from cache", LogSeverity.WARN, ex);
+                Logging.Log("Failed to load map from cache", LogSeverity.WARN, ex);
             }
 
             return null;
@@ -370,20 +384,23 @@ namespace New_SSQE.NewMaps
 
         public static void SaveCache()
         {
+            Map old = Current;
+
             List<string> data = [];
             foreach (Map map in Cache)
             {
-                Open(map, false);
+                Current = map;
                 data.Add(ToCache());
             }
 
             File.WriteAllText(cacheFile, string.Join("\n\n", data));
+            Current = old;
         }
 
         public static string ToCache()
         {
             if (TXT.Write(tempCacheTXT))
-                return $"{File.ReadAllText(tempCacheTXT)}\n{File.ReadAllText(tempCacheINI)}";
+                return $"{File.ReadAllText(tempCacheTXT)}\n{File.ReadAllText(tempCacheINI)}\n[{Current.FileName}]";
 
             return "";
         }
@@ -409,10 +426,8 @@ namespace New_SSQE.NewMaps
             }
 
             if (!Cache.Contains(map))
-            {
                 Cache.Add(map);
-                SaveCache();
-            }
+            SaveCache();
 
             Windowing.SwitchWindow(new GuiWindowEditor());
             return Windowing.Current is GuiWindowEditor && Current.SoundID != "-1";
@@ -467,11 +482,13 @@ namespace New_SSQE.NewMaps
 
             try
             {
-                return TXT.Write(Current.FileName ?? "");
+                if (string.IsNullOrWhiteSpace(Current.FileName))
+                    return false;
+                return TXT.Write(Current.FileName);
             }
             catch (Exception ex)
             {
-                Logging.Register($"Failed to save map - {Current.FileName}", LogSeverity.WARN, ex);
+                Logging.Log($"Failed to save map - {Current.FileName}", LogSeverity.WARN, ex);
                 return false;
             }
         }
@@ -482,12 +499,12 @@ namespace New_SSQE.NewMaps
             {
                 Title = "Save Map As",
                 Filter = "Text Documents(*.txt)|*.txt"
-            }.RunWithSetting(Settings.defaultPath, out string path);
+            }.Show(Settings.defaultPath, out string path);
 
             if (result == DialogResult.OK)
             {
                 Current.FileName = path;
-                return Save();
+                return Save(false);
             }
 
             return false;
@@ -511,7 +528,7 @@ namespace New_SSQE.NewMaps
             }
             catch (Exception ex)
             {
-                Logging.Register($"Failed to save map - {path}", LogSeverity.WARN, ex);
+                Logging.Log($"Failed to save map - {path}", LogSeverity.WARN, ex);
                 return false;
             }
         }
@@ -567,7 +584,7 @@ namespace New_SSQE.NewMaps
                     try
                     {
                         while (true)
-                            data = WebClient.DownloadString(data);
+                            data = Networking.DownloadString(data);
                     }
                     catch { }
 
@@ -576,7 +593,7 @@ namespace New_SSQE.NewMaps
             }
             catch (Exception ex)
             {
-                Logging.Register("Failed to load map", LogSeverity.WARN, ex);
+                Logging.Log("Failed to load map", LogSeverity.WARN, ex);
                 return false;
             }
         }
@@ -594,17 +611,21 @@ namespace New_SSQE.NewMaps
                 Current.CloseSettings();
                 Current = new();
 
+                Settings.currentTime.Value.Value = 0;
+
                 if (!Parse(data))
                 {
                     MessageBox.Show("Failed to load map data\n\nExit and check '*\\logs.txt' for more info", MBoxIcon.Warning, MBoxButtons.OK);
                     return false;
                 }
 
+                if (File.Exists(data) && Path.GetExtension(data) == ".txt")
+                    Current.FileName = data;
                 return Open(Current);
             }
             catch (Exception ex)
             {
-                Logging.Register("Failed to load map data", LogSeverity.WARN, ex);
+                Logging.Log("Failed to load map data", LogSeverity.WARN, ex);
                 MessageBox.Show($"Failed to load map data: {ex.Message}\n\nExit and check '*\\logs.txt' for more info", MBoxIcon.Warning, MBoxButtons.OK);
                 return false;
             }

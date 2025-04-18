@@ -104,9 +104,12 @@ namespace New_SSQE.NewGUI.Controls
             bpmHover = Instancing.Generate("track_bpmHover", Shader.InstancedMain);
             bpmSelect = Instancing.Generate("track_bpmSelect", Shader.InstancedMain);
 
-            spriteSheet = new("sprites", null, true, TextureUnit.Texture2) { Shader = Shader.Sprite };
+            spriteSheet = new("Sprites", null, true, TextureUnit.Texture2) { Shader = Shader.Sprite };
 
             Style = new(ControlStyles.Track_Colored);
+
+            PlayLeftClickSound = false;
+            PlayRightClickSound = false;
         }
 
         private void RenderText(List<(float, string)> text, Vector4[] data, bool primary, int first, int length, float yOffset = 0)
@@ -273,7 +276,7 @@ namespace New_SSQE.NewGUI.Controls
                     float x = cursorPos - currentPos + obj.Ms * MS_TO_PX;
                     float a = obj.Ms < currentTime - 1 ? 0.35f : 1f;
 
-                    int c = (shouldCheckID ? indices[obj.ID] : i) % colorCount;
+                    int c = (shouldCheckID ? indices[obj.ID] - 1 : i) % colorCount;
 
                     objConstants[i] = (x, 0, 1, 2 * c + a);
                     objIcons[i] = (x, 0, 1, a);
@@ -691,8 +694,8 @@ namespace New_SSQE.NewGUI.Controls
                 return;
 
             float bpm = Timing.GetCurrentBpm(cursorMs).BPM;
-            float stepX = 60f / bpm * MS_TO_PX / Settings.beatDivisor.Value.Value;
-            float threshold = MathHelper.Clamp(stepX / 1.75f, 1f, 12f);
+            float stepX = 60000f / bpm * MS_TO_PX / Settings.beatDivisor.Value.Value;
+            float threshold = Math.Clamp(stepX / 1.75f, 1f, 12f);
 
             if (draggingObjects.Count > 0 || draggingDuration != null)
                 cursorMs -= NoteSize / 2 * PX_TO_MS;
@@ -710,7 +713,6 @@ namespace New_SSQE.NewGUI.Controls
                     cursorMs = 0;
 
                 point.Ms = (long)Math.Min(cursorMs, totalTime);
-                MainWindow.Instance.Title = $"{cursorMs} | {snappedMs}";
 
                 Mapping.SortTimings(false);
             }
@@ -733,7 +735,7 @@ namespace New_SSQE.NewGUI.Controls
                     float offset = cursorMs - draggingObjects[0].DragStartMs;
 
                     foreach (MapObject obj in draggingObjects)
-                        obj.Ms = (long)MathHelper.Clamp(obj.DragStartMs + offset, 0, totalTime);
+                        obj.Ms = (long)Math.Clamp(obj.DragStartMs + offset, 0, totalTime);
 
                     Mapping.SortObjects();
                 }
@@ -744,7 +746,7 @@ namespace New_SSQE.NewGUI.Controls
                     if (Timing.GetCurrentBpm(time).BPM > 0)
                         time = Timing.GetClosestBeat(time);
 
-                    Settings.currentTime.Value.Value = MathHelper.Clamp(time, 0, totalTime);
+                    Settings.currentTime.Value.Value = Math.Clamp(time, 0, totalTime);
                 }
             }
         }
@@ -783,6 +785,7 @@ namespace New_SSQE.NewGUI.Controls
                     long max = Math.Max(first.Ms, last.Ms);
 
                     selected = Mapping.GetObjectsInRange(min, max);
+                    selected.Remove(first);
                     selected.Insert(0, first);
                 }
                 else if (MainWindow.Instance.CtrlHeld)
@@ -800,7 +803,7 @@ namespace New_SSQE.NewGUI.Controls
 
                 if (hoveringObject.Selected)
                 {
-                    draggingObjects = [hoveringObject, .. selected];
+                    draggingObjects = [hoveringObject, ..selected];
                     foreach (MapObject obj in draggingObjects)
                         obj.DragStartMs = obj.Ms;
                 }

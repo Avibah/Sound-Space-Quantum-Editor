@@ -31,7 +31,7 @@ namespace New_SSQE.NewGUI.Controls
             bool ctrl = MainWindow.Instance.CtrlHeld;
             bool shift = MainWindow.Instance.ShiftHeld;
 
-            cursorPos = MathHelper.Clamp(cursorPos, 0, text.Length);
+            cursorPos = Math.Clamp(cursorPos, 0, text.Length);
 
             switch (key)
             {
@@ -63,7 +63,7 @@ namespace New_SSQE.NewGUI.Controls
                     break;
             }
 
-            cursorPos = MathHelper.Clamp(cursorPos, 0, text.Length);
+            cursorPos = Math.Clamp(cursorPos, 0, text.Length);
             Update();
 
             float numFloat = 0;

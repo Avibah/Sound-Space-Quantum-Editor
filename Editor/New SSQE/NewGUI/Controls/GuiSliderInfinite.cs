@@ -23,7 +23,7 @@ namespace New_SSQE.NewGUI.Controls
                 bool horizontal = rect.Width > rect.Height;
                 float width = horizontal ? MainWindow.Instance.ClientSize.X / 1920f : MainWindow.Instance.ClientSize.Y / 1080f;
                 float value = setting.Value.Value + (horizontal ? MainWindow.Instance.Delta.X : MainWindow.Instance.Delta.Y) * setting.Value.Step / width;
-                value = MathHelper.Clamp(value, min, max);
+                value = Math.Clamp(value, min, max);
 
                 setting.Value.Value = value;
                 setting.Value.Max = 2 * value;

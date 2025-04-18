@@ -1,4 +1,6 @@
-﻿using OpenTK.Windowing.GraphicsLibraryFramework;
+﻿using New_SSQE.Audio;
+using New_SSQE.Preferences;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace New_SSQE.NewGUI.Base
 {
@@ -45,6 +47,9 @@ namespace New_SSQE.NewGUI.Base
         public bool Dragging = false;
         public bool Focused = false;
 
+        public bool PlayLeftClickSound = true;
+        public bool PlayRightClickSound = true;
+
         public InteractiveControl(float x, float y, float w, float h, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, text, textSize, font, centerMode)
         {
 
@@ -55,12 +60,18 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void MouseClickLeft(float x, float y)
         {
-            if (Hovering)
+            if (Hovering && !(Windowing.Current?.ButtonClicked ?? false))
             {
+                if (PlayLeftClickSound)
+                    SoundPlayer.Play(Settings.clickSound.Value);
+
                 Focused = true;
                 Dragging = true;
                 LeftClick?.Invoke(this, new ClickEventArgs(x, y));
                 MouseMove(x, y);
+
+                if (Windowing.Current != null && this is not ControlContainer)
+                    Windowing.Current.ButtonClicked = true;
             }
             else
                 Focused = false;
@@ -69,7 +80,15 @@ namespace New_SSQE.NewGUI.Base
         public virtual void MouseClickRight(float x, float y)
         {
             if (Hovering)
+            {
+                if (PlayRightClickSound)
+                    SoundPlayer.Play(Settings.clickSound.Value);
+
                 RightClick?.Invoke(this, new ClickEventArgs(x, y));
+
+                if (Windowing.Current != null)
+                    Windowing.Current.ButtonClicked = true;
+            }
         }
 
         public virtual void MouseUpLeft(float x, float y)

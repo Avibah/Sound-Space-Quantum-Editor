@@ -1,5 +1,4 @@
-﻿using New_SSQE.Audio;
-using New_SSQE.NewGUI.Base;
+﻿using New_SSQE.NewGUI.Base;
 using New_SSQE.Preferences;
 using System.Drawing;
 
@@ -31,6 +30,7 @@ namespace New_SSQE.NewGUI.Controls
             this.setting = setting;
 
             Style = new(ControlStyles.Checkbox_Colored);
+            PlayRightClickSound = false;
         }
 
         public override float[] Draw()
@@ -70,10 +70,7 @@ namespace New_SSQE.NewGUI.Controls
         public override void MouseClickLeft(float x, float y)
         {
             if (Hovering)
-            {
-                SoundPlayer.Play(Settings.clickSound.Value);
                 Toggle ^= true;
-            }
 
             base.MouseClickLeft(x, y);
         }

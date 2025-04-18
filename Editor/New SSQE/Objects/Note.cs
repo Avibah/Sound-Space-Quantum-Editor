@@ -1,6 +1,5 @@
 ﻿namespace New_SSQE.Objects
 {
-    [Serializable]
     internal class Note : XYMapObject
     {
         public bool Anchored;
@@ -17,14 +16,6 @@
             X = float.Parse(split[1], Program.Culture);
             Y = float.Parse(split[2], Program.Culture);
             Ms = long.Parse(split[0]);
-        }
-
-        public override string ToString(params object[] data)
-        {
-            double x = Math.Round(X, 2);
-            double y = Math.Round(Y, 2);
-
-            return base.ToString(x.ToString(Program.Culture), y.ToString(Program.Culture));
         }
 
         public override Note Clone()

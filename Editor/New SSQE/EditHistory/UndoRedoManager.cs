@@ -42,7 +42,7 @@ namespace New_SSQE.EditHistory
             }
             catch (Exception ex)
             {
-                Logging.Register($"Failed to register action: {label} - {ex.Message}", LogSeverity.WARN);
+                Logging.Log($"Failed to register action: {label} - {ex.Message}", LogSeverity.WARN);
             }
         }
 

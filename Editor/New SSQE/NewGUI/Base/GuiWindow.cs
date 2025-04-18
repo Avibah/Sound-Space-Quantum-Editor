@@ -28,9 +28,11 @@ namespace New_SSQE.NewGUI.Base
          */
 
         private readonly ControlContainer container;
-        public static bool LockClick = false;
 
         private bool connected = false;
+
+        public bool ButtonClicked = false;
+        public static bool LockClick = false;
 
         public GuiWindow(float width, float height, params Control[] controls)
         {
@@ -87,6 +89,8 @@ namespace New_SSQE.NewGUI.Base
         {
             if (LockClick)
                 return;
+
+            ButtonClicked = false;
 
             if (e.Button == MouseButton.Left)
                 container.MouseClickLeft(prevMouse.X, prevMouse.Y);

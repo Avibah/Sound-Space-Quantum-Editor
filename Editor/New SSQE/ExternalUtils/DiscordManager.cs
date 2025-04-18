@@ -18,6 +18,8 @@ namespace New_SSQE.ExternalUtils
         private static DiscordRpcClient? client;
         private static bool enabled = true;
 
+        private static string prevState = "";
+
         public static void Init()
         {
             try
@@ -29,12 +31,14 @@ namespace New_SSQE.ExternalUtils
 
                 client.OnReady += (sender, e) =>
                 {
-                    Logging.Register($"Discord integration ready");
+                    Logging.Log($"Discord integration ready");
                 };
 
                 client.OnPresenceUpdate += (sender, e) =>
                 {
-                    Logging.Register($"Discord integration updated with activity '{e.Presence.State}'");
+                    if (e.Presence.State != prevState)
+                        Logging.Log($"Discord integration updated with activity '{e.Presence.State}'");
+                    prevState = e.Presence.State;
                 };
 
                 client.Initialize();

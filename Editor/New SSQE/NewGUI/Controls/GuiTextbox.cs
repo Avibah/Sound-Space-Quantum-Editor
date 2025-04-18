@@ -24,6 +24,8 @@ namespace New_SSQE.NewGUI.Controls
                 SetText(setting.Value);
 
             Style = new(ControlStyles.Textbox_Colored);
+            PlayLeftClickSound = false;
+            PlayRightClickSound = false;
         }
 
         public override float[] Draw()
@@ -79,7 +81,7 @@ namespace New_SSQE.NewGUI.Controls
             bool ctrl = MainWindow.Instance.CtrlHeld;
             bool shift = MainWindow.Instance.ShiftHeld;
 
-            cursorPos = MathHelper.Clamp(cursorPos, 0, text.Length);
+            cursorPos = Math.Clamp(cursorPos, 0, text.Length);
 
             switch (key)
             {
@@ -144,7 +146,7 @@ namespace New_SSQE.NewGUI.Controls
                     if (ctrl)
                     {
                         int index = Math.Max(IndexOf(text, cursorPos + 1, true), 0);
-                        string word = text.Substring(MathHelper.Clamp(cursorPos, 0, text.Length - 1), Math.Max(index - cursorPos, 0));
+                        string word = text.Substring(Math.Clamp(cursorPos, 0, text.Length - 1), Math.Max(index - cursorPos, 0));
 
                         SetText(text.Remove(cursorPos, word.Length));
                     }
@@ -174,7 +176,7 @@ namespace New_SSQE.NewGUI.Controls
                     break;
             }
 
-            cursorPos = MathHelper.Clamp(cursorPos, 0, text.Length);
+            cursorPos = Math.Clamp(cursorPos, 0, text.Length);
             Update();
 
             if (setting != null)

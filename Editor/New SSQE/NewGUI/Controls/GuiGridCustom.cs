@@ -102,8 +102,8 @@ namespace New_SSQE.NewGUI.Controls
         {
             Vector2 pos = MouseToGridSpaceUnclamped(mousex, mousey);
 
-            float x = MathHelper.Clamp(pos.X, CellBoundsX.X, CellBoundsX.Y);
-            float y = MathHelper.Clamp(pos.Y, CellBoundsY.X, CellBoundsY.Y);
+            float x = Math.Clamp(pos.X, CellBoundsX.X, CellBoundsX.Y);
+            float y = Math.Clamp(pos.Y, CellBoundsY.X, CellBoundsY.Y);
 
             return (x, y);
         }

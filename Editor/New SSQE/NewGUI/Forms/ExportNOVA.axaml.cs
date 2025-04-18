@@ -80,7 +80,7 @@ namespace New_SSQE.NewGUI
             {
                 Title = "Select Cover Image",
                 Filter = "Image Files (*.png;*.jpg)|*.png;*.jpg"
-            }.RunWithSetting(Settings.coverPath, out string fileName);
+            }.Show(Settings.coverPath, out string fileName);
 
             if (result == DialogResult.OK)
                 CoverPathBox.Text = fileName;
@@ -94,7 +94,7 @@ namespace New_SSQE.NewGUI
             {
                 Title = "Select Profile Icon",
                 Filter = "Image Files (*.png;*.jpg)|*.png;*.jpg"
-            }.RunWithSetting(Settings.coverPath, out string fileName);
+            }.Show(Settings.coverPath, out string fileName);
 
             if (result == DialogResult.OK)
                 IconPathBox.Text = fileName;

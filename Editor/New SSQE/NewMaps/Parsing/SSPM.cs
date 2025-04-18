@@ -480,7 +480,7 @@ namespace New_SSQE.NewMaps.Parsing
                 Title = "Export SSPM",
                 Filter = "Rhythia Maps (*.sspm)|*.sspm",
                 InitialFileName = $"{Metadata["songId"]}.sspm"
-            }.RunWithSetting(Settings.exportPath, out string fileName);
+            }.Show(Settings.exportPath, out string fileName);
 
             if (result == DialogResult.OK)
             {
@@ -491,7 +491,7 @@ namespace New_SSQE.NewMaps.Parsing
                 }
                 catch (Exception ex)
                 {
-                    Logging.Register("Failed to export", LogSeverity.WARN, ex);
+                    Logging.Log("Failed to export", LogSeverity.WARN, ex);
                     MessageBox.Show($"Failed to export SSPM:\n\n{ex.Message}", MBoxIcon.Warning, MBoxButtons.OK);
                 }
             }

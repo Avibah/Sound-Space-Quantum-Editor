@@ -139,7 +139,7 @@ namespace New_SSQE.NewGUI
             {
                 Title = "Select Cover Image",
                 Filter = "PNG Images (*.png)|*.png"
-            }.RunWithSetting(Settings.coverPath, out string fileName);
+            }.Show(Settings.coverPath, out string fileName);
 
             if (result == DialogResult.OK)
                 CoverPathBox.Text = fileName;

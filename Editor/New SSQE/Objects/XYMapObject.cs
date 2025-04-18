@@ -11,6 +11,14 @@
             Y = y;
         }
 
+        public override string ToString(params object[] data)
+        {
+            double x = Math.Round(X, 2);
+            double y = Math.Round(Y, 2);
+
+            return base.ToString(x.ToString(Program.Culture), y.ToString(Program.Culture));
+        }
+
         public override XYMapObject Clone()
         {
             return new(ID, X, Y, Ms, Name);

@@ -1,6 +1,5 @@
 ﻿namespace New_SSQE.Objects
 {
-    [Serializable]
     internal class MapObject
     {
         public int ID;

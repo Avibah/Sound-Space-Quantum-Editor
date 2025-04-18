@@ -41,6 +41,8 @@ namespace New_SSQE.Preferences
         public static readonly Setting<bool> notePushback = false;
         public static readonly Setting<bool> lowerBackgroundFPS = true;
         public static readonly Setting<bool> monoAudio = false;
+        public static readonly Setting<bool> muteSfx = false;
+        public static readonly Setting<bool> muteMusic = false;
 
         public static readonly Setting<float> editorBGOpacity = 255;
         public static readonly Setting<float> gridOpacity = 255;
@@ -59,6 +61,7 @@ namespace New_SSQE.Preferences
         public static readonly Setting<float> cursorScale = 1;
         public static readonly Setting<float> fontScale = 1;
 
+        public static readonly Setting<string> createGame = "";
         public static readonly Setting<string> language = "english";
         public static readonly Setting<string> autosavedFile = "";
         public static readonly Setting<string> autosavedProperties = "";
@@ -76,6 +79,7 @@ namespace New_SSQE.Preferences
         public static readonly Setting<ListSetting> cameraMode = new ListSetting(0, "half lock", "full lock", "spin");
         public static readonly Setting<ListSetting> modchartGame = new ListSetting(1, "Rhythia", "Nova");
         public static readonly Setting<ListSetting> exportType = new ListSetting(0, "Rhythia (SSPM)", "Nova (NPK)");
+        public static readonly Setting<ListSetting> autoplayType = new ListSetting(1, "linear", "spline");
 
         public static readonly Setting<float> vfxDuration = 0;
         public static readonly Setting<ListSetting> vfxStyle = new ListSetting(0, "Linear", "Sine", "Back", "Quad", "Quart", "Quint", "Bounce", "Elastic", "Exponential", "Circular", "Cubic");

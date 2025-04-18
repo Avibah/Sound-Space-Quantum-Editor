@@ -13,7 +13,7 @@ namespace New_SSQE.NewGUI.Controls
             this.setting = setting;
             this.prefix = prefix;
 
-            RightResponsive = true;
+            PlayRightClickSound = true;
             SetText(prefix + setting.Value.Current.ToString().ToUpper());
         }
 

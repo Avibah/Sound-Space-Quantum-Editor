@@ -1,6 +1,5 @@
 ﻿namespace New_SSQE.Preferences
 {
-    [Serializable]
     internal class ListSetting
     {
         public string Current;

@@ -1,46 +1,31 @@
-﻿using Avalonia.Controls;
-using Avalonia.Threading;
+﻿using NativeFileDialogs.Net;
+using New_SSQE.ExternalUtils;
 using New_SSQE.Preferences;
+
 
 namespace New_SSQE.Misc.Dialogs
 {
-    // turns forms OpenFileDialog info into Avalonia method
     internal class OpenFileDialog
     {
         public string? Title;
         public string? Filter;
         public string? InitialDirectory;
-
+        
         public string FileName = "";
 
-        public DialogResult ShowDialog()
+        public DialogResult Show()
         {
-            MainWindow.DefaultWindow.Topmost = true;
-            MainWindow.Instance.LockClick();
-
             string[] filters = (Filter ?? "").Split('|');
             string name = filters[0];
-            List<string> extensions = filters[1].Replace("*.", "").Split(';').ToList();
+            string extensions = filters[1].Replace("*.", "").Replace(';', ',');
 
-            FileDialogFilter filter = new() { Name = name, Extensions = extensions };
+            NfdStatus status = Nfd.OpenDialog(out string? result, new Dictionary<string, string> {
+                { name, extensions}
+            }, InitialDirectory);
 
-            Avalonia.Controls.OpenFileDialog dialog = new()
-            {
-                Title = Title,
-                Filters = new List<FileDialogFilter>() { filter },
-                Directory = InitialDirectory,
-            };
+            Logging.Log($"Open NFD status: {status} | {result}");
 
-            using CancellationTokenSource source = new();
-            Task<string[]?> task = dialog.ShowAsync(MainWindow.DefaultWindow);
-            task.ContinueWith(t => source.Cancel(), TaskScheduler.FromCurrentSynchronizationContext());
-            Dispatcher.UIThread.MainLoop(source.Token);
-            string result = task.Result?.FirstOrDefault() ?? "";
-
-            MainWindow.DefaultWindow.Topmost = false;
-            MainWindow.Instance.UnlockClick();
-
-            if (result != "")
+            if (!string.IsNullOrWhiteSpace(result))
             {
                 FileName = result;
                 return DialogResult.OK;
@@ -49,15 +34,30 @@ namespace New_SSQE.Misc.Dialogs
                 return DialogResult.Cancel;
         }
 
-        public DialogResult RunWithSetting(Setting<string> directory, out string fileName)
+        public DialogResult Show(out string fileName)
+        {
+            DialogResult result = Show();
+
+            fileName = FileName;
+            return result;
+        }
+
+        public DialogResult Show(Setting<string> directory)
         {
             if (directory.Value != "")
                 InitialDirectory = directory.Value;
 
-            DialogResult result = ShowDialog();
+            DialogResult result = Show();
 
             if (result == DialogResult.OK)
                 directory.Value = Path.GetDirectoryName(FileName) ?? "";
+
+            return result;
+        }
+
+        public DialogResult Show(Setting<string> directory, out string fileName)
+        {
+            DialogResult result = Show(directory);
 
             fileName = FileName;
             return result;

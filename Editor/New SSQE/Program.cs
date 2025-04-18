@@ -61,9 +61,9 @@ namespace New_SSQE
                     Mapping.SaveCache();
                 }
             }
-            catch (Exception ex) { Logging.Register("Map(s) failed to save on abort", LogSeverity.WARN, ex); }
+            catch (Exception ex) { Logging.Log("Map(s) failed to save on abort", LogSeverity.WARN, ex); }
 
-            Logging.Register("[Error encountered in application]", LogSeverity.ERROR);
+            Logging.Log("[Error encountered in application]", LogSeverity.ERROR);
             string logs = string.Join('\n', Logging.Logs);
 
             string text = @$"// whoops
@@ -148,7 +148,7 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
                 }
                 catch (Exception ae)
                 {
-                    Logging.Register("Failed to parse args!", LogSeverity.WARN, ae);
+                    Logging.Log("Failed to parse args!", LogSeverity.WARN, ae);
                 }
 
                 try
@@ -157,18 +157,18 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
                 }
                 catch (Exception pe)
                 {
-                    Logging.Register("Failed to register protocol!", LogSeverity.WARN, pe);
+                    Logging.Log("Failed to register protocol!", LogSeverity.WARN, pe);
                 }
 
                 TaskScheduler.UnobservedTaskException += (s, e) =>
                 {
-                    Logging.Register("Unobserved task exception occurred", LogSeverity.ERROR, e.Exception);
+                    Logging.Log("Unobserved task exception occurred", LogSeverity.ERROR, e.Exception);
                 };
 
-                Logging.Register($"Operating System: {RuntimeInformation.OSDescription}");
+                Logging.Log($"Operating System: {RuntimeInformation.OSDescription}");
                 Start();
 
-                Logging.Register("[Normal application exit]");
+                Logging.Log("[Normal application exit]");
                 string logs = string.Join('\n', Logging.Logs);
 
                 File.WriteAllText(Path.Combine(Assets.THIS, "logs.txt"), logs);

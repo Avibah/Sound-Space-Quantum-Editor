@@ -22,7 +22,7 @@ namespace New_SSQE.ExternalUtils
             }
 
             if (args.Length > 0)
-                Logging.Register($"Program started with args: {string.Join(' ', args)}");
+                Logging.Log($"Program started with args: {string.Join(' ', args)}");
             Parse(args);
         }
 
@@ -57,9 +57,9 @@ namespace New_SSQE.ExternalUtils
                                 break;
 
                             string path = Path.Combine(Assets.TEMP, "tempdownload.sspm");
-                            string url = WebClient.GetBeatmapURLFromRhythiaMapID(id);
+                            string url = Networking.GetBeatmapURLFromRhythiaMapID(id);
 
-                            WebClient.DownloadFile(url, path);
+                            Networking.DownloadFile(url, path);
                             MainWindow.FileToLoad = path;
                             break;
                     }

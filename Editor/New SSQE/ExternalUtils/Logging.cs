@@ -15,7 +15,7 @@ namespace New_SSQE.ExternalUtils
     {
         public static List<string> Logs = new();
 
-        public static void Register(string log, LogSeverity severity = LogSeverity.INFO, Exception? ex = null)
+        public static void Log(string log, LogSeverity severity = LogSeverity.INFO, Exception? ex = null)
         {
             if (ex != null)
                 log += $"\n{ex}";

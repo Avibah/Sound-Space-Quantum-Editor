@@ -129,28 +129,26 @@ namespace New_SSQE.NewGUI
         public static float[] Line(float x1, float y1, float x2, float y2, float lw, params float[] c)
         {
             float a = c.Length == 4 ? c[3] : 1f;
-            bool horizontal = x1 != x2;
 
-            if (horizontal)
-            {
-                y1 -= lw / 2;
-                y2 += lw / 2;
-            }
-            else
-            {
-                x1 -= lw / 2;
-                x2 += lw / 2;
-            }
+            Vector2 start = (x1, y1);
+            Vector2 end = (x2, y2);
+            Vector2 dir = end - start;
+            dir.Normalize();
 
+            Vector2 startL = start + dir.PerpendicularLeft * lw / 2;
+            Vector2 startR = start + dir.PerpendicularRight * lw / 2;
+            Vector2 endL = end + dir.PerpendicularLeft * lw / 2;
+            Vector2 endR = end + dir.PerpendicularRight * lw / 2;
+            
             return
             [
-                x1, y1, c[0], c[1], c[2], a,
-                x2, y1, c[0], c[1], c[2], a,
-                x1, y2, c[0], c[1], c[2], a,
+                startL.X, startL.Y, c[0], c[1], c[2], a,
+                endL.X, endL.Y, c[0], c[1], c[2], a,
+                endR.X, endR.Y, c[0], c[1], c[2], a,
 
-                x2, y2, c[0], c[1], c[2], a,
-                x1, y2, c[0], c[1], c[2], a,
-                x2, y1, c[0], c[1], c[2], a,
+                endR.X, endR.Y, c[0], c[1], c[2], a,
+                startR.X, startR.Y, c[0], c[1], c[2], a,
+                startL.X, startL.Y, c[0], c[1], c[2], a,
             ];
         }
 

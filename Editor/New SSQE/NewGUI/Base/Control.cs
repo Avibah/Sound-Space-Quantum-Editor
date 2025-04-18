@@ -14,11 +14,11 @@ namespace New_SSQE.NewGUI.Base
 
     internal abstract class Control
     {
-        protected Shader shader;
-        protected Texture[] textures;
+        protected Shader shader = Shader.Default;
+        protected Texture[] textures = [];
         public ControlStyle Style = new();
 
-        protected int textureIndex;
+        protected int textureIndex = 0;
 
         protected readonly RectangleF startRect;
         protected RectangleF rect;
@@ -34,10 +34,6 @@ namespace New_SSQE.NewGUI.Base
 
         public Control(RectangleF rect)
         {
-            shader = Shader.Default;
-            textures = [];
-            textureIndex = 0;
-
             startRect = rect;
             this.rect = rect;
 

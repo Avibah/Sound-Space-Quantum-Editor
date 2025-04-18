@@ -10,7 +10,7 @@ namespace New_SSQE.ExternalUtils
         Pulsus
     }
 
-    internal class WebClient
+    internal class Networking
     {
         private static readonly HttpClient client = new();
         private static readonly HttpClient impatientClient = new()
@@ -134,7 +134,7 @@ namespace New_SSQE.ExternalUtils
 
                 Stream stream = await content.ReadAsStreamAsync();
 
-                Logging.Register($"Attempted download of file: {location} - {source} ({url}) : {response.StatusCode}");
+                Logging.Log($"Attempted download of file: {location} - {source} ({url}) : {response.StatusCode}");
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {

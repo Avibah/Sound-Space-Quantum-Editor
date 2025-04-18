@@ -69,6 +69,49 @@ namespace New_SSQE.NewMaps.Parsing
 
                         break;
 
+                    case ".nlr" when filename == "lyrics":
+                        string[] lines = File.ReadAllLines(file);
+                        Lyric? prev = null;
+
+                        for (int i = 0; i < lines.Length; i++)
+                        {
+                            string line = lines[i];
+                            if (string.IsNullOrWhiteSpace(line))
+                                continue;
+
+                            string[] split = line.Split(' ');
+                            string timestamp = split[0];
+                            string text = string.Join(' ', split[1..]);
+                            if (string.IsNullOrWhiteSpace(text))
+                                continue;
+
+                            timestamp = timestamp[1..^1];
+                            string[] components = timestamp.Split('.');
+                            string[] minSec = components[0].Split(':');
+
+                            long minutes = long.Parse(minSec[0]);
+                            long seconds = long.Parse(minSec[1]);
+                            long ms = long.Parse(components[1]);
+                            ms += 60000 * minutes + 1000 * seconds;
+
+                            if (text == "...>" && prev != null)
+                            {
+                                prev.FadeOut = true;
+                                if (prev.Ms != ms)
+                                    prev = new(ms, "", false, false);
+                            }
+                            else if (text == "..." && prev != null && prev.Ms != ms)
+                                prev = new(ms, "", false, false);
+                            else if (text.StartsWith("->"))
+                                prev = new(ms, '-' + text[2..], true, false);
+                            else
+                                prev = new(ms, text, false, false);
+
+                            Mapping.Current.SpecialObjects.Add(prev);
+                        }
+
+                        break;
+
                     case ".png" when filename == "profile":
                     case ".jpg" when filename == "profile":
                         profile = file;
@@ -207,12 +250,12 @@ namespace New_SSQE.NewMaps.Parsing
             {
                 Note note = Mapping.Current.Notes[i];
 
-                notes[i] = new()
+                notes.Add(new()
                 {
                     {"x", 1 - note.X },
                     {"y", note.Y - 1 },
                     {"t", note.Ms }
-                };
+                });
             }
 
             foreach (MapObject obj in Mapping.Current.SpecialObjects)
@@ -253,6 +296,8 @@ namespace New_SSQE.NewMaps.Parsing
                 }
             }
 
+            notes = notes.OrderBy(n => n["t"]).ToList();
+
             Dictionary<string, object> chart = new()
             {
                 {"songOffset", long.Parse(Metadata["songOffset"]) },
@@ -275,6 +320,71 @@ namespace New_SSQE.NewMaps.Parsing
             };
 
             File.WriteAllText(Path.Combine(temp, "metadata.json"), JsonSerializer.Serialize(metadata, Program.JsonOptions));
+
+            Lyric[] lyrics = Mapping.Current.SpecialObjects.Where(n => n is Lyric).Cast<Lyric>().ToArray();
+
+            if (lyrics.Length > 0)
+            {
+                List<(long, string)> set = [];
+                Lyric? prev = null;
+
+                for (int i = 0; i < lyrics.Length; i++)
+                {
+                    Lyric cur = lyrics[i];
+                    string text = cur.Text;
+
+                    if (string.IsNullOrWhiteSpace(text) && (prev == null || string.IsNullOrWhiteSpace(prev.Text)))
+                        continue;
+
+                    if (string.IsNullOrWhiteSpace(text))
+                    {
+                        if (prev != null)
+                        {
+                            text = "...";
+                            if (prev.FadeOut)
+                                text += '>';
+
+                            set.Add((cur.Ms, text));
+                            prev = cur;
+                        }
+                    }
+                    else
+                    {
+                        if (prev != null && (string.IsNullOrWhiteSpace(prev.Text) || text.StartsWith('-')))
+                        {
+                            if (cur.FadeIn)
+                            {
+                                if (text.StartsWith('-'))
+                                    text = "->" + text[1..];
+                                else
+                                    text = "->" + text;
+                            }
+                            else if (!text.StartsWith('-'))
+                                text = '-' + text;
+                        }
+
+                        set.Add((cur.Ms, text));
+                        prev = cur;
+
+                        if (cur.FadeOut && (i + 1 >= lyrics.Length || string.IsNullOrWhiteSpace(lyrics[i + 1].Text)))
+                            set.Add((cur.Ms, "...>"));
+                    }
+                }
+
+                List<string> final = [];
+
+                for (int i = 0; i < set.Count; i++)
+                {
+                    (long, string) item = set[i];
+                    long minutes = item.Item1 / 60000;
+                    long seconds = item.Item1 % 60000 / 1000;
+                    long milliseconds = item.Item1 % 1000;
+
+                    final.Add($"[{minutes:0#}:{seconds:0#}.{milliseconds:00#}] {item.Item2}");
+                }
+
+                File.WriteAllText(Path.Combine(temp, "lyrics.nlr"), string.Join('\n', final));
+            }
 
             if (File.Exists(path))
                 File.Delete(path);
@@ -309,7 +419,7 @@ namespace New_SSQE.NewMaps.Parsing
                 Title = "Export NOVA",
                 Filter = "Nova Maps (*.npk)|*.npk",
                 InitialFileName = $"{mapper}_-_{artist}_-_{title}"
-            }.RunWithSetting(Settings.exportPath, out string fileName);
+            }.Show(Settings.exportPath, out string fileName);
 
             if (result == DialogResult.OK)
             {
@@ -320,7 +430,7 @@ namespace New_SSQE.NewMaps.Parsing
                 }
                 catch (Exception ex)
                 {
-                    Logging.Register("Failed to export", LogSeverity.WARN, ex);
+                    Logging.Log("Failed to export", LogSeverity.WARN, ex);
                     MessageBox.Show($"Failed to export NPK:\n\n{ex.Message}", MBoxIcon.Warning, MBoxButtons.OK);
                 }
             }

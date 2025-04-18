@@ -1,5 +1,4 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.NewGUI.Base;
 using New_SSQE.Preferences;
 using OpenTK.Graphics.OpenGL;
 
@@ -9,24 +8,19 @@ namespace New_SSQE.NewGUI.Controls
     {
         public GuiButtonPlayPause(float x, float y, float w, float h) : base(x, y, w, h)
         {
-            Texture pause = new("widgets", null, false, TextureUnit.Texture1);
-            Texture play = new("widgets", null, false, TextureUnit.Texture1);
-
-            textures = [pause, play];
+            textures = [new("widgets", null, false, TextureUnit.Texture1) { TileSize = (2, 2) }];
         }
 
         public override float[] Draw()
         {
-            textures[0].Draw(rect, new(0, 0, 0.5f, 0.5f));
-            textures[1].Draw(rect, new(0.5f, 0, 0.5f, 0.5f));
-
+            textures[0].Draw(rect);
             return [];
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)
         {
             base.PreRender(mousex, mousey, frametime);
-            textureIndex = MusicPlayer.IsPlaying ? 1 : 0;
+            textures[0].TileIndex = MusicPlayer.IsPlaying ? 1 : 0;
         }
 
         public override void MouseClickLeft(float x, float y)

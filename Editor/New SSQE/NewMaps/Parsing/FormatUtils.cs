@@ -4,17 +4,23 @@ namespace New_SSQE.NewMaps.Parsing
 {
     internal class FormatUtils
     {
-        private static readonly char[] invalidChars = { '/', '\\', ':', '*', '?', '"', '<', '>', '|', ',', '`' };
-
         public static string FixID(string id)
         {
+            id = id.ToLower();
+            char[] fix = new char[id.Length];
+
             for (int i = 0; i < id.Length; i++)
             {
-                if (Array.IndexOf(invalidChars, id[i]) > -1)
-                    id = id.Remove(i, 1).Insert(i, "_");
+                fix[i] = id[i] switch
+                {
+                    >= '0' and <= '9' => id[i],
+                    >= 'a' and <= 'z' => id[i],
+                    ' ' or '-' => id[i],
+                    _ => '_'
+                };
             }
 
-            return id;
+            return new(fix);
         }
 
         public static Dictionary<string, byte> Difficulties = new()
@@ -43,6 +49,9 @@ namespace New_SSQE.NewMaps.Parsing
             true,  // 10
             true,  // 11
             false, // 12
+            false, // 13
+            false, // 14
+            false, // 15
         ];
 
         public static (List<MapObject>, List<MapObject>) SplitVFXSpecial(List<MapObject> objects)

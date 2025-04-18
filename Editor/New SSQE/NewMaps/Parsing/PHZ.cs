@@ -69,11 +69,11 @@ namespace New_SSQE.NewMaps.Parsing
             try
             {
                 if (!File.Exists(Path.Combine(Assets.CACHED, $"{id}.asset")))
-                    WebClient.DownloadFile($"https://pulsus.cc/play/client/s/{id}.mp3", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Pulsus);
+                    Networking.DownloadFile($"https://pulsus.cc/play/client/s/{id}.mp3", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Pulsus);
             }
             catch (Exception ex)
             {
-                Logging.Register("Failed to download audio (Pulsus)", LogSeverity.WARN, ex);
+                Logging.Log("Failed to download audio (Pulsus)", LogSeverity.WARN, ex);
             }
 
             return true;

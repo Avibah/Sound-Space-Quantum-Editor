@@ -41,7 +41,7 @@ namespace New_SSQE.NewGUI
 
         public static void EnableTexture(TextureHandle texture)
         {
-            if (texture != _texture)
+            //if (texture != _texture)
                 GL.BindTexture(TextureTarget.Texture2d, texture);
             _texture = texture;
         }
@@ -62,9 +62,6 @@ namespace New_SSQE.NewGUI
 
         public static void BufferData(BufferHandle vbo, float[] data)
         {
-            if (vbo == testBuffer)
-                Console.WriteLine("hi");
-
             EnableVBO(vbo);
             GL.BufferData(BufferTargetARB.ArrayBuffer, data, BufferUsageARB.StaticDraw);
         }
@@ -359,7 +356,7 @@ namespace New_SSQE.NewGUI
 
             GL.GetShaderInfoLog(_vertex, out string vertexLog);
             if (!string.IsNullOrWhiteSpace(vertexLog))
-                Logging.Register($"Failed to compile vertex shader: {vertexLog}\n{vertex}");
+                Logging.Log($"Failed to compile vertex shader: {vertexLog}\n{vertex}");
 
             ShaderHandle _fragment = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(_fragment, fragment);
@@ -367,7 +364,7 @@ namespace New_SSQE.NewGUI
 
             GL.GetShaderInfoLog(_fragment, out string fragmentLog);
             if (!string.IsNullOrWhiteSpace(fragmentLog))
-                Logging.Register($"Failed to compile fragment shader: {fragmentLog}\n{fragment}");
+                Logging.Log($"Failed to compile fragment shader: {fragmentLog}\n{fragment}");
 
             ProgramHandle program = GL.CreateProgram();
             GL.AttachShader(program, _vertex);

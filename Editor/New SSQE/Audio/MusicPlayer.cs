@@ -53,7 +53,7 @@ namespace New_SSQE.Audio
             }
             catch (Exception ex)
             {
-                Logging.Register($"Failed to encode file to mp3: {lastFile}", LogSeverity.WARN, ex);
+                Logging.Log($"Failed to encode file to mp3: {lastFile}", LogSeverity.WARN, ex);
                 MessageBox.Show($"Failed to convert file {lastFile}\n\nExternal playtesting may not be possible with this asset.", MBoxIcon.Warning, MBoxButtons.OK);
             }
 
@@ -133,7 +133,7 @@ namespace New_SSQE.Audio
             {
                 string id = Path.GetFileNameWithoutExtension(file);
 
-                Logging.Register($"Audio failed to load - {err}\n{file}", LogSeverity.ERROR);
+                Logging.Log($"Audio failed to load - {err}\n{file}", LogSeverity.ERROR);
                 DialogResult message = MessageBox.Show($"Audio file with id '{id}' is corrupt.\n\nWould you like to try importing a new file?", MBoxIcon.Warning, MBoxButtons.OK_Cancel);
 
                 return message == DialogResult.OK && Mapping.ImportAudio(id);
@@ -236,6 +236,9 @@ namespace New_SSQE.Audio
         {
             set
             {
+                if (Settings.muteMusic.Value)
+                    value = 0;
+
                 CheckDevice();
                 Bass.BASS_ChannelSetAttribute(streamID, BASSAttribute.BASS_ATTRIB_VOL, value);
             }
@@ -309,7 +312,7 @@ namespace New_SSQE.Audio
             float result = BassFx.BASS_FX_BPM_DecodeGet(streamFileID, start / 1000d, end / 1000d, 0, BASSFXBpm.BASS_FX_BPM_BKGRND | BASSFXBpm.BASS_FX_BPM_MULT2, null, nint.Zero);
 
             if (result < 0)
-                Logging.Register($"Detect BPM failed with error code: {Bass.BASS_ErrorGetCode()}", LogSeverity.WARN);
+                Logging.Log($"Detect BPM failed with error code: {Bass.BASS_ErrorGetCode()}", LogSeverity.WARN);
 
             BassFx.BASS_FX_BPM_Free(streamFileID);
             return result;

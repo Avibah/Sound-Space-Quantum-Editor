@@ -1,6 +1,4 @@
-﻿using New_SSQE.Audio;
-using New_SSQE.NewGUI.Base;
-using New_SSQE.Preferences;
+﻿using New_SSQE.NewGUI.Base;
 using OpenTK.Mathematics;
 
 namespace New_SSQE.NewGUI.Controls
@@ -8,11 +6,11 @@ namespace New_SSQE.NewGUI.Controls
     internal class GuiButton : InteractiveControl
     {
         private float hoverTime = 0f;
-        protected bool RightResponsive = false;
         
         public GuiButton(float x, float y, float w, float h, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, text, textSize, font, centerMode)
         {
             Style = new(ControlStyles.Button_Uncolored);
+            PlayRightClickSound = false;
         }
 
         public override float[] Draw()
@@ -29,26 +27,10 @@ namespace New_SSQE.NewGUI.Controls
             base.PreRender(mousex, mousey, frametime);
 
             float prevTime = hoverTime;
-            hoverTime = MathHelper.Clamp((hoverTime / 0.05f) + (Hovering ? 10 : -10) * frametime, 0, 1) * 0.05f;
+            hoverTime = Math.Clamp((hoverTime / 0.05f) + (Hovering ? 10 : -10) * frametime, 0, 1) * 0.05f;
 
             if (hoverTime != prevTime)
                 Update();
-        }
-
-        public override void MouseClickLeft(float x, float y)
-        {
-            if (Hovering)
-                SoundPlayer.Play(Settings.clickSound.Value);
-
-            base.MouseClickLeft(x, y);
-        }
-
-        public override void MouseClickRight(float x, float y)
-        {
-            if (Hovering && RightResponsive)
-                SoundPlayer.Play(Settings.clickSound.Value);
-
-            base.MouseClickRight(x, y);
         }
 
         private string keybind = "";

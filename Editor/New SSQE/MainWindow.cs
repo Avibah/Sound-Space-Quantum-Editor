@@ -18,6 +18,7 @@ using New_SSQE.ExternalUtils;
 using New_SSQE.NewMaps;
 using System.Diagnostics;
 using New_SSQE.NewGUI;
+using New_SSQE.NewGUI.Base;
 
 namespace New_SSQE
 {
@@ -117,7 +118,7 @@ namespace New_SSQE
             string message = Marshal.PtrToStringAnsi(pMessage, length);
 
             if (type == DebugType.DebugTypeError)
-                Logging.Register($"[{severity} source={source} type={type} id={id}] {message}", LogSeverity.WARN);
+                Logging.Log($"[{severity} source={source} type={type} id={id}] {message}", LogSeverity.WARN);
         }
         private static readonly GLDebugProc DebugMessageDelegate = OnDebugMessage;
         
@@ -147,8 +148,8 @@ namespace New_SSQE
                 GL.Enable(EnableCap.DebugOutput);
             }
             
-            Logging.Register($"Required OpenGL version: {APIVersion}");
-            Logging.Register("Current OpenGL version: " + (GL.GetString(StringName.Version) ?? "N/A"));
+            Logging.Log($"Required OpenGL version: {APIVersion}");
+            Logging.Log("Current OpenGL version: " + (GL.GetString(StringName.Version) ?? "N/A"));
 
             string version = GL.GetString(StringName.Version) ?? "";
             int major = 0, minor = 0;
@@ -242,13 +243,13 @@ namespace New_SSQE
             }
             catch (Exception ex)
             {
-                Logging.Register($"Failed to render frame", LogSeverity.ERROR, ex);
+                Logging.Log($"Failed to render frame", LogSeverity.ERROR, ex);
             }
 
             OpenTK.Graphics.OpenGL.ErrorCode err = GL.GetError();
             while (err != OpenTK.Graphics.OpenGL.ErrorCode.NoError)
             {
-                Logging.Register($"OpenGL Error: '{err}'", LogSeverity.WARN);
+                Logging.Log($"OpenGL Error: '{err}'", LogSeverity.WARN);
                 err = GL.GetError();
             }
 
@@ -269,7 +270,7 @@ namespace New_SSQE
                 if (duration > 50)
                 {
                     // something is causing the gc to have a noticeable lag spike when it runs, so maybe now its doing more harm than good
-                    Logging.Register($"GC took {duration}ms to process! Disabling forced garbage collection to improve performance");
+                    Logging.Log($"GC took {duration}ms to process! Disabling forced garbage collection to improve performance");
                     gcEnabled = false;
                 }
 
@@ -289,15 +290,15 @@ namespace New_SSQE
 
                 base.OnResize(new(w, h));
                 GL.Viewport(0, 0, w, h);
-                NewGUI.Base.Shader.SetViewports(w, h);
+                Shader.SetViewports(w, h);
 
                 Windowing.Current?.Resize(new(w, h));
                 OnRenderFrame(new FrameEventArgs());
             }
         }
 
-        public void LockClick() => NewGUI.Base.GuiWindow.LockClick = true;
-        public void UnlockClick() => NewGUI.Base.GuiWindow.LockClick = false;
+        public void LockClick() => GuiWindow.LockClick = true;
+        public void UnlockClick() => GuiWindow.LockClick = false;
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
@@ -425,7 +426,7 @@ namespace New_SSQE
                         {
                             entry.ExtractToFile(entry.FullName, true);
                         }
-                        catch (Exception ex) { Logging.Register($"Failed to extract file: {entry.FullName}", LogSeverity.WARN, ex); }
+                        catch (Exception ex) { Logging.Log($"Failed to extract file: {entry.FullName}", LogSeverity.WARN, ex); }
                     }
                 }
 
@@ -434,23 +435,23 @@ namespace New_SSQE
 
             void Download(string file)
             {
-                Logging.Register($"Attempting to download file '{file}'");
-                WebClient.DownloadFile(Links.ALL[$"{file} Zip"], Path.Combine(Assets.THIS, $"{file}.zip"));
+                Logging.Log($"Attempting to download file '{file}'");
+                Networking.DownloadFile(Links.ALL[$"{file} Zip"], Path.Combine(Assets.THIS, $"{file}.zip"));
                 ExtractFile(Path.Combine(Assets.THIS, $"{file}.zip"));
             }
 
             void Run(string file, string tag, Setting<string> setting)
             {
-                Logging.Register($"Searching for file '{file}'");
+                Logging.Log($"Searching for file '{file}'");
 
                 if (Platform.ExecutableExists(file))
                 {
                     string current = Platform.IsLinux ? setting.Value : Platform.GetExecutableVersionInfo(file).FileVersion ?? "";
-                    string version = WebClient.DownloadString(Links.ALL[$"{file} Version"]).Trim();
+                    string version = Networking.DownloadString(Links.ALL[$"{file} Version"]).Trim();
 
-                    if (Version.Parse(current) < Version.Parse(version))
+                    if (string.IsNullOrWhiteSpace(current) || Version.Parse(current) < Version.Parse(version))
                     {
-                        Logging.Register($"Current and latest versions differ! Current: {current} | Latest: {version}");
+                        Logging.Log($"Current and latest versions differ! Current: {current} | Latest: {version}");
 
                         DialogResult diag = MessageBox.Show($"New {tag} version is available ({version}). Would you like to download the new version?", MBoxIcon.Info, MBoxButtons.Yes_No);
 
@@ -467,7 +468,7 @@ namespace New_SSQE
 
                     if (diag == DialogResult.Yes)
                     {
-                        string version = WebClient.DownloadString(Links.ALL[$"{file} Version"]).Trim();
+                        string version = Networking.DownloadString(Links.ALL[$"{file} Version"]).Trim();
                         
                         Download(file);
                         setting.Value = version;
@@ -480,20 +481,20 @@ namespace New_SSQE
                 Run("SSQE Player", "Map Player", Settings.SSQE_Player_Version);
                 Run("SSQE Updater", "Auto Updater", Settings.SSQE_Updater_Version);
 
-                string redirect = WebClient.GetRedirect(Links.EDITOR_REDIRECT);
+                string redirect = Networking.GetRedirect(Links.EDITOR_REDIRECT);
 
                 if (Platform.ExecutableExists("SSQE Updater") && redirect != "")
                 {
                     string version = redirect[(redirect.LastIndexOf('/') + 1)..];
 
-                    Logging.Register("Checking version of editor");
+                    Logging.Log("Checking version of editor");
                     if (Version.Parse(version) > Version.Parse(Program.Version))
                     {
                         DialogResult diag = MessageBox.Show($"New Editor version is available ({version}). Would you like to download the new version?", MBoxIcon.Info, MBoxButtons.Yes_No);
 
                         if (diag == DialogResult.Yes)
                         {
-                            Logging.Register("Attempting to run updater");
+                            Logging.Log("Attempting to run updater");
                             Platform.RunExecutable("SSQE Updater", "");
                         }
                     }
@@ -501,7 +502,7 @@ namespace New_SSQE
             }
             catch (Exception ex)
             {
-                Logging.Register("Failed to check for updates", LogSeverity.WARN, ex);
+                Logging.Log("Failed to check for updates", LogSeverity.WARN, ex);
                 MessageBox.Show("Failed to check for updates", MBoxIcon.Warning, MBoxButtons.OK);
             }
         }

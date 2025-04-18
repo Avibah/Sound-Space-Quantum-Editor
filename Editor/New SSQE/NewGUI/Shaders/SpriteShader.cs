@@ -19,8 +19,8 @@ uniform vec4 NoteColors[32];
 
 void main()
 {
-    int yOff = int(aExtra.x * SpriteSize.x);
-    int xOff = int(aExtra.x - yOff / SpriteSize.x);
+    int yOff = int(aExtra.x * SpriteSize.x + SpriteSize.y / 2.0f);
+    int xOff = int(aExtra.x - yOff / SpriteSize.x + SpriteSize.x / 2.0f);
 
     gl_Position = Projection * vec4(aPosition.xy * aOffset.z + aOffset.xy, 0.0f, 1.0f);
 

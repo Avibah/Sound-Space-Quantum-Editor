@@ -24,7 +24,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton LNavTiming = new(195, 140, 175, 50, "TIMING", 31) { Stretch = StretchMode.X };
         public static readonly GuiButton LNavPatterns = new(380, 140, 175, 50, "PATTERNS", 31) { Stretch = StretchMode.X };
         public static readonly GuiButton LNavPlayer = new(10, 946, 545, 50, "PLAYTEST", 31) { Stretch = StretchMode.X };
-        public static readonly RadioButtonController LNavController = new(1, LNavOptions, LNavTiming, LNavPatterns);
+        public static readonly RadioButtonController LNavController = new(1, LNavOptions, LNavTiming, LNavPatterns, LNavPlayer);
 
         public static readonly GuiButton RNavSnapping = new(1365, 140, 175, 50, "SNAPPING", 31) { Stretch = StretchMode.X };
         public static readonly GuiButton RNavGraphics = new(1550, 140, 175, 50, "GRAPHICS", 31) { Stretch = StretchMode.X };
@@ -68,9 +68,9 @@ namespace New_SSQE.NewGUI.Windows
         // Patterns
         public static readonly GuiButton HFlip = new(0, 20, 175, 40, "HORIZONTAL FLIP", 27) { Stretch = StretchMode.X };
         public static readonly GuiButton VFlip = new(185, 20, 175, 40, "VERTICAL FLIP", 27) { Stretch = StretchMode.X };
-        public static readonly GuiNumberBox RotateBox = new(0, 110, 100, 40, 15, null, true, false, "90", 31) { Stretch = StretchMode.X };
+        public static readonly GuiNumberBox RotateBox = new(0, 110, 100, 40, 5, null, true, false, "90", 31) { Stretch = StretchMode.X };
         public static readonly GuiButton RotateButton = new(110, 110, 100, 40, "ROTATE", 27) { Stretch = StretchMode.X };
-        public static readonly GuiNumberBox ScaleBox = new(0, 190, 100, 40, 10, null, true, false, "150", 31) { Stretch = StretchMode.X };
+        public static readonly GuiNumberBox ScaleBox = new(0, 190, 100, 40, 5, null, true, false, "150", 31) { Stretch = StretchMode.X };
         public static readonly GuiButton ScaleButton = new(110, 190, 100, 40, "SCALE", 27) { Stretch = StretchMode.X };
         public static readonly GuiCheckbox ApplyOnPaste = new(0, 250, 30, 30, Settings.applyOnPaste, "Apply Rotate/Scale on Paste", 27) { Stretch = StretchMode.X };
         public static readonly GuiCheckbox ClampSR = new(0, 290, 30, 30, Settings.clampSR, "Clamp Rotate/Scale in Bounds", 27) { Stretch = StretchMode.X };
@@ -133,16 +133,34 @@ namespace New_SSQE.NewGUI.Windows
          *************************************
          */
 
-        public static readonly GuiButton SpecialNavBeat = new(0, 10, 150, 30, "Beats", 26) { Stretch = StretchMode.X };
-        public static readonly GuiButton SpecialNavMine = new(0, 50, 150, 30, "Mines", 26) { Stretch = StretchMode.X };
-        public static readonly GuiButton SpecialNavGlide = new(0, 90, 150, 30, "Glides", 26) { Stretch = StretchMode.X };
-        public static readonly RadioButtonController SpecialNavController = new(null, SpecialNavBeat, SpecialNavMine, SpecialNavGlide);
+        public static readonly GuiButton SpecialNavBeat = new(0, 0, 150, 30, "Beats", 26) { Stretch = StretchMode.X };
+        public static readonly GuiButton SpecialNavMine = new(0, 40, 150, 30, "Mines", 26) { Stretch = StretchMode.X };
+        public static readonly GuiButton SpecialNavGlide = new(0, 80, 150, 30, "Glides", 26) { Stretch = StretchMode.X };
+        public static readonly GuiButton SpecialNavLyric = new(0, 120, 150, 30, "Lyrics", 26) { Stretch = StretchMode.X };
+        public static readonly RadioButtonController SpecialNavController = new(null, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric);
 
-        public static readonly ControlContainer SpecialNavNova = new(10, 190, 545, 756, SpecialNavBeat, SpecialNavMine, SpecialNavGlide) { Stretch = StretchMode.XY };
+        public static readonly ControlContainer SpecialNavNova = new(10, 200, 545, 756, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric) { Stretch = StretchMode.XY };
         public static readonly GuiButtonList GameSwitch = new(10, 946, 545, 50, Settings.modchartGame, "GAME: ", 31) { Stretch = StretchMode.X };
         public static readonly GuiButton SpecialNavExit = new(10, 140, 545, 50, "CLOSE EXTRA OBJECTS", 31) { Stretch = StretchMode.X };
+        public static readonly GuiLabel LyricPreview = new(0, 860, 1920, 56, Settings.color2, "", 48) { Stretch = StretchMode.X };
 
-        public static readonly ControlContainer SpecialMapNavs = new(SpecialNavNova, GameSwitch, SpecialNavExit) { Visible = false, Stretch = StretchMode.XY };
+        public static readonly GuiTextbox LyricBox = new(0, 0, 370, 30, null, "", 26) { Stretch = StretchMode.X };
+        public static readonly GuiCheckbox LyricFadeIn = new(0, 40, 30, 30, null, "Fade In", 26) { Stretch = StretchMode.X };
+        public static readonly GuiCheckbox LyricFadeOut = new(0, 80, 30, 30, null, "Fade Out", 26) { Stretch = StretchMode.X };
+        public static readonly GuiButton LyricCreate = new(0, 120, 370, 30, "", 26) { Stretch = StretchMode.X };
+        public static readonly GuiLabel LyricInfo = new(0, 160, 370, 400, null, string.Join('\n',
+            "Lyric usage:",
+            "> \"-\" prefix: Clear previous line",
+            "> \"-\" suffix: Apply next lyric as a syllable",
+            "    (Without a space in between)",
+            "> 'Fade In' only applies to new lyric lines",
+            "    (Cleared with \"-\" prefix or a blank lyric)",
+            "> 'Fade Out' only applies to the end of a lyric line",
+            "    (Before a blank lyric or a \"-\" prefixed lyric)",
+            "> Press 'Enter' in the lyric textbox to quickly place a lyric"), 20, "main", CenterMode.None) { Stretch = StretchMode.X };
+        public static readonly ControlContainer LyricNav = new(175, 200, 370, 756, LyricBox, LyricFadeIn, LyricFadeOut, LyricCreate, LyricInfo) { Visible = false, Stretch = StretchMode.XY };
+
+        public static readonly ControlContainer SpecialMapNavs = new(SpecialNavNova, GameSwitch, SpecialNavExit, LyricNav, LyricPreview) { Visible = false, Stretch = StretchMode.XY };
 
         /*
          *************************************
@@ -216,7 +234,9 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiSlider Tempo = new(1408, 1016, 512, 64, Settings.tempo) { Style = new(ControlStyles.None), Stretch = StretchMode.X };
         public static readonly GuiSliderTimeline Timeline = new(0, 1016, 1344, 64) { Style = new(ControlStyles.None), Stretch = StretchMode.X };
         public static readonly GuiSlider MusicVolume = new(1856, 760, 40, 256, Settings.masterVolume, true) { Style = new(ControlStyles.None) };
+        public static readonly GuiButtonToggle MusicMute = new(1868, 750, 16, 16, Settings.muteMusic, "MuteUnmute");
         public static readonly GuiSlider SfxVolume = new(1792, 760, 40, 256, Settings.sfxVolume, true) { Style = new(ControlStyles.None) };
+        public static readonly GuiButtonToggle SfxMute = new(1804, 750, 16, 16, Settings.muteSfx, "MuteUnmute");
         public static readonly GuiButtonPlayPause PlayPause = new(1344, 1016, 64, 64);
 
         public static readonly GuiLabelToast ToastLabel = new(0, 1000, 1920, 64, null, "", 42) { Stretch = StretchMode.X };
@@ -225,9 +245,9 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiLabel ClickModeLabel = new(810, 816, 300, 42, Settings.color1, "", 30);
         
         public static readonly GuiLabel TempoLabel = new(1408, 1048, 512, 30, Settings.color1, "", 30) { Stretch = StretchMode.X };
-        public static readonly GuiLabel MusicVolumeLabel = new(1856, 750, 40, 30, Settings.color1, "Music", 24);
+        public static readonly GuiLabel MusicVolumeLabel = new(1856, 720, 40, 30, Settings.color1, "Music", 24);
         public static readonly GuiLabel MusicVolumeValueLabel = new(1856, 996, 40, 30, Settings.color1, "", 24);
-        public static readonly GuiLabel SfxVolumeLabel = new(1792, 750, 40, 30, Settings.color1, "SFX", 24);
+        public static readonly GuiLabel SfxVolumeLabel = new(1792, 720, 40, 30, Settings.color1, "SFX", 24);
         public static readonly GuiLabel SfxVolumeValueLabel = new(1792, 996, 40, 30, Settings.color1, "", 24);
 
         public static readonly GuiLabel CurrentTimeLabel = new(0, 1048, 64, 32, Settings.color1, "", 26);
@@ -238,16 +258,21 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiGrid Grid = new(810, 390, 300, 300);
         public static readonly GuiTrack Track = new(0, 0, 1920, 86) { Stretch = StretchMode.XY };
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("editorbg", "background_editor.png") { Stretch = StretchMode.XY };
+        public static readonly GuiSquareTextured BackgroundSquare = new("editorbg", Path.Combine(Assets.THIS, "background_editor.png")) { Stretch = StretchMode.XY };
 
         public GuiWindowEditor() : base(BackgroundSquare, StandardMapNavs, SpecialMapNavs, ConstantMapNavs, CopyButton, BackButton, Tempo,
             Timeline, MusicVolume, SfxVolume, PlayPause, ToastLabel, ZoomLabel, ZoomValueLabel, ClickModeLabel, TempoLabel,
             MusicVolumeLabel, MusicVolumeValueLabel, SfxVolumeLabel, SfxVolumeValueLabel, CurrentTimeLabel, CurrentMsLabel,
-            TotalTimeLabel, NotesLabel, Grid, Track)
+            MusicMute, SfxMute, TotalTimeLabel, NotesLabel, Grid, Track)
         {
             BackgroundSquare.SetColor(Color.FromArgb((int)Settings.editorBGOpacity.Value, 30, 30, 30));
             
             LNavPlayer.Visible = Platform.ExecutableExists("SSQE Player") || Settings.useRhythia.Value;
+
+            BeatSnapDivisor.Update();
+            QuantumSnapDivisor.Update();
+            Timeline.Update();
+            Tempo.Update();
         }
 
         public override void ConnectEvents()
@@ -282,7 +307,7 @@ namespace New_SSQE.NewGUI.Windows
 
                     if (!File.Exists(Settings.rhythiaPath.Value))
                     {
-                        Logging.Register($"Invalid Rhythia path - {Settings.rhythiaPath.Value}", LogSeverity.WARN);
+                        Logging.Log($"Invalid Rhythia path - {Settings.rhythiaPath.Value}", LogSeverity.WARN);
                         ShowToast("INVALID RHYTHIA PATH - CHECK SETTINGS", Settings.color1.Value);
                     }
                     else
@@ -305,7 +330,7 @@ namespace New_SSQE.NewGUI.Windows
                         }
                         catch (Exception ex)
                         {
-                            Logging.Register("Failed to start Rhythia", LogSeverity.WARN, ex);
+                            Logging.Log("Failed to start Rhythia", LogSeverity.WARN, ex);
                             ShowToast("FAILED TO START RHYTHIA", Settings.color1.Value);
                         }
                     }
@@ -325,7 +350,7 @@ namespace New_SSQE.NewGUI.Windows
                 }
                 catch (Exception ex)
                 {
-                    Logging.Register("Failed to copy", LogSeverity.WARN, ex);
+                    Logging.Log("Failed to copy", LogSeverity.WARN, ex);
                     ShowToast("FAILED TO COPY", Settings.color2.Value);
                 }
             };
@@ -383,7 +408,7 @@ namespace New_SSQE.NewGUI.Windows
                 {
                     Title = "Select .ini File",
                     Filter = "Map Property Files (*.ini)|*.ini"
-                }.RunWithSetting(Settings.defaultPath, out string fileName);
+                }.Show(Settings.defaultPath, out string fileName);
 
                 if (result == DialogResult.OK)
                     INI.Read(fileName);
@@ -464,7 +489,7 @@ namespace New_SSQE.NewGUI.Windows
                 }
                 catch (Exception ex)
                 {
-                    Logging.Register("Failed to replace audio ID", LogSeverity.WARN, ex);
+                    Logging.Log("Failed to replace audio ID", LogSeverity.WARN, ex);
                     ShowToast("FAILED TO REPLACE ID", Settings.color1.Value);
                 }
             };
@@ -507,7 +532,7 @@ namespace New_SSQE.NewGUI.Windows
                     }
                     else
                     {
-                        WebClient.GetDifficultyMetrics(data, out sr, out rp);
+                        Networking.GetDifficultyMetrics(data, out sr, out rp);
                         srCache.Add(hash, (sr, rp));
                     }
 
@@ -590,13 +615,62 @@ namespace New_SSQE.NewGUI.Windows
                     "Beats" => IndividualObjectMode.Beat,
                     "Mines" => IndividualObjectMode.Mine,
                     "Glides" => IndividualObjectMode.Glide,
+                    "Lyrics" => IndividualObjectMode.Lyric,
                     _ => IndividualObjectMode.Disabled
                 };
+
+                LyricNav.Visible = e.Value == "Lyrics";
+                LyricPreview.Visible = e.Value == "Lyrics" || mode == IndividualObjectMode.Disabled;
 
                 Mapping.ObjectMode = mode;
             };
 
             SpecialNavController.Initialize();
+
+            Numpad.LeftClick += (s, e) => Settings.RefreshKeyMapping();
+
+            void CreateLyric(string text)
+            {
+                List<MapObject> selected = Mapping.Current.SpecialObjects.Selected;
+                long ms = Timing.GetClosestBeat(Settings.currentTime.Value.Value);
+                ms = (long)Math.Clamp(ms >= 0 ? ms : Settings.currentTime.Value.Value, 0, Settings.currentTime.Value.Max);
+                bool fadeIn = LyricFadeIn.Toggle;
+                bool fadeOut = LyricFadeOut.Toggle;
+
+                if (selected.Count == 1 && selected[0] is Lyric lyric)
+                {
+                    SpecialObjectManager.Edit("EDIT LYRIC", [lyric], n =>
+                    {
+                        if (n is Lyric lyric)
+                        {
+                            lyric.Text = text;
+                            lyric.FadeIn = fadeIn;
+                            lyric.FadeOut = fadeOut;
+                        }
+                    });
+                }
+                else
+                {
+                    Lyric toAdd = new(ms, text, fadeIn, fadeOut);
+                    SpecialObjectManager.Add("ADD LYRIC", toAdd);
+
+                    if (Settings.autoAdvance.Value)
+                        Timing.Advance();
+                }
+
+                Mapping.ClearSelection();
+                LyricBox.Text = "";
+            }
+
+            LyricCreate.LeftClick += (s, e) => CreateLyric(LyricBox.Text);
+            LyricBox.TextEntered += (s, e) =>
+            {
+                CreateLyric(e.Text);
+                LyricBox.Focused = true;
+            };
+
+            MusicMute.LeftClick += (s, e) => MusicPlayer.Volume = Settings.masterVolume.Value.Value;
+
         }
 
         public override void Render(float mousex, float mousey, float frametime)
@@ -627,6 +701,71 @@ namespace New_SSQE.NewGUI.Windows
                 _ => ""
             };
 
+            if (LyricPreview.Visible)
+            {
+                LyricCreate.Text = Mapping.Current.SpecialObjects.Selected.Count == 1 ? "EDIT" : "CREATE";
+
+                Lyric? prev = null;
+                Lyric? current = null;
+                Lyric? next = null;
+
+                string text = "";
+                float alpha = 1;
+
+                Lyric[] lyrics = Mapping.Current.SpecialObjects.Where(n => n is Lyric).Cast<Lyric>().ToArray();
+
+                for (int i = 0; i < lyrics.Length; i++)
+                {
+                    prev = current;
+                    current = lyrics[i];
+                    if (current.Ms > currentTime.Value)
+                        break;
+
+                    if (i + 1 < lyrics.Length)
+                        next = lyrics[i + 1];
+                    else
+                        next = null;
+
+                    if ((next == null || next.Text.StartsWith('-')) && current.FadeOut)
+                        alpha = 1 - Math.Clamp((currentTime.Value - current.Ms) / 1000, 0, 1);
+                    else if (prev != null && prev.FadeOut && string.IsNullOrWhiteSpace(current.Text))
+                        alpha = 1 - Math.Clamp((currentTime.Value - current.Ms) / 1000, 0, 1);
+                    else if (prev == null || string.IsNullOrWhiteSpace(prev.Text) || current.Text.StartsWith('-'))
+                    {
+                        if (current.FadeIn)
+                            alpha = Math.Clamp((currentTime.Value - current.Ms) / 1000, 0, 1);
+                        else
+                            alpha = 1;
+                    }
+                    else if (string.IsNullOrWhiteSpace(current.Text))
+                        alpha = 0;
+
+                    if (!string.IsNullOrWhiteSpace(current.Text))
+                    {
+                        if (prev != null && string.IsNullOrWhiteSpace(prev.Text))
+                        {
+                            text = current.Text;
+                            if (text.StartsWith('-'))
+                                text = text[1..];
+                        }
+                        else if (current.Text.StartsWith('-'))
+                            text = current.Text[1..];
+                        else if (text.EndsWith('-'))
+                            text = text[..^1] + current.Text;
+                        else if (!string.IsNullOrWhiteSpace(text))
+                            text += ' ' + current.Text;
+                        else
+                            text = current.Text;
+                    }
+                }
+
+                if (text.EndsWith('-'))
+                    text = text[..^1];
+
+                LyricPreview.Text = text;
+                LyricPreview.SetColor(null, alpha);
+            }
+
             base.Render(mousex, mousey, frametime);
         }
 
@@ -644,7 +783,7 @@ namespace New_SSQE.NewGUI.Windows
                 SliderSetting setting = Settings.beatDivisor.Value;
                 float step = setting.Step * (KeybindManager.CtrlHeld ? 1 : 2) * delta;
 
-                setting.Value = MathHelper.Clamp(setting.Value + step, 0f, setting.Max);
+                setting.Value = Math.Clamp(setting.Value + step, 0f, setting.Max);
                 BeatSnapDivisor.Update();
             }
             else if (KeybindManager.CtrlHeld)

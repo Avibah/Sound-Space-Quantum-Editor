@@ -18,7 +18,7 @@ namespace New_SSQE.NewGUI.Controls
         public override float[] Draw()
         {
             if (outline)
-                return GLVerts.Outline(rect, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
+                return GLVerts.Outline(rect, 2, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
             else
                 return GLVerts.Rect(rect, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
         }

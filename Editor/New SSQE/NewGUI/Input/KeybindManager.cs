@@ -48,15 +48,14 @@ namespace New_SSQE.NewGUI.Input
             switch (keybind)
             {
                 case "selectAll":
+                    Mapping.ClearSelection();
+
                     if (Mapping.RenderMode == ObjectRenderMode.VFX)
                         Mapping.Current.VfxObjects.Selected = new(Mapping.Current.VfxObjects);
                     else if (Mapping.RenderMode == ObjectRenderMode.Special)
                         Mapping.Current.SpecialObjects.Selected = new(Mapping.Current.SpecialObjects);
                     else
-                    {
                         Mapping.Current.Notes.Selected = new(Mapping.Current.Notes);
-                        Mapping.ClearSelection();
-                    }
 
                     break;
 
@@ -97,7 +96,7 @@ namespace New_SSQE.NewGUI.Input
                     }
                     catch (Exception ex)
                     {
-                        Logging.Register("Failed to copy objects", LogSeverity.WARN, ex);
+                        Logging.Log("Failed to copy objects", LogSeverity.WARN, ex);
                         GuiWindowEditor.ShowToast("FAILED TO COPY", Settings.color1.Value);
                     }
 
@@ -115,7 +114,7 @@ namespace New_SSQE.NewGUI.Input
                             long offset = copied.Min(n => n.Ms);
                             long max = copied.Max(n => n.Ms);
 
-                            copied.ForEach(n => n.Ms = (long)MathHelper.Clamp(Settings.currentTime.Value.Value + n.Ms - offset, 0, Settings.currentTime.Value.Max));
+                            copied.ForEach(n => n.Ms = (long)Math.Clamp(Settings.currentTime.Value.Value + n.Ms - offset, 0, Settings.currentTime.Value.Max));
 
                             if (isNote && Mapping.RenderMode == ObjectRenderMode.Notes)
                             {
@@ -180,7 +179,7 @@ namespace New_SSQE.NewGUI.Input
                     }
                     catch (Exception ex)
                     {
-                        Logging.Register("Failed to paste objects", LogSeverity.WARN, ex);
+                        Logging.Log("Failed to paste objects", LogSeverity.WARN, ex);
                         GuiWindowEditor.ShowToast("FAILED TO PASTE", Settings.color1.Value);
                     }
 
@@ -216,7 +215,7 @@ namespace New_SSQE.NewGUI.Input
                     }
                     catch (Exception ex)
                     {
-                        Logging.Register("Failed to cut objects", LogSeverity.WARN, ex);
+                        Logging.Log("Failed to cut objects", LogSeverity.WARN, ex);
                         GuiWindowEditor.ShowToast("FAILED TO CUT", Settings.color1.Value);
                     }
 

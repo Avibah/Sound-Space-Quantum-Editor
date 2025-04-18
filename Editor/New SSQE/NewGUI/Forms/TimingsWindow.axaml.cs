@@ -154,7 +154,7 @@ namespace New_SSQE.NewGUI
             {
                 Title = "Select Beatmap",
                 Filter = "Beatmaps (*.osu; *.adofai; *.chart)|*.osu;*.chart;*.adofai"
-            }.RunWithSetting(Settings.importPath, out string fileName);
+            }.Show(Settings.importPath, out string fileName);
 
             if (result == DialogResult.OK)
             {
@@ -237,7 +237,7 @@ namespace New_SSQE.NewGUI
 
         private static void ParseOSU(string data, string path)
         {
-            Logging.Register($"Begin parse of beatmap - {path}");
+            Logging.Log($"Begin parse of beatmap - {path}");
 
             try
             {
@@ -276,7 +276,7 @@ namespace New_SSQE.NewGUI
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to parse beatmap\n[ OSU : {ex.GetType().Name} ]", MBoxIcon.Warning, MBoxButtons.OK);
-                Logging.Register($"Failed to parse beatmap - OSU", LogSeverity.WARN, ex);
+                Logging.Log($"Failed to parse beatmap - OSU", LogSeverity.WARN, ex);
             }
         }
 
@@ -294,7 +294,7 @@ namespace New_SSQE.NewGUI
 
         private static void ParseADOFAI(string data, string path)
         {
-            Logging.Register($"Begin parse of beatmap - {path}");
+            Logging.Log($"Begin parse of beatmap - {path}");
 
             try
             {
@@ -441,13 +441,13 @@ namespace New_SSQE.NewGUI
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to parse beatmap\n[ ADOFAI : {ex.GetType().Name} ]", MBoxIcon.Warning, MBoxButtons.OK);
-                Logging.Register($"Failed to parse beatmap - ADOFAI", LogSeverity.WARN, ex);
+                Logging.Log($"Failed to parse beatmap - ADOFAI", LogSeverity.WARN, ex);
             }
         }
 
         private static void ParseCH(string data, string path)
         {
-            Logging.Register($"Begin parse of beatmap - {path}");
+            Logging.Log($"Begin parse of beatmap - {path}");
 
             try
             {
@@ -507,7 +507,7 @@ namespace New_SSQE.NewGUI
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to parse beatmap\n[ CH : {ex.GetType().Name} ]", MBoxIcon.Warning, MBoxButtons.OK);
-                Logging.Register($"Failed to parse beatmap - CH", LogSeverity.WARN, ex);
+                Logging.Log($"Failed to parse beatmap - CH", LogSeverity.WARN, ex);
             }
         }
 

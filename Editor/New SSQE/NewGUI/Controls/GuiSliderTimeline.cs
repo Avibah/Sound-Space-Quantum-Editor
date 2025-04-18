@@ -26,6 +26,9 @@ namespace New_SSQE.NewGUI.Controls
             notes = Instancing.Generate("timeline_notes", Shader.InstancedMain);
             points = Instancing.Generate("timeline_points", Shader.InstancedMain);
             objects = Instancing.Generate("timeline_objects", Shader.InstancedMain);
+
+            canReset = false;
+            PlayRightClickSound = false;
         }
 
         public void UpdateInstanceData()

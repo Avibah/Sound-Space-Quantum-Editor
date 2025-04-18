@@ -49,7 +49,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton MapClose3 = new(1144, 1040, 40, 40, "X", 26) { Stretch = StretchMode.XY };
         public static readonly GuiButton MapClose4 = new(1512, 1040, 40, 40, "X", 26) { Stretch = StretchMode.XY };
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", "background_menu.png", Color.FromArgb(30, 30, 30)) { Stretch = StretchMode.XY };
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"), Color.FromArgb(30, 30, 30)) { Stretch = StretchMode.XY };
 
         private static readonly List<(GuiButton, GuiButton)> mapSelects =
         [
@@ -81,11 +81,11 @@ namespace New_SSQE.NewGUI.Windows
             try
             {
                 if (string.IsNullOrWhiteSpace(changelogCache))
-                    changelogCache = WebClient.DownloadString(Links.CHANGELOG);
+                    changelogCache = Networking.DownloadString(Links.CHANGELOG);
             }
             catch (Exception ex)
             {
-                Logging.Register("Failed to load changelog!", LogSeverity.WARN, ex);
+                Logging.Log("Failed to load changelog!", LogSeverity.WARN, ex);
                 changelogCache = $"Failed to load changelog!\n\n{ex}";
             }
 
@@ -140,7 +140,7 @@ namespace New_SSQE.NewGUI.Windows
                 {
                     Title = "Select Map File",
                     Filter = "Map Files (*.txt;*.sspm;*.osu;*.nch;*.npk;*.phxm;*.phz;*.json)|*.txt;*.sspm;*.osu;*.nch;*.npk;*.phxm;*.phz;*.json"
-                }.RunWithSetting(Settings.defaultPath, out string file);
+                }.Show(Settings.defaultPath, out string file);
 
                 if (result == DialogResult.OK)
                     Mapping.Load(file);
@@ -154,14 +154,13 @@ namespace New_SSQE.NewGUI.Windows
                     Mapping.Load(clipboard);
             };
 
-            string autosaveTXT = Path.Combine(Assets.TEMP, "tempAutosave.txt");
-            string autosaveINI = Path.ChangeExtension(autosaveTXT, ".ini");
+            string autosaveINI = Path.Combine(Assets.TEMP, "tempautosave.ini");
 
             AutosavedButton.LeftClick += (s, e) =>
             {
-                File.WriteAllText(autosaveTXT, Settings.autosavedFile.Value);
+                Mapping.Load(Settings.autosavedFile.Value);
                 File.WriteAllText(autosaveINI, Settings.autosavedProperties.Value);
-                Mapping.Load(autosaveTXT);
+                INI.Read(autosaveINI);
             };
 
             LastMapButton.LeftClick += (s, e) => Mapping.Load(Settings.lastFile.Value);
@@ -247,7 +246,7 @@ namespace New_SSQE.NewGUI.Windows
 
         private void AssembleMapList()
         {
-            mapIndex = MathHelper.Clamp(mapIndex, 0, Mapping.Cache.Count - mapSelects.Count);
+            mapIndex = Math.Clamp(mapIndex, 0, Math.Max(Mapping.Cache.Count - mapSelects.Count, 0));
 
             NavLeft.Visible = mapIndex > 0;
             NavRight.Visible = mapIndex < Mapping.Cache.Count - mapSelects.Count;

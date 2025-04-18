@@ -12,6 +12,7 @@ namespace New_SSQE.NewGUI.Controls
         public float ShiftIncrement = 1;
 
         protected Setting<SliderSetting> setting;
+        protected bool canReset = true;
 
         private readonly bool reverse;
         private float hoverTime = 0f;
@@ -57,25 +58,16 @@ namespace New_SSQE.NewGUI.Controls
             base.PreRender(mousex, mousey, frametime);
 
             float prevTime = hoverTime;
-            hoverTime = MathHelper.Clamp(hoverTime + (Hovering || Dragging ? 10 : -10) * frametime, 0, 1);
+            hoverTime = Math.Clamp(hoverTime + (Hovering || Dragging ? 10 : -10) * frametime, 0, 1);
 
             if (hoverTime != prevTime)
                 Update();
         }
 
-        public override void MouseClickLeft(float x, float y)
-        {
-            if (Hovering)
-                SoundPlayer.Play(Settings.clickSound.Value);
-            
-            base.MouseClickLeft(x, y);
-        }
-
         public override void MouseClickRight(float x, float y)
         {
-            if (Hovering)
+            if (Hovering && canReset)
             {
-                SoundPlayer.Play(Settings.clickSound.Value);
                 setting.Value.Value = setting.Value.Default;
                 UpdateSlider();
                 Update();
@@ -101,7 +93,7 @@ namespace New_SSQE.NewGUI.Controls
                 float mouse = horizontal ? x : y;
 
                 float progress = (float)Math.Round((horizontal ? mouse - pos : reverse ? (width - mouse + pos) : mouse - pos) / width / step) * step;
-                setting.Value.Value = MathHelper.Clamp(setting.Value.Max * progress, 0, setting.Value.Max);
+                setting.Value.Value = Math.Clamp(setting.Value.Max * progress, 0, setting.Value.Max);
 
                 UpdateSlider();
                 Update();

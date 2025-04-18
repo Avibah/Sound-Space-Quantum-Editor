@@ -1,9 +1,7 @@
-﻿using System;
-using Un4seen.Bass;
-using System.IO;
+﻿using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Fx;
 
-namespace SSQE_Player
+namespace SSQE_Player.Audio
 {
     internal class MusicPlayer
     {

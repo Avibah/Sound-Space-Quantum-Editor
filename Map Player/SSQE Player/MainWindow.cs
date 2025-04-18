@@ -9,6 +9,7 @@ using System.ComponentModel;
 using SSQE_Player.Models;
 using System.Drawing;
 using SSQE_Player.Types;
+using SSQE_Player.Audio;
 
 namespace SSQE_Player
 {
@@ -20,7 +21,6 @@ namespace SSQE_Player
 
         public static MainWindow Instance;
         public MusicPlayer MusicPlayer = new();
-        public SoundPlayer SoundPlayer = new();
         public ModelManager ModelManager = new();
 
         public Note[] Notes = [];
@@ -349,6 +349,10 @@ namespace SSQE_Player
         {
             float currentTime = Settings.currentTime.Value.Value;
             List<Color> noteColors = Settings.noteColors.Value;
+            List<Vector3> colors = [];
+            for (int i = 0; i < noteColors.Count; i++)
+                colors.Add((noteColors[i].R / 255f, noteColors[i].G / 255f, noteColors[i].B / 255f));
+
             int colorCount = noteColors.Count;
 
             int startIndex = 0;
@@ -371,8 +375,7 @@ namespace SSQE_Player
                     if (ms < currentTime)
                         startIndex++;
 
-                    Color color = noteColors[(i - 1) % colorCount];
-                    Notes[i - 1] = new(x, y, ms, (color.R / 255f, color.G / 255f, color.B / 255f));
+                    Notes[i - 1] = new(x, y, ms, colors[(i - 1) % colorCount]);
                 }
 
                 MusicPlayer.Load($"cached/{id}.asset");

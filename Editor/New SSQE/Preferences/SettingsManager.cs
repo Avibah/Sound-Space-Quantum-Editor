@@ -204,13 +204,13 @@ namespace New_SSQE.Preferences
                     }
                     catch (Exception ex)
                     {
-                        Logging.Register($"Failed to update setting - {setting.Name}", LogSeverity.WARN, ex);
+                        Logging.Log($"Failed to update setting - {setting.Name}", LogSeverity.WARN, ex);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logging.Register($"Failed to load settings", LogSeverity.WARN, ex);
+                Logging.Log($"Failed to load settings", LogSeverity.WARN, ex);
                 Reset();
             }
 

@@ -18,43 +18,30 @@ namespace New_SSQE.NewGUI.Base
         {
             SetControls(controls);
             Stretch = StretchMode.XY;
+
+            PlayLeftClickSound = false;
+            PlayRightClickSound = false;
         }
 
         public ControlContainer(params Control[] controls) : this(0, 0, 1920, 1080, controls) { }
 
         public void SetControls(params Control[] controls)
         {
+            List<InteractiveControl> interactives = [];
+
             this.controls = [];
-            interactives = [];
+            this.interactives = [];
 
             Resize(1920, 1080);
 
-            InteractiveControl[] ConnectInteractives(Control[] toConnect)
+            foreach (Control control in controls)
             {
-                List<InteractiveControl> interactives = [];
-
-                foreach (Control control in toConnect)
-                {
-                    if (control is InteractiveControl interactive)
-                    {
-                        interactives.Add(interactive);
-                        if (interactive is ControlContainer container)
-                        {
-                            ConnectInteractives(container.Children);
-                            continue;
-                        }
-
-                        interactive.LeftClick += (s, e) => leftClick = true;
-                        interactive.RightClick += (s, e) => rightClick = true;
-                        interactive.TextEntered += (s, e) => textInput = true;
-                    }
-                }
-
-                return [..interactives];
+                if (control is InteractiveControl interactive)
+                    interactives.Add(interactive);
             }
 
             this.controls = controls;
-            interactives = ConnectInteractives(controls);
+            this.interactives = [..interactives];
 
             Resize(MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y);
         }
@@ -252,16 +239,10 @@ namespace New_SSQE.NewGUI.Base
 
         public override void KeybindUsed(string keybind)
         {
-            if (!Visible)
-                return;
-
             base.KeybindUsed(keybind);
 
             foreach (InteractiveControl control in interactives)
-            {
-                if (control.Visible)
-                    control.KeybindUsed(keybind);
-            }
+                control.KeybindUsed(keybind);
         }
 
         public bool TextboxFocused()

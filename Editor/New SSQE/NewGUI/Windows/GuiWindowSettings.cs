@@ -4,12 +4,14 @@ using New_SSQE.Preferences;
 using System.Drawing;
 using New_SSQE.ExternalUtils;
 using New_SSQE.Misc.Dialogs;
+using New_SSQE.Misc.Static;
+using New_SSQE.Audio;
 
 namespace New_SSQE.NewGUI.Windows
 {
     internal class GuiWindowSettings : GuiWindow
     {
-        public static readonly GuiButton BackButton = new(655, 930, 600, 100, "SAVE AND RETURN", 54, "square");
+        public static readonly GuiButton BackButton = new(660, 930, 600, 100, "SAVE AND RETURN", 54, "square");
         public static readonly GuiButton ResetButton = new(700, 865, 500, 50, "RESET TO DEFAULT", 30, "square");
         public static readonly GuiButton OpenDirectoryButton = new(700, 810, 500, 50, "OPEN EDITOR FOLDER", 30, "square");
         public static readonly GuiButton KeybindsButton = new(700, 755, 500, 50, "CHANGE KEYBINDS", 30, "square");
@@ -87,8 +89,9 @@ namespace New_SSQE.NewGUI.Windows
 
         public static readonly GuiCheckbox MSAACheckbox = new(1420, 650, 45, 45, Settings.msaa, "Use Anti-Aliasing", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
         public static readonly GuiLabel RestartLabel = new(1420, 700, 200, 26, null, "Requires restart!", 30, "main", CenterMode.None);
+        public static readonly GuiCheckbox MonoCheckbox = new(1420, 740, 45, 45, Settings.monoAudio, "Mono Audio", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", "background_menu.png", Color.FromArgb(30, 30, 30)) { Stretch = StretchMode.XY };
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"), Color.FromArgb(30, 30, 30)) { Stretch = StretchMode.XY };
 
 
 
@@ -96,7 +99,7 @@ namespace New_SSQE.NewGUI.Windows
             EditorBGOpacitySquare, GridOpacitySquare, TrackOpacitySquare, BackButton, ResetButton, OpenDirectoryButton, KeybindsButton,
             Color1Picker, Color2Picker, Color3Picker, Color4Picker, Color5Picker, NoteColorPicker, RhythiaPathButton,
             WaveformCheckbox, ClassicWaveformCheckbox, AutosaveCheckbox, CheckForUpdatesCheckbox, SkipDownloadCheckbox, CorrectOnCopyCheckbox, ReverseScrollCheckbox,
-            UseVSyncCheckbox, FullscreenPlayerCheckbox, LimitPlayerFPSCheckbox, UseRhythiaCheckbox, MSAACheckbox, LowerFPSInBackgroundCheckbox,
+            UseVSyncCheckbox, FullscreenPlayerCheckbox, LimitPlayerFPSCheckbox, UseRhythiaCheckbox, MSAACheckbox, MonoCheckbox, LowerFPSInBackgroundCheckbox,
             FPSLimitSlider, EditorBGOpacityTextbox, GridOpacityTextbox, TrackOpacityTextbox, AutosaveIntervalTextbox, WaveformDetailTextbox,
             Color1Label, Color2Label, Color3Label, Color4Label, Color5Label, NoteColorLabel, NoteColorInfo,
             EditorBGOpacityLabel, GridOpacityLabel, TrackOpacityLabel, AutosaveIntervalLabel, WaveformDetailLabel,
@@ -115,7 +118,7 @@ namespace New_SSQE.NewGUI.Windows
             float colorWidth = rect.Width / colors.Count;
 
             for (int i = 0; i < colors.Count; i++)
-                squares[i] = new(rect.X + colorWidth * i, rect.Y, colorWidth, rect.Height, colors[i]) { Stretch = StretchMode.XY };
+                squares[i] = new(colorWidth * i, 0, colorWidth, rect.Height, colors[i]) { Stretch = StretchMode.XY };
 
             NoteColorSquares.SetControls(squares);
         }
@@ -303,7 +306,7 @@ namespace New_SSQE.NewGUI.Windows
                 {
                     Title = "Select Rhythia Executable",
                     Filter = Platform.ExecutableFilter
-                }.RunWithSetting(Settings.rhythiaFolderPath, out string file);
+                }.Show(Settings.rhythiaFolderPath, out string file);
 
                 if (result == DialogResult.OK)
                 {
@@ -311,6 +314,8 @@ namespace New_SSQE.NewGUI.Windows
                     RefreshRhythiaPath();
                 }
             };
+
+            MonoCheckbox.LeftClick += (s, e) => MusicPlayer.Reload();
         }
     }
 }

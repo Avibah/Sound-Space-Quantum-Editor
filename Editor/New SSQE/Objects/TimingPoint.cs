@@ -2,7 +2,6 @@
 
 namespace New_SSQE.Objects
 {
-    [Serializable]
     internal class TimingPoint : MapObject
     {
         public float BPM { get; set; }

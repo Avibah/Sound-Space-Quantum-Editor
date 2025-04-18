@@ -27,7 +27,7 @@ namespace New_SSQE.NewGUI.Controls
         public override void PostRender(float mousex, float mousey, float frametime)
         {
             float prevAlpha = toastTime;
-            toastTime = MathHelper.Clamp(toastTime + frametime, 0, 2);
+            toastTime = Math.Clamp(toastTime + frametime, 0, 2);
             
             if (shouldShow)
             {

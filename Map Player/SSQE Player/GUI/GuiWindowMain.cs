@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using SSQE_Player.Audio;
 using SSQE_Player.Models;
 using System.Drawing;
 
@@ -169,7 +170,7 @@ namespace SSQE_Player.GUI
 
             if (lastHit != prevPlayed)
             {
-                MainWindow.Instance.SoundPlayer.Play(Settings.hitSound.Value);
+                SoundPlayer.Play(Settings.hitSound.Value);
                 prevPlayed = lastHit;
             }
 

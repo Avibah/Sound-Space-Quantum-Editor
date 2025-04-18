@@ -138,6 +138,13 @@ namespace New_SSQE.Objects
 
                         obj = new Mine(mx, my, ms);
                         break;
+                    case 15:
+                        string lyric = data[++index].Replace("_:_", "|");
+                        bool fadeIn = int.Parse(data[++index]) == 1;
+                        bool fadeOut = int.Parse(data[++index]) == 1;
+
+                        obj = new Lyric(ms, lyric, fadeIn, fadeOut);
+                        break;
                     default:
                         obj = new(id ?? -1, ms);
                         break;
@@ -153,7 +160,7 @@ namespace New_SSQE.Objects
             }
             catch (Exception ex)
             {
-                Logging.Register($"Failed to parse MapObject - {id} | {string.Join('|', data)}", LogSeverity.WARN, ex);
+                Logging.Log($"Failed to parse MapObject - {id} | {string.Join('|', data)}", LogSeverity.WARN, ex);
             }
 
             return null;
