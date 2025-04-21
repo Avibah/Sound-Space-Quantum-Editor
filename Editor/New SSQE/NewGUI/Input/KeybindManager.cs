@@ -50,12 +50,22 @@ namespace New_SSQE.NewGUI.Input
                 case "selectAll":
                     Mapping.ClearSelection();
 
-                    if (Mapping.RenderMode == ObjectRenderMode.VFX)
-                        Mapping.Current.VfxObjects.Selected = new(Mapping.Current.VfxObjects);
-                    else if (Mapping.RenderMode == ObjectRenderMode.Special)
-                        Mapping.Current.SpecialObjects.Selected = new(Mapping.Current.SpecialObjects);
-                    else
+                    if (Mapping.RenderMode == ObjectRenderMode.Notes)
                         Mapping.Current.Notes.Selected = new(Mapping.Current.Notes);
+                    else if (Mapping.ObjectMode != IndividualObjectMode.Disabled)
+                    {
+                        if (Mapping.RenderMode == ObjectRenderMode.VFX)
+                            Mapping.Current.VfxObjects.Selected = new(Mapping.Current.VfxObjects.Where(n => n.ID == (int)Mapping.ObjectMode));
+                        else
+                            Mapping.Current.SpecialObjects.Selected = new(Mapping.Current.SpecialObjects.Where(n => n.ID == (int)Mapping.ObjectMode));
+                    }
+                    else
+                    {
+                        if (Mapping.RenderMode == ObjectRenderMode.VFX)
+                            Mapping.Current.VfxObjects.Selected = new(Mapping.Current.VfxObjects);
+                        else
+                            Mapping.Current.SpecialObjects.Selected = new(Mapping.Current.SpecialObjects);
+                    }
 
                     break;
 

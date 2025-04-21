@@ -759,7 +759,6 @@ namespace New_SSQE.NewGUI.Controls
             }
             else if (hoveringXY != null)
             {
-                ObjectList<XYMapObject> objects = hoveringXY is Note ? new(Mapping.Current.Notes.Cast<XYMapObject>()) : new(Mapping.Current.SpecialObjects.Where(n => n is XYMapObject).Cast<XYMapObject>());
                 List<XYMapObject> selected = new(Mapping.GetSelected().Where(n => n is XYMapObject).Cast<XYMapObject>());
 
                 if (MainWindow.Instance.ShiftHeld)
@@ -769,9 +768,8 @@ namespace New_SSQE.NewGUI.Controls
 
                     long min = Math.Min(first.Ms, last.Ms);
                     long max = Math.Max(first.Ms, last.Ms);
-                    (int low, int high) = objects.SearchRange(min, max);
 
-                    selected = objects.Take(new Range(low, high)).ToList();
+                    selected = Mapping.GetObjectsInRange(min, max).Cast<XYMapObject>().ToList();
                     selected.Remove(first);
                     selected.Insert(0, first);
                 }

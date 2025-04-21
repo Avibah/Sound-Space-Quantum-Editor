@@ -1,4 +1,5 @@
-﻿using New_SSQE.Objects;
+﻿using New_SSQE.NewMaps.Parsing;
+using New_SSQE.Objects;
 
 namespace New_SSQE.ExternalUtils
 {
@@ -39,16 +40,16 @@ namespace New_SSQE.ExternalUtils
         public static List<MapObject> GetData()
         {
             string text = GetText();
-            string[] split = text.Split(',');
+            string[][] data = TXT.ReadObjects(text);
+            string first = string.Join('|', data[0]);
 
-            List<MapObject> objects = new();
+            List<MapObject> objects = [];
 
-            if (split.FirstOrDefault() == "copy")
+            if (first == "copy")
             {
-                for (int i = 1; i < split.Length; i++)
+                for (int i = 1; i < data.Length; i++)
                 {
-                    string item = split[i];
-                    MapObject? obj = MOParser.Parse(null, item.Split('|'));
+                    MapObject? obj = MOParser.Parse(null, data[i]);
 
                     if (obj != null)
                         objects.Add(obj);
@@ -56,13 +57,12 @@ namespace New_SSQE.ExternalUtils
             }
             else
             {
-                for (int i = 0; i < split.Length; i++)
+                for (int i = 0; i < data.Length; i++)
                 {
-                    string item = split[i];
-                    string[] subsplit = item.Split('|');
-
                     try
                     {
+                        string[] subsplit = data[i];
+
                         float x = float.Parse(subsplit[0], Program.Culture);
                         float y = float.Parse(subsplit[1], Program.Culture);
                         long time = long.Parse(subsplit[2]);

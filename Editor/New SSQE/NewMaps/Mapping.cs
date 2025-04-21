@@ -9,7 +9,6 @@ using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
-using OpenTK.Mathematics;
 using System.Drawing;
 using System.IO.Compression;
 
@@ -154,11 +153,17 @@ namespace New_SSQE.NewMaps
 
                 case ObjectRenderMode.VFX:
                     (low, high) = Current.VfxObjects.SearchRange(start, end);
-                    return Current.VfxObjects.Take(new Range(low, high)).ToList();
+                    if (ObjectMode == IndividualObjectMode.Disabled)
+                        return Current.VfxObjects.Take(new Range(low, high)).ToList();
+                    else
+                        return Current.VfxObjects.Take(new Range(low, high)).Where(n => n.ID == (int)ObjectMode).ToList();
 
                 case ObjectRenderMode.Special:
                     (low, high) = Current.SpecialObjects.SearchRange(start, end);
-                    return Current.SpecialObjects.Take(new Range(low, high)).ToList();
+                    if (ObjectMode == IndividualObjectMode.Disabled)
+                        return Current.SpecialObjects.Take(new Range(low, high)).ToList();
+                    else
+                        return Current.SpecialObjects.Take(new Range(low, high)).Where(n => n.ID == (int)ObjectMode).ToList();
             }
 
             return [];
@@ -389,7 +394,7 @@ namespace New_SSQE.NewMaps
             List<string> data = [];
             foreach (Map map in Cache)
             {
-                Current = map;
+                Open(map, false);
                 data.Add(ToCache());
             }
 
@@ -407,7 +412,7 @@ namespace New_SSQE.NewMaps
 
 
 
-        public static bool Open(Map map, bool loadAudio = true)
+        public static bool Open(Map map, bool loadWindow = true)
         {
             Current.CloseSettings();
             Current = map;
@@ -415,7 +420,7 @@ namespace New_SSQE.NewMaps
 
             SortAll();
 
-            if (loadAudio)
+            if (loadWindow)
             {
                 if (!LoadAudio(map.SoundID))
                     return false;
@@ -423,14 +428,16 @@ namespace New_SSQE.NewMaps
                 MusicPlayer.Volume = Settings.masterVolume.Value.Value;
                 Settings.currentTime.Value.Max = (float)MusicPlayer.TotalTime.TotalMilliseconds;
                 Settings.currentTime.Value.Step = (float)MusicPlayer.TotalTime.TotalMilliseconds / 2000f;
+
+                if (!Cache.Contains(map))
+                    Cache.Add(map);
+                SaveCache();
+
+                Windowing.SwitchWindow(new GuiWindowEditor());
+                return Windowing.Current is GuiWindowEditor && Current.SoundID != "-1";
             }
 
-            if (!Cache.Contains(map))
-                Cache.Add(map);
-            SaveCache();
-
-            Windowing.SwitchWindow(new GuiWindowEditor());
-            return Windowing.Current is GuiWindowEditor && Current.SoundID != "-1";
+            return true;
         }
 
         public static bool Close()
@@ -466,7 +473,11 @@ namespace New_SSQE.NewMaps
 
             foreach (Map map in Cache.ToArray())
             {
-                quit &= Close(map);
+                Open(map, false);
+                Windowing.SwitchWindow(new GuiWindowEditor());
+                MainWindow.Instance.ForceRender();
+
+                quit &= Close();
 
                 if (!quit)
                     break;

@@ -78,6 +78,11 @@ namespace New_SSQE.NewGUI.Controls
                 return;
             base.KeyDown(key);
 
+            if (key == Keys.LeftControl || key == Keys.LeftAlt || key == Keys.LeftShift)
+                return;
+            if (key == Keys.RightControl || key == Keys.RightAlt || key == Keys.RightShift)
+                return;
+
             bool ctrl = MainWindow.Instance.CtrlHeld;
             bool shift = MainWindow.Instance.ShiftHeld;
 

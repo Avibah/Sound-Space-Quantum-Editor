@@ -10,7 +10,6 @@ using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Preferences;
-using OpenTK.Mathematics;
 using System.Diagnostics;
 using System.Drawing;
 using System.Security.Cryptography;
@@ -156,7 +155,7 @@ namespace New_SSQE.NewGUI.Windows
             "> 'Fade In' only applies to new lyric lines",
             "    (Cleared with \"-\" prefix or a blank lyric)",
             "> 'Fade Out' only applies to the end of a lyric line",
-            "    (Before a blank lyric or a \"-\" prefixed lyric)",
+            "    (After a blank lyric or before a \"-\" prefixed lyric)",
             "> Press 'Enter' in the lyric textbox to quickly place a lyric"), 20, "main", CenterMode.None) { Stretch = StretchMode.X };
         public static readonly ControlContainer LyricNav = new(175, 200, 370, 756, LyricBox, LyricFadeIn, LyricFadeOut, LyricCreate, LyricInfo) { Visible = false, Stretch = StretchMode.XY };
 
@@ -660,6 +659,8 @@ namespace New_SSQE.NewGUI.Windows
 
                 Mapping.ClearSelection();
                 LyricBox.Text = "";
+                LyricFadeIn.Toggle = false;
+                LyricFadeOut.Toggle = false;
             }
 
             LyricCreate.LeftClick += (s, e) => CreateLyric(LyricBox.Text);
@@ -726,9 +727,7 @@ namespace New_SSQE.NewGUI.Windows
                     else
                         next = null;
 
-                    if ((next == null || next.Text.StartsWith('-')) && current.FadeOut)
-                        alpha = 1 - Math.Clamp((currentTime.Value - current.Ms) / 1000, 0, 1);
-                    else if (prev != null && prev.FadeOut && string.IsNullOrWhiteSpace(current.Text))
+                    if ((next == null || next.Text.StartsWith('-') || string.IsNullOrWhiteSpace(current.Text)) && current.FadeOut)
                         alpha = 1 - Math.Clamp((currentTime.Value - current.Ms) / 1000, 0, 1);
                     else if (prev == null || string.IsNullOrWhiteSpace(prev.Text) || current.Text.StartsWith('-'))
                     {

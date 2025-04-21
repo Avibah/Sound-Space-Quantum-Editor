@@ -20,7 +20,7 @@
 
         public override string ToString(params object[] data)
         {
-            string text = Text.Replace("|", "_:_");
+            string text = ConvertString(Text);
 
             int fadeIn = FadeIn ? 1 : 0;
             int fadeOut = FadeOut ? 1 : 0;

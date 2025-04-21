@@ -280,6 +280,8 @@ namespace New_SSQE
             DiscordManager.Process(args.Time);
         }
 
+        public void ForceRender() => OnRenderFrame(new FrameEventArgs());
+
         protected override void OnResize(ResizeEventArgs e)
         {
             if (e.Width > 0 && e.Height > 0)

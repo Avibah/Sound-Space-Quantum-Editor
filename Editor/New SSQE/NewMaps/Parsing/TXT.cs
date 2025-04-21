@@ -1,28 +1,83 @@
 ﻿using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Preferences;
-using OpenTK.Mathematics;
 
 namespace New_SSQE.NewMaps.Parsing
 {
     internal class TXT : IFormatParser
     {
+        public static string[][] ReadObjects(string data)
+        {
+            List<string[]> result = [];
+            List<string> obj = [];
+            List<char> chars = [];
+
+            bool escaped = false;
+            bool quoted = false;
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (quoted && !escaped)
+                {
+                    if (data[i] == '"')
+                        quoted = false;
+                    else
+                        chars.Add(data[i]);
+                    continue;
+                }
+
+                if (escaped)
+                {
+                    escaped = false;
+                    chars.Add(data[i]);
+                    continue;
+                }
+
+                switch (data[i])
+                {
+                    case '\\':
+                        escaped = true;
+                        break;
+                    case '"':
+                        quoted = true;
+                        break;
+                    case '|':
+                        obj.Add(string.Join(null, chars));
+                        chars = [];
+                        break;
+                    case ',':
+                        obj.Add(string.Join(null, chars));
+                        chars = [];
+                        result.Add(obj.ToArray());
+                        obj = [];
+                        break;
+                    default:
+                        chars.Add(data[i]);
+                        break;
+                }
+            }
+
+            obj.Add(string.Join(null, chars));
+            result.Add(obj.ToArray());
+            return result.ToArray();
+        }
+
         public static bool ReadData(string data)
         {
             string[] split = data.Split('`');
 
             if (split.Length == 1)
             {
-                string[] mapData = split[0].Split(',');
-                Mapping.Current.SoundID = mapData[0];
+                string[][] mapData = ReadObjects(split[0]);
+                Mapping.Current.SoundID = mapData[0][0];
 
                 for (int i = 1; i < mapData.Length; i++)
                 {
-                    if (!string.IsNullOrWhiteSpace(mapData[i]))
+                    if (!string.IsNullOrWhiteSpace(string.Join('|', mapData[i])))
                     {
                         try
                         {
-                            string[] subData = mapData[i].Split('|');
+                            string[] subData = mapData[i];
 
                             float x = float.Parse(subData[0], Program.Culture);
                             float y = float.Parse(subData[1], Program.Culture);
@@ -61,13 +116,13 @@ namespace New_SSQE.NewMaps.Parsing
                             if (string.IsNullOrWhiteSpace(objSets[i]))
                                 continue;
 
-                            string[] objs = objSets[i].Split(',');
+                            string[][] objs = ReadObjects(objSets[i]);
 
                             FormatUtils.ResetDecode();
 
                             for (int j = 0; j < objs.Length; j++)
                             {
-                                MapObject? obj = MOParser.Parse(i, objs[j].Split('|'));
+                                MapObject? obj = MOParser.Parse(i, objs[j]);
 
                                 if (obj != null)
                                 {

@@ -605,11 +605,7 @@ namespace New_SSQE.NewGUI.Controls
                 float start = Math.Min(selectMsStart, selectMsEnd) - NoteSize * PX_TO_MS;
                 float end = Math.Max(selectMsStart, selectMsEnd);
 
-                List<MapObject> objects = Mapping.GetObjectsInRange(start, end);
-                if (Mapping.RenderMode != ObjectRenderMode.Notes && Mapping.ObjectMode != IndividualObjectMode.Disabled)
-                    objects = objects.Where(n => n.ID == (int)Mapping.ObjectMode).ToList();
-
-                Mapping.SetSelected(objects);
+                Mapping.SetSelected(Mapping.GetObjectsInRange(start, end));
             }
         }
 

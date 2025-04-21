@@ -139,7 +139,7 @@ namespace New_SSQE.Objects
                         obj = new Mine(mx, my, ms);
                         break;
                     case 15:
-                        string lyric = data[++index].Replace("_:_", "|");
+                        string lyric = data[++index];
                         bool fadeIn = int.Parse(data[++index]) == 1;
                         bool fadeOut = int.Parse(data[++index]) == 1;
 

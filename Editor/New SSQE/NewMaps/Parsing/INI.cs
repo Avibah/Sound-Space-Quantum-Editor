@@ -141,7 +141,8 @@ namespace New_SSQE.NewMaps.Parsing
 
                             foreach (string obj in vfx)
                             {
-                                MapObject? final = MOParser.Parse(null, obj.Split('|'));
+                                string[] temp = TXT.ReadObjects(obj)[0];
+                                MapObject? final = MOParser.Parse(null, temp);
                                 if (final != null)
                                     vfxObjects.Add(final);
                             }
@@ -157,7 +158,8 @@ namespace New_SSQE.NewMaps.Parsing
 
                             foreach (string obj in special)
                             {
-                                MapObject? final = MOParser.Parse(null, obj.Split('|'));
+                                string[] temp = TXT.ReadObjects(obj)[0];
+                                MapObject? final = MOParser.Parse(null, temp);
                                 if (final != null)
                                     specialObjects.Add(final);
                             }

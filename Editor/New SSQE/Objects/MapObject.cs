@@ -40,5 +40,10 @@
                 ExtraData = ExtraData
             };
         }
+
+        protected static string ConvertString(string str)
+        {
+            return $"\"{str.Replace("\\", "\\\\").Replace("\"", "\\\"")}\"";
+        }
     }
 }
