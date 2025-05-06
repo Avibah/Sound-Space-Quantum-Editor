@@ -49,14 +49,14 @@ namespace New_SSQE.Preferences
 
     internal partial class Settings
     {
-        public static EventHandler toInitialize;
+        public static EventHandler? toInitialize;
         public static readonly List<SettingBase> settings = new();
 
-        private static readonly List<Keys> numpadKeys = new() { Keys.KeyPad7, Keys.KeyPad8, Keys.KeyPad9, Keys.KeyPad4, Keys.KeyPad5, Keys.KeyPad6, Keys.KeyPad1, Keys.KeyPad2, Keys.KeyPad3 };
-        private static readonly List<Keys> patternKeys = new() { Keys.D0, Keys.D1, Keys.D2, Keys.D3, Keys.D4, Keys.D5, Keys.D6, Keys.D7, Keys.D8, Keys.D9 };
+        private static readonly List<Keys> numpadKeys = [Keys.KeyPad7, Keys.KeyPad8, Keys.KeyPad9, Keys.KeyPad4, Keys.KeyPad5, Keys.KeyPad6, Keys.KeyPad1, Keys.KeyPad2, Keys.KeyPad3];
+        private static readonly List<Keys> patternKeys = [Keys.D0, Keys.D1, Keys.D2, Keys.D3, Keys.D4, Keys.D5, Keys.D6, Keys.D7, Keys.D8, Keys.D9];
 
-        private static readonly Dictionary<string, object> cache = new();
-        private static readonly Dictionary<string, Keybind> keybinds = new();
+        private static readonly Dictionary<string, object> cache = [];
+        private static readonly Dictionary<string, Keybind> keybinds = [];
 
         static Settings()
         {
@@ -79,11 +79,11 @@ namespace New_SSQE.Preferences
 
         public static void Reset()
         {
-            HashSet<string> kept = new()
-            {
+            HashSet<string> kept =
+            [
                 "autosavedFile", "autosavedProperties", "lastFile", "defaultPath", "audioPath",
                 "exportPath", "coverPath", "importPath", "rhythiaPath", "rhythiaFolderPath", "patterns"
-            };
+            ];
 
             foreach (SettingBase setting in settings)
             {
@@ -150,7 +150,7 @@ namespace New_SSQE.Preferences
             try
             {
                 Reset();
-                Dictionary<string, JsonElement> result = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(Path.Combine(Assets.THIS, "settings.txt"))) ?? new();
+                Dictionary<string, JsonElement> result = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(Path.Combine(Assets.THIS, "settings.txt"))) ?? [];
 
                 foreach (SettingBase setting in settings)
                 {
@@ -171,16 +171,16 @@ namespace New_SSQE.Preferences
                                 list.Value.Current = value.GetString() ?? "";
                             else if (setting.Name == "noteColors" && setting is Setting<List<Color>> colors)
                             {
-                                List<Color> temp = new();
+                                List<Color> temp = [];
 
-                                foreach (int[] c in value.Deserialize<int[][]>() ?? Array.Empty<int[]>())
+                                foreach (int[] c in value.Deserialize<int[][]>() ?? [])
                                     temp.Add(Color.FromArgb(c[0], c[1], c[2]));
 
                                 colors.Value = temp;
                             }
                             else if (setting.Name == "gridKeys" && setting is Setting<List<Keys>> keys)
                             {
-                                List<Keys> temp = new();
+                                List<Keys> temp = [];
                                 JsonElement[] set = value.Deserialize<JsonElement[]>() ?? new JsonElement[9];
 
                                 for (int i = 0; i < 9; i++)
@@ -190,7 +190,7 @@ namespace New_SSQE.Preferences
                             }
                             else if (setting.Name == "patterns" && setting is Setting<List<string>> pats)
                             {
-                                List<string> temp = new();
+                                List<string> temp = [];
                                 string[] set = value.Deserialize<string[]>() ?? new string[10];
 
                                 for (int i = 0; i < 10; i++)
@@ -210,7 +210,7 @@ namespace New_SSQE.Preferences
             }
             catch (Exception ex)
             {
-                Logging.Log($"Failed to load settings", LogSeverity.WARN, ex);
+                Logging.Log($"Failed to load settings", LogSeverity.ERROR, ex);
                 Reset();
             }
 
@@ -236,57 +236,60 @@ namespace New_SSQE.Preferences
             if (!isLoaded)
                 return;
 
-            Dictionary<string, object> finaljson = new();
-
-            foreach (SettingBase setting in settings)
-            {
-                string name = setting.Name;
-
-                if (setting is Setting<Color> color)
-                    finaljson.Add(name, new int[] { color.Value.R, color.Value.G, color.Value.B });
-                else if (setting is Setting<Keybind> keybind)
-                    finaljson.Add(name, new object[] { keybind.Value.Key.ToString(), keybind.Value.Ctrl, keybind.Value.Shift, keybind.Value.Alt });
-                else if (setting is Setting<SliderSetting> slider)
-                    finaljson.Add(name, new float[] { slider.Value.Value, slider.Value.Max, slider.Value.Step });
-                else if (setting is Setting<ListSetting> list)
-                    finaljson.Add(name, list.Value.Current);
-                else if (name == "noteColors" && setting is Setting<List<Color>> colors)
-                {
-                    List<int[]> final = new();
-
-                    foreach (Color c in colors.Value)
-                        final.Add(new int[] { c.R, c.G, c.B });
-
-                    finaljson.Add(name, final);
-                }
-                else if (name == "gridKeys" && setting is Setting<List<Keys>> keys)
-                {
-                    List<string> final = new();
-
-                    for (int i = 0; i < 9; i++)
-                        final.Add(keys.Value[i].ToString());
-
-                    finaljson.Add(name, final);
-                }
-                else if (name == "patterns" && setting is Setting<List<string>> pats)
-                {
-                    List<string> final = new();
-
-                    for (int i = 0; i < 10; i++)
-                        final.Add(pats.Value[i]);
-
-                    finaljson.Add(name, final);
-                }
-                else
-                    finaljson.Add(name, setting.GetValue());
-            }
-
             try
             {
+                Dictionary<string, object> finaljson = [];
+
+                foreach (SettingBase setting in settings)
+                {
+                    string name = setting.Name;
+
+                    if (setting is Setting<Color> color)
+                        finaljson.Add(name, new int[] { color.Value.R, color.Value.G, color.Value.B });
+                    else if (setting is Setting<Keybind> keybind)
+                        finaljson.Add(name, new object[] { keybind.Value.Key.ToString(), keybind.Value.Ctrl, keybind.Value.Shift, keybind.Value.Alt });
+                    else if (setting is Setting<SliderSetting> slider)
+                        finaljson.Add(name, new float[] { slider.Value.Value, slider.Value.Max, slider.Value.Step });
+                    else if (setting is Setting<ListSetting> list)
+                        finaljson.Add(name, list.Value.Current);
+                    else if (name == "noteColors" && setting is Setting<List<Color>> colors)
+                    {
+                        List<int[]> final = [];
+
+                        foreach (Color c in colors.Value)
+                            final.Add([c.R, c.G, c.B]);
+
+                        finaljson.Add(name, final);
+                    }
+                    else if (name == "gridKeys" && setting is Setting<List<Keys>> keys)
+                    {
+                        List<string> final = [];
+
+                        for (int i = 0; i < 9; i++)
+                            final.Add(keys.Value[i].ToString());
+
+                        finaljson.Add(name, final);
+                    }
+                    else if (name == "patterns" && setting is Setting<List<string>> pats)
+                    {
+                        List<string> final = [];
+
+                        for (int i = 0; i < 10; i++)
+                            final.Add(pats.Value[i]);
+
+                        finaljson.Add(name, final);
+                    }
+                    else
+                        finaljson.Add(name, setting.GetValue());
+                }
+
                 File.WriteAllText(Path.Combine(Assets.THIS, "settings.txt"), JsonSerializer.Serialize(finaljson));
             }
-            catch { Console.WriteLine("Failed to save settings"); }
-
+            catch (Exception ex)
+            {
+                Logging.Log($"Failed to save settings", LogSeverity.ERROR, ex);
+            }
+            
             if (reload)
                 Load(true);
         }
@@ -312,7 +315,7 @@ namespace New_SSQE.Preferences
 
         public static List<string> CompareKeybind(Keys key, bool ctrl, bool alt, bool shift)
         {
-            List<string> keys = new();
+            List<string> keys = [];
 
             try
             {

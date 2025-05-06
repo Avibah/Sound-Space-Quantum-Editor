@@ -8,32 +8,51 @@ namespace New_SSQE.ExternalUtils
     {
         INFO,
         WARN,
-        ERROR
+        ERROR,
+        FATAL
     }
 
     internal class Logging
     {
-        public static List<string> Logs = new();
+        private static readonly List<(DateTime, string, string, int)> logs = [];
 
         public static void Log(string log, LogSeverity severity = LogSeverity.INFO, Exception? ex = null)
         {
             if (ex != null)
                 log += $"\n{ex}";
 
-            DateTime timestamp = DateTime.Now;
-            string logF = $"[{timestamp} - {severity}] {log}";
-
-            Logs.Add(logF);
+            if (logs.Count > 0 && logs[^1].Item3 == log)
+            {
+                (DateTime, string, string, int) item = logs[^1];
+                logs[^1] = (item.Item1, item.Item2, item.Item3, item.Item4 + 1);
+            }
+            else
+                logs.Add((DateTime.Now, $"{severity}", log, 1));
 
             if (Settings.debugMode.Value || MainWindow.DebugVersion)
             {
                 try
                 {
-                    string logs = string.Join('\n', Logs);
-                    File.WriteAllText("logs-debug.txt", logs);
+                    File.WriteAllText("logs-debug.txt", GetLogs());
                 }
                 catch { }
             }
+        }
+
+        public static string GetLogs()
+        {
+            string[] temp = new string[logs.Count];
+
+            for (int i = 0; i < temp.Length; i++)
+            {
+                (DateTime, string, string, int) item = logs[i];
+
+                temp[i] = $"[{item.Item1} - {item.Item2}] {item.Item3}";
+                if (item.Item4 > 1)
+                    temp[i] += $" [x{item.Item4}]";
+            }
+
+            return string.Join('\n', temp);
         }
     }
 }

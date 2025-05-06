@@ -122,6 +122,16 @@ namespace New_SSQE.NewGUI.Base
             container.KeyUp(key);
         }
 
+        public virtual void KeybindUsed(string keybind)
+        {
+            container.KeybindUsed(keybind);
+        }
+
+        public virtual void TextInput(string str)
+        {
+            container.TextInput(str);
+        }
+
         public virtual void FileDrop(string file)
         {
             bool loaded = true;
@@ -144,6 +154,5 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual bool TextboxFocused() => container.TextboxFocused();
         public virtual bool HoveringInteractive(InteractiveControl? exclude = null) => container.HoveringInteractive(exclude);
-        public virtual void KeybindUsed(string keybind) => container.KeybindUsed(keybind);
     }
 }

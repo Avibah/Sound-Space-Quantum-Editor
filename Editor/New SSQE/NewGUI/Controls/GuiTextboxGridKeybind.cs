@@ -34,6 +34,8 @@ namespace New_SSQE.NewGUI.Controls
             cursorPos = text.Length;
         }
 
+        public override void TextInput(string str) { }
+
         public override float[] Draw()
         {
             text = Settings.gridKeys.Value[gridKey].ToString().ToUpper();

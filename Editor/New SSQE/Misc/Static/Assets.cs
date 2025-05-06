@@ -14,6 +14,7 @@ namespace New_SSQE.Misc.Static
         public static readonly string SOUNDS = Path.Combine(THIS, "assets", "sounds");
         public static readonly string TEMP = Path.Combine(THIS, "assets", "temp");
         public static readonly string TEXTURES = Path.Combine(THIS, "assets", "textures");
+        public static readonly string HISTORY = Path.Combine(THIS, "history");
 
         private static readonly string[] Dependencies = { "bass", "bass_fx", "bassenc", "bassflac" };
 
@@ -23,6 +24,8 @@ namespace New_SSQE.Misc.Static
                 Directory.CreateDirectory(CACHED);
             if (!Directory.Exists(TEMP))
                 Directory.CreateDirectory(TEMP);
+            if (!Directory.Exists(HISTORY))
+                Directory.CreateDirectory(HISTORY);
 
             foreach (string file in Dependencies)
             {

@@ -254,7 +254,7 @@ namespace New_SSQE.NewMaps
 
                     GuiWindowEditor.ShowToast("AUTOSAVED", Settings.color1.Value);
                 }
-                else if (Save(false))
+                else if (Save(false, true))
                     GuiWindowEditor.ShowToast("AUTOSAVED", Settings.color1.Value);
             }
         }
@@ -486,7 +486,7 @@ namespace New_SSQE.NewMaps
             return quit;
         }
 
-        public static bool Save(bool forced = true)
+        public static bool Save(bool forced = true, bool fromAutosave = false)
         {
             if (forced && (!File.Exists(Current.FileName) || string.IsNullOrWhiteSpace(Current.FileName)))
                 return SaveAs();
@@ -495,7 +495,7 @@ namespace New_SSQE.NewMaps
             {
                 if (string.IsNullOrWhiteSpace(Current.FileName))
                     return false;
-                return TXT.Write(Current.FileName);
+                return fromAutosave ? TXT.WriteAutosave(Current.FileName) : TXT.WriteForced(Current.FileName);
             }
             catch (Exception ex)
             {
@@ -529,7 +529,7 @@ namespace New_SSQE.NewMaps
 
                 return extension switch
                 {
-                    ".txt" => TXT.Write(path),
+                    ".txt" => TXT.WriteForced(path),
                     ".sspm" => SSPM.Write(path),
                     ".rhym" => RHYM.Write(path),
                     ".npk" => NPK.Write(path),

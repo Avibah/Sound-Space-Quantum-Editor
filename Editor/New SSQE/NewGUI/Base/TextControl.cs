@@ -113,7 +113,10 @@ namespace New_SSQE.NewGUI.Base
         {
             base.PreRender(mousex, mousey, frametime);
             if (shouldUpdate)
+            {
                 Update();
+                shouldUpdate = false;
+            }
         }
 
         public override void PostRender(float mousex, float mousey, float frametime)

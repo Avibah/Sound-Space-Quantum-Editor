@@ -104,6 +104,7 @@ namespace New_SSQE.NewGUI.Base
         public virtual void KeyDown(Keys key) { }
         public virtual void KeyUp(Keys key) { }
         public virtual void KeybindUsed(string keybind) { }
+        public virtual void TextInput(string str) { }
 
         protected void InvokeTextEntered(TextEnteredEventArgs e) => TextEntered?.Invoke(this, e);
         protected void InvokeValueChanged(ValueChangedEventArgs e) => ValueChanged?.Invoke(this, e);

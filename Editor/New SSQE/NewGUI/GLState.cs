@@ -380,5 +380,54 @@ namespace New_SSQE.NewGUI
 
             return program;
         }
+
+        private static Stack<Vector4i> scissors = [];
+        private static int _scissor = 0;
+
+        public static void ResetScissor()
+        {
+            Box2i rect = MainWindow.Instance?.ClientRectangle ?? Box2i.Empty;
+            Vector4i vec = (rect.X, rect.Y, rect.Width, rect.Height);
+
+            scissors = [];
+            scissors.Push(vec);
+
+            GL.Scissor(vec.X, vec.Y, vec.Z, vec.W);
+            GL.Disable(EnableCap.ScissorTest);
+        }
+
+        public static void EnableScissor(float x, float y, float w, float h)
+        {
+            y = MainWindow.Instance.ClientSize.Y - y - h;
+
+            Vector4i prev = scissors.Peek();
+            w -= Math.Max(0, prev.X - x);
+            h -= Math.Max(0, prev.Y - y);
+            x = Math.Clamp(x, prev.X, prev.X + w);
+            y = Math.Clamp(y, prev.Y, prev.Y + h);
+            w = Math.Clamp(x + w, x, prev.X + prev.Z) - x;
+            h = Math.Clamp(y + h, y, prev.Y + prev.W) - x;
+
+            Vector4i vec = ((int)x, (int)y, (int)w, (int)h);
+            GL.Scissor(vec.X, vec.Y, vec.Z, vec.W);
+            scissors.Push(vec);
+
+            if (_scissor++ == 0)
+                GL.Enable(EnableCap.ScissorTest);
+        }
+
+        public static void EnableScissor(RectangleF rect) => EnableScissor(rect.X, rect.Y, rect.Width, rect.Height);
+
+        public static void DisableScissor()
+        {
+            if (scissors.Count > 0)
+            {
+                scissors.Pop();
+                Vector4i vec = scissors.Peek();
+                GL.Scissor(vec.X, vec.Y, vec.Z, vec.W);
+            }
+            if (--_scissor == 0)
+                GL.Disable(EnableCap.ScissorTest);
+        }
     }
 }

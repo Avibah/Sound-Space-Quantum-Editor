@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using New_SSQE.Misc.Static;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace New_SSQE.ExternalUtils
 {
@@ -51,6 +52,95 @@ namespace New_SSQE.ExternalUtils
             };
 
             return Process.Start(ps);
+        }
+
+        public static readonly Version RequestedAPI = new(3, 3);
+
+        private static readonly string[] requiredAPI =
+        [
+            "glVertexAttribDivisor",            // 3.3
+
+            "glDrawArraysInstanced",            // 3.1
+
+            "glBindVertexArray",                // 3.0
+            "glBindRenderbuffer",               // 3.0
+            "glBindFramebuffer",                // 3.0
+            "glBlitFramebuffer",                // 3.0
+            "glGenRenderbuffers",               // 3.0
+            "glGenFramebuffers",                // 3.0
+            "glGenVertexArrays",                // 3.0
+            "glDeleteVertexArrays",             // 3.0
+            "glRenderbufferStorageMultisample", // 3.0
+            "glFramebufferRenderbuffer",        // 3.0
+
+            "glBindBuffer",                     // 2.0
+            "glBindTexture",                    // 2.0
+            "glActiveTexture",                  // 2.0
+            "glGenTextures",                    // 2.0
+            "glGenBuffers",                     // 2.0
+            "glGetUniformLocation",             // 2.0
+            "glUniform4f",                      // 2.0
+            "glUniform3f",                      // 2.0
+            "glUniform2f",                      // 2.0
+            "glUniform1i",                      // 2.0
+            "glUniformMatrix4fv",               // 2.0
+            "glDrawArrays",                     // 2.0
+            "glBufferData",                     // 2.0
+            "glDeleteTextures",                 // 2.0
+            "glDeleteBuffers",                  // 2.0
+            "glVertexAttribPointer",            // 2.0
+            "glUseProgram",                     // 2.0
+            "glTexParameteri",                  // 2.0
+            "glTexImage2D",                     // 2.0
+            "glEnableVertexAttribArray",        // 2.0
+            "glViewport",                       // 2.0
+            "glClear",                          // 2.0
+            "glClearColor",                     // 2.0
+            "glGetString",                      // 2.0
+            "glGetError",                       // 2.0
+            "glGetIntegerv",                    // 2.0
+            "glEnable",                         // 2.0
+            "glDisable",                        // 2.0
+            "glBlendFunc",                      // 2.0
+            "glCreateShader",                   // 2.0
+            "glCreateProgram",                  // 2.0
+            "glShaderSource",                   // 2.0
+            "glLinkProgram",                    // 2.0
+            "glGetShaderInfoLog",               // 2.0
+            "glDetachShader",                   // 2.0
+            "glDeleteShader",                   // 2.0
+            "glCompileShader",                  // 2.0
+            "glAttachShader",                   // 2.0
+            "glScissor"                         // 2.0
+        ];
+
+        private static readonly string[] optionalAPI =
+        [
+            "glDebugMessageCallback"            // 4.3
+        ];
+
+        public static bool ValidateOpenGL()
+        {
+            bool result = true;
+
+            foreach (string func in requiredAPI)
+            {
+                if (GLFW.GetProcAddress(func) <= 0)
+                {
+                    result = false;
+                    Logging.Log($"Missing OpenGL API: {func}", LogSeverity.FATAL);
+                }
+            }
+
+            foreach (string func in optionalAPI)
+            {
+                if (GLFW.GetProcAddress(func) <= 0)
+                {
+                    Logging.Log($"Missing OpenGL API: {func} - Some features may be unavailable", LogSeverity.WARN);
+                }
+            }
+
+            return result;
         }
     }
 }

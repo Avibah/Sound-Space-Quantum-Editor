@@ -283,37 +283,35 @@ namespace New_SSQE.NewGUI.Controls
                 float x = CellSize / 2 + rect.X;
                 float y = CellSize / 2 + rect.Y;
 
-                switch (Settings.autoplayType.Value.Current)
+                if (Settings.smoothAutoplay.Value)
                 {
-                    case "linear":
-                        t = (float)Math.Sin(t * MathHelper.PiOver2);
+                    Vector2 p0 = (lastFar.X, lastFar.Y);
+                    Vector2 p1 = (last.X, last.Y);
+                    Vector2 p2 = (next.X, next.Y);
+                    Vector2 p3 = (nextFar.X, nextFar.Y);
 
-                        float lastX = (2 - last.X) * CellSize;
-                        float lastY = (2 - last.Y) * CellSize;
+                    Vector2 result = 0.5f * (
+                        2 * p1 +
+                        (-p0 + p2) * t +
+                        (2 * p0 - 5 * p1 + 4 * p2 - p3) * MathF.Pow(t, 2) +
+                        (-p0 + 3 * p1 - 3 * p2 + p3) * MathF.Pow(t, 3)
+                    );
 
-                        float nextX = (2 - next.X) * CellSize;
-                        float nextY = (2 - next.Y) * CellSize;
+                    x += (2 - result.X) * CellSize;
+                    y += (2 - result.Y) * CellSize;
+                }
+                else
+                {
+                    t = (float)Math.Sin(t * MathHelper.PiOver2);
 
-                        x += lastX + (nextX - lastX) * t;
-                        y += lastY + (nextY - lastY) * t;
-                        break;
+                    float lastX = (2 - last.X) * CellSize;
+                    float lastY = (2 - last.Y) * CellSize;
 
-                    case "spline":
-                        Vector2 p0 = (lastFar.X, lastFar.Y);
-                        Vector2 p1 = (last.X, last.Y);
-                        Vector2 p2 = (next.X, next.Y);
-                        Vector2 p3 = (nextFar.X, nextFar.Y);
+                    float nextX = (2 - next.X) * CellSize;
+                    float nextY = (2 - next.Y) * CellSize;
 
-                        Vector2 result = 0.5f * (
-                            2 * p1 +
-                            (-p0 + p2) * t +
-                            (2 * p0 - 5 * p1 + 4 * p2 - p3) * MathF.Pow(t, 2) +
-                            (-p0 + 3 * p1 - 3 * p2 + p3) * MathF.Pow(t, 3)
-                        );
-
-                        x += (2 - result.X) * CellSize;
-                        y += (2 - result.Y) * CellSize;
-                        break;
+                    x += lastX + (nextX - lastX) * t;
+                    y += lastY + (nextY - lastY) * t;
                 }
 
                 float width = (float)Math.Sin(t * MathHelper.Pi) * 8 + 16;

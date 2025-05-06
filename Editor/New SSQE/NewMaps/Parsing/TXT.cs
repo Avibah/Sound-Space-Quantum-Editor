@@ -163,6 +163,21 @@ namespace New_SSQE.NewMaps.Parsing
             return INI.Write(ini);
         }
 
+        private static MapHistory forcedHistory = new("save");
+        private static MapHistory autosaveHistory = new("autosave");
+
+        public static bool WriteForced(string path)
+        {
+            forcedHistory.Store(path);
+            return Write(path);
+        }
+
+        public static bool WriteAutosave(string path)
+        {
+            autosaveHistory.Store(path);
+            return Write(path);
+        }
+
         public static string CopyLegacy(bool correctNotes = false)
         {
             List<Note> notes = Mapping.Current.Notes;

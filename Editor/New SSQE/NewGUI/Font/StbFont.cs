@@ -302,8 +302,11 @@ namespace New_SSQE.NewGUI.Font
 
                     for (int i = 0; i < line.Length; i++)
                     {
-                        if (line[i] < UnicodeCharRange)
-                            cur += UnicodeExtents[line[i]] + 1;
+                        char c = line[i];
+                        if (c < 0 || c > UnicodeCharRange - 1)
+                            c = (char)0;
+
+                        cur += UnicodeExtents[c] + 1;
                     }
 
                     max = Math.Max(cur, max);
@@ -326,7 +329,7 @@ namespace New_SSQE.NewGUI.Font
                     {
                         char c = line[i];
                         if (c < 0 || c > CharRange)
-                            continue;
+                            c = (char)0;
 
                         currentX += Extents[c];
                         currentX += CharPadding;
@@ -370,7 +373,7 @@ namespace New_SSQE.NewGUI.Font
                     {
                         char c = text[i];
                         if (c < 0 || c > UnicodeCharRange - 1)
-                            continue;
+                            c = (char)0;
 
                         verts[i - vi + offset] = (cx, y, scale, c);
                         cx += (UnicodeExtents[c] + 1) * scale / UnicodeWidth;
@@ -395,7 +398,7 @@ namespace New_SSQE.NewGUI.Font
                     {
                         char c = text[i];
                         if (c < 0 || c > CharRange - 1)
-                            continue;
+                            c = (char)0;
 
                         if (cx > x)
                             cx += Bearings[c] * scale;

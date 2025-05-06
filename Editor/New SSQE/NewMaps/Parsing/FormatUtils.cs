@@ -106,5 +106,10 @@ namespace New_SSQE.NewMaps.Parsing
             decodeTotal = 0;
             decodePrev = 0;
         }
+
+        public static string ConvertString(string str)
+        {
+            return $"\"{str.Replace("\\", "\\\\").Replace("\"", "\\\"")}\"";
+        }
     }
 }

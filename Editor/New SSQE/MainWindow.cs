@@ -16,68 +16,12 @@ using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
 using New_SSQE.ExternalUtils;
 using New_SSQE.NewMaps;
-using System.Diagnostics;
 using New_SSQE.NewGUI;
 using New_SSQE.NewGUI.Base;
+using New_SSQE.NewGUI.Windows;
 
 namespace New_SSQE
 {
-    /*
-     * OpenGL functions used in this program (with their required versions):
-     * 
-     * 4.3 - glDebugMessageCallback (only used when DebugVersion is true, should be disabled on release)
-     * 3.3 - glVertexAttribDivisor
-     * 3.1 - glDrawArraysInstanced
-     * 3.0 - glBindVertexArray
-     * 3.0 - glBindRenderbuffer
-     * 3.0 - glBindFramebuffer
-     * 3.0 - glBlitFramebuffer
-     * 3.0 - glGenRenderbuffers
-     * 3.0 - glGenFramebuffers
-     * 3.0 - glGenVertexArrays
-     * 3.0 - glDeleteVertexArrays
-     * 3.0 - glRenderbufferStorageMultisample
-     * 3.0 - glFramebufferRenderbuffer
-     * 2.0 - glBindBuffer
-     * 2.0 - glBindTexture
-     * 2.0 - glActiveTexture
-     * 2.0 - glGenTextures
-     * 2.0 - glGenBuffers
-     * 2.0 - glGetUniformLocation
-     * 2.0 - glUniform (4f, 3f, 2f, 1i)
-     * 2.0 - glUniformMatrix (4f)
-     * 2.0 - glDrawArrays
-     * 2.0 - glBufferData
-     * 2.0 - glDeleteTextures
-     * 2.0 - glDeleteBuffers
-     * 2.0 - glVertexAttribPointer
-     * 2.0 - glUseProgram
-     * 2.0 - glTexParameter (i)
-     * 2.0 - glTexImage2D
-     * 2.0 - glEnableVertexAttribArray
-     * 2.0 - glViewport
-     * 2.0 - glClear
-     * 2.0 - glClearColor
-     * 2.0 - glGetString
-     * 2.0 - glGetError
-     * 2.0 - glGetInteger
-     * 2.0 - glEnable
-     * 2.0 - glBlendFunc
-     * 2.0 - glCreateShader
-     * 2.0 - glCreateProgram
-     * 2.0 - glShaderSource
-     * 2.0 - glLinkProgram
-     * 2.0 - glGetShaderInfoLog
-     * 2.0 - glDetachShader
-     * 2.0 - glDeleteShader
-     * 2.0 - glCompileShader
-     * 2.0 - glAttachShader
-     * 
-     * The requested API version should match the version of the highest unconditionally required function in this list.
-     * Currently: 3.3 - glVertexAttribDivisor (required for efficient instancing of map objects and text)
-     * 
-     */
-
     internal class MainWindow : GameWindow
     {
         public static bool DebugVersion = false;
@@ -136,13 +80,13 @@ namespace New_SSQE
             Icon = GetWindowIcon(),
             Flags = DebugVersion ? ContextFlags.Debug : 0,
 
-            APIVersion = new(3, 3)
+            APIVersion = Platform.RequestedAPI
         })
         {
             MSAA = samples > 0;
             
             // requires higher OpenGL version
-            if (DebugVersion)
+            if (DebugVersion && GLFW.GetProcAddress("glDebugMessageCallback") > 0)
             {
                 GL.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
                 GL.Enable(EnableCap.DebugOutput);
@@ -158,13 +102,14 @@ namespace New_SSQE
             GL.GetInteger(GetPName.MaxFramebufferSamples, ref MaxSamples);
 
             if (string.IsNullOrWhiteSpace(version) || new Version(major, minor) < APIVersion)
-                throw new Exception($"Unsupported OpenGL version (Minimum: {APIVersion})");
+                throw new PlatformNotSupportedException($"Unsupported OpenGL version (Minimum: {APIVersion})");
+            if (!Platform.ValidateOpenGL())
+                throw new PlatformNotSupportedException("OpenGL extension check failed");
 
             Instance = this;
             DefaultWindow = new BackgroundWindow();
 
             DiscordManager.Init();
-
             Settings.Init();
 
             CheckForUpdates();
@@ -173,7 +118,7 @@ namespace New_SSQE
             Mapping.LoadCache();
 
             OnMouseWheel(new MouseWheelEventArgs());
-            Windowing.SwitchWindow(new NewGUI.Windows.GuiWindowMenu());
+            Windowing.SwitchWindow(new GuiWindowMenu());
 
             if (!string.IsNullOrWhiteSpace(InitialFile))
                 Mapping.Load(InitialFile);
@@ -233,6 +178,7 @@ namespace New_SSQE
             }
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GLState.ResetScissor();
 
             if (MusicPlayer.IsPlaying)
                 Settings.currentTime.Value.Value = (float)MusicPlayer.CurrentTime.TotalMilliseconds;
@@ -260,12 +206,12 @@ namespace New_SSQE
 
             if (gcTime >= 2 && gcEnabled)
             {
-                Stopwatch sw = Stopwatch.StartNew();
+                double start = GC.GetTotalPauseDuration().TotalMilliseconds;
 
                 GC.Collect();
                 gcTime = 0;
 
-                double duration = sw.Elapsed.TotalMilliseconds;
+                double duration = GC.GetTotalPauseDuration().TotalMilliseconds - start;
 
                 if (duration > 50)
                 {
@@ -273,14 +219,17 @@ namespace New_SSQE
                     Logging.Log($"GC took {duration}ms to process! Disabling forced garbage collection to improve performance");
                     gcEnabled = false;
                 }
-
-                sw.Stop();
             }
 
             DiscordManager.Process(args.Time);
         }
 
         public void ForceRender() => OnRenderFrame(new FrameEventArgs());
+
+        protected override void OnTextInput(TextInputEventArgs e)
+        {
+            Windowing.Current?.TextInput(e.AsString);
+        }
 
         protected override void OnResize(ResizeEventArgs e)
         {
@@ -377,7 +326,7 @@ namespace New_SSQE
             if (forceClose)
                 Close();
             else
-                Windowing.SwitchWindow(new NewGUI.Windows.GuiWindowMenu());
+                Windowing.SwitchWindow(new GuiWindowMenu());
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -428,7 +377,7 @@ namespace New_SSQE
                         {
                             entry.ExtractToFile(entry.FullName, true);
                         }
-                        catch (Exception ex) { Logging.Log($"Failed to extract file: {entry.FullName}", LogSeverity.WARN, ex); }
+                        catch (Exception ex) { Logging.Log($"Failed to extract file: {entry.FullName}", LogSeverity.ERROR, ex); }
                     }
                 }
 
@@ -504,7 +453,7 @@ namespace New_SSQE
             }
             catch (Exception ex)
             {
-                Logging.Log("Failed to check for updates", LogSeverity.WARN, ex);
+                Logging.Log("Failed to check for updates", LogSeverity.ERROR, ex);
                 MessageBox.Show("Failed to check for updates", MBoxIcon.Warning, MBoxButtons.OK);
             }
         }

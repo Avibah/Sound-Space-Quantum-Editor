@@ -51,7 +51,7 @@ namespace New_SSQE
             return processes.Length > 1;
         }
 
-        private static void WriteCrashReport(object e)
+        private static void RegisterCrash(object e)
         {
             try
             {
@@ -61,10 +61,9 @@ namespace New_SSQE
                     Mapping.SaveCache();
                 }
             }
-            catch (Exception ex) { Logging.Log("Map(s) failed to save on abort", LogSeverity.WARN, ex); }
+            catch (Exception ex) { Logging.Log("Map(s) failed to save on abort", LogSeverity.ERROR, ex); }
 
-            Logging.Log("[Error encountered in application]", LogSeverity.ERROR);
-            string logs = string.Join('\n', Logging.Logs);
+            Logging.Log("[Error encountered in application]", LogSeverity.FATAL);
 
             string text = @$"// whoops
 
@@ -82,7 +81,7 @@ Try updating your graphics driver to the latest version.
 
 If none of these work or aren't applicable, report the error through {Links.FEEDBACK_FORM}
 
-{logs}
+{Logging.GetLogs()}
                 ";
 
             File.WriteAllText(Path.Combine(Assets.THIS, "crash-report.txt"), text);
@@ -137,7 +136,7 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
             AppDomain domain = AppDomain.CurrentDomain;
             domain.UnhandledException += (s, e) =>
             {
-                WriteCrashReport(e.ExceptionObject);
+                RegisterCrash(e.ExceptionObject);
             };
 
             try
@@ -148,7 +147,7 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
                 }
                 catch (Exception ae)
                 {
-                    Logging.Log("Failed to parse args!", LogSeverity.WARN, ae);
+                    Logging.Log("Failed to parse args", LogSeverity.WARN, ae);
                 }
 
                 try
@@ -157,7 +156,7 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
                 }
                 catch (Exception pe)
                 {
-                    Logging.Log("Failed to register protocol!", LogSeverity.WARN, pe);
+                    Logging.Log("Failed to register protocol", LogSeverity.WARN, pe);
                 }
 
                 TaskScheduler.UnobservedTaskException += (s, e) =>
@@ -169,13 +168,11 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
                 Start();
 
                 Logging.Log("[Normal application exit]");
-                string logs = string.Join('\n', Logging.Logs);
-
-                File.WriteAllText(Path.Combine(Assets.THIS, "logs.txt"), logs);
+                File.WriteAllText(Path.Combine(Assets.THIS, "logs.txt"), Logging.GetLogs());
             }
             catch (Exception e)
             {
-                WriteCrashReport(e);
+                RegisterCrash(e);
             }
 
             ProgramArgs.Unwatch();

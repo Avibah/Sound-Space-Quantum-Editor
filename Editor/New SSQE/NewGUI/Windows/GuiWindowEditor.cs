@@ -46,7 +46,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton EditMapVFX = new(0, 240, 200, 40, "Edit Map VFX", 26) { Stretch = StretchMode.X, Visible = false };
         public static readonly GuiButton EditSpecial = new(0, 290, 200, 40, "Edit Extra Objects", 26) { Stretch = StretchMode.X };
 
-        public static readonly ControlContainer OptionsNav = new(10, 190, 545, 756, Numpad, SeparateClickTools, SwapClickMode, JumpOnPaste, PauseOnScroll, EditMapVFX, EditSpecial) { Stretch = StretchMode.XY };
+        public static readonly ControlContainer OptionsNav = new(10, 190, 545, 756, Numpad, SeparateClickTools, SwapClickMode, JumpOnPaste, PauseOnScroll, EditMapVFX, EditSpecial);
 
         // Timing
         public static readonly GuiTextboxNumeric ExportOffset = new(0, 50, 130, 40, Settings.exportOffset, false, false, "0", 31) { Stretch = StretchMode.X };
@@ -62,7 +62,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiLabel SfxOffsetLabel = new(170, 20, 100, 30, Settings.color1, "SFX Offset:", 30, "main", CenterMode.None) { Stretch = StretchMode.X };
 
         public static readonly ControlContainer TimingNav = new(10, 190, 545, 756, ExportOffset, SfxOffset, OpenTimings, ImportIni, Metronome,
-            OpenBookmarks, CopyBookmarks, PasteBookmarks, ExportOffsetLabel, SfxOffsetLabel) { Stretch = StretchMode.XY };
+            OpenBookmarks, CopyBookmarks, PasteBookmarks, ExportOffsetLabel, SfxOffsetLabel);
 
         // Patterns
         public static readonly GuiButton HFlip = new(0, 20, 175, 40, "HORIZONTAL FLIP", 27) { Stretch = StretchMode.X };
@@ -84,7 +84,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiLabel DrawBezierLabel = new(0, 490, 100, 30, Settings.color1, "Draw Bezier with Divisor:", 30, "main", CenterMode.None) { Stretch = StretchMode.X };
 
         public static readonly ControlContainer PatternsNav = new(10, 190, 545, 756, HFlip, VFlip, RotateBox, RotateButton, ScaleBox, ScaleButton, ApplyOnPaste, ClampSR,
-            StoreNodes, ClearNodes, CurveBezier, BezierBox, BezierButton, RotateLabel, ScaleLabel, DrawBezierLabel) { Stretch = StretchMode.XY };
+            StoreNodes, ClearNodes, CurveBezier, BezierBox, BezierButton, RotateLabel, ScaleLabel, DrawBezierLabel);
 
         // Player
         public static readonly GuiButtonList CameraMode = new(0, 50, 150, 40, Settings.cameraMode, "", 27) { Stretch = StretchMode.X };
@@ -114,10 +114,10 @@ namespace New_SSQE.NewGUI.Windows
 
         public static readonly ControlContainer PlayerNav = new(10, 190, 545, 836, CameraMode, NoteScale, CursorScale, LockCursor, GridGuides, Sensitivity, Parallax, FieldOfView,
             ApproachDistance, HitWindow, PlayerApproachRate, ApproachFade, FromStart, PlayMap, CameraModeLabel, NoteScaleLabel, CursorScaleLabel, SensitivityLabel,
-            ParallaxLabel, FieldOfViewLabel, ApproachDistanceLabel, HitWindowLabel, PlayerApproachRateLabel) { Stretch = StretchMode.XY };
+            ParallaxLabel, FieldOfViewLabel, ApproachDistanceLabel, HitWindowLabel, PlayerApproachRateLabel);
 
         public static readonly ControlContainer StandardMapNavs = new(LNavOptions, LNavTiming, LNavPatterns, LNavPlayer,
-            OptionsNav, TimingNav, PatternsNav, PlayerNav) { Stretch = StretchMode.XY };
+            OptionsNav, TimingNav, PatternsNav, PlayerNav);
 
         /*
          *************************************
@@ -152,14 +152,10 @@ namespace New_SSQE.NewGUI.Windows
             "> \"-\" prefix: Clear previous line",
             "> \"-\" suffix: Apply next lyric as a syllable",
             "    (Without a space in between)",
-            "> 'Fade In' only applies to new lyric lines",
-            "    (Cleared with \"-\" prefix or a blank lyric)",
-            "> 'Fade Out' only applies to the end of a lyric line",
-            "    (After a blank lyric or before a \"-\" prefixed lyric)",
             "> Press 'Enter' in the lyric textbox to quickly place a lyric"), 20, "main", CenterMode.None) { Stretch = StretchMode.X };
-        public static readonly ControlContainer LyricNav = new(175, 200, 370, 756, LyricBox, LyricFadeIn, LyricFadeOut, LyricCreate, LyricInfo) { Visible = false, Stretch = StretchMode.XY };
+        public static readonly ControlContainer LyricNav = new(175, 200, 370, 756, LyricBox, LyricFadeIn, LyricFadeOut, LyricCreate, LyricInfo) { Visible = false };
 
-        public static readonly ControlContainer SpecialMapNavs = new(SpecialNavNova, GameSwitch, SpecialNavExit, LyricNav, LyricPreview) { Visible = false, Stretch = StretchMode.XY };
+        public static readonly ControlContainer SpecialMapNavs = new(SpecialNavNova, GameSwitch, SpecialNavExit, LyricNav, LyricPreview) { Visible = false };
 
         /*
          *************************************
@@ -184,22 +180,24 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiLabel BeatDivisorLabel = new(245, 140, 250, 32, Settings.color1, "", 30) { Stretch = StretchMode.X };
         public static readonly GuiLabel SnappingLabel = new(245, 220, 250, 32, Settings.color1, "", 30) { Stretch = StretchMode.X };
 
-        public static readonly ControlContainer SnappingNav = new(1365, 190, 545, 756, Quantum, QuantumGridSnap, AutoAdvance, BeatSnapDivisor, QuantumSnapDivisor, BeatDivisorLabel, SnappingLabel) { Stretch = StretchMode.XY };
+        public static readonly ControlContainer SnappingNav = new(1365, 190, 545, 756, Quantum, QuantumGridSnap, AutoAdvance, BeatSnapDivisor, QuantumSnapDivisor, BeatDivisorLabel, SnappingLabel);
 
         // Graphics
         public static readonly GuiCheckbox Autoplay = new(245, 10, 30, 30, Settings.autoplay, "Autoplay", 26) { Stretch = StretchMode.X };
-        public static readonly GuiCheckbox ApproachSquares = new(245, 50, 30, 30, Settings.approachSquares, "Approach Squares", 26) { Stretch = StretchMode.X };
-        public static readonly GuiCheckbox GridNumbers = new(245, 90, 30, 30, Settings.gridNumbers, "Grid Numbers", 26) { Stretch = StretchMode.X };
-        public static readonly GuiCheckbox GridLetters = new(245, 130, 30, 30, Settings.gridLetters, "Grid Letters", 26) { Stretch = StretchMode.X };
-        public static readonly GuiCheckbox QuantumGridLines = new(245, 170, 30, 30, Settings.quantumGridLines, "Quantum Grid Lines", 26) { Stretch = StretchMode.X };
-        public static readonly GuiSlider ApproachRate = new(245, 250, 250, 32, Settings.approachRate) { Style = new(ControlStyles.None), Stretch = StretchMode.X };
-        public static readonly GuiSlider TrackCursorPos = new(245, 330, 250, 32, Settings.cursorPos) { Style = new(ControlStyles.None), Stretch = StretchMode.X };
+        public static readonly GuiCheckbox SmoothAutoplay = new(245, 50, 30, 30, Settings.smoothAutoplay, "Smooth Autoplay Cursor", 26) { Stretch = StretchMode.X };
+        public static readonly GuiCheckbox ApproachSquares = new(245, 90, 30, 30, Settings.approachSquares, "Approach Squares", 26) { Stretch = StretchMode.X };
+        public static readonly GuiCheckbox GridNumbers = new(245, 130, 30, 30, Settings.gridNumbers, "Grid Numbers", 26) { Stretch = StretchMode.X };
+        public static readonly GuiCheckbox GridLetters = new(245, 170, 30, 30, Settings.gridLetters, "Grid Letters", 26) { Stretch = StretchMode.X };
+        public static readonly GuiCheckbox QuantumGridLines = new(245, 210, 30, 30, Settings.quantumGridLines, "Quantum Grid Lines", 26) { Stretch = StretchMode.X };
+        public static readonly GuiSlider ApproachRate = new(245, 290, 250, 32, Settings.approachRate) { Style = new(ControlStyles.None), Stretch = StretchMode.X };
+        public static readonly GuiSlider TrackCursorPos = new(245, 370, 250, 32, Settings.cursorPos) { Style = new(ControlStyles.None), Stretch = StretchMode.X };
 
-        public static readonly GuiLabel ApproachRateLabel = new(245, 220, 250, 32, Settings.color1, "", 28) { Stretch = StretchMode.X };
-        public static readonly GuiLabel CursorPosLabel = new(245, 300, 250, 32, Settings.color1, "", 28) { Stretch = StretchMode.X };
+        public static readonly GuiLabel ApproachRateLabel = new(245, 260, 250, 32, Settings.color1, "", 28) { Stretch = StretchMode.X };
+        public static readonly GuiLabel CursorPosLabel = new(245, 340, 250, 32, Settings.color1, "", 28) { Stretch = StretchMode.X };
+
 
         public static readonly ControlContainer GraphicsNav = new(1365, 190, 545, 756, Autoplay, ApproachSquares, GridNumbers, GridLetters, QuantumGridLines, ApproachRate, TrackCursorPos,
-            ApproachRateLabel, CursorPosLabel) { Stretch = StretchMode.X };
+            ApproachRateLabel, CursorPosLabel, SmoothAutoplay);
 
         // Export
         public static readonly GuiButton SaveButton = new(275, 20, 100, 40, "SAVE", 27) { Stretch = StretchMode.X };
@@ -215,7 +213,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiLabel SRLabel = new(10, 70, 190, 320, Settings.color1, "", 28, "main", CenterMode.None) { Stretch = StretchMode.X };
 
         public static readonly ControlContainer ExportNav = new(1365, 190, 545, 756, SaveButton, SaveAsButton, ExportSwitch, ExportButton, ReplaceIDBox, ReplaceID, ConvertAudio,
-            CalculateSR, ReplaceIDLabel, SRLabel) { Stretch = StretchMode.XY };
+            CalculateSR, ReplaceIDLabel, SRLabel);
 
         public static readonly ControlContainer ConstantMapNavs = new(RNavSnapping, RNavGraphics, RNavExport, SnappingNav, GraphicsNav, ExportNav);
 
@@ -278,36 +276,30 @@ namespace New_SSQE.NewGUI.Windows
         {
             LNavController.SelectionChanged += (s, e) =>
             {
+                bool options = OptionsNav.Visible;
+                bool timing = TimingNav.Visible;
+                bool patterns = PatternsNav.Visible;
+
                 OptionsNav.Visible = e.Value == "OPTIONS";
                 TimingNav.Visible = e.Value == "TIMING";
                 PatternsNav.Visible = e.Value == "PATTERNS";
                 PlayerNav.Visible = e.Value == "PLAYTEST";
-            };
 
-            RNavController.SelectionChanged += (s, e) =>
-            {
-                SnappingNav.Visible = e.Value == "SNAPPING";
-                GraphicsNav.Visible = e.Value == "GRAPHICS";
-                ExportNav.Visible = e.Value == "EXPORT";
-
-                ConvertAudio.Visible = ExportNav.Visible && !Platform.IsLinux;
-            };
-
-            LNavController.Initialize();
-            RNavController.Initialize();
-
-            if (Settings.useRhythia.Value)
-            {
-                LNavPlayer.LeftClick += (s, e) =>
+                if (Settings.useRhythia.Value && e.Value == "PLAYTEST")
                 {
-                    if (LNavController.Active == "PLAYTEST")
+                    if (options)
+                        LNavController.UpdateSelection(LNavOptions);
+                    else if (timing)
+                        LNavController.UpdateSelection(LNavTiming);
+                    else if (patterns)
+                        LNavController.UpdateSelection(LNavPatterns);
+                    else
                         LNavController.ClearSelection();
-                    LNavPlayer.Text = "PLAYTEST";
 
                     if (!File.Exists(Settings.rhythiaPath.Value))
                     {
                         Logging.Log($"Invalid Rhythia path - {Settings.rhythiaPath.Value}", LogSeverity.WARN);
-                        ShowToast("INVALID RHYTHIA PATH - CHECK SETTINGS", Settings.color1.Value);
+                        ShowToast("INVALID RHYTHIA PATH [MENU > SETTINGS > MAPPING]", Settings.color1.Value);
                     }
                     else
                     {
@@ -333,8 +325,20 @@ namespace New_SSQE.NewGUI.Windows
                             ShowToast("FAILED TO START RHYTHIA", Settings.color1.Value);
                         }
                     }
-                };
+                }
             };
+
+            RNavController.SelectionChanged += (s, e) =>
+            {
+                SnappingNav.Visible = e.Value == "SNAPPING";
+                GraphicsNav.Visible = e.Value == "GRAPHICS";
+                ExportNav.Visible = e.Value == "EXPORT";
+
+                ConvertAudio.Visible = ExportNav.Visible && !Platform.IsLinux;
+            };
+
+            LNavController.Initialize();
+            RNavController.Initialize();
 
             CopyButton.LeftClick += (s, e) =>
             {
@@ -669,6 +673,8 @@ namespace New_SSQE.NewGUI.Windows
                 CreateLyric(e.Text);
                 LyricBox.Focused = true;
             };
+            LyricFadeIn.LeftClick += (s, e) => LyricFadeOut.Toggle = false;
+            LyricFadeOut.LeftClick += (s, e) => LyricFadeIn.Toggle = false;
 
             MusicMute.LeftClick += (s, e) => MusicPlayer.Volume = Settings.masterVolume.Value.Value;
 
@@ -727,17 +733,13 @@ namespace New_SSQE.NewGUI.Windows
                     else
                         next = null;
 
-                    if ((next == null || next.Text.StartsWith('-') || string.IsNullOrWhiteSpace(current.Text)) && current.FadeOut)
+
+                    if (current.FadeOut)
                         alpha = 1 - Math.Clamp((currentTime.Value - current.Ms) / 1000, 0, 1);
-                    else if (prev == null || string.IsNullOrWhiteSpace(prev.Text) || current.Text.StartsWith('-'))
-                    {
-                        if (current.FadeIn)
-                            alpha = Math.Clamp((currentTime.Value - current.Ms) / 1000, 0, 1);
-                        else
-                            alpha = 1;
-                    }
-                    else if (string.IsNullOrWhiteSpace(current.Text))
-                        alpha = 0;
+                    else if (current.FadeIn)
+                        alpha = Math.Clamp((currentTime.Value - current.Ms) / 1000, 0, 1);
+                    else
+                        alpha = 1;
 
                     if (!string.IsNullOrWhiteSpace(current.Text))
                     {
@@ -756,6 +758,8 @@ namespace New_SSQE.NewGUI.Windows
                         else
                             text = current.Text;
                     }
+                    else
+                        text = current.Text;
                 }
 
                 if (text.EndsWith('-'))

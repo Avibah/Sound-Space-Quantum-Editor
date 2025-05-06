@@ -1,4 +1,6 @@
-﻿namespace New_SSQE.Objects
+﻿using New_SSQE.NewMaps.Parsing;
+
+namespace New_SSQE.Objects
 {
     internal class Lyric : MapObject
     {
@@ -20,7 +22,7 @@
 
         public override string ToString(params object[] data)
         {
-            string text = ConvertString(Text);
+            string text = FormatUtils.ConvertString(Text);
 
             int fadeIn = FadeIn ? 1 : 0;
             int fadeOut = FadeOut ? 1 : 0;

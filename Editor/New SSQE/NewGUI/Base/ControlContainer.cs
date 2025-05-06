@@ -5,14 +5,12 @@ namespace New_SSQE.NewGUI.Base
 {
     internal class ControlContainer : InteractiveControl
     {
-        private bool leftClick = false;
-        private bool rightClick = false;
-        private bool textInput = false;
-
         private Control[] controls = [];
         private InteractiveControl[] interactives = [];
 
         public Control[] Children => [..controls];
+
+        public bool ClipDescendants = false;
 
         public ControlContainer(float x, float y, float w, float h, params Control[] controls) : base(x, y, w, h)
         {
@@ -60,6 +58,8 @@ namespace New_SSQE.NewGUI.Base
         {
             if (!Visible)
                 return;
+            if (ClipDescendants)
+                GLState.EnableScissor(rect);
 
             base.PreRender(mousex, mousey, frametime);
 
@@ -68,12 +68,17 @@ namespace New_SSQE.NewGUI.Base
                 if (control.Visible)
                     control.PreRender(mousex, mousey, frametime);
             }
+
+            if (ClipDescendants)
+                GLState.DisableScissor();
         }
 
         public override void Render(float mousex, float mousey, float frametime)
         {
             if (!Visible)
                 return;
+            if (ClipDescendants)
+                GLState.EnableScissor(rect);
 
             base.Render(mousex, mousey, frametime);
 
@@ -82,12 +87,17 @@ namespace New_SSQE.NewGUI.Base
                 if (control.Visible)
                     control.Render(mousex, mousey, frametime);
             }
+
+            if (ClipDescendants)
+                GLState.DisableScissor();
         }
 
         public override void PostRender(float mousex, float mousey, float frametime)
         {
             if (!Visible)
                 return;
+            if (ClipDescendants)
+                GLState.EnableScissor(rect);
 
             base.PostRender(mousex, mousey, frametime);
 
@@ -96,6 +106,9 @@ namespace New_SSQE.NewGUI.Base
                 if (control.Visible)
                     control.PostRender(mousex, mousey, frametime);
             }
+
+            if (ClipDescendants)
+                GLState.DisableScissor();
         }
 
         public override void Resize(float screenWidth, float screenHeight)
@@ -115,13 +128,12 @@ namespace New_SSQE.NewGUI.Base
                 return;
 
             base.MouseClickLeft(x, y);
-            leftClick = false;
 
             for (int i = interactives.Length - 1; i >= 0; i--)
             {
                 InteractiveControl control = interactives[i];
 
-                if (control.Visible && !leftClick)
+                if (control.Visible)
                     control.MouseClickLeft(x, y);
             }
         }
@@ -132,13 +144,12 @@ namespace New_SSQE.NewGUI.Base
                 return;
 
             base.MouseClickRight(x, y);
-            rightClick = false;
 
             for (int i = interactives.Length - 1; i >= 0; i--)
             {
                 InteractiveControl control = interactives[i];
 
-                if (control.Visible && !rightClick)
+                if (control.Visible)
                     control.MouseClickRight(x, y);
             }
         }
@@ -212,13 +223,12 @@ namespace New_SSQE.NewGUI.Base
                 return;
 
             base.KeyDown(key);
-            textInput = false;
 
             for (int i = interactives.Length - 1; i >= 0; i--)
             {
                 InteractiveControl control = interactives[i];
 
-                if (control.Visible && !textInput)
+                if (control.Visible)
                     control.KeyDown(key);
             }
         }
@@ -243,6 +253,20 @@ namespace New_SSQE.NewGUI.Base
 
             foreach (InteractiveControl control in interactives)
                 control.KeybindUsed(keybind);
+        }
+
+        public override void TextInput(string str)
+        {
+            if (!Visible)
+                return;
+
+            base.TextInput(str);
+
+            foreach (InteractiveControl control in interactives)
+            {
+                if (control.Visible)
+                    control.TextInput(str);
+            }
         }
 
         public bool TextboxFocused()

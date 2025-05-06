@@ -78,13 +78,7 @@ namespace New_SSQE.NewGUI.Controls
                 return;
             base.KeyDown(key);
 
-            if (key == Keys.LeftControl || key == Keys.LeftAlt || key == Keys.LeftShift)
-                return;
-            if (key == Keys.RightControl || key == Keys.RightAlt || key == Keys.RightShift)
-                return;
-
             bool ctrl = MainWindow.Instance.CtrlHeld;
-            bool shift = MainWindow.Instance.ShiftHeld;
 
             cursorPos = Math.Clamp(cursorPos, 0, text.Length);
 
@@ -169,19 +163,29 @@ namespace New_SSQE.NewGUI.Controls
                 case Keys.Escape:
                     Focused = false;
                     break;
-
-                default:
-                    if (ctrl)
-                        break;
-                    string str = KeyConverter.GetCharFromInput(key, shift).ToString();
-
-                    SetText(text.Insert(cursorPos, str));
-                    cursorPos++;
-
-                    break;
             }
 
-            cursorPos = Math.Clamp(cursorPos, 0, text.Length);
+            FinishInput();
+        }
+
+        public override void TextInput(string str)
+        {
+            if (!Focused)
+                return;
+            base.TextInput(str);
+
+            if (MainWindow.Instance.CtrlHeld)
+                return;
+
+            SetText(text.Insert(cursorPos, str));
+            cursorPos++;
+
+            FinishInput();
+        }
+
+        protected virtual void FinishInput()
+        {
+            cursorPos = Math.Clamp(cursorPos + 1, 0, text.Length);
             Update();
 
             if (setting != null)
@@ -228,6 +232,7 @@ namespace New_SSQE.NewGUI.Controls
 
             posX = Math.Clamp(posX, 0, textWidth);
             cursorPos = (int)Math.Floor(posX / letterWidth + 0.3f);
+            Update();
         }
     }
 }

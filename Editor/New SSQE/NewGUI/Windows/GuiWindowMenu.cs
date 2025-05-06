@@ -7,7 +7,6 @@ using New_SSQE.NewGUI.Font;
 using New_SSQE.NewMaps;
 using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Preferences;
-using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using System.Drawing;
 

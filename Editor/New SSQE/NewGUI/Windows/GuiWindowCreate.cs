@@ -26,19 +26,19 @@ namespace New_SSQE.NewGUI.Windows
 
         public static readonly GuiLabel AudioIDLabelSoundSpace = new(690, 370, 540, 50, null, "Roblox Audio ID", 36);
         public static readonly GuiTextbox AudioIDBoxSoundSpace = new(790, 420, 340, 50, null, "", 36);
-        public static readonly GuiLabel AudioPathLabelSoundSpace = new(690, 570, 540, 50, null, "Import Audio", 36);
-        public static readonly GuiPathBox AudioPathSoundSpace = new(690, 620, 540, 50, audioFilter, null, "", 28);
+        public static readonly GuiLabel AudioPathLabelSoundSpace = new(690, 470, 540, 50, null, "Import Audio", 36);
+        public static readonly GuiPathBox AudioPathSoundSpace = new(690, 520, 540, 50, audioFilter, Settings.audioPath, null, "CHOOSE", 28);
         public static readonly ControlContainer SoundSpaceContainer = new(AudioIDLabelSoundSpace, AudioIDBoxSoundSpace, AudioPathLabelSoundSpace, AudioPathSoundSpace);
 
         public static readonly GuiLabel AudioPathLabelRhythia = new(690, 370, 540, 50, null, "Import Audio", 36);
-        public static readonly GuiPathBox AudioPathRhythia = new(690, 420, 540, 50, audioFilter, null, "", 28);
-        public static readonly GuiLabel OrLabelRhythia = new(690, 520, 540, 50, null, "[OR]", 36);
-        public static readonly GuiLabel OnlineLabelRhythia = new(690, 570, 540, 50, null, "Import Rhythia Online Map", 36);
-        public static readonly GuiTextbox OnlineBoxRhythia = new(690, 620, 540, 50, null, "", 36) { Stretch = StretchMode.X };
+        public static readonly GuiPathBox AudioPathRhythia = new(690, 420, 540, 50, audioFilter, Settings.audioPath, null, "CHOOSE", 28);
+        public static readonly GuiLabel OrLabelRhythia = new(690, 470, 540, 50, null, "[OR]", 36);
+        public static readonly GuiLabel OnlineLabelRhythia = new(690, 520, 540, 50, null, "Import Rhythia Online Map", 36);
+        public static readonly GuiTextbox OnlineBoxRhythia = new(690, 570, 540, 50, null, "", 36) { Stretch = StretchMode.X };
         public static readonly ControlContainer RhythiaContainer = new(AudioPathLabelRhythia, AudioPathRhythia, OrLabelRhythia, OnlineLabelRhythia, OnlineBoxRhythia);
 
         public static readonly GuiLabel AudioPathLabelNova = new(690, 370, 540, 50, null, "Import Audio", 36);
-        public static readonly GuiPathBox AudioPathNova = new(690, 420, 540, 50, audioFilter, null, "", 28);
+        public static readonly GuiPathBox AudioPathNova = new(690, 420, 540, 50, audioFilter, Settings.audioPath, null, "CHOOSE", 28);
         public static readonly ControlContainer NovaContainer = new(AudioPathNova, AudioPathLabelNova);
 
         public static readonly GuiButton CreateButton = new(750, 705, 420, 50, "CREATE MAP", 38);

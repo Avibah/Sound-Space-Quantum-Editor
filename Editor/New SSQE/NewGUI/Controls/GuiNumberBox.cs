@@ -35,6 +35,8 @@ namespace New_SSQE.NewGUI.Controls
 
             this.isFloat = isFloat;
             this.isPositive = isPositive;
+
+            ValueBox.ValueChanged += (s, e) => Value = e.Value;
         }
 
         public override void Reset()

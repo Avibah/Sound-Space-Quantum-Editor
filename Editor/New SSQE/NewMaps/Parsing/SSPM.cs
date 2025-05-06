@@ -344,7 +344,7 @@ namespace New_SSQE.NewMaps.Parsing
             // metadata
             writer.Write(new byte[20]); // a 20 byte hash i am not going to care about because rhythia doesnt seem to check it
 
-            writer.Write((uint)notes.Last().Ms); // last note ms - 4 byte uint
+            writer.Write((uint)(notes.LastOrDefault()?.Ms ?? 0)); // last note ms - 4 byte uint
             writer.Write((uint)notes.Count); // note count - 4 byte uint
             writer.Write((uint)notes.Count); // marker count, repeated from last since no other markers
 
@@ -493,6 +493,11 @@ namespace New_SSQE.NewMaps.Parsing
                 {
                     Logging.Log("Failed to export", LogSeverity.WARN, ex);
                     MessageBox.Show($"Failed to export SSPM:\n\n{ex.Message}", MBoxIcon.Warning, MBoxButtons.OK);
+                    try
+                    {
+                        File.Delete(fileName);
+                    }
+                    catch { }
                 }
             }
 

@@ -41,6 +41,8 @@ namespace New_SSQE.NewGUI.Controls
             cursorPos = text.Length;
         }
 
+        public override void TextInput(string str) { }
+
         public override float[] Draw()
         {
             text = setting.Value.Key.ToString().ToUpper();
