@@ -272,6 +272,15 @@ namespace New_SSQE.NewGUI.Windows
             Tempo.Update();
         }
 
+        public override void Close()
+        {
+            base.Close();
+
+            LNavController.Disconnect();
+            RNavController.Disconnect();
+            SpecialNavController.Disconnect();
+        }
+
         public override void ConnectEvents()
         {
             LNavController.SelectionChanged += (s, e) =>
@@ -295,7 +304,13 @@ namespace New_SSQE.NewGUI.Windows
                         LNavController.UpdateSelection(LNavPatterns);
                     else
                         LNavController.ClearSelection();
+                }
+            };
 
+            if (Settings.useRhythia.Value)
+            {
+                LNavPlayer.LeftClick += (s, e) =>
+                {
                     if (!File.Exists(Settings.rhythiaPath.Value))
                     {
                         Logging.Log($"Invalid Rhythia path - {Settings.rhythiaPath.Value}", LogSeverity.WARN);
@@ -325,8 +340,8 @@ namespace New_SSQE.NewGUI.Windows
                             ShowToast("FAILED TO START RHYTHIA", Settings.color1.Value);
                         }
                     }
-                }
-            };
+                };
+            }
 
             RNavController.SelectionChanged += (s, e) =>
             {
@@ -677,7 +692,6 @@ namespace New_SSQE.NewGUI.Windows
             LyricFadeOut.LeftClick += (s, e) => LyricFadeIn.Toggle = false;
 
             MusicMute.LeftClick += (s, e) => MusicPlayer.Volume = Settings.masterVolume.Value.Value;
-
         }
 
         public override void Render(float mousex, float mousey, float frametime)

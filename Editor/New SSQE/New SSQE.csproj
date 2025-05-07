@@ -9,7 +9,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <Platforms>AnyCPU;x86;x64</Platforms>
     <AssemblyName>Sound Space Quantum Editor</AssemblyName>
-    <ApplicationIcon>deps\Icon.ico</ApplicationIcon>
+    <ApplicationIcon>dependencies\Icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ImplicitUsings>enable</ImplicitUsings>
     <!-- TODO: Set up project for NativeAOT, and remove Avalonia dependency and add custom forms beforehand -->
@@ -39,12 +39,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="deps\Icon.ico" />
+    <Content Include="dependencies\Icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Bass.Net">
-      <HintPath>deps\Bass.Net.dll</HintPath>
+      <HintPath>dependencies\Bass.Net.dll</HintPath>
     </Reference>
   </ItemGroup>
 

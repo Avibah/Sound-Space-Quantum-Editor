@@ -126,6 +126,13 @@ namespace New_SSQE.NewGUI.Windows
             RefreshNoteColors();
         }
 
+        public override void Close()
+        {
+            base.Close();
+
+            NavController.Disconnect();
+        }
+
         private static void RefreshNoteColors()
         {
             List<Color> colors = Settings.noteColors.Value;

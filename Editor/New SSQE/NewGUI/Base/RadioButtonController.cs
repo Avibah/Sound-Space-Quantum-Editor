@@ -14,7 +14,7 @@ namespace New_SSQE.NewGUI.Base
 
     internal class RadioButtonController
     {
-        public EventHandler<RadioButtonEventArgs>? SelectionChanged;
+        public event EventHandler<RadioButtonEventArgs>? SelectionChanged;
 
         private readonly Dictionary<GuiButton, string> texts = [];
         private readonly GuiButton[] controls;
@@ -66,8 +66,16 @@ namespace New_SSQE.NewGUI.Base
 
         public void ClearSelection()
         {
+            if (active != null)
+                active.Text = texts[active];
+
             active = null;
             SelectionChanged?.Invoke(null, new(Active));
+        }
+
+        public void Disconnect()
+        {
+            SelectionChanged = null;
         }
     }
 }

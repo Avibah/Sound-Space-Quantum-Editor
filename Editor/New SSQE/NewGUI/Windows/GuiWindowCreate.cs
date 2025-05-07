@@ -54,6 +54,13 @@ namespace New_SSQE.NewGUI.Windows
             AudioPathNova.SelectedFile = "";
         }
 
+        public override void Close()
+        {
+            base.Close();
+
+            NavController.Disconnect();
+        }
+
         public override void ConnectEvents()
         {
             CreateButton.LeftClick += (s, e) =>

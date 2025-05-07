@@ -15,7 +15,7 @@ namespace New_SSQE.NewGUI.Base
 
     internal class RadioCheckboxController
     {
-        public EventHandler<RadioCheckboxEventArgs>? SelectionChanged;
+        public event EventHandler<RadioCheckboxEventArgs>? SelectionChanged;
 
         private GuiCheckbox[] controls;
         private GuiCheckbox active;
@@ -56,6 +56,11 @@ namespace New_SSQE.NewGUI.Base
             }
 
             SelectionChanged?.Invoke(active, new(active.Text));
+        }
+
+        public void Disconnect()
+        {
+            SelectionChanged = null;
         }
     }
 }
