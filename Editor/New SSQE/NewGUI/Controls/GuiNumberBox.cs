@@ -1,5 +1,6 @@
 ﻿using New_SSQE.NewGUI.Base;
 using New_SSQE.Preferences;
+using OpenTK.Mathematics;
 
 namespace New_SSQE.NewGUI.Controls
 {
@@ -8,6 +9,9 @@ namespace New_SSQE.NewGUI.Controls
         public readonly GuiTextboxNumeric ValueBox;
         public readonly GuiButtonTextured UpButton;
         public readonly GuiButtonTextured DownButton;
+
+        public Vector2 Bounds { get => ValueBox.Bounds; set => ValueBox.Bounds = value; }
+        public new ControlStyle Style { get => ValueBox.Style; set => ValueBox.Style = value; }
 
         public float Value = 0;
 
@@ -56,9 +60,13 @@ namespace New_SSQE.NewGUI.Controls
             if (!isFloat)
                 Value = (int)Value;
 
+            Value = Math.Clamp(Value, Bounds.X, Bounds.Y);
+            Value = (float)Math.Round(Value, 3);
+
             if (setting != null)
                 setting.Value = Value;
             ValueBox.SetText(Value.ToString());
+            InvokeValueChanged(new(Value));
 
             return Value;
         }

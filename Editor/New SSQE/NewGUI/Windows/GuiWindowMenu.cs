@@ -200,7 +200,7 @@ namespace New_SSQE.NewGUI.Windows
 
             for (int i = 0; i < changelogLines.Count; i++)
             {
-                if (i >= setting.Value && i < setting.Value + Changelog.GetRect().Height / Changelog.TextSize / (FontRenderer.Unicode ? StbFont.UnicodeMult : 1) - 1)
+                if (i >= setting.Value && i < setting.Value + Changelog.GetRect().Height / Changelog.TextSize / Settings.fontScale.Value / (FontRenderer.Unicode ? StbFont.UnicodeMult : 1) - 1)
                     lines.Add(changelogLines[i]);
             }
 
@@ -236,7 +236,7 @@ namespace New_SSQE.NewGUI.Windows
 
             SliderSetting setting = Settings.changelogPosition.Value;
 
-            setting.Max = lines.Count - (int)(height / Changelog.TextSize);
+            setting.Max = lines.Count - (int)(height / Changelog.TextSize / Settings.fontScale.Value);
             ChangelogSlider.Visible = setting.Max > 0;
 
             changelogLines = lines;
