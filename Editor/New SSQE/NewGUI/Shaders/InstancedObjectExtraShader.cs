@@ -27,7 +27,7 @@ void main()
     float y = sinR * aPosition.x + cosR * aPosition.y;
 
     gl_Position = Projection * vec4(vec2(x * aExtra.x, y * aExtra.y) * aOffset.z + aOffset.xy, 0.0f, 1.0f);
-    vertexColor = vec4(NoteColors[c].xyz, aColor.w * a);
+    vertexColor = vec4(NoteColors[c].xyz, NoteColors[c].w * aColor.w * a);
 }";
 
         public InstancedObjectExtraShader() : base(vertex) { }

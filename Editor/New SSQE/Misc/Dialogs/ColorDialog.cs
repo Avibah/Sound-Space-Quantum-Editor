@@ -19,7 +19,7 @@ namespace New_SSQE.Misc.Dialogs
 
             ColorPickerDialog dialog = new()
             {
-                Color = Avalonia.Media.Color.FromArgb(255, Color.R, Color.G, Color.B),
+                Color = Avalonia.Media.Color.FromArgb(Color.A, Color.R, Color.G, Color.B),
                 Icon = new(new Bitmap(Path.Combine(Assets.TEXTURES, "Empty.png"))),
                 Topmost = true
             };
@@ -44,7 +44,7 @@ namespace New_SSQE.Misc.Dialogs
             dialog.Show();
             BackgroundWindow.YieldWindow(dialog);
 
-            Color = Color.FromArgb(dialog.Color.R, dialog.Color.G, dialog.Color.B);
+            Color = Color.FromArgb(dialog.Color.A, dialog.Color.R, dialog.Color.G, dialog.Color.B);
 
             MainWindow.Instance.UnlockClick();
             return Result;

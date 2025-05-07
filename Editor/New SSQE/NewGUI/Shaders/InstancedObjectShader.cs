@@ -20,7 +20,7 @@ void main()
     float a = aOffset.w - c * 2.0f;
 
     gl_Position = Projection * vec4(aPosition * aOffset.z + aOffset.xy, 0.0f, 1.0f);
-    vertexColor = vec4(NoteColors[c].xyz, aColor.w * a);
+    vertexColor = vec4(NoteColors[c].xyz, NoteColors[c].w * aColor.w * a);
 }";
 
         public InstancedObjectShader() : base(vertex) { }

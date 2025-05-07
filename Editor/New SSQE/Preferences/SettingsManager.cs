@@ -99,7 +99,7 @@ namespace New_SSQE.Preferences
             for (int i = 0; i < Settings.noteColors.Value.Count; i++)
             {
                 Color color = Settings.noteColors.Value[i];
-                noteColors[i] = (color.R / 255f, color.G / 255f, color.B / 255f, 1f);
+                noteColors[i] = (color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
             }
 
             Shader.FBOObject.Uniform4("NoteColors", noteColors);
@@ -110,10 +110,10 @@ namespace New_SSQE.Preferences
             Vector4[] colors =
             [
                 // 0-3
-                (color1.Value.R / 255f, color1.Value.G / 255f, color1.Value.B / 255f, 1f), // color1
-                (color2.Value.R / 255f, color2.Value.G / 255f, color2.Value.B / 255f, 1f), // color2
-                (color3.Value.R / 255f, color3.Value.G / 255f, color3.Value.B / 255f, 1f), // color3
-                (color4.Value.R / 255f, color4.Value.G / 255f, color4.Value.B / 255f, 1f), // color4
+                (color1.Value.R / 255f, color1.Value.G / 255f, color1.Value.B / 255f, color1.Value.A / 255f), // color1
+                (color2.Value.R / 255f, color2.Value.G / 255f, color2.Value.B / 255f, color2.Value.A / 255f), // color2
+                (color3.Value.R / 255f, color3.Value.G / 255f, color3.Value.B / 255f, color3.Value.A / 255f), // color3
+                (color4.Value.R / 255f, color4.Value.G / 255f, color4.Value.B / 255f, color4.Value.A / 255f), // color4
                 // 4-9
                 (1f, 1f, 1f, 1f),          // white
                 (0f, 1f, 0.25f, 1f),       // lime
@@ -122,7 +122,7 @@ namespace New_SSQE.Preferences
                 (1f, 0f, 0f, 1f),          // red
                 (0.5f, 0.5f, 0.5f, 1f),    // gray
                 // 10
-                (color5.Value.R / 255f, color5.Value.G / 255f, color5.Value.B / 255f, 1f), // color5
+                (color5.Value.R / 255f, color5.Value.G / 255f, color5.Value.B / 255f, color5.Value.A / 255f), // color5
             ];
 
             Shader.InstancedMain.Uniform4("Colors", colors);
@@ -160,8 +160,11 @@ namespace New_SSQE.Preferences
                         {
                             if (setting is Setting<Color> color)
                             {
-                                int[] c = value.Deserialize<int[]>() ?? new int[3];
-                                color.Value = Color.FromArgb(c[0], c[1], c[2]);
+                                int[] c = value.Deserialize<int[]>() ?? new int[4];
+                                if (c.Length == 3)
+                                    color.Value = Color.FromArgb(c[0], c[1], c[2]);
+                                else
+                                    color.Value = Color.FromArgb(c[3], c[0], c[1], c[2]);
                             }
                             else if (setting is Setting<Keybind> keybind)
                                 keybind.Value = ConvertToKeybind(value);
@@ -174,7 +177,12 @@ namespace New_SSQE.Preferences
                                 List<Color> temp = [];
 
                                 foreach (int[] c in value.Deserialize<int[][]>() ?? [])
-                                    temp.Add(Color.FromArgb(c[0], c[1], c[2]));
+                                {
+                                    if (c.Length == 3)
+                                        temp.Add(Color.FromArgb(c[0], c[1], c[2]));
+                                    else
+                                        temp.Add(Color.FromArgb(c[3], c[0], c[1], c[2]));
+                                }
 
                                 colors.Value = temp;
                             }
@@ -245,7 +253,7 @@ namespace New_SSQE.Preferences
                     string name = setting.Name;
 
                     if (setting is Setting<Color> color)
-                        finaljson.Add(name, new int[] { color.Value.R, color.Value.G, color.Value.B });
+                        finaljson.Add(name, new int[] { color.Value.R, color.Value.G, color.Value.B, color.Value.A });
                     else if (setting is Setting<Keybind> keybind)
                         finaljson.Add(name, new object[] { keybind.Value.Key.ToString(), keybind.Value.Ctrl, keybind.Value.Shift, keybind.Value.Alt });
                     else if (setting is Setting<SliderSetting> slider)
@@ -257,7 +265,7 @@ namespace New_SSQE.Preferences
                         List<int[]> final = [];
 
                         foreach (Color c in colors.Value)
-                            final.Add([c.R, c.G, c.B]);
+                            final.Add([c.R, c.G, c.B, c.A]);
 
                         finaljson.Add(name, final);
                     }
