@@ -73,20 +73,21 @@ namespace New_SSQE
 
         public MainWindow(int samples) : base(GameWindowSettings.Default, new()
         {
-            Size = (1280, 720),
+            ClientSize = (1280, 720),
+            MinimumClientSize = (800, 600),
             Title = $"Sound Space Quantum Editor {Program.Version}",
             WindowState = WindowState.Maximized,
             NumberOfSamples = samples,
             Icon = GetWindowIcon(),
             Flags = DebugVersion ? ContextFlags.Debug : 0,
 
-            APIVersion = Platform.RequestedAPI
+            APIVersion = PlatformUtils.RequestedAPI
         })
         {
             MSAA = samples > 0;
             
             // requires higher OpenGL version
-            if (DebugVersion && GLFW.GetProcAddress("glDebugMessageCallback") > 0)
+            if (DebugVersion)// && GLFW.GetProcAddress("glDebugMessageCallback") > 0)
             {
                 GL.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
                 GL.Enable(EnableCap.DebugOutput);
@@ -97,13 +98,13 @@ namespace New_SSQE
 
             string version = GL.GetString(StringName.Version) ?? "";
             int major = 0, minor = 0;
-            GL.GetInteger(GetPName.MajorVersion, ref major);
-            GL.GetInteger(GetPName.MinorVersion, ref minor);
-            GL.GetInteger(GetPName.MaxFramebufferSamples, ref MaxSamples);
+            GL.GetInteger(GetPName.MajorVersion, out major);
+            GL.GetInteger(GetPName.MinorVersion, out minor);
+            GL.GetInteger(GetPName.MaxFramebufferSamples, out MaxSamples);
 
             if (string.IsNullOrWhiteSpace(version) || new Version(major, minor) < APIVersion)
                 throw new PlatformNotSupportedException($"Unsupported OpenGL version (Minimum: {APIVersion})");
-            if (!Platform.ValidateOpenGL())
+            if (!PlatformUtils.ValidateOpenGL())
                 throw new PlatformNotSupportedException("OpenGL extension check failed");
 
             Instance = this;
@@ -131,7 +132,7 @@ namespace New_SSQE
 
             float max = Settings.fpsLimit.Value.Max;
 
-            RenderFrequency = Math.Round(fps) == Math.Round(max) ? 0f : fps + 60f;
+            UpdateFrequency = Math.Round(fps) == Math.Round(max) ? 0f : fps + 60f;
         }
 
         protected override void OnLoad()
@@ -155,7 +156,7 @@ namespace New_SSQE
             if (closed)
                 return;
 
-            if (Platform.IsLinux) // because all the other events for this are a key behind on linux (???)
+            if (PlatformUtils.IsLinux) // because all the other events for this are a key behind on linux (???)
             {
                 KeyboardState keyboard = KeyboardState;
 
@@ -235,15 +236,11 @@ namespace New_SSQE
         {
             if (e.Width > 0 && e.Height > 0)
             {
-                int w = Math.Max(e.Width, 800);
-                int h = Math.Max(e.Height, 600);
-                Size = new Vector2i(w, h);
+                base.OnResize(e);
+                GL.Viewport(0, 0, e.Width, e.Height);
+                Shader.SetViewports(e.Width, e.Height);
 
-                base.OnResize(new(w, h));
-                GL.Viewport(0, 0, w, h);
-                Shader.SetViewports(w, h);
-
-                Windowing.Current?.Resize(new(w, h));
+                Windowing.Current?.Resize(e);
                 OnRenderFrame(new FrameEventArgs());
             }
         }
@@ -395,9 +392,9 @@ namespace New_SSQE
             {
                 Logging.Log($"Searching for file '{file}'");
 
-                if (Platform.ExecutableExists(file))
+                if (PlatformUtils.ExecutableExists(file))
                 {
-                    string current = Platform.IsLinux ? setting.Value : Platform.GetExecutableVersionInfo(file).FileVersion ?? "";
+                    string current = PlatformUtils.IsLinux ? setting.Value : PlatformUtils.GetExecutableVersionInfo(file).FileVersion ?? "";
                     string version = Networking.DownloadString(Links.ALL[$"{file} Version"]).Trim();
 
                     if (string.IsNullOrWhiteSpace(current) || Version.Parse(current) < Version.Parse(version))
@@ -434,7 +431,7 @@ namespace New_SSQE
 
                 string redirect = Networking.GetRedirect(Links.EDITOR_REDIRECT);
 
-                if (Platform.ExecutableExists("SSQE Updater") && redirect != "")
+                if (PlatformUtils.ExecutableExists("SSQE Updater") && redirect != "")
                 {
                     string version = redirect[(redirect.LastIndexOf('/') + 1)..];
 
@@ -446,7 +443,7 @@ namespace New_SSQE
                         if (diag == DialogResult.Yes)
                         {
                             Logging.Log("Attempting to run updater");
-                            Platform.RunExecutable("SSQE Updater", "");
+                            PlatformUtils.RunExecutable("SSQE Updater", "");
                         }
                     }
                 }

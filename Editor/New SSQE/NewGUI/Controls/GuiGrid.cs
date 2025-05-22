@@ -5,7 +5,6 @@ using New_SSQE.NewMaps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Preferences;
-using OpenTK.Graphics;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
@@ -42,8 +41,8 @@ namespace New_SSQE.NewGUI.Controls
             } }
         };
 
-        private readonly VertexArrayHandle bezierPreviewLineVAO;
-        private readonly BufferHandle bezierPreviewLineVBO;
+        private readonly int bezierPreviewLineVAO;
+        private readonly int bezierPreviewLineVBO;
 
         private float CellSize => rect.Width / 3f;
         private float NoteSize => CellSize * 0.75f;

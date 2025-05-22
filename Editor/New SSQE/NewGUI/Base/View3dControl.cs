@@ -1,18 +1,17 @@
-﻿using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
 namespace New_SSQE.NewGUI.Base
 {
     internal abstract class View3dControl : InteractiveControl
     {
-        private FramebufferHandle fbo;
-        private FramebufferHandle msaa_fbo;
-        private RenderbufferHandle rbo;
-        private TextureHandle fbo_tex;
+        private int fbo;
+        private int msaa_fbo;
+        private int rbo;
+        private int fbo_tex;
 
-        private static VertexArrayHandle ViewVAO;
-        private static BufferHandle ViewVBO;
+        private static int ViewVAO;
+        private static int ViewVBO;
 
         private bool renderBegan = false;
         private bool renderEnded = false;

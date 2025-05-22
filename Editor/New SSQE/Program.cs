@@ -28,6 +28,7 @@ namespace New_SSQE
 
         private static void Start()
         {
+            PlatformUtils.CheckDependencies();
             BuildAvaloniaApp();
 
             Settings.Load(false);
@@ -93,8 +94,8 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
 
             if (result == DialogResult.Yes)
             {
-                Platform.OpenLink(Links.NEW_GITHUB_ISSUE);
-                Platform.OpenDirectory();
+                PlatformUtils.OpenLink(Links.NEW_GITHUB_ISSUE);
+                PlatformUtils.OpenDirectory();
             }
 
             Environment.Exit(0);

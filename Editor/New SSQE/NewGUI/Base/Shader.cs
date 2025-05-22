@@ -60,7 +60,7 @@ void main()
         private readonly string vertex;
         private readonly string fragment;
 
-        private ProgramHandle program;
+        private int program;
 
         public Shader(string? vertex = null, string? fragment = null)
         {

@@ -31,15 +31,15 @@ namespace New_SSQE.NewGUI.Font
 
         public Vector2 CharSize;
         public Vector4[] AtlasMetrics;
-        public VertexArrayHandle VAO;
-        public BufferHandle VBO_0;
-        public BufferHandle VBO_1;
-        public BufferHandle StaticVBO;
+        public int VAO;
+        public int VBO_0;
+        public int VBO_1;
+        public int StaticVBO;
 
         private readonly int _baseline;
-        private readonly TextureHandle _handle;
+        private readonly int _handle;
 
-        public TextureHandle Handle => _handle;
+        public int Handle => _handle;
 
         private readonly StbTrueType.stbtt_fontinfo fontInfo;
         private readonly float scale;
@@ -164,10 +164,10 @@ namespace New_SSQE.NewGUI.Font
         private static SKBitmap UnicodeBitmap;
         private static int[] UnicodeExtents;
 
-        public static VertexArrayHandle UnicodeVAO;
-        public static BufferHandle UnicodeVBO_0;
-        public static BufferHandle UnicodeVBO_1;
-        public static BufferHandle UnicodeStaticVBO;
+        public static int UnicodeVAO;
+        public static int UnicodeVBO_0;
+        public static int UnicodeVBO_1;
+        public static int UnicodeStaticVBO;
 
         public static bool InitUnicode(string path, TextureUnit unit)
         {
@@ -248,7 +248,7 @@ namespace New_SSQE.NewGUI.Font
 
             GLState.BufferData(UnicodeStaticVBO, charData);
 
-            TextureHandle handle = GLState.NewTexture(unit, true);
+            int handle = GLState.NewTexture(unit, true);
             GLState.LoadTexture(handle, UnicodeBitmap.Width, UnicodeBitmap.Height, UnicodeBitmap.GetPixels(), unit);
 
             return true;

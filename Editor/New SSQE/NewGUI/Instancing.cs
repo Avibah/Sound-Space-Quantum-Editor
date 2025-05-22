@@ -7,12 +7,12 @@ namespace New_SSQE.NewGUI
     internal class Instance : IDisposable
     {
         private Shader shader;
-        private BufferHandle staticVBO;
-        private VertexArrayHandle staticVAO;
+        private int staticVBO;
+        private int staticVAO;
         private int vertexCount;
 
-        private BufferHandle vbo;
-        private BufferHandle vbo_2;
+        private int vbo;
+        private int vbo_2;
         private int instanceCount;
 
         private readonly bool hasSecondary;
@@ -58,11 +58,11 @@ namespace New_SSQE.NewGUI
 
         public void Dispose()
         {
-            GLState.Clean(staticVBO);
-            GLState.Clean(staticVAO);
+            GLState.CleanVBO(staticVBO);
+            GLState.CleanVAO(staticVAO);
 
-            GLState.Clean(vbo);
-            GLState.Clean(vbo_2);
+            GLState.CleanVBO(vbo);
+            GLState.CleanVBO(vbo_2);
         }
     }
 

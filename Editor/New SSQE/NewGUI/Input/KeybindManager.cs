@@ -263,7 +263,7 @@ namespace New_SSQE.NewGUI.Input
                     break;
 
                 case "openDirectory":
-                    Platform.OpenDirectory();
+                    PlatformUtils.OpenDirectory();
 
                     break;
 

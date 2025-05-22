@@ -32,7 +32,7 @@
     <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
     <PackageReference Include="Egorozh.ColorPicker.Avalonia.Dialog" Version="0.10.17" />
     <PackageReference Include="NativeFileDialogs.Net" Version="1.2.1" />
-    <PackageReference Include="OpenTK" Version="5.0.0-pre.8" />
+    <PackageReference Include="OpenTK" Version="5.0.0-pre.13" />
     <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
     <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />

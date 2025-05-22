@@ -13,7 +13,7 @@ namespace New_SSQE.ExternalUtils
         [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
         public static void Register()
         {
-            if (Platform.IsLinux)
+            if (PlatformUtils.IsLinux)
                 return;
 
             RegistryKey? key = Registry.ClassesRoot.OpenSubKey(protocol);
@@ -39,7 +39,7 @@ namespace New_SSQE.ExternalUtils
         [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
         public static void Finish()
         {
-            if (Platform.IsLinux)
+            if (PlatformUtils.IsLinux)
                 return;
 
             RegistryKey key = Registry.ClassesRoot.CreateSubKey(protocol);

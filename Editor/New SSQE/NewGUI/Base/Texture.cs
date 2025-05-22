@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SkiaSharp;
 using System.Drawing;
@@ -8,11 +7,11 @@ namespace New_SSQE.NewGUI.Base
 {
     internal class Texture : IDisposable
     {
-        private readonly TextureHandle texture;
+        private readonly int texture;
         private readonly TextureUnit texUnit;
 
-        private readonly VertexArrayHandle vao;
-        private readonly BufferHandle vbo;
+        private readonly int vao;
+        private readonly int vbo;
 
         public Shader Shader = Shader.Texture;
 
@@ -53,7 +52,7 @@ namespace New_SSQE.NewGUI.Base
 
             (vao, vbo) = GLState.NewVAO_VBO(2, 2, 1);
 
-            if (this.texture == TextureHandle.Zero)
+            if (this.texture == 0)
                 Dispose();
         }
 
@@ -103,9 +102,9 @@ namespace New_SSQE.NewGUI.Base
             if (_disposed)
                 return;
 
-            GLState.Clean(texture);
-            GLState.Clean(vbo);
-            GLState.Clean(vao);
+            GLState.CleanTex(texture);
+            GLState.CleanVBO(vbo);
+            GLState.CleanVAO(vao);
 
             _disposed = true;
         }

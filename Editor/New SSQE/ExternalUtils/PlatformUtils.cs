@@ -5,12 +5,15 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace New_SSQE.ExternalUtils
 {
-    internal class Platform
+    internal class PlatformUtils
     {
         public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
         public static readonly string Extension = IsLinux ? "" : ".exe";
         public static readonly string ExecutableFilter = IsLinux ? "Executable Files|*.*" : "Executable Files (*.exe)|*.exe";
+
+        private static readonly string[] dependencies_Windows = ["bass", "bass_fx", "bassenc", "bassflac"];
+        private static readonly string[] dependencies_Linux = ["bass", "bass_fx", "bassflac"];
 
         public static void OpenDirectory(string directory)
         {
@@ -35,13 +38,22 @@ namespace New_SSQE.ExternalUtils
 
         public static bool CheckDependency(string path, string dependency)
         {
-            if (dependency == "bassenc") // bassenc is not a dependency on linux
-                dependency = "bass";
             dependency = IsLinux ? $"lib{dependency}.so" : $"{dependency}.dll";
 
             return File.Exists(Path.Combine(path, dependency));
         }
         public static bool CheckDependency(string dependency) => CheckDependency(Assets.THIS, dependency);
+
+        public static void CheckDependencies()
+        {
+            string[] deps = IsLinux ? dependencies_Linux : dependencies_Windows;
+
+            foreach (string file in deps)
+            {
+                if (!CheckDependency(file))
+                    throw new DllNotFoundException($"Missing dependency '{Path.GetFileName(file)}' - Reinstall the editor to repair");
+            }
+        }
 
         public static Process? OpenLink(string url)
         {

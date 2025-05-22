@@ -102,7 +102,7 @@ namespace New_SSQE.NewGUI.Windows
 
         public static readonly GuiCheckbox FullscreenPlayerCheckbox = new(0, 395, 45, 45, Settings.fullscreenPlayer, "Open Player in Fullscreen", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
         public static readonly GuiCheckbox UseRhythiaCheckbox = new(0, 455, 45, 45, Settings.useRhythia, "Use Rhythia as Player", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
-        public static readonly GuiPathBox RhythiaPathBox = new(0, 515, 750, 50, Platform.ExecutableFilter, Settings.rhythiaFolderPath, Settings.rhythiaPath, "RHYTHIA PATH", 30);
+        public static readonly GuiPathBox RhythiaPathBox = new(0, 515, 750, 50, PlatformUtils.ExecutableFilter, Settings.rhythiaFolderPath, Settings.rhythiaPath, "RHYTHIA PATH", 30);
 
         public static readonly ControlContainer MappingNav = new(500, 80, 1220, 700, AutosaveCheckbox, AutosaveIntervalTextbox, AutosaveIntervalLabel,
             CorrectOnCopyCheckbox, ReverseScrollCheckbox, FullscreenPlayerCheckbox, UseRhythiaCheckbox, RhythiaPathBox);
@@ -238,7 +238,7 @@ namespace New_SSQE.NewGUI.Windows
                 }
             };
 
-            OpenDirectoryButton.LeftClick += (s, e) => Platform.OpenDirectory();
+            OpenDirectoryButton.LeftClick += (s, e) => PlatformUtils.OpenDirectory();
             KeybindsButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowKeybinds());
 
             static void OpenDialog(Setting<Color> setting)

@@ -9,22 +9,22 @@ namespace New_SSQE.NewGUI
 {
     internal static class GLState
     {
-        public static BufferHandle? testBuffer = null;
+        public static int? testBuffer = null;
 
-        private static ProgramHandle? _program;
-        private static TextureHandle? _texture;
-        private static VertexArrayHandle? _vao;
-        private static BufferHandle? _vbo;
-        private static RenderbufferHandle? _rbo;
+        private static int? _program;
+        private static int? _texture;
+        private static int? _vao;
+        private static int? _vbo;
+        private static int? _rbo;
 
-        private static readonly Dictionary<FramebufferTarget, FramebufferHandle?> _fbo = new()
+        private static readonly Dictionary<FramebufferTarget, int?> _fbo = new()
         {
             {FramebufferTarget.Framebuffer, null },
             {FramebufferTarget.ReadFramebuffer, null },
             {FramebufferTarget.DrawFramebuffer, null }
         };
 
-        public static unsafe void EnableProgram(ProgramHandle program)
+        public static unsafe void EnableProgram(int program)
         {
             if (program != _program)
                 GL.UseProgram(program);
@@ -39,51 +39,51 @@ namespace New_SSQE.NewGUI
             shader.Uniform1i("texture0", (int)texUnit - (int)TextureUnit.Texture0);
         }
 
-        public static void EnableTexture(TextureHandle texture)
+        public static void EnableTexture(int texture)
         {
             //if (texture != _texture)
                 GL.BindTexture(TextureTarget.Texture2d, texture);
             _texture = texture;
         }
 
-        public static void EnableVAO(VertexArrayHandle vao)
+        public static void EnableVAO(int vao)
         {
             if (vao != _vao)
                 GL.BindVertexArray(vao);
             _vao = vao;
         }
 
-        public static void EnableVBO(BufferHandle vbo)
+        public static void EnableVBO(int vbo)
         {
             if (vbo != _vbo)
-                GL.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
             _vbo = vbo;
         }
 
-        public static void BufferData(BufferHandle vbo, float[] data)
+        public static void BufferData(int vbo, float[] data)
         {
             EnableVBO(vbo);
-            GL.BufferData(BufferTargetARB.ArrayBuffer, data, BufferUsageARB.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, data.Length * sizeof(float), data, BufferUsage.StaticDraw);
         }
 
-        public static void BufferData(BufferHandle vbo, Vector4[] data)
+        public static void BufferData(int vbo, Vector4[] data)
         {
             EnableVBO(vbo);
-            GL.BufferData(BufferTargetARB.ArrayBuffer, data, BufferUsageARB.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, data.Length * sizeof(float) * 4, data, BufferUsage.StaticDraw);
         }
 
-        public static void BufferData(BufferHandle vbo, Vector3[] data)
+        public static void BufferData(int vbo, Vector3[] data)
         {
             EnableVBO(vbo);
-            GL.BufferData(BufferTargetARB.ArrayBuffer, data, BufferUsageARB.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, data.Length * sizeof(float) * 3, data, BufferUsage.StaticDraw);
         }
 
-        public static (VertexArrayHandle, BufferHandle) NewVAO_VBO(params int[] fieldWidths)
+        public static (int, int) NewVAO_VBO(params int[] fieldWidths)
         {
-            VertexArrayHandle vao = GL.GenVertexArray();
+            int vao = GL.GenVertexArray();
             EnableVAO(vao);
 
-            BufferHandle vbo = GL.GenBuffer();
+            int vbo = GL.GenBuffer();
             EnableVBO(vbo);
 
             int stride = fieldWidths.Sum();
@@ -102,11 +102,11 @@ namespace New_SSQE.NewGUI
             return (vao, vbo);
         }
 
-        public static BufferHandle ExtendInstancingVAO(VertexArrayHandle vao, int location, int width)
+        public static int ExtendInstancingVAO(int vao, int location, int width)
         {
             EnableVAO(vao);
 
-            BufferHandle vbo = GL.GenBuffer();
+            int vbo = GL.GenBuffer();
             EnableVBO(vbo);
 
             GL.VertexAttribPointer((uint)location, width, VertexAttribPointerType.Float, false, width * sizeof(float), 0);
@@ -120,11 +120,11 @@ namespace New_SSQE.NewGUI
 
         public static void DisableVAO_VBO()
         {
-            EnableVAO(VertexArrayHandle.Zero);
-            EnableVBO(BufferHandle.Zero);
+            EnableVAO(0);
+            EnableVBO(0);
         }
 
-        public static void LoadTexture(TextureHandle texture, int width, int height, nint pixels, TextureUnit texUnit)
+        public static void LoadTexture(int texture, int width, int height, nint pixels, TextureUnit texUnit)
         {
             EnableTextureUnit(Shader.Texture, texUnit);
             EnableTexture(texture);
@@ -133,9 +133,9 @@ namespace New_SSQE.NewGUI
                 PixelFormat.Bgra, PixelType.UnsignedByte, pixels);
         }
 
-        public static TextureHandle NewTexture(TextureUnit texUnit, bool smooth = false)
+        public static int NewTexture(TextureUnit texUnit, bool smooth = false)
         {
-            TextureHandle texture = GL.GenTexture();
+            int texture = GL.GenTexture();
             EnableTextureUnit(Shader.Texture, texUnit);
             EnableTexture(texture);
 
@@ -145,9 +145,9 @@ namespace New_SSQE.NewGUI
             return texture;
         }
 
-        public static TextureHandle NewTexture(int width, int height, nint pixels, TextureUnit texUnit)
+        public static int NewTexture(int width, int height, nint pixels, TextureUnit texUnit)
         {
-            TextureHandle texture = NewTexture(texUnit);
+            int texture = NewTexture(texUnit);
             LoadTexture(texture, width, height, pixels, texUnit);
 
             return texture;
@@ -155,7 +155,7 @@ namespace New_SSQE.NewGUI
 
         public static void DrawTriangles(int first, int count) => GL.DrawArrays(PrimitiveType.Triangles, first, count);
 
-        public static void DrawTriangles(VertexArrayHandle vao, int first, int count)
+        public static void DrawTriangles(int vao, int first, int count)
         {
             EnableVAO(vao);
             DrawTriangles(first, count);
@@ -163,7 +163,7 @@ namespace New_SSQE.NewGUI
 
         public static void DrawInstances(int first, int count, int instances) => GL.DrawArraysInstanced(PrimitiveType.Triangles, first, count, instances);
 
-        public static void DrawInstances(VertexArrayHandle vao, int first, int count, int instances)
+        public static void DrawInstances(int vao, int first, int count, int instances)
         {
             EnableVAO(vao);
             DrawInstances(first, count, instances);
@@ -171,36 +171,36 @@ namespace New_SSQE.NewGUI
 
         public static void DrawArrays(PrimitiveType type, int first, int count) => GL.DrawArrays(type, first, count);
 
-        public static void DrawArrays(VertexArrayHandle vao, PrimitiveType type, int first, int count)
+        public static void DrawArrays(int vao, PrimitiveType type, int first, int count)
         {
             EnableVAO(vao);
             DrawArrays(type, first, count);
         }
 
-        public static void Clean(VertexArrayHandle vao)
+        public static void CleanVAO(int vao)
         {
             if (_vao == vao)
                 _vao = null;
             GL.DeleteVertexArray(vao);
         }
 
-        public static void Clean(BufferHandle vbo)
+        public static void CleanVBO(int vbo)
         {
             if (_vbo == vbo)
                 _vbo = null;
             GL.DeleteBuffer(vbo);
         }
 
-        public static void Clean(TextureHandle texture)
+        public static void CleanTex(int texture)
         {
             if (_texture == texture)
                 _texture = null;
             GL.DeleteTexture(texture);
         }
 
-        public static void Clean(FramebufferHandle fbo)
+        public static void CleanFBO(int fbo)
         {
-            foreach (KeyValuePair<FramebufferTarget, FramebufferHandle?> _fboTemp in _fbo)
+            foreach (KeyValuePair<FramebufferTarget, int?> _fboTemp in _fbo)
             {
                 if (_fboTemp.Value == fbo)
                     _fbo[_fboTemp.Key] = null;
@@ -209,78 +209,78 @@ namespace New_SSQE.NewGUI
             GL.DeleteFramebuffer(fbo);
         }
 
-        public static void Clean(RenderbufferHandle rbo)
+        public static void CleanRBO(int rbo)
         {
             if (_rbo == rbo)
                 _rbo = null;
             GL.DeleteRenderbuffer(rbo);
         }
 
-        public static void Uniform1(ProgramHandle program, string uniform, float[] values)
+        public static void Uniform1(int program, string uniform, float[] values)
         {
             EnableProgram(program);
 
             int location = GL.GetUniformLocation(program, uniform);
             GL.Uniform1f(location, values.Length, values);
         }
-        public static void Uniform1(ProgramHandle program, string uniform, float x) => Uniform1(program, uniform, [x]);
+        public static void Uniform1(int program, string uniform, float x) => Uniform1(program, uniform, [x]);
 
-        public static void Uniform1i(ProgramHandle program, string uniform, int[] values)
+        public static void Uniform1i(int program, string uniform, int[] values)
         {
             EnableProgram(program);
 
             int location = GL.GetUniformLocation(program, uniform);
             GL.Uniform1i(location, values.Length, values);
         }
-        public static void Uniform1i(ProgramHandle program, string uniform, int x) => Uniform1i(program, uniform, [x]);
+        public static void Uniform1i(int program, string uniform, int x) => Uniform1i(program, uniform, [x]);
 
-        public static void Uniform2(ProgramHandle program, string uniform, Vector2[] values)
+        public static void Uniform2(int program, string uniform, Vector2[] values)
         {
             EnableProgram(program);
 
             int location = GL.GetUniformLocation(program, uniform);
             GL.Uniform2f(location, values.Length, values);
         }
-        public static void Uniform2(ProgramHandle program, string uniform, Vector2 value) => Uniform2(program, uniform, [value]);
-        public static void Uniform2(ProgramHandle program, string uniform, float x, float y) => Uniform2(program, uniform, [(x, y)]);
+        public static void Uniform2(int program, string uniform, Vector2 value) => Uniform2(program, uniform, [value]);
+        public static void Uniform2(int program, string uniform, float x, float y) => Uniform2(program, uniform, [(x, y)]);
 
-        public static void Uniform3(ProgramHandle program, string uniform, Vector3[] values)
+        public static void Uniform3(int program, string uniform, Vector3[] values)
         {
             EnableProgram(program);
 
             int location = GL.GetUniformLocation(program, uniform);
             GL.Uniform3f(location, values.Length, values);
         }
-        public static void Uniform3(ProgramHandle program, string uniform, Vector3 value) => Uniform3(program, uniform, [value]);
-        public static void Uniform3(ProgramHandle program, string uniform, float x, float y, float z) => Uniform3(program, uniform, [(x, y, z)]);
-        public static void Uniform3(ProgramHandle program, string uniform, Color value) => Uniform3(program, uniform, [(value.R / 255f, value.G / 255f, value.B / 255f)]);
+        public static void Uniform3(int program, string uniform, Vector3 value) => Uniform3(program, uniform, [value]);
+        public static void Uniform3(int program, string uniform, float x, float y, float z) => Uniform3(program, uniform, [(x, y, z)]);
+        public static void Uniform3(int program, string uniform, Color value) => Uniform3(program, uniform, [(value.R / 255f, value.G / 255f, value.B / 255f)]);
 
-        public static void Uniform4(ProgramHandle program, string uniform, Vector4[] values)
+        public static void Uniform4(int program, string uniform, Vector4[] values)
         {
             EnableProgram(program);
 
             int location = GL.GetUniformLocation(program, uniform);
             GL.Uniform4f(location, values.Length, values);
         }
-        public static void Uniform4(ProgramHandle program, string uniform, Vector4 value) => Uniform4(program, uniform, [value]);
-        public static void Uniform4(ProgramHandle program, string uniform, float x, float y, float z, float w) => Uniform4(program, uniform, [(x, y, z, w)]);
+        public static void Uniform4(int program, string uniform, Vector4 value) => Uniform4(program, uniform, [value]);
+        public static void Uniform4(int program, string uniform, float x, float y, float z, float w) => Uniform4(program, uniform, [(x, y, z, w)]);
 
-        public static void UniformMatrix4(ProgramHandle program, string uniform, Matrix4 value)
+        public static void UniformMatrix4(int program, string uniform, Matrix4 value)
         {
             EnableProgram(program);
 
             int location = GL.GetUniformLocation(program, uniform);
-            GL.UniformMatrix4f(location, false, value);
+            GL.UniformMatrix4f(location, 1, false, ref value);
         }
 
-        public static void EnableFBO(FramebufferHandle fbo, FramebufferTarget target = FramebufferTarget.Framebuffer)
+        public static void EnableFBO(int fbo, FramebufferTarget target = FramebufferTarget.Framebuffer)
         {
             if (fbo != _fbo[target])
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
             _fbo[target] = fbo;
         }
 
-        public static void EnableRBO(RenderbufferHandle rbo)
+        public static void EnableRBO(int rbo)
         {
             if (rbo != _rbo)
                 GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
@@ -289,14 +289,14 @@ namespace New_SSQE.NewGUI
 
         public static void DisableFBO_RBO()
         {
-            EnableFBO(FramebufferHandle.Zero, FramebufferTarget.ReadFramebuffer);
-            EnableFBO(FramebufferHandle.Zero, FramebufferTarget.DrawFramebuffer);
-            EnableFBO(FramebufferHandle.Zero);
+            EnableFBO(0, FramebufferTarget.ReadFramebuffer);
+            EnableFBO(0, FramebufferTarget.DrawFramebuffer);
+            EnableFBO(0);
 
-            EnableRBO(RenderbufferHandle.Zero);
+            EnableRBO(0);
         }
 
-        public static void CreateFBO(out FramebufferHandle fbo, out FramebufferHandle msaa_fbo, out RenderbufferHandle rbo, out TextureHandle fbo_tex)
+        public static void CreateFBO(out int fbo, out int msaa_fbo, out int rbo, out int fbo_tex)
         {
             rbo = GL.GenRenderbuffer();
             EnableRBO(rbo);
@@ -316,7 +316,7 @@ namespace New_SSQE.NewGUI
             DisableFBO_RBO();
         }
 
-        public static void AllocateFBO(float vpW, float vpH, FramebufferHandle msaa_fbo, RenderbufferHandle rbo, TextureHandle fbo_tex)
+        public static void AllocateFBO(float vpW, float vpH, int msaa_fbo, int rbo, int fbo_tex)
         {
             EnableRBO(rbo);
             EnableFBO(msaa_fbo);
@@ -328,16 +328,16 @@ namespace New_SSQE.NewGUI
             GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba, (int)vpW, (int)vpH, 0, PixelFormat.Rgba, PixelType.UnsignedByte, nint.Zero);
         }
 
-        public static void BeginFBORender(RectangleF viewport, FramebufferHandle msaa_fbo)
+        public static void BeginFBORender(RectangleF viewport, int msaa_fbo)
         {
             EnableFBO(msaa_fbo);
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
             GL.Viewport((int)viewport.X, (int)viewport.Y, (int)viewport.Width, (int)viewport.Height);
         }
-        public static void BeginFBORender(float vpX, float vpY, float vpW, float vpH, FramebufferHandle msaa_fbo) => BeginFBORender(new(vpX, vpY, vpW, vpH), msaa_fbo);
+        public static void BeginFBORender(float vpX, float vpY, float vpW, float vpH, int msaa_fbo) => BeginFBORender(new(vpX, vpY, vpW, vpH), msaa_fbo);
 
-        public static void EndFBORender(RectangleF viewport, FramebufferHandle fbo, FramebufferHandle msaa_fbo)
+        public static void EndFBORender(RectangleF viewport, int fbo, int msaa_fbo)
         {
             EnableFBO(msaa_fbo, FramebufferTarget.ReadFramebuffer);
             EnableFBO(fbo, FramebufferTarget.DrawFramebuffer);
@@ -346,11 +346,11 @@ namespace New_SSQE.NewGUI
                 (int)viewport.X, (int)viewport.Y, (int)viewport.Width, (int)viewport.Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
             DisableFBO_RBO();
         }
-        public static void EndFBORender(float vpX, float vpY, float vpW, float vpH, FramebufferHandle fbo, FramebufferHandle msaa_fbo) => EndFBORender(new(vpX, vpY, vpW, vpH), fbo, msaa_fbo);
+        public static void EndFBORender(float vpX, float vpY, float vpW, float vpH, int fbo, int msaa_fbo) => EndFBORender(new(vpX, vpY, vpW, vpH), fbo, msaa_fbo);
 
-        public static ProgramHandle CompileShader(string vertex, string fragment)
+        public static int CompileShader(string vertex, string fragment)
         {
-            ShaderHandle _vertex = GL.CreateShader(ShaderType.VertexShader);
+            int _vertex = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(_vertex, vertex);
             GL.CompileShader(_vertex);
 
@@ -358,7 +358,7 @@ namespace New_SSQE.NewGUI
             if (!string.IsNullOrWhiteSpace(vertexLog))
                 Logging.Log($"Failed to compile vertex shader: {vertexLog}\n{vertex}");
 
-            ShaderHandle _fragment = GL.CreateShader(ShaderType.FragmentShader);
+            int _fragment = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(_fragment, fragment);
             GL.CompileShader(_fragment);
 
@@ -366,7 +366,7 @@ namespace New_SSQE.NewGUI
             if (!string.IsNullOrWhiteSpace(fragmentLog))
                 Logging.Log($"Failed to compile fragment shader: {fragmentLog}\n{fragment}");
 
-            ProgramHandle program = GL.CreateProgram();
+            int program = GL.CreateProgram();
             GL.AttachShader(program, _vertex);
             GL.AttachShader(program, _fragment);
 

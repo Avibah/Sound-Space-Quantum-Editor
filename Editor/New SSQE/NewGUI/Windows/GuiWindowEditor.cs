@@ -264,7 +264,7 @@ namespace New_SSQE.NewGUI.Windows
         {
             BackgroundSquare.SetColor(Color.FromArgb((int)Settings.editorBGOpacity.Value, 30, 30, 30));
             
-            LNavPlayer.Visible = Platform.ExecutableExists("SSQE Player") || Settings.useRhythia.Value;
+            LNavPlayer.Visible = PlatformUtils.ExecutableExists("SSQE Player") || Settings.useRhythia.Value;
 
             BeatSnapDivisor.Update();
             QuantumSnapDivisor.Update();
@@ -349,7 +349,7 @@ namespace New_SSQE.NewGUI.Windows
                 GraphicsNav.Visible = e.Value == "GRAPHICS";
                 ExportNav.Visible = e.Value == "EXPORT";
 
-                ConvertAudio.Visible = ExportNav.Visible && !Platform.IsLinux;
+                ConvertAudio.Visible = ExportNav.Visible && !PlatformUtils.IsLinux;
             };
 
             LNavController.Initialize();
@@ -439,12 +439,12 @@ namespace New_SSQE.NewGUI.Windows
                 if (MusicPlayer.IsPlaying)
                     MusicPlayer.Pause();
 
-                if (!playerRunning && Platform.ExecutableExists("SSQE Player"))
+                if (!playerRunning && PlatformUtils.ExecutableExists("SSQE Player"))
                 {
                     Settings.Save();
                     TXT.Write(Path.Combine(Assets.TEMP, "tempmap.txt"));
 
-                    Process process = Platform.RunExecutable("SSQE Player", $"{fromStart} false {KeybindManager.AltHeld}");
+                    Process process = PlatformUtils.RunExecutable("SSQE Player", $"{fromStart} false {KeybindManager.AltHeld}");
                     playerRunning = process != null;
 
                     if (process != null)

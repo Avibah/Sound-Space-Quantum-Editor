@@ -5,7 +5,6 @@ using New_SSQE.NewMaps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Preferences;
-using OpenTK.Graphics;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
@@ -17,8 +16,8 @@ namespace New_SSQE.NewGUI.Controls
         private static readonly Vector2i CELL_MAX = CELL_DIMS - (1, 1);
         private const string FONT = "main";
 
-        private readonly VertexArrayHandle bezierPreviewLineVAO;
-        private readonly BufferHandle bezierPreviewLineVBO;
+        private readonly int bezierPreviewLineVAO;
+        private readonly int bezierPreviewLineVBO;
 
         private Vector2 CellSize => (rect.Width / CELL_DIMS.X, rect.Height / CELL_DIMS.Y);
         private Vector2 NoteSize => CellSize * 0.75f;

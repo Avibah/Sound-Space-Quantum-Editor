@@ -6,7 +6,7 @@ namespace New_SSQE.Misc.Static
     internal class Assets
     {
         public static readonly string THIS = Path.GetDirectoryName(Environment.ProcessPath) ?? "";
-        public static readonly string FILE_NAME = Platform.GetExecutableName($"{Assembly.GetExecutingAssembly().GetName().Name ?? "Sound Space Quantum Editor"}");
+        public static readonly string FILE_NAME = PlatformUtils.GetExecutableName($"{Assembly.GetExecutingAssembly().GetName().Name ?? "Sound Space Quantum Editor"}");
         public static readonly string EXE = Path.Combine(THIS, FILE_NAME);
 
         public static readonly string CACHED = Path.Combine(THIS, "cached");
@@ -16,8 +16,6 @@ namespace New_SSQE.Misc.Static
         public static readonly string TEXTURES = Path.Combine(THIS, "assets", "textures");
         public static readonly string HISTORY = Path.Combine(THIS, "history");
 
-        private static readonly string[] Dependencies = { "bass", "bass_fx", "bassenc", "bassflac" };
-
         static Assets()
         {
             if (!Directory.Exists(CACHED))
@@ -26,12 +24,6 @@ namespace New_SSQE.Misc.Static
                 Directory.CreateDirectory(TEMP);
             if (!Directory.Exists(HISTORY))
                 Directory.CreateDirectory(HISTORY);
-
-            foreach (string file in Dependencies)
-            {
-                if (!Platform.CheckDependency(file))
-                    throw new DllNotFoundException($"FATAL: Missing dependency '{Path.GetFileName(file)}' - Reinstall the editor to repair");
-            }
         }
     }
 }

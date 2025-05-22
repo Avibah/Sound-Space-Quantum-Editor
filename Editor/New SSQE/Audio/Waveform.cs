@@ -1,7 +1,6 @@
 ﻿using New_SSQE.NewGUI;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.Preferences;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
@@ -11,8 +10,8 @@ namespace New_SSQE.Audio
     {
         private static float[] WaveModel = Array.Empty<float>();
         private static int waveLength = 0;
-        private static VertexArrayHandle vao;
-        private static BufferHandle vbo;
+        private static int vao;
+        private static int vbo;
         private static int posLocation;
 
         private static bool isUploaded = false;
@@ -152,8 +151,8 @@ namespace New_SSQE.Audio
                 return;
 
             GLState.BufferData(vbo, Array.Empty<float>());
-            GLState.Clean(vbo);
-            GLState.Clean(vao);
+            GLState.CleanVBO(vbo);
+            GLState.CleanVAO(vao);
 
             isUploaded = false;
         }

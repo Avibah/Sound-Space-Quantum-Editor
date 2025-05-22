@@ -72,7 +72,7 @@ namespace New_SSQE.ExternalUtils
 
         public static void Watch()
         {
-            if (Platform.IsLinux)
+            if (PlatformUtils.IsLinux)
                 return;
 
             watcher = new(Assets.TEMP)

@@ -11,6 +11,7 @@ namespace New_SSQE.NewGUI
     internal static class Windowing
     {
         public static GuiWindow? Current;
+        private static Stack<GuiWindow> windowStack = [];
 
         public static void SwitchWindow(GuiWindow window)
         {
@@ -36,7 +37,23 @@ namespace New_SSQE.NewGUI
             Current = window;
             Current.Open();
 
+            windowStack = [];
+            windowStack.Push(window);
             Settings.Save();
+        }
+
+        public static void OpenOnTop(GuiWindow window)
+        {
+            // for a new export window
+            windowStack.Push(window);
+            Current = window;
+            Current.Open();
+        }
+
+        public static void CloseTop(GuiWindow window)
+        {
+            windowStack.Pop().Close();
+            Current = windowStack.Peek();
         }
     }
 }

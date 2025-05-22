@@ -63,7 +63,7 @@ namespace New_SSQE.Audio
 
         public static void ConvertToMP3()
         {
-            if (Platform.IsLinux)
+            if (PlatformUtils.IsLinux)
                 return;
 
             if (IsMP3)

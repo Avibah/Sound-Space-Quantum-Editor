@@ -23,8 +23,8 @@ namespace New_SSQE.NewGUI.Base
         protected readonly RectangleF startRect;
         protected RectangleF rect;
 
-        protected VertexArrayHandle vao;
-        protected BufferHandle vbo;
+        protected int vao;
+        protected int vbo;
         protected int vertexCount;
 
         public bool Visible = true;

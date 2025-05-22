@@ -128,7 +128,7 @@ namespace New_SSQE.NewGUI.Windows
             ChangelogSlider.ValueChanged += UpdateChangelogText;
             UpdateChangelogText(null, new(Settings.changelogPosition.Value.Value));
 
-            FeedbackButton.LeftClick += (s, e) => Platform.OpenLink(Links.FEEDBACK_FORM);
+            FeedbackButton.LeftClick += (s, e) => PlatformUtils.OpenLink(Links.FEEDBACK_FORM);
 
             CreateButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowCreate());
             SettingsButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowSettings());

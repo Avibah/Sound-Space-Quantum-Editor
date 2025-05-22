@@ -34,7 +34,7 @@ namespace New_SSQE.NewGUI
             window.Show();
             window.Reset();
 
-            if (Platform.IsLinux)
+            if (PlatformUtils.IsLinux)
             {
                 window.Topmost = true;
                 BackgroundWindow.YieldWindow(window);

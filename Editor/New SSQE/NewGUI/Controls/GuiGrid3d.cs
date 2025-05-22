@@ -3,18 +3,16 @@ using New_SSQE.Misc.Static;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Preferences;
-using OpenTK.Graphics;
 using OpenTK.Mathematics;
 using System.Drawing;
 using New_SSQE.NewGUI.Base;
-using New_SSQE.NewGUI.Windows;
 
 namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiGrid3d : View3dControl
     {
-        private readonly VertexArrayHandle backgroundVAO;
-        private readonly BufferHandle backgroundVBO;
+        private readonly int backgroundVAO;
+        private readonly int backgroundVBO;
         private int backgroundVertexCount;
 
         private readonly Instance noteConstant;
