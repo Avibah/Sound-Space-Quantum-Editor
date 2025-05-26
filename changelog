@@ -1,4 +1,41 @@
 ----------------------------------
+    -- 2.3.1.0 - 5/25/2025 --
+
+- updated OpenTK to 5.0.0-pre.13
+- completely rewrote the entire gui and map handling system
+- remade the Create menu to be easier to understand
+- reorganized the settings layout
+
+- added Rhythia Online map importing via the Create menu (ID or URL)
+- added buttons to mute/unmute sfx and music volume
+- added a mono audio setting in the Settings window
+- added a font scale option for all text in settings
+- added a Star Rating/RP calculator to the 'EXPORT' tab which uses Rhythia Online's API
+- added overwrite history to store up to 5 maps at a time in a new 'history' folder, allowing accidentally overwritten maps to be recovered
+- added 'Glide' and 'Mine' special objects for Nova mapping
+- added a toggle in the 'GRAPHICS' tab to use a new smoothing motion for the autoplay cursor (enabled by default)
+
+- the track and grid now scale with resolution
+- removed the 'Track Height' setting
+- rotate, scale, and bezier divisor textboxes now have increment and decrement buttons
+- the 'Waveform Detail' and 'Autosave Interval' settings are now clamped to [1,250] and [0.1,60], respectively
+- alpha/opacity is now supported in color settings
+- the changelog and update checking now have a shorter request timeout, and the changelog is now cached after loading
+- unrecognized characters in text now default to the font's not-defined character instead of being invisible
+- non-keybind textboxes now respect the current keyboard layout
+- special objects now bind to grid keys, showing only the relevant key labels on the grid cells
+
+- fixed beziers skipping a node on draw
+- fixed undoing bezier draws with stored notes causing a crash
+- fixed a crash when attempting to paste an image into a textbox
+- fixed waveform sensitivity
+- fixed special objects sometimes having the incorrect icon
+- fixed special object sprites being blank on Linux
+- fixed open and save file dialogs sometimes freezing on Linux
+- fixed discord integration spamming logs when updating the note count
+- fixed exporting sspm files with no notes present
+
+----------------------------------
     -- 2.3.0.1 - 12/28/2024 --
 
 - fixed "ghost beats" caused by dragging them around the track
