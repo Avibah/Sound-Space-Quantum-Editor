@@ -582,6 +582,7 @@ namespace New_SSQE.NewMaps
                     {
                         ".txt" => TXT.Read(data),
                         ".sspm" => SSPM.Read(data),
+                        ".rhym" => RHYM.Read(data),
                         ".phxm" => PHXM.Read(data),
                         ".nch" => NPK.Read(data),
                         ".osu" => OSU.Read(data),
