@@ -97,7 +97,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiTextboxNumeric FieldOfView = new(270, 240, 115, 40, Settings.fov, true, true, "70", 31) { Stretch = StretchMode.X };
         public static readonly GuiTextboxNumeric ApproachDistance = new(0, 325, 150, 40, Settings.approachDistance, true, true, "1", 31) { Stretch = StretchMode.X };
         public static readonly GuiTextboxNumeric HitWindow = new(235, 325, 150, 40, Settings.hitWindow, false, true, "55", 31) { Stretch = StretchMode.X };
-        public static readonly GuiSlider PlayerApproachRate = new(0, 410, 400, 32, Settings.playerApproachRate) { Style = new(ControlStyles.None), Stretch = StretchMode.X };
+        public static readonly GuiSlider PlayerApproachRate = new(0, 410, 400, 32, Settings.playerApproachRate) { Style = ControlStyle.None, Stretch = StretchMode.X };
         public static readonly GuiCheckbox ApproachFade = new(0, 460, 30, 30, Settings.approachFade, "Approach Fade", 27) { Stretch = StretchMode.X };
         public static readonly GuiButton FromStart = new(0, 520, 200, 40, "PLAY FROM START", 27) { Stretch = StretchMode.X };
         public static readonly GuiButton PlayMap = new(210, 520, 200, 40, "PLAY HERE", 27) { Stretch = StretchMode.X };
@@ -138,7 +138,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton SpecialNavLyric = new(0, 120, 150, 30, "Lyrics", 26) { Stretch = StretchMode.X };
         public static readonly RadioButtonController SpecialNavController = new(null, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric);
 
-        public static readonly ControlContainer SpecialNavNova = new(10, 200, 545, 756, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric) { Stretch = StretchMode.XY };
+        public static readonly ControlContainer SpecialNavNova = new(10, 200, 545, 756, SpecialNavBeat, SpecialNavMine, SpecialNavGlide/*, SpecialNavLyric*/) { Stretch = StretchMode.XY };
         public static readonly GuiButtonList GameSwitch = new(10, 946, 545, 50, Settings.modchartGame, "GAME: ", 31) { Stretch = StretchMode.X };
         public static readonly GuiButton SpecialNavExit = new(10, 140, 545, 50, "CLOSE EXTRA OBJECTS", 31) { Stretch = StretchMode.X };
         public static readonly GuiLabel LyricPreview = new(0, 860, 1920, 56, Settings.color2, "", 48) { Stretch = StretchMode.X };
@@ -174,8 +174,8 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiCheckbox Quantum = new(245, 10, 30, 30, Settings.enableQuantum, "Quantum", 27) { Stretch = StretchMode.X };
         public static readonly GuiCheckbox QuantumGridSnap = new(245, 50, 30, 30, Settings.quantumGridSnap, "Snap to Grid", 27) { Stretch = StretchMode.X };
         public static readonly GuiCheckbox AutoAdvance = new(245, 90, 30, 30, Settings.autoAdvance, "Auto-Advance", 27) { Stretch = StretchMode.X };
-        public static readonly GuiSlider BeatSnapDivisor = new(245, 170, 250, 32, Settings.beatDivisor) { Style = new(ControlStyles.None), ShiftIncrement = 0.5f, Stretch = StretchMode.X };
-        public static readonly GuiSlider QuantumSnapDivisor = new(245, 250, 250, 32, Settings.quantumSnapping) { Style = new(ControlStyles.None), Stretch = StretchMode.X };
+        public static readonly GuiSlider BeatSnapDivisor = new(245, 170, 250, 32, Settings.beatDivisor) { Style = ControlStyle.None, ShiftIncrement = 0.5f, Stretch = StretchMode.X };
+        public static readonly GuiSlider QuantumSnapDivisor = new(245, 250, 250, 32, Settings.quantumSnapping) { Style = ControlStyle.None, Stretch = StretchMode.X };
 
         public static readonly GuiLabel BeatDivisorLabel = new(245, 140, 250, 32, Settings.color1, "", 30) { Stretch = StretchMode.X };
         public static readonly GuiLabel SnappingLabel = new(245, 220, 250, 32, Settings.color1, "", 30) { Stretch = StretchMode.X };
@@ -189,8 +189,8 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiCheckbox GridNumbers = new(245, 130, 30, 30, Settings.gridNumbers, "Grid Numbers", 26) { Stretch = StretchMode.X };
         public static readonly GuiCheckbox GridLetters = new(245, 170, 30, 30, Settings.gridLetters, "Grid Letters", 26) { Stretch = StretchMode.X };
         public static readonly GuiCheckbox QuantumGridLines = new(245, 210, 30, 30, Settings.quantumGridLines, "Quantum Grid Lines", 26) { Stretch = StretchMode.X };
-        public static readonly GuiSlider ApproachRate = new(245, 290, 250, 32, Settings.approachRate) { Style = new(ControlStyles.None), Stretch = StretchMode.X };
-        public static readonly GuiSlider TrackCursorPos = new(245, 370, 250, 32, Settings.cursorPos) { Style = new(ControlStyles.None), Stretch = StretchMode.X };
+        public static readonly GuiSlider ApproachRate = new(245, 290, 250, 32, Settings.approachRate) { Style = ControlStyle.None, Stretch = StretchMode.X };
+        public static readonly GuiSlider TrackCursorPos = new(245, 370, 250, 32, Settings.cursorPos) { Style = ControlStyle.None, Stretch = StretchMode.X };
 
         public static readonly GuiLabel ApproachRateLabel = new(245, 260, 250, 32, Settings.color1, "", 28) { Stretch = StretchMode.X };
         public static readonly GuiLabel CursorPosLabel = new(245, 340, 250, 32, Settings.color1, "", 28) { Stretch = StretchMode.X };
@@ -228,11 +228,11 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton CopyButton = new(810, 273, 300, 42, "COPY MAP DATA", 27);
         public static readonly GuiButton BackButton = new(810, 774, 300, 42, "BACK TO MENU", 27);
 
-        public static readonly GuiSlider Tempo = new(1408, 1016, 512, 64, Settings.tempo) { Style = new(ControlStyles.None), Stretch = StretchMode.X };
-        public static readonly GuiSliderTimeline Timeline = new(0, 1016, 1344, 64) { Style = new(ControlStyles.None), Stretch = StretchMode.X };
-        public static readonly GuiSlider MusicVolume = new(1856, 760, 40, 256, Settings.masterVolume, true) { Style = new(ControlStyles.None) };
+        public static readonly GuiSlider Tempo = new(1408, 1016, 512, 64, Settings.tempo) { Style = ControlStyle.None, Stretch = StretchMode.X };
+        public static readonly GuiSliderTimeline Timeline = new(0, 1016, 1344, 64) { Style = ControlStyle.None, Stretch = StretchMode.X };
+        public static readonly GuiSlider MusicVolume = new(1856, 760, 40, 256, Settings.masterVolume, true) { Style = ControlStyle.None };
         public static readonly GuiButtonToggle MusicMute = new(1868, 750, 16, 16, Settings.muteMusic, "MuteUnmute");
-        public static readonly GuiSlider SfxVolume = new(1792, 760, 40, 256, Settings.sfxVolume, true) { Style = new(ControlStyles.None) };
+        public static readonly GuiSlider SfxVolume = new(1792, 760, 40, 256, Settings.sfxVolume, true) { Style = ControlStyle.None };
         public static readonly GuiButtonToggle SfxMute = new(1804, 750, 16, 16, Settings.muteSfx, "MuteUnmute");
         public static readonly GuiButtonPlayPause PlayPause = new(1344, 1016, 64, 64);
 
@@ -514,6 +514,9 @@ namespace New_SSQE.NewGUI.Windows
 
             ExportButton.LeftClick += (s, e) =>
             {
+                //Windowing.OpenOnTop(new GuiDialogExport());
+                //return;
+
                 switch (Settings.exportType.Value.Current)
                 {
                     case "Rhythia (SSPM)":

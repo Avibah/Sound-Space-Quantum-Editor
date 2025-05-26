@@ -38,6 +38,9 @@ namespace New_SSQE
         public Point Mouse = new(-1, -1);
         public Vector2 Delta = (0, 0);
 
+        public static float ScaleX => Instance?.ClientSize.X / 1920f ?? 1f;
+        public static float ScaleY => Instance?.ClientSize.Y / 1080f ?? 1f;
+
         public bool CtrlHeld;
         public bool AltHeld;
         public bool ShiftHeld;
@@ -186,7 +189,7 @@ namespace New_SSQE
             
             try
             {
-                Windowing.Current?.Render(MouseState.X, MouseState.Y, (float)args.Time);
+                Windowing.Render(MouseState.X, MouseState.Y, (float)args.Time);
             }
             catch (Exception ex)
             {
@@ -229,7 +232,7 @@ namespace New_SSQE
 
         protected override void OnTextInput(TextInputEventArgs e)
         {
-            Windowing.Current?.TextInput(e.AsString);
+            Windowing.TextInput(e.AsString);
         }
 
         protected override void OnResize(ResizeEventArgs e)
@@ -240,7 +243,7 @@ namespace New_SSQE
                 GL.Viewport(0, 0, e.Width, e.Height);
                 Shader.SetViewports(e.Width, e.Height);
 
-                Windowing.Current?.Resize(e);
+                Windowing.Resize(e);
                 OnRenderFrame(new FrameEventArgs());
             }
         }
@@ -250,12 +253,12 @@ namespace New_SSQE
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
-            Windowing.Current?.MouseDown(e);
+            Windowing.MouseDown(e);
         }
 
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
-            Windowing.Current?.MouseUp(e);
+            Windowing.MouseUp(e);
         }
 
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
@@ -264,7 +267,7 @@ namespace New_SSQE
             AltHeld = e.Alt;
             ShiftHeld = e.Shift;
 
-            Windowing.Current?.KeyUp(e.Key);
+            Windowing.KeyUp(e.Key);
         }
 
         private void SwitchFullscreen()
@@ -288,7 +291,7 @@ namespace New_SSQE
             if (e.Key == Keys.F4 && AltHeld)
                 Close();
 
-            Windowing.Current?.KeyDown(e.Key);
+            Windowing.KeyDown(e.Key);
         }
 
         protected override void OnFileDrop(FileDropEventArgs e)
@@ -296,7 +299,7 @@ namespace New_SSQE
             foreach (string file in e.FileNames)
             {
                 if (File.Exists(file))
-                    Windowing.Current?.FileDrop(file);
+                    Windowing.FileDrop(file);
             }
         }
 
@@ -308,7 +311,7 @@ namespace New_SSQE
             AltHeld = keyboard.IsKeyDown(Keys.LeftAlt) || keyboard.IsKeyDown(Keys.RightAlt);
             ShiftHeld = keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift);
 
-            Windowing.Current?.MouseScroll(e.OffsetY);
+            Windowing.MouseScroll(e.OffsetY);
         }
 
         private bool forceClose = false;

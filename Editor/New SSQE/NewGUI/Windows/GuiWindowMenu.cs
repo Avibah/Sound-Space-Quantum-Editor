@@ -28,7 +28,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton AutosavedButton = new(1190, 640, 600, 100, "AUTOSAVED MAP", 54, "square");
         public static readonly GuiButton LastMapButton = new(1190, 755, 600, 100, "EDIT LAST MAP", 54, "square");
 
-        public static readonly GuiSlider ChangelogSlider = new(950, 230, 20, 720, Settings.changelogPosition) { Stretch = StretchMode.X, Style = new(ControlStyles.Slider_Uncolored) };
+        public static readonly GuiSlider ChangelogSlider = new(950, 230, 20, 720, Settings.changelogPosition) { Stretch = StretchMode.X, Style = ControlStyle.Slider_Uncolored };
         public static readonly GuiSquare ChangelogBackdrop1 = new(35, 180, 950, 790, Color.FromArgb(40, 0, 0, 0)) { Stretch = StretchMode.XY };
         public static readonly GuiSquare ChangelogBackdrop2 = new(55, 230, 900, 715, Color.FromArgb(50, 0, 0, 0)) { Stretch = StretchMode.XY };
         

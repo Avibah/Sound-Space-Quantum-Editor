@@ -106,7 +106,7 @@ namespace New_SSQE.NewGUI.Controls
 
             spriteSheet = new("Sprites", null, true, TextureUnit.Texture2) { Shader = Shader.Sprite };
 
-            Style = new(ControlStyles.Track_Colored);
+            Style = ControlStyle.Track_Colored;
 
             PlayLeftClickSound = false;
             PlayRightClickSound = false;
@@ -934,7 +934,7 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.KeyDown(key);
 
-            if (!Windowing.Current?.TextboxFocused() ?? false)
+            if (!Windowing.TextboxFocused())
             {
                 if (key == Keys.Space && (!Dragging || draggingObjects.Count > 0 || draggingDuration != null) && !GuiWindowEditor.Timeline.Dragging)
                 {

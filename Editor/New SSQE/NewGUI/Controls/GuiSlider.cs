@@ -26,7 +26,7 @@ namespace New_SSQE.NewGUI.Controls
 
             prevValue = setting.Value.Value;
 
-            Style = new(ControlStyles.Slider_Uncolored);
+            Style = ControlStyle.Slider_Uncolored;
         }
 
         public override float[] Draw()

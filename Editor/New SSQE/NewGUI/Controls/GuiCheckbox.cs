@@ -29,7 +29,7 @@ namespace New_SSQE.NewGUI.Controls
 
             this.setting = setting;
 
-            Style = new(ControlStyles.Checkbox_Colored);
+            Style = ControlStyle.Checkbox_Colored;
             PlayRightClickSound = false;
         }
 

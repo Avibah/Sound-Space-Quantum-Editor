@@ -74,7 +74,7 @@ namespace New_SSQE.NewGUI.Controls
             beatConstant = Instancing.Generate("grid_beatConstant", Shader.InstancedMain);
             beatApproach = Instancing.Generate("grid_beatApproach", Shader.InstancedMain);
 
-            Style = new ControlStyle(ControlStyles.Grid_Colored);
+            Style = ControlStyle.Grid_Colored;
         }
 
         private Vector2 MouseToGridSpaceUnclamped(float mousex, float mousey)
@@ -542,7 +542,7 @@ namespace New_SSQE.NewGUI.Controls
             {
                 if (Mapping.RenderMode != ObjectRenderMode.Notes || hoveringCell == null)
                     return;
-                if (Windowing.Current?.HoveringInteractive(this) ?? false)
+                if (Windowing.HoveringInteractive(this))
                     return;
 
                 long ms = Timing.GetClosestBeat(Settings.currentTime.Value.Value);

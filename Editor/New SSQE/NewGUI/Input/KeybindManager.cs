@@ -29,9 +29,9 @@ namespace New_SSQE.NewGUI.Input
         {
             if (Windowing.Current is not GuiWindowEditor)
                 return;
-            if (Windowing.Current?.TextboxFocused() ?? false)
+            if (Windowing.TextboxFocused())
                 return;
-            Windowing.Current?.KeybindUsed(keybind);
+            Windowing.KeybindUsed(keybind);
 
             if (keybind.Contains("pattern"))
             {

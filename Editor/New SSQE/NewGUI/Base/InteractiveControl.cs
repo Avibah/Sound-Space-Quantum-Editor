@@ -60,7 +60,7 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void MouseClickLeft(float x, float y)
         {
-            if (Hovering && !(Windowing.Current?.ButtonClicked ?? false))
+            if (Hovering && !Windowing.ButtonClicked)
             {
                 if (PlayLeftClickSound)
                     SoundPlayer.Play(Settings.clickSound.Value);
@@ -70,8 +70,8 @@ namespace New_SSQE.NewGUI.Base
                 LeftClick?.Invoke(this, new ClickEventArgs(x, y));
                 MouseMove(x, y);
 
-                if (Windowing.Current != null && this is not ControlContainer)
-                    Windowing.Current.ButtonClicked = true;
+                if (this is not ControlContainer)
+                    Windowing.ButtonClicked = true;
             }
             else
                 Focused = false;
@@ -85,9 +85,7 @@ namespace New_SSQE.NewGUI.Base
                     SoundPlayer.Play(Settings.clickSound.Value);
 
                 RightClick?.Invoke(this, new ClickEventArgs(x, y));
-
-                if (Windowing.Current != null)
-                    Windowing.Current.ButtonClicked = true;
+                Windowing.ButtonClicked = true;
             }
         }
 

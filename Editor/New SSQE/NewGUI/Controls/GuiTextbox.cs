@@ -23,7 +23,7 @@ namespace New_SSQE.NewGUI.Controls
             if (setting != null)
                 SetText(setting.Value);
 
-            Style = new(ControlStyles.Textbox_Colored);
+            Style = ControlStyle.Textbox_Colored;
             PlayLeftClickSound = false;
             PlayRightClickSound = false;
         }

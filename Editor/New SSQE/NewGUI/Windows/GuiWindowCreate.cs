@@ -18,9 +18,9 @@ namespace New_SSQE.NewGUI.Windows
 
         private static readonly string audioFilter = $"Audio Files ({MusicPlayer.SupportedExtensionsString})|{MusicPlayer.SupportedExtensionsString}";
 
-        public static readonly GuiCheckbox NavSoundSpace = new(0, 0, 50, 50, null, TAG_SOUND_SPACE, 30) { Style = new(ControlStyles.Checkbox_Uncolored) };
-        public static readonly GuiCheckbox NavRhythia = new(0, 100, 50, 50, null, TAG_RHYTHIA, 30) { Style = new(ControlStyles.Checkbox_Uncolored) };
-        public static readonly GuiCheckbox NavNova = new(0, 200, 50, 50, null, TAG_NOVA, 30) { Style = new(ControlStyles.Checkbox_Uncolored) };
+        public static readonly GuiCheckbox NavSoundSpace = new(0, 0, 50, 50, null, TAG_SOUND_SPACE, 30) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiCheckbox NavRhythia = new(0, 100, 50, 50, null, TAG_RHYTHIA, 30) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiCheckbox NavNova = new(0, 200, 50, 50, null, TAG_NOVA, 30) { Style = ControlStyle.Checkbox_Uncolored };
         public static readonly ControlContainer GameNavs = new(320, 415, 180, 250, NavSoundSpace, NavRhythia, NavNova);
         public static readonly RadioCheckboxController NavController = new(Settings.createGame, NavSoundSpace, NavRhythia, NavNova);
 

@@ -1,5 +1,4 @@
 ﻿using New_SSQE.NewGUI.Base;
-using OpenTK.Mathematics;
 
 namespace New_SSQE.NewGUI.Controls
 {
@@ -9,7 +8,7 @@ namespace New_SSQE.NewGUI.Controls
         
         public GuiButton(float x, float y, float w, float h, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, text, textSize, font, centerMode)
         {
-            Style = new(ControlStyles.Button_Uncolored);
+            Style = ControlStyle.Button_Uncolored;
             PlayRightClickSound = false;
         }
 

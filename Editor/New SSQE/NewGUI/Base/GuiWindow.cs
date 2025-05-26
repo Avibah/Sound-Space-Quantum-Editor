@@ -6,6 +6,7 @@ using New_SSQE.NewMaps.Parsing;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Drawing;
 
 namespace New_SSQE.NewGUI.Base
 {
@@ -30,18 +31,14 @@ namespace New_SSQE.NewGUI.Base
         private readonly ControlContainer container;
 
         private bool connected = false;
-
-        public bool ButtonClicked = false;
         public static bool LockClick = false;
 
-        public GuiWindow(float width, float height, params Control[] controls)
+        public GuiWindow(float x, float y, float w, float h, params Control[] controls)
         {
-            container = new(controls);
-            container.Resize(width, height);
-
+            container = new(x, y, w, h, controls);
             container.Reset();
         }
-        public GuiWindow(params Control[] controls) : this(MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y, controls) { }
+        public GuiWindow(params Control[] controls) : this(0, 0, MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y, controls) { }
 
         public abstract void ConnectEvents();
 
@@ -62,13 +59,13 @@ namespace New_SSQE.NewGUI.Base
             container.SetControls(controls);
         }
 
-        private Vector2 prevMouse = -Vector2.One;
+        protected Vector2 prevMouse { get; private set; } = -Vector2.One;
 
         public virtual void Update()
         {
             container.Update();
         }
-
+        
         public virtual void Render(float mousex, float mousey, float frametime)
         {
             if ((mousex, mousey) != prevMouse)
@@ -89,8 +86,6 @@ namespace New_SSQE.NewGUI.Base
         {
             if (LockClick)
                 return;
-
-            ButtonClicked = false;
 
             if (e.Button == MouseButton.Left)
                 container.MouseClickLeft(prevMouse.X, prevMouse.Y);
@@ -154,5 +149,14 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual bool TextboxFocused() => container.TextboxFocused();
         public virtual bool HoveringInteractive(InteractiveControl? exclude = null) => container.HoveringInteractive(exclude);
+
+        protected virtual void SetOffset(Vector2 offset)
+        {
+            container.RectOffset = offset;
+            container.Resize(MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y);
+        }
+
+        protected virtual RectangleF GetOrigin() => container.GetOrigin();
+        protected virtual Vector2 GetOffset() => container.RectOffset;
     }
 }

@@ -52,15 +52,15 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiSquare NoteColorHoverSquare = new(0, 0, 0, 0, Color.FromArgb(0, 127, 255), true);
         public static readonly ControlContainer NoteColorSquares = new(210, 500, 75, 50) { Stretch = StretchMode.X };
 
-        public static readonly GuiNumberBox EditorBGOpacityTextbox = new(650, 0, 200, 50, 5, Settings.editorBGOpacity, false, true, "255", 34) { Style = new(ControlStyles.Textbox_Uncolored), Bounds = (0, 255) };
+        public static readonly GuiNumberBox EditorBGOpacityTextbox = new(650, 0, 200, 50, 5, Settings.editorBGOpacity, false, true, "255", 34) { Style = ControlStyle.Textbox_Uncolored, Bounds = (0, 255) };
         public static readonly GuiLabel EditorBGOpacityLabel = new(650, -30, 200, 26, null, "Editor Background Opacity:", 30, "main", CenterMode.None);
         public static readonly GuiSquare EditorBGOpacitySquare = new(860, 0, 75, 50) { Stretch = StretchMode.X };
 
-        public static readonly GuiNumberBox GridOpacityTextbox = new(650, 100, 200, 50, 5, Settings.gridOpacity, false, true, "255", 34) { Style = new(ControlStyles.Textbox_Uncolored), Bounds = (0, 255) };
+        public static readonly GuiNumberBox GridOpacityTextbox = new(650, 100, 200, 50, 5, Settings.gridOpacity, false, true, "255", 34) { Style = ControlStyle.Textbox_Uncolored, Bounds = (0, 255) };
         public static readonly GuiLabel GridOpacityLabel = new(650, 70, 200, 26, null, "Grid Opacity:", 30, "main", CenterMode.None);
         public static readonly GuiSquare GridOpacitySquare = new(860, 100, 75, 50) { Stretch = StretchMode.X };
 
-        public static readonly GuiNumberBox TrackOpacityTextbox = new(650, 200, 200, 50, 5, Settings.trackOpacity, false, true, "255", 34) { Style = new(ControlStyles.Textbox_Uncolored), Bounds = (0, 255) };
+        public static readonly GuiNumberBox TrackOpacityTextbox = new(650, 200, 200, 50, 5, Settings.trackOpacity, false, true, "255", 34) { Style = ControlStyle.Textbox_Uncolored, Bounds = (0, 255) };
         public static readonly GuiLabel TrackOpacityLabel = new(650, 170, 200, 26, null, "Track Opacity:", 30, "main", CenterMode.None);
         public static readonly GuiSquare TrackOpacitySquare = new(860, 200, 75, 50) { Stretch = StretchMode.X };
 
@@ -72,36 +72,36 @@ namespace New_SSQE.NewGUI.Windows
 
 
 
-        public static readonly GuiCheckbox WaveformCheckbox = new(0, 0, 45, 45, Settings.waveform, "Enable Waveform", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
-        public static readonly GuiCheckbox ClassicWaveformCheckbox = new(0, 60, 45, 45, Settings.classicWaveform, "Use Classic Waveform", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
-        public static readonly GuiNumberBox WaveformDetailTextbox = new(0, 150, 200, 50, 1, Settings.waveformDetail, false, true, "5", 30) { Style = new(ControlStyles.Textbox_Uncolored), Bounds = (1, 250) };
+        public static readonly GuiCheckbox WaveformCheckbox = new(0, 0, 45, 45, Settings.waveform, "Enable Waveform", 34) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiCheckbox ClassicWaveformCheckbox = new(0, 60, 45, 45, Settings.classicWaveform, "Use Classic Waveform", 34) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiNumberBox WaveformDetailTextbox = new(0, 150, 200, 50, 1, Settings.waveformDetail, false, true, "5", 30) { Style = ControlStyle.Textbox_Uncolored, Bounds = (1, 250) };
         public static readonly GuiLabel WaveformDetailLabel = new(0, 120, 200, 26, null, "Waveform Level of Detail:", 30, "main", CenterMode.None);
 
-        public static readonly GuiCheckbox UseVSyncCheckbox = new(0, 300, 45, 45, Settings.useVSync, "Enable VSync", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
-        public static readonly GuiCheckbox LimitPlayerFPSCheckbox = new(0, 360, 45, 45, Settings.limitPlayerFPS, "Limit Player FPS", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
+        public static readonly GuiCheckbox UseVSyncCheckbox = new(0, 300, 45, 45, Settings.useVSync, "Enable VSync", 34) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiCheckbox LimitPlayerFPSCheckbox = new(0, 360, 45, 45, Settings.limitPlayerFPS, "Limit Player FPS", 34) { Style = ControlStyle.Checkbox_Uncolored };
         public static readonly GuiSlider FPSLimitSlider = new(0, 410, 400, 55, Settings.fpsLimit);
         public static readonly GuiLabel FPSLimitLabel = new(0, 460, 400, 55, null, "FPS Limit:", 34, "main", CenterMode.None);
-        public static readonly GuiCheckbox LowerFPSInBackgroundCheckbox = new(0, 510, 45, 45, Settings.lowerBackgroundFPS, "Lower FPS in Background", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
+        public static readonly GuiCheckbox LowerFPSInBackgroundCheckbox = new(0, 510, 45, 45, Settings.lowerBackgroundFPS, "Lower FPS in Background", 34) { Style = ControlStyle.Checkbox_Uncolored };
 
-        public static readonly GuiCheckbox MSAACheckbox = new(700, 0, 45, 45, Settings.msaa, "Use Anti-Aliasing", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
+        public static readonly GuiCheckbox MSAACheckbox = new(700, 0, 45, 45, Settings.msaa, "Use Anti-Aliasing", 34) { Style = ControlStyle.Checkbox_Uncolored };
         public static readonly GuiLabel RestartLabel = new(700, 50, 200, 26, null, "Requires restart!", 30, "main", CenterMode.None);
         public static readonly GuiLabel FontScaleLabel = new(700, 120, 200, 26, null, "Font Scale:", 30, "main", CenterMode.None);
-        public static readonly GuiNumberBox FontScaleTextbox = new(700, 150, 200, 50, 0.05f, Settings.fontScale, true, true, "1", 30) { Style = new(ControlStyles.Textbox_Uncolored), Bounds = (0.25f, 2.5f) };
+        public static readonly GuiNumberBox FontScaleTextbox = new(700, 150, 200, 50, 0.05f, Settings.fontScale, true, true, "1", 30) { Style = ControlStyle.Textbox_Uncolored, Bounds = (0.25f, 2.5f) };
 
         public static readonly ControlContainer GraphicsNav = new(500, 80, 1220, 700, WaveformCheckbox, ClassicWaveformCheckbox, WaveformDetailTextbox, WaveformDetailLabel,
             UseVSyncCheckbox, LimitPlayerFPSCheckbox, FPSLimitSlider, FPSLimitLabel, LowerFPSInBackgroundCheckbox, MSAACheckbox, RestartLabel, FontScaleLabel, FontScaleTextbox);
 
 
 
-        public static readonly GuiCheckbox AutosaveCheckbox = new(0, 0, 45, 45, Settings.enableAutosave, "Enable Autosave", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
-        public static readonly GuiNumberBox AutosaveIntervalTextbox = new(0, 90, 200, 50, 1, Settings.autosaveInterval, true, true, "5", 34) { Style = new(ControlStyles.Textbox_Uncolored), Bounds = (0.1f, 60) };
+        public static readonly GuiCheckbox AutosaveCheckbox = new(0, 0, 45, 45, Settings.enableAutosave, "Enable Autosave", 34) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiNumberBox AutosaveIntervalTextbox = new(0, 90, 200, 50, 1, Settings.autosaveInterval, true, true, "5", 34) { Style = ControlStyle.Textbox_Uncolored, Bounds = (0.1f, 60) };
         public static readonly GuiLabel AutosaveIntervalLabel = new(0, 60, 200, 26, null, "Autosave Interval (min):", 30, "main", CenterMode.None);
 
-        public static readonly GuiCheckbox CorrectOnCopyCheckbox = new(0, 215, 45, 45, Settings.correctOnCopy, "Correct Errors on Copy", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
-        public static readonly GuiCheckbox ReverseScrollCheckbox = new(0, 275, 45, 45, Settings.reverseScroll, "Reverse Scroll Direction", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
+        public static readonly GuiCheckbox CorrectOnCopyCheckbox = new(0, 215, 45, 45, Settings.correctOnCopy, "Correct Errors on Copy", 34) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiCheckbox ReverseScrollCheckbox = new(0, 275, 45, 45, Settings.reverseScroll, "Reverse Scroll Direction", 34) { Style = ControlStyle.Checkbox_Uncolored };
 
-        public static readonly GuiCheckbox FullscreenPlayerCheckbox = new(0, 395, 45, 45, Settings.fullscreenPlayer, "Open Player in Fullscreen", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
-        public static readonly GuiCheckbox UseRhythiaCheckbox = new(0, 455, 45, 45, Settings.useRhythia, "Use Rhythia as Player", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
+        public static readonly GuiCheckbox FullscreenPlayerCheckbox = new(0, 395, 45, 45, Settings.fullscreenPlayer, "Open Player in Fullscreen", 34) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiCheckbox UseRhythiaCheckbox = new(0, 455, 45, 45, Settings.useRhythia, "Use Rhythia as Player", 34) { Style = ControlStyle.Checkbox_Uncolored };
         public static readonly GuiPathBox RhythiaPathBox = new(0, 515, 750, 50, PlatformUtils.ExecutableFilter, Settings.rhythiaFolderPath, Settings.rhythiaPath, "RHYTHIA PATH", 30);
 
         public static readonly ControlContainer MappingNav = new(500, 80, 1220, 700, AutosaveCheckbox, AutosaveIntervalTextbox, AutosaveIntervalLabel,
@@ -109,9 +109,9 @@ namespace New_SSQE.NewGUI.Windows
 
 
 
-        public static readonly GuiCheckbox SkipDownloadCheckbox = new(0, 0, 45, 45, Settings.skipDownload, "Skip Download From Roblox", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
-        public static readonly GuiCheckbox CheckForUpdatesCheckbox = new(0, 60, 45, 45, Settings.checkUpdates, "Check For Updates", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
-        public static readonly GuiCheckbox MonoCheckbox = new(0, 120, 45, 45, Settings.monoAudio, "Mono Audio", 34) { Style = new(ControlStyles.Checkbox_Uncolored) };
+        public static readonly GuiCheckbox SkipDownloadCheckbox = new(0, 0, 45, 45, Settings.skipDownload, "Skip Download From Roblox", 34) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiCheckbox CheckForUpdatesCheckbox = new(0, 60, 45, 45, Settings.checkUpdates, "Check For Updates", 34) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiCheckbox MonoCheckbox = new(0, 120, 45, 45, Settings.monoAudio, "Mono Audio", 34) { Style = ControlStyle.Checkbox_Uncolored };
 
         public static readonly ControlContainer OtherNav = new(500, 80, 1220, 700, SkipDownloadCheckbox, CheckForUpdatesCheckbox, MonoCheckbox);
 

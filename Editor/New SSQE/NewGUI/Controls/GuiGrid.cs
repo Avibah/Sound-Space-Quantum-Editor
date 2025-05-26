@@ -126,7 +126,7 @@ namespace New_SSQE.NewGUI.Controls
             glideConstant = Instancing.Generate("grid_glideConstant", Shader.InstancedMainExtra, true);
             glideApproach = Instancing.Generate("grid_glideApproach", Shader.InstancedMain);
 
-            Style = new ControlStyle(ControlStyles.Grid_Colored);
+            Style = ControlStyle.Grid_Colored;
 
             PlayLeftClickSound = false;
             PlayRightClickSound = false;
@@ -739,7 +739,7 @@ namespace New_SSQE.NewGUI.Controls
             {
                 if (Mapping.RenderMode != ObjectRenderMode.Notes || hoveringCell == null)
                     return;
-                if (Windowing.Current?.HoveringInteractive(this) ?? false)
+                if (Windowing.HoveringInteractive(this))
                     return;
 
                 long ms = Timing.GetClosestBeat(Settings.currentTime.Value.Value);
