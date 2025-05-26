@@ -32,6 +32,7 @@
 - fixed special objects sometimes having the incorrect icon
 - fixed special object sprites being blank on Linux
 - fixed open and save file dialogs sometimes freezing on Linux
+- fixed window positioning and a melting effect when resizing on Linux
 - fixed discord integration spamming logs when updating the note count
 - fixed exporting sspm files with no notes present
 
