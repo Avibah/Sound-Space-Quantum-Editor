@@ -1,5 +1,4 @@
 ﻿using New_SSQE.NewGUI.Base;
-using OpenTK.Graphics;
 using OpenTK.Mathematics;
 
 namespace New_SSQE.NewGUI

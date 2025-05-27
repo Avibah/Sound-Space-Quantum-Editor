@@ -140,7 +140,7 @@ namespace New_SSQE.Objects.Managers
         public new void Sort()
         {
             Sort((x, y) => (int)(x.Ms - y.Ms));
-            GuiWindowEditor.Timeline.Update();
+            GuiWindowEditor.Timeline.RefreshInstances();
         }
 
 

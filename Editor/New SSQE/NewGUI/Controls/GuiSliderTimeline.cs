@@ -31,33 +31,54 @@ namespace New_SSQE.NewGUI.Controls
             PlayRightClickSound = false;
         }
 
-        public void UpdateInstanceData()
+        private bool shouldUpdate = true;
+
+        public void RefreshInstances()
         {
+            shouldUpdate = true;
+        }
+
+        private void UpdateInstanceData()
+        {
+            shouldUpdate = false;
             RectangleF lineRect = new(rect.X + rect.Height / 2f, rect.Y + rect.Height / 2f - 1.5f, rect.Width - rect.Height, 3f);
 
-            Vector4[] noteVerts = new Vector4[Mapping.Current.Notes.Count];
-            Vector4[] pointVerts = new Vector4[Mapping.Current.TimingPoints.Count];
-            Vector4[] objectVerts = new Vector4[Mapping.Current.VfxObjects.Count + Mapping.Current.SpecialObjects.Count];
+            List<Vector4> noteVerts = [];
+            List<Vector4> pointVerts = [];
+            List<Vector4> objectVerts = [];
 
             float mult = lineRect.Width / setting.Value.Max;
+            float prevX = -1;
 
             // notes
-            for (int i = 0; i < noteVerts.Length; i++)
+            for (int i = 0; i < Mapping.Current.Notes.Count; i++)
             {
                 Note note = Mapping.Current.Notes[i];
                 float x = lineRect.X + note.Ms * mult;
 
-                noteVerts[i] = (x, 0, 1, 2 * 0 + 1);
+                if (x - 1 >= prevX)
+                {
+                    noteVerts.Add((x, 0, 1, 2 * 0 + 1));
+                    prevX = x;
+                }
             }
 
+            prevX = -1;
+
             // points
-            for (int i = 0; i < pointVerts.Length; i++)
+            for (int i = 0; i < Mapping.Current.TimingPoints.Count; i++)
             {
                 TimingPoint point = Mapping.Current.TimingPoints[i];
                 float x = lineRect.X + point.Ms * mult;
 
-                pointVerts[i] = (x, 0, 1, 2 * 0 + 1);
+                if (x - 1 >= prevX)
+                {
+                    pointVerts.Add((x, 0, 1, 2 * 0 + 1));
+                    prevX = x;
+                }
             }
+
+            prevX = -1;
 
             // vfx objects
             for (int i = 0; i < Mapping.Current.VfxObjects.Count; i++)
@@ -65,8 +86,14 @@ namespace New_SSQE.NewGUI.Controls
                 MapObject obj = Mapping.Current.VfxObjects[i];
                 float x = lineRect.X + obj.Ms * mult;
 
-                objectVerts[i] = (x, 0, 1, 2 * 0 + 1);
+                if (x - 1 >= prevX)
+                {
+                    objectVerts.Add((x, 0, 1, 2 * 0 + 1));
+                    prevX = x;
+                }
             }
+
+            prevX = -1;
 
             // special objects
             for (int i = 0; i < Mapping.Current.SpecialObjects.Count; i++)
@@ -74,12 +101,16 @@ namespace New_SSQE.NewGUI.Controls
                 MapObject obj = Mapping.Current.SpecialObjects[i];
                 float x = lineRect.X + obj.Ms * mult;
 
-                objectVerts[i + Mapping.Current.VfxObjects.Count] = (x, 0, 1, 2 * 0 + 1);
+                if (x - 1 >= prevX)
+                {
+                    objectVerts.Add((x, 0, 1, 2 * 0 + 1));
+                    prevX = x;
+                }
             }
 
-            notes.UploadData(noteVerts);
-            points.UploadData(pointVerts);
-            objects.UploadData(objectVerts);
+            notes.UploadData([..noteVerts]);
+            points.UploadData([..pointVerts]);
+            objects.UploadData([..objectVerts]);
         }
 
         public override float[] Draw()
@@ -127,7 +158,9 @@ namespace New_SSQE.NewGUI.Controls
         public override void Render(float mousex, float mousey, float frametime)
         {
             base.Render(mousex, mousey, frametime);
-            UpdateInstanceData();
+
+            if (shouldUpdate)
+                UpdateInstanceData();
 
             notes.Render();
             points.Render();
