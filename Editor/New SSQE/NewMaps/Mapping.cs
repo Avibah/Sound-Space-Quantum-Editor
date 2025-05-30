@@ -432,6 +432,7 @@ namespace New_SSQE.NewMaps
                 if (!Cache.Contains(map))
                     Cache.Add(map);
                 SaveCache();
+                map.OpenSettings();
 
                 Windowing.SwitchWindow(new GuiWindowEditor());
                 return Windowing.Current is GuiWindowEditor && Current.SoundID != "-1";
@@ -623,8 +624,10 @@ namespace New_SSQE.NewMaps
                 Current.CloseSettings();
                 Current = new();
 
-                Settings.currentTime.Value.Value = 0;
-
+                Settings.tempo.Value.Value = Settings.tempo.Value.Default;
+                Settings.currentTime.Value.Value = Settings.currentTime.Value.Default;
+                Settings.beatDivisor.Value.Value = Settings.beatDivisor.Value.Default;
+                
                 if (!Parse(data))
                 {
                     MessageBox.Show("Failed to load map data\n\nExit and check '*\\logs.txt' for more info", MBoxIcon.Warning, MBoxButtons.OK);

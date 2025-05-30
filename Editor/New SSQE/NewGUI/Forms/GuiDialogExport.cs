@@ -2,7 +2,7 @@
 using New_SSQE.NewGUI.Controls;
 using System.Drawing;
 
-namespace New_SSQE.NewGUI.Windows
+namespace New_SSQE.NewGUI.Forms
 {
     internal class GuiDialogExport : GuiWindowDialog
     {
@@ -26,7 +26,7 @@ namespace New_SSQE.NewGUI.Windows
 
         public override void ConnectEvents()
         {
-            
+
         }
     }
 }

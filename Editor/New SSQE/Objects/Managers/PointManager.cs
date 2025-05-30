@@ -1,4 +1,5 @@
 ﻿using New_SSQE.EditHistory;
+using New_SSQE.NewGUI;
 using New_SSQE.NewMaps;
 
 namespace New_SSQE.Objects.Managers
@@ -20,16 +21,26 @@ namespace New_SSQE.Objects.Managers
                     Points.Remove(n);
                 Points.AddRange(oldPoints);
 
+                if (oldPoints.Count == 1)
+                    Mapping.SelectedPoint = oldPoints[0];
+                else
+                    Mapping.SelectedPoint = null;
+
                 Mapping.SortTimings();
-                NewGUI.TimingsWindow.Instance?.ResetList();
+                TimingsWindow.Instance?.ResetList();
             }, () =>
             {
                 foreach (TimingPoint n in oldPoints)
                     Points.Remove(n);
                 Points.AddRange(newPoints);
 
+                if (newPoints.Count == 1)
+                    Mapping.SelectedPoint = newPoints[0];
+                else
+                    Mapping.SelectedPoint = null;
+
                 Mapping.SortTimings();
-                NewGUI.TimingsWindow.Instance?.ResetList();
+                TimingsWindow.Instance?.ResetList();
             });
         }
 

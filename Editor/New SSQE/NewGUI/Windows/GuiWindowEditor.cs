@@ -580,7 +580,7 @@ namespace New_SSQE.NewGUI.Windows
             QuantumSnapDivisor.ValueChanged += (s, e) => SnappingChanged();
             SnappingChanged();
 
-            void CursorPosChanged() => CursorPosLabel.Text = $"Cursor Pos: {Math.Round(Settings.cursorPos.Value.Value)}%";
+            void CursorPosChanged() => CursorPosLabel.Text = $"Cursor Position: {Math.Abs(Math.Round(Settings.cursorPos.Value.Value))}%";
             TrackCursorPos.ValueChanged += (s, e) => CursorPosChanged();
             CursorPosChanged();
 
@@ -588,11 +588,11 @@ namespace New_SSQE.NewGUI.Windows
             Tempo.ValueChanged += (s, e) => TempoChanged();
             TempoChanged();
 
-            void MusicVolumeChanged() => MusicVolumeValueLabel.Text = $"{Math.Round(Settings.masterVolume.Value.Value * 100)}";
+            void MusicVolumeChanged() => MusicVolumeValueLabel.Text = $"{Math.Abs(Math.Round(Settings.masterVolume.Value.Value * 100))}";
             MusicVolume.ValueChanged += (s, e) => MusicVolumeChanged();
             MusicVolumeChanged();
 
-            void SfxVolumeChanged() => SfxVolumeValueLabel.Text = $"{Math.Round(Settings.sfxVolume.Value.Value * 100)}";
+            void SfxVolumeChanged() => SfxVolumeValueLabel.Text = $"{Math.Abs(Math.Round(Settings.sfxVolume.Value.Value * 100))}";
             SfxVolume.ValueChanged += (s, e) => SfxVolumeChanged();
             SfxVolumeChanged();
 

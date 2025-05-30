@@ -1,4 +1,5 @@
 ﻿using New_SSQE.EditHistory;
+using New_SSQE.NewGUI;
 using New_SSQE.NewMaps;
 using New_SSQE.Objects.Other;
 
@@ -22,7 +23,7 @@ namespace New_SSQE.Objects.Managers
                 Bookmarks.AddRange(oldBookmarks);
 
                 Mapping.SortBookmarks();
-                NewGUI.BookmarksWindow.Instance?.ResetList();
+                BookmarksWindow.Instance?.ResetList();
             }, () =>
             {
                 foreach (Bookmark n in oldBookmarks)
@@ -30,7 +31,7 @@ namespace New_SSQE.Objects.Managers
                 Bookmarks.AddRange(newBookmarks);
 
                 Mapping.SortBookmarks();
-                NewGUI.BookmarksWindow.Instance?.ResetList();
+                BookmarksWindow.Instance?.ResetList();
             });
         }
 

@@ -882,6 +882,8 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.MouseClickRight(x, y);
 
+            Mapping.SelectedPoint = null;
+
             if (Hovering)
             {
                 float cursorPos = rect.Width * Settings.cursorPos.Value.Value / 100f;
