@@ -1,4 +1,12 @@
 ----------------------------------
+    -- 2.3.1.1 - 5/30/2025 --
+
+- optimized rendering the timeline
+- fixed Tempo and Beat Divisor settings persisting across maps
+- fixed Music/SFX Volume and Cursor Position sliders sometimes displaying -0
+- fixed problems caused by deleting timing points
+
+----------------------------------
     -- 2.3.1.0 - 5/25/2025 --
 
 - updated OpenTK to 5.0.0-pre.13
