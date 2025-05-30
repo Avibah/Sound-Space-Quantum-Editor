@@ -5,6 +5,7 @@
 - fixed Tempo and Beat Divisor settings persisting across maps
 - fixed Music/SFX Volume and Cursor Position sliders sometimes displaying -0
 - fixed problems caused by deleting timing points
+- fixed mirroring SSPM maps on load
 
 ----------------------------------
     -- 2.3.1.0 - 5/25/2025 --
