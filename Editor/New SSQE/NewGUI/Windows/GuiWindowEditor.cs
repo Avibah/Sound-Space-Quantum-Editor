@@ -73,6 +73,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton ScaleButton = new(110, 190, 100, 40, "SCALE", 27) { Stretch = StretchMode.X };
         public static readonly GuiCheckbox ApplyOnPaste = new(0, 250, 30, 30, Settings.applyOnPaste, "Apply Rotate/Scale on Paste", 27) { Stretch = StretchMode.X };
         public static readonly GuiCheckbox ClampSR = new(0, 290, 30, 30, Settings.clampSR, "Clamp Rotate/Scale in Bounds", 27) { Stretch = StretchMode.X };
+        public static readonly GuiCheckbox PasteReversed = new(0, 330, 30, 30, Settings.pasteReversed, "Paste Reversed", 27) { Stretch = StretchMode.X };
         public static readonly GuiButton StoreNodes = new(0, 390, 175, 40, "STORE NODES", 27) { Stretch = StretchMode.X };
         public static readonly GuiButton ClearNodes = new(185, 390, 175, 40, "CLEAR NODES", 27) { Stretch = StretchMode.X };
         public static readonly GuiCheckbox CurveBezier = new(0, 450, 30, 30, Settings.curveBezier, "Curve Bezier", 27) { Stretch = StretchMode.X };
@@ -83,7 +84,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiLabel ScaleLabel = new(0, 160, 100, 30, Settings.color1, "Scale by Percent:", 30, "main", CenterMode.None) { Stretch = StretchMode.X };
         public static readonly GuiLabel DrawBezierLabel = new(0, 490, 100, 30, Settings.color1, "Draw Bezier with Divisor:", 30, "main", CenterMode.None) { Stretch = StretchMode.X };
 
-        public static readonly ControlContainer PatternsNav = new(10, 190, 545, 756, HFlip, VFlip, RotateBox, RotateButton, ScaleBox, ScaleButton, ApplyOnPaste, ClampSR,
+        public static readonly ControlContainer PatternsNav = new(10, 190, 545, 756, HFlip, VFlip, RotateBox, RotateButton, ScaleBox, ScaleButton, ApplyOnPaste, ClampSR, PasteReversed,
             StoreNodes, ClearNodes, CurveBezier, BezierBox, BezierButton, RotateLabel, ScaleLabel, DrawBezierLabel);
 
         // Player

@@ -109,7 +109,7 @@ namespace New_SSQE.NewMaps.Parsing
                         y = reader.ReadByte();
                     }
 
-                    Mapping.Current.Notes.Add(new(x, y, ms));
+                    Mapping.Current.Notes.Add(new(2 - x, 2 - y, ms));
                 }
 
                 return true;
@@ -306,7 +306,7 @@ namespace New_SSQE.NewMaps.Parsing
                         y = reader.ReadByte();
                     }
 
-                    Mapping.Current.Notes.Add(new(x, y, ms));
+                    Mapping.Current.Notes.Add(new(2 - x, 2 - y, ms));
                 }
 
                 return true;
