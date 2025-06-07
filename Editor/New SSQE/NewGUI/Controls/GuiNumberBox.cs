@@ -39,8 +39,6 @@ namespace New_SSQE.NewGUI.Controls
 
             this.isFloat = isFloat;
             this.isPositive = isPositive;
-
-            ValueBox.ValueChanged += (s, e) => Value = e.Value;
         }
 
         public override void Reset()
@@ -49,6 +47,7 @@ namespace New_SSQE.NewGUI.Controls
 
             UpButton.LeftClick += (s, e) => IncrementUp();
             DownButton.LeftClick += (s, e) => IncrementDown();
+            ValueBox.ValueChanged += (s, e) => Value = e.Value;
         }
 
         public float Increment(float increment)

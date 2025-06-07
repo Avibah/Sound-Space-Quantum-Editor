@@ -38,21 +38,6 @@ namespace New_SSQE.NewGUI
             CreateID();
         }
 
-        private static readonly char[] invalidChars = { '/', '\\', ':', '*', '?', '"', '<', '>', '|' };
-
-        private static string FixString(string input)
-        {
-            string str = input.ToLower().Replace(" ", "_");
-
-            for (int i = 0; i < str.Length; i++)
-            {
-                if (Array.IndexOf(invalidChars, str[i]) > -1)
-                    str = str.Remove(i, 1).Insert(i, "_");
-            }
-
-            return str.Replace(",", "");
-        }
-
         private string GetSongName()
         {
             return !string.IsNullOrWhiteSpace(SongNameBox.Text) ? SongNameBox.Text : "Untitled Song";
@@ -82,7 +67,7 @@ namespace New_SSQE.NewGUI
         {
             string songName = GetSongName();
             string mappers = string.Join(" ", GetMappers());
-            string curString = FixString($"{mappers} - {songName}");
+            string curString = FormatUtils.FixID($"{mappers} - {songName}");
 
             if (curString != prevString)
             {
