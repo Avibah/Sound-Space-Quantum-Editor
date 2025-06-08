@@ -8,6 +8,8 @@ namespace New_SSQE.NewGUI.Base
 {
     internal abstract class GuiWindowDialog : GuiWindow
     {
+        private static readonly Dictionary<string, GuiWindowDialog> Instances = [];
+
         private readonly ControlContainer InnerContainer;
 
         public readonly GuiButton CloseButton;
@@ -29,6 +31,16 @@ namespace New_SSQE.NewGUI.Base
             BackgroundSquare = new(-2, -18, w + 4, h + 20, Color.FromArgb(127, 127, 127)) { Stretch = StretchMode.XY };
 
             base.SetControls(BackgroundSquare, CloseButton, DragStrip, InnerContainer);
+
+            string name = GetType().Name;
+
+            if (Instances.TryGetValue(name, out GuiWindowDialog? value))
+            {
+                Windowing.Close(value);
+                Instances[name] = this;
+            }
+            else
+                Instances.Add(name, this);
 
             CloseButton.LeftClick += (s, e) =>
             {

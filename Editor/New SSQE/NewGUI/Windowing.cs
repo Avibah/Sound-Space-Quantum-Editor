@@ -47,7 +47,7 @@ namespace New_SSQE.NewGUI
             Settings.Save();
         }
 
-        public static void OpenOnTop(GuiWindow window)
+        public static void OpenDialog(GuiWindow window)
         {
             // for a new export window
             windowStack.Push(window);
