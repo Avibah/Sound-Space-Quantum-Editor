@@ -47,16 +47,10 @@ namespace New_SSQE.NewGUI
             Settings.Save();
         }
 
-        public static void OpenDialog(GuiWindow window)
+        public static void OpenDialog(GuiWindowDialog window)
         {
-            // for a new export window
             windowStack.Push(window);
             window.Open();
-        }
-
-        public static void CloseTop()
-        {
-            windowStack.Pop().Close();
         }
 
         public static void Close(GuiWindow window)

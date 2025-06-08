@@ -45,6 +45,7 @@ namespace New_SSQE.NewGUI.Base
             CloseButton.LeftClick += (s, e) =>
             {
                 Windowing.Close(this);
+                Instances.Remove(name);
             };
 
             DragStrip.LeftClick += (s, e) =>
