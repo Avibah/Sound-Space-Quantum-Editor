@@ -28,41 +28,41 @@ namespace New_SSQE.NewGUI.Windows
 
         public static readonly GuiButton Color1Picker = new(0, 0, 200, 50, "PICK COLOR", 30, "square");
         public static readonly GuiLabel Color1Label = new(0, -30, 200, 26, null, "Color 1 (1/X BPM + Primary):", 30, "main", CenterMode.None);
-        public static readonly GuiSquare Color1Square = new(210, 0, 75, 50, Settings.color1.Value) { Stretch = StretchMode.X };
+        public static readonly GuiSquare Color1Square = new(210, 0, 75, 50, Settings.color1.Value);
 
         public static readonly GuiButton Color2Picker = new(0, 100, 200, 50, "PICK COLOR", 30, "square");
         public static readonly GuiLabel Color2Label = new(0, 70, 200, 26, null, "Color 2 (1/1 BPM + Secondary):", 30, "main", CenterMode.None);
-        public static readonly GuiSquare Color2Square = new(210, 100, 75, 50, Settings.color2.Value) { Stretch = StretchMode.X };
+        public static readonly GuiSquare Color2Square = new(210, 100, 75, 50, Settings.color2.Value);
 
         public static readonly GuiButton Color3Picker = new(0, 200, 200, 50, "PICK COLOR", 30, "square");
         public static readonly GuiLabel Color3Label = new(0, 170, 200, 26, null, "Color 3 (1/2 BPM + Preview):", 30, "main", CenterMode.None);
-        public static readonly GuiSquare Color3Square = new(210, 200, 75, 50, Settings.color3.Value) { Stretch = StretchMode.X };
+        public static readonly GuiSquare Color3Square = new(210, 200, 75, 50, Settings.color3.Value);
 
         public static readonly GuiButton Color4Picker = new(0, 300, 200, 50, "PICK COLOR", 30, "square");
         public static readonly GuiLabel Color4Label = new(0, 270, 200, 26, null, "Color 4 (Waveform):", 30, "main", CenterMode.None);
-        public static readonly GuiSquare Color4Square = new(210, 300, 75, 50, Settings.color4.Value) { Stretch = StretchMode.X };
+        public static readonly GuiSquare Color4Square = new(210, 300, 75, 50, Settings.color4.Value);
 
         public static readonly GuiButton Color5Picker = new(0, 400, 200, 50, "PICK COLOR", 30, "square");
         public static readonly GuiLabel Color5Label = new(0, 370, 200, 26, null, "Color 5 (Special Objects):", 30, "main", CenterMode.None);
-        public static readonly GuiSquare Color5Square = new(210, 400, 75, 50, Settings.color5.Value) { Stretch = StretchMode.X };
+        public static readonly GuiSquare Color5Square = new(210, 400, 75, 50, Settings.color5.Value);
 
         public static readonly GuiButton NoteColorPicker = new(0, 500, 200, 50, "ADD COLOR", 30, "square");
         public static readonly GuiLabel NoteColorLabel = new(0, 470, 200, 26, null, "Note Colors:", 30, "main", CenterMode.None);
         public static readonly GuiLabel NoteColorInfo = new(0, 555, 195, 26, null, "LMB: Remove\nRMB: Move left", 30, "main", CenterMode.None);
         public static readonly GuiSquare NoteColorHoverSquare = new(0, 0, 0, 0, Color.FromArgb(0, 127, 255), true);
-        public static readonly ControlContainer NoteColorSquares = new(210, 500, 75, 50) { Stretch = StretchMode.X };
+        public static readonly ControlContainer NoteColorSquares = new(210, 500, 75, 50);
 
         public static readonly GuiNumberBox EditorBGOpacityTextbox = new(650, 0, 200, 50, 5, Settings.editorBGOpacity, false, true, "255", 34) { Style = ControlStyle.Textbox_Uncolored, Bounds = (0, 255) };
         public static readonly GuiLabel EditorBGOpacityLabel = new(650, -30, 200, 26, null, "Editor Background Opacity:", 30, "main", CenterMode.None);
-        public static readonly GuiSquare EditorBGOpacitySquare = new(860, 0, 75, 50) { Stretch = StretchMode.X };
+        public static readonly GuiSquare EditorBGOpacitySquare = new(860, 0, 75, 50);
 
         public static readonly GuiNumberBox GridOpacityTextbox = new(650, 100, 200, 50, 5, Settings.gridOpacity, false, true, "255", 34) { Style = ControlStyle.Textbox_Uncolored, Bounds = (0, 255) };
         public static readonly GuiLabel GridOpacityLabel = new(650, 70, 200, 26, null, "Grid Opacity:", 30, "main", CenterMode.None);
-        public static readonly GuiSquare GridOpacitySquare = new(860, 100, 75, 50) { Stretch = StretchMode.X };
+        public static readonly GuiSquare GridOpacitySquare = new(860, 100, 75, 50);
 
         public static readonly GuiNumberBox TrackOpacityTextbox = new(650, 200, 200, 50, 5, Settings.trackOpacity, false, true, "255", 34) { Style = ControlStyle.Textbox_Uncolored, Bounds = (0, 255) };
         public static readonly GuiLabel TrackOpacityLabel = new(650, 170, 200, 26, null, "Track Opacity:", 30, "main", CenterMode.None);
-        public static readonly GuiSquare TrackOpacitySquare = new(860, 200, 75, 50) { Stretch = StretchMode.X };
+        public static readonly GuiSquare TrackOpacitySquare = new(860, 200, 75, 50);
 
         public static readonly ControlContainer ColorsNav = new(500, 80, 1220, 700, Color1Picker, Color1Label, Color1Square, Color2Picker, Color2Label, Color2Square,
             Color3Picker, Color3Label, Color3Square, Color4Picker, Color4Label, Color4Square, Color5Picker, Color5Label, Color5Square,
@@ -117,7 +117,7 @@ namespace New_SSQE.NewGUI.Windows
 
 
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"), Color.FromArgb(30, 30, 30)) { Stretch = StretchMode.XY };
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"), Color.FromArgb(30, 30, 30));
 
 
         public GuiWindowSettings() : base(BackgroundSquare, SettingNavs, ColorsNav, GraphicsNav, MappingNav, OtherNav,
@@ -142,7 +142,7 @@ namespace New_SSQE.NewGUI.Windows
             float colorWidth = rect.Width / colors.Count;
 
             for (int i = 0; i < colors.Count; i++)
-                squares[i] = new(colorWidth * i, 0, colorWidth, rect.Height, colors[i]) { Stretch = StretchMode.XY };
+                squares[i] = new(colorWidth * i, 0, colorWidth, rect.Height, colors[i]);
 
             NoteColorSquares.SetControls(squares);
         }

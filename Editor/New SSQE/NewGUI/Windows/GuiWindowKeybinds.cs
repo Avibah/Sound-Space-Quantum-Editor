@@ -104,7 +104,7 @@ namespace New_SSQE.NewGUI.Windows
 
 
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"), Color.FromArgb(30, 30, 30)) { Stretch = StretchMode.XY };
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"), Color.FromArgb(30, 30, 30));
 
         public GuiWindowKeybinds() : base(BackgroundSquare, BackButton, CtrlIndicator, AltIndicator, ShiftIndicator, StaticKeysLabel,
             HFlipLabel, HFlipCAS, HFlipBox, HFlipReset, VFlipLabel, VFlipCAS, VFlipBox, VFlipReset, StoreNodesLabel, StoreNodesCAS, StoreNodesBox, StoreNodesReset,

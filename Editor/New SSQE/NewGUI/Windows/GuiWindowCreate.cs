@@ -34,7 +34,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiPathBox AudioPathRhythia = new(690, 420, 540, 50, audioFilter, Settings.audioPath, null, "CHOOSE", 28);
         public static readonly GuiLabel OrLabelRhythia = new(690, 470, 540, 50, null, "[OR]", 36);
         public static readonly GuiLabel OnlineLabelRhythia = new(690, 520, 540, 50, null, "Import Rhythia Online Map", 36);
-        public static readonly GuiTextbox OnlineBoxRhythia = new(690, 570, 540, 50, null, "", 36) { Stretch = StretchMode.X };
+        public static readonly GuiTextbox OnlineBoxRhythia = new(690, 570, 540, 50, null, "", 36);
         public static readonly ControlContainer RhythiaContainer = new(AudioPathLabelRhythia, AudioPathRhythia, OrLabelRhythia, OnlineLabelRhythia, OnlineBoxRhythia);
 
         public static readonly GuiLabel AudioPathLabelNova = new(690, 370, 540, 50, null, "Import Audio", 36);
@@ -45,7 +45,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton BackButton = new(690, 920, 540, 75, "BACK TO MENU", 48);
         public static readonly ControlContainer Persistent = new(CreateButton, BackButton);
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"), Color.FromArgb(30, 30, 30)) { Stretch = StretchMode.XY };
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"), Color.FromArgb(30, 30, 30));
 
         public GuiWindowCreate() : base(BackgroundSquare, Persistent, GameNavs, SoundSpaceContainer, RhythiaContainer, NovaContainer)
         {

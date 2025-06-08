@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using System.Drawing;
 
 namespace New_SSQE.NewGUI.Base
@@ -28,7 +27,7 @@ namespace New_SSQE.NewGUI.Base
         protected int vertexCount;
 
         public bool Visible = true;
-        public StretchMode Stretch = StretchMode.None;
+        public StretchMode Stretch = StretchMode.XY;
 
         public Vector2 RectOffset = Vector2.Zero;
 
