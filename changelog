@@ -1,4 +1,9 @@
 ----------------------------------
+    -- 2.3.1.5 - 6/9/2025 --
+
+- definitely didnt leave a test flag enabled in the previous patch
+
+----------------------------------
     -- 2.3.1.4 - 6/9/2025 --
 
 - fixed the Tempo setting not applying when opening a map
