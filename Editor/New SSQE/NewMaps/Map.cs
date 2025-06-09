@@ -86,6 +86,7 @@ namespace New_SSQE.NewMaps
             Settings.tempo.Value.Value = _tempo;
             Settings.currentTime.Value.Value = currentTime;
             Settings.beatDivisor.Value.Value = beatDivisor;
+            MusicPlayer.Tempo = Tempo;
 
             UndoRedoManager.ResetActions(urActions, urActionIndex);
         }
