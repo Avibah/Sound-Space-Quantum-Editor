@@ -2,7 +2,6 @@
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Globalization;
 
 namespace New_SSQE.NewGUI.Controls
 {
@@ -11,6 +10,9 @@ namespace New_SSQE.NewGUI.Controls
         private readonly Setting<float>? setting;
         private readonly bool isFloat;
         private readonly bool isPositive;
+
+        private string prevText = "";
+        private int prevCursor = 0;
 
         public Vector2 Bounds = (float.MinValue, float.MaxValue);
 
@@ -46,6 +48,8 @@ namespace New_SSQE.NewGUI.Controls
                 case Keys.Enter:
                 case Keys.KeyPadEnter:
                 case Keys.Escape:
+                    prevText = text;
+                    prevCursor = cursorPos;
                     base.KeyDown(key);
                     break;
             }
@@ -53,37 +57,43 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void TextInput(string str)
         {
-            if (!Focused)
-                return;
-            if (MainWindow.Instance.CtrlHeld)
-                return;
-
-            string sep = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
-            if (!isFloat && str == sep)
-                return;
-
-            if (int.TryParse(str, out _) || (str == sep && !text.Contains(sep)) || (!isPositive && str == "-" && !text.Contains('-') && cursorPos == 0))
-                base.TextInput(str);
+            prevText = text;
+            prevCursor = cursorPos;
+            base.TextInput(str);
         }
 
         protected override void FinishInput()
         {
-            cursorPos = Math.Clamp(cursorPos, 0, text.Length);
-            Update();
-
             float numFloat = 0;
             int numInt = 0;
 
-            if (isFloat ? float.TryParse(text, out numFloat) : int.TryParse(text, out numInt))
+            string temp = text;
+            if (string.IsNullOrEmpty(temp) || temp == "-" || temp == Program.Culture.NumberFormat.NumberDecimalSeparator) 
+                temp = "0";
+
+            if (isFloat ? float.TryParse(temp, out numFloat) : int.TryParse(temp, out numInt))
             {
-                float value = Math.Clamp(numFloat + numInt, Bounds.X, Bounds.Y);
+                float value = numFloat + numInt;
+                
+                if (value < Bounds.X)
+                {
+                    value = Bounds.X;
+                    if (Bounds.X != float.MinValue)
+                        SetText(value.ToString());
+                }
+
+                if (value > Bounds.Y)
+                {
+                    value = Bounds.Y;
+                    if (Bounds.Y != float.MaxValue)
+                        SetText(value.ToString());
+                }
 
                 if (setting != null)
                 {
                     float prevSetting = setting.Value;
 
                     setting.Value = value;
-                    SetText($"{value}");
 
                     if (prevSetting != setting.Value)
                         InvokeValueChanged(new(value));
@@ -91,6 +101,14 @@ namespace New_SSQE.NewGUI.Controls
                 else
                     InvokeValueChanged(new(value));
             }
+            else
+            {
+                cursorPos = prevCursor;
+                SetText(prevText);
+            }
+
+            cursorPos = Math.Clamp(cursorPos, 0, text.Length);
+            Update();
         }
     }
 }

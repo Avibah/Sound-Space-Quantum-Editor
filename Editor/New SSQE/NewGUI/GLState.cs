@@ -1,6 +1,5 @@
 ﻿using New_SSQE.ExternalUtils;
 using New_SSQE.NewGUI.Base;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Drawing;

@@ -159,6 +159,8 @@ namespace New_SSQE
             if (closed)
                 return;
 
+            
+
             if (PlatformUtils.IsLinux) // because all the other events for this are a key behind on linux (???)
             {
                 KeyboardState keyboard = KeyboardState;

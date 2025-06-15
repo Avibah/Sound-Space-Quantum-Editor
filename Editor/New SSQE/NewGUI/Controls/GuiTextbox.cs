@@ -1,8 +1,6 @@
 ﻿using New_SSQE.ExternalUtils;
 using New_SSQE.NewGUI.Font;
-using New_SSQE.NewGUI.Input;
 using New_SSQE.Preferences;
-using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using New_SSQE.NewGUI.Base;
 

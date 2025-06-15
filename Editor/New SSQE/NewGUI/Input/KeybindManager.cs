@@ -231,11 +231,6 @@ namespace New_SSQE.NewGUI.Input
 
                     break;
 
-                case "switchClickTool":
-                    Settings.selectTool.Value ^= true;
-
-                    break;
-
                 case "quantum":
                     Settings.enableQuantum.Value ^= true;
 

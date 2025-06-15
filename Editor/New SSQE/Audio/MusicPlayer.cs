@@ -11,8 +11,6 @@ namespace New_SSQE.Audio
 {
     internal class MusicPlayer
     {
-        public const long GLOBAL_OFFSET = 0;
-
         private static int streamFileID;
         private static int streamID;
         private static string lastFile;
@@ -177,7 +175,7 @@ namespace New_SSQE.Audio
         {
             Pause();
             CurrentTime = TotalTime;
-            Settings.currentTime.Value.Value = (float)(CurrentTime.TotalMilliseconds + 0.03 * (1 + (Mapping.Current.Tempo - 1) * 1.5 + GLOBAL_OFFSET / 1000d));
+            Settings.currentTime.Value.Value = (float)(CurrentTime.TotalMilliseconds + (0.03 + Settings.musicOffset.Value / 1000d) * (1 + (Mapping.Current.Tempo - 1) * 1.5));
         }
 
         public static void Play()
@@ -289,7 +287,7 @@ namespace New_SSQE.Audio
             {
                 CheckDevice();
 
-                long pos = Bass.BASS_ChannelSeconds2Bytes(streamID, value.TotalSeconds - 0.03 * (1 + (Mapping.Current.Tempo - 1) * 1.5 - GLOBAL_OFFSET / 1000d));
+                long pos = Bass.BASS_ChannelSeconds2Bytes(streamID, value.TotalSeconds - (0.03 + Settings.musicOffset.Value / 1000d) * (1 + (Mapping.Current.Tempo - 1) * 1.5));
 
                 Bass.BASS_ChannelSetPosition(streamID, Math.Max(pos, 0), BASSMode.BASS_POS_BYTE);
             }
@@ -299,7 +297,7 @@ namespace New_SSQE.Audio
 
                 long pos = Bass.BASS_ChannelGetPosition(streamID, BASSMode.BASS_POS_BYTE);
 
-                return TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, pos) + 0.03 * (1 + (Mapping.Current.Tempo - 1) * 1.5 + GLOBAL_OFFSET / 1000d));
+                return TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, pos) + (0.03 + Settings.musicOffset.Value / 1000d) * (1 + (Mapping.Current.Tempo - 1) * 1.5));
             }
         }
 

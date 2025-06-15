@@ -52,6 +52,7 @@ namespace New_SSQE.NewGUI.Windows
         // Timing
         public static readonly GuiTextboxNumeric ExportOffset = new(0, 50, 130, 40, Settings.exportOffset, false, false, "0", 31);
         public static readonly GuiTextboxNumeric SfxOffset = new(170, 50, 130, 40, Settings.sfxOffset, false, false, "0", 31);
+        public static readonly GuiTextboxNumeric MusicOffset = new(340, 50, 130, 40, Settings.musicOffset, false, false, "0", 31);
         public static readonly GuiButton OpenTimings = new(0, 110, 210, 40, "OPEN BPM SETUP", 27);
         public static readonly GuiButton ImportIni = new(0, 160, 210, 40, "IMPORT INI", 27);
         public static readonly GuiCheckbox Metronome = new(0, 210, 30, 30, Settings.metronome, "Metronome", 26);
@@ -61,9 +62,10 @@ namespace New_SSQE.NewGUI.Windows
 
         public static readonly GuiLabel ExportOffsetLabel = new(0, 20, 100, 30, Settings.color1, "Export Offset:", 30, "main", CenterMode.None);
         public static readonly GuiLabel SfxOffsetLabel = new(170, 20, 100, 30, Settings.color1, "SFX Offset:", 30, "main", CenterMode.None);
+        public static readonly GuiLabel MusicOffsetLabel = new(340, 20, 100, 30, Settings.color1, "Music Offset:", 30, "main", CenterMode.None);
 
-        public static readonly ControlContainer TimingNav = new(10, 190, 545, 756, ExportOffset, SfxOffset, OpenTimings, ImportIni, Metronome,
-            OpenBookmarks, CopyBookmarks, PasteBookmarks, ExportOffsetLabel, SfxOffsetLabel);
+        public static readonly ControlContainer TimingNav = new(10, 190, 545, 756, ExportOffset, SfxOffset, MusicOffset, OpenTimings, ImportIni, Metronome,
+            OpenBookmarks, CopyBookmarks, PasteBookmarks, ExportOffsetLabel, SfxOffsetLabel, MusicOffsetLabel);
 
         // Patterns
         public static readonly GuiButton HFlip = new(0, 20, 175, 40, "HORIZONTAL FLIP", 27);
@@ -516,8 +518,8 @@ namespace New_SSQE.NewGUI.Windows
 
             ExportButton.LeftClick += (s, e) =>
             {
-                Windowing.OpenDialog(new GuiDialogExport());
-                return;
+                //Windowing.OpenDialog(new GuiDialogExport());
+                //return;
 
                 switch (Settings.exportType.Value.Current)
                 {

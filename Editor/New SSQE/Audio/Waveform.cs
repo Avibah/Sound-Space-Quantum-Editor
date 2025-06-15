@@ -18,7 +18,7 @@ namespace New_SSQE.Audio
         private static double resolution = 0.0d;
         private static bool classic = false;
 
-        public static long Offset = -15 - MusicPlayer.GLOBAL_OFFSET;
+        public static long Offset = -15;
 
         private struct Level
         {

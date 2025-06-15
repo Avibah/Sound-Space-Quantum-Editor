@@ -52,6 +52,7 @@ namespace New_SSQE.Preferences
         public static readonly Setting<float> waveformDetail = 5;
         public static readonly Setting<float> sfxOffset = 0;
         public static readonly Setting<float> exportOffset = 0;
+        public static readonly Setting<float> musicOffset = 0;
         public static readonly Setting<float> bezierDivisor = 4;
         public static readonly Setting<float> sensitivity = 1;
         public static readonly Setting<float> parallax = 1;
