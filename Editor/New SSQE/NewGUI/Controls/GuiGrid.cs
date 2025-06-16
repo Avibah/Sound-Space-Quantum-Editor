@@ -474,23 +474,56 @@ namespace New_SSQE.NewGUI.Controls
 
         public override float[] Draw()
         {
+            bool squircles = Settings.gridSquircles.Value;
+            int cornerDetail = (int)Settings.gridSquircleDetail.Value;
+            float cornerRadius = Settings.gridSquircleRadius.Value;
+
             List<float> autoplayVerts = [];
             autoplayVerts.AddRange(GLVerts.Outline(0, 0, 1, 1, 0.075f, Style.Quaternary));
             autoplayVerts.AddRange(GLVerts.Rect(0, 0, 1, 1, Style.Quaternary, 0.25f));
             autoplayCursor.UploadStaticData(autoplayVerts.ToArray());
 
             List<float> noteVerts = [];
-            noteVerts.AddRange(GLVerts.Outline(0, 0, NoteSize, NoteSize, 2, 1f, 1f, 1f, 1f));
-            noteVerts.AddRange(GLVerts.Rect(0, 0, NoteSize, NoteSize, 1f, 1f, 1f, 0.15f));
+
+            if (squircles)
+            {
+                noteVerts.AddRange(GLVerts.SquircleOutline(0, 0, NoteSize, NoteSize, 2, cornerDetail, cornerRadius, 1f, 1f, 1f, 1f));
+                noteVerts.AddRange(GLVerts.Squircle(0, 0, NoteSize, NoteSize, cornerDetail, cornerRadius, 1f, 1f, 1f, 0.15f));
+            }
+            else
+            {
+                noteVerts.AddRange(GLVerts.Outline(0, 0, NoteSize, NoteSize, 2, 1f, 1f, 1f, 1f));
+                noteVerts.AddRange(GLVerts.Rect(0, 0, NoteSize, NoteSize, 1f, 1f, 1f, 0.15f));
+            }
+            
             noteConstant.UploadStaticData(noteVerts.ToArray());
 
-            noteApproach.UploadStaticData(GLVerts.Outline(0, 0, 1, 1, 0.0125f, 1f, 1f, 1f, 1f));
-            noteHover.UploadStaticData(GLVerts.Outline(-4, -4, NoteSize + 8, NoteSize + 8, 2, 1f, 1f, 1f, 0.25f));
-            noteSelect.UploadStaticData(GLVerts.Outline(-4, -4, NoteSize + 8, NoteSize + 8, 2, 1f, 1f, 1f, 1f));
+            if (squircles)
+            {
+                noteApproach.UploadStaticData(GLVerts.SquircleOutline(0, 0, 1, 1, 0.0125f, cornerDetail, cornerRadius, 1f, 1f, 1f, 1f));
+                noteHover.UploadStaticData(GLVerts.SquircleOutline(-4, -4, NoteSize + 8, NoteSize + 8, 2, cornerDetail, cornerRadius, 1f, 1f, 1f, 0.25f));
+                noteSelect.UploadStaticData(GLVerts.SquircleOutline(-4, -4, NoteSize + 8, NoteSize + 8, 2, cornerDetail, cornerRadius, 1f, 1f, 1f, 1f));
+            }
+            else
+            {
+                noteApproach.UploadStaticData(GLVerts.Outline(0, 0, 1, 1, 0.0125f, 1f, 1f, 1f, 1f));
+                noteHover.UploadStaticData(GLVerts.Outline(-4, -4, NoteSize + 8, NoteSize + 8, 2, 1f, 1f, 1f, 0.25f));
+                noteSelect.UploadStaticData(GLVerts.Outline(-4, -4, NoteSize + 8, NoteSize + 8, 2, 1f, 1f, 1f, 1f));
+            }
 
             List<float> previewVerts = [];
-            previewVerts.AddRange(GLVerts.Outline(0, 0, PreviewSize, PreviewSize, 2, 1f, 1f, 1f, 0.09375f));
-            previewVerts.AddRange(GLVerts.Rect(0, 0, PreviewSize, PreviewSize, 1f, 1f, 1f, 0.125f));
+
+            if (squircles)
+            {
+                previewVerts.AddRange(GLVerts.SquircleOutline(0, 0, PreviewSize, PreviewSize, 2, cornerDetail, cornerRadius, 1f, 1f, 1f, 0.09375f));
+                previewVerts.AddRange(GLVerts.Squircle(0, 0, PreviewSize, PreviewSize, cornerDetail, cornerRadius, 1f, 1f, 1f, 0.125f));
+            }
+            else
+            {
+                previewVerts.AddRange(GLVerts.Outline(0, 0, PreviewSize, PreviewSize, 2, 1f, 1f, 1f, 0.09375f));
+                previewVerts.AddRange(GLVerts.Rect(0, 0, PreviewSize, PreviewSize, 1f, 1f, 1f, 0.125f));
+            }
+            
             notePreview.UploadStaticData(previewVerts.ToArray());
 
             beatConstant.UploadStaticData(GLVerts.Outline(-5, -5, rect.Width + 10, rect.Height + 10, 3, Settings.color5.Value));

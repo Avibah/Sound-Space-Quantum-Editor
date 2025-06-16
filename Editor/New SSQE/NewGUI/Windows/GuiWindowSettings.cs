@@ -88,8 +88,16 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiLabel FontScaleLabel = new(700, 120, 200, 26, null, "Font Scale:", 30, "main", CenterMode.None);
         public static readonly GuiNumberBox FontScaleTextbox = new(700, 150, 200, 50, 0.05f, Settings.fontScale, true, true, "1", 30) { Style = ControlStyle.Textbox_Uncolored, Bounds = (0.25f, 2.5f) };
 
+        public static readonly GuiCheckbox GridSquircles = new(700, 300, 45, 45, Settings.gridSquircles, "Grid Squircles", 34) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiNumberBox GridSquircleDetailTextbox = new(700, 390, 200, 50, 1, Settings.gridSquircleDetail, false, true, "8", 30) { Style = ControlStyle.Textbox_Uncolored, Bounds = (1, 16) };
+        public static readonly GuiLabel GridSquircleDetailLabel = new(700, 360, 200, 26, null, "Grid Squircle Corner Detail:", 30, "main", CenterMode.None);
+        public static readonly GuiNumberBox GridSquircleRadiusTextbox = new(700, 485, 200, 50, 0.025f, Settings.gridSquircleRadius, true, true, "0.125", 30) { Style = ControlStyle.Textbox_Uncolored, Bounds = (0, 0.5f) };
+        public static readonly GuiLabel GridSquircleRadiusLabel = new(700, 455, 200, 26, null, "Grid Squircle Corner Radius:", 30, "main", CenterMode.None);
+        public static readonly GuiSquareRounded GridSquirclePreview = new(955, 395, 40, 40, (int)Settings.gridSquircleDetail.Value, Settings.gridSquircleRadius.Value, Color.White, true) { Stretch = StretchMode.None };
+
         public static readonly ControlContainer GraphicsNav = new(500, 80, 1220, 700, WaveformCheckbox, ClassicWaveformCheckbox, WaveformDetailTextbox, WaveformDetailLabel,
-            UseVSyncCheckbox, LimitPlayerFPSCheckbox, FPSLimitSlider, FPSLimitLabel, LowerFPSInBackgroundCheckbox, MSAACheckbox, RestartLabel, FontScaleLabel, FontScaleTextbox);
+            UseVSyncCheckbox, LimitPlayerFPSCheckbox, FPSLimitSlider, FPSLimitLabel, LowerFPSInBackgroundCheckbox, MSAACheckbox, RestartLabel, FontScaleLabel, FontScaleTextbox,
+            GridSquircles, GridSquircleDetailTextbox, GridSquircleDetailLabel, GridSquircleRadiusTextbox, GridSquircleRadiusLabel, GridSquirclePreview);
 
 
 
@@ -299,6 +307,8 @@ namespace New_SSQE.NewGUI.Windows
             };
 
             FontScaleTextbox.ValueChanged += (s, e) => Update();
+            GridSquircleDetailTextbox.ValueChanged += (s, e) => GridSquirclePreview.CornerDetail = (int)e.Value;
+            GridSquircleRadiusTextbox.ValueChanged += (s, e) => GridSquirclePreview.CornerRadius = e.Value;
 
             MonoCheckbox.LeftClick += (s, e) => MusicPlayer.Reload();
 

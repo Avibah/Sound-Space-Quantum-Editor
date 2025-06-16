@@ -44,6 +44,7 @@ namespace New_SSQE.Preferences
         public static readonly Setting<bool> muteSfx = false;
         public static readonly Setting<bool> muteMusic = false;
         public static readonly Setting<bool> smoothAutoplay = true;
+        public static readonly Setting<bool> gridSquircles = true;
 
         public static readonly Setting<float> editorBGOpacity = 255;
         public static readonly Setting<float> gridOpacity = 255;
@@ -63,6 +64,8 @@ namespace New_SSQE.Preferences
         public static readonly Setting<float> cursorScale = 1;
         public static readonly Setting<float> fontScale = 1;
         public static readonly Setting<float> maxMapHistory = 5;
+        public static readonly Setting<float> gridSquircleDetail = 8;
+        public static readonly Setting<float> gridSquircleRadius = 0.125f;
 
         public static readonly Setting<string> createGame = "";
         public static readonly Setting<string> language = "english";

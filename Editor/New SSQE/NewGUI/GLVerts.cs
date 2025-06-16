@@ -151,14 +151,15 @@ namespace New_SSQE.NewGUI
 
 
 
-        public static float[] Polygon(float x, float y, float radius, int sides, float angle, float r, float g, float b, float a = 1)
+        public static float[] Polygon(float x, float y, float radius, int sides, float angle, float r, float g, float b, float a = 1, float angleMult = 1, float angleStart = 0)
         {
-            Vector2[] vertices = new Vector2[sides];
+            Vector2[] vertices = new Vector2[sides + 1];
             double rad = MathHelper.DegreesToRadians(angle);
+            double radStart = MathHelper.DegreesToRadians(angleStart);
 
-            for (int i = 0; i < sides; i++)
+            for (int i = 0; i < sides + 1; i++)
             {
-                double ar = rad + i / (float)sides * Math.PI * 2;
+                double ar = rad + i / (float)sides * Math.PI * 2 * angleMult + radStart;
                 double vx = Math.Cos(ar) * radius;
                 double vy = -Math.Sin(ar) * radius;
 
@@ -170,7 +171,7 @@ namespace New_SSQE.NewGUI
 
             for (int i = 0; i < sides; i++)
             {
-                int next = i + 1 == sides ? 0 : i + 1;
+                int next = i + 1;
 
                 final[index++] = vertices[i].X;
                 final[index++] = vertices[i].Y;
@@ -197,19 +198,19 @@ namespace New_SSQE.NewGUI
             return final;
         }
 
-        public static float[] Polygon(float x, float y, float radius, int sides, float angle, Color color, float alpha = 1)
-            => Polygon(x, y, radius, sides, angle, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * alpha);
+        public static float[] Polygon(float x, float y, float radius, int sides, float angle, Color color, float alpha = 1, float angleMult = 1, float angleStart = 0)
+            => Polygon(x, y, radius, sides, angle, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * alpha, angleMult, angleStart);
 
 
 
-        public static float[] PolygonOutline(float x, float y, float radius, float width, int sides, float angle, float r, float g, float b, float a = 1)
+        public static float[] PolygonOutline(float x, float y, float radius, float width, int sides, float angle, float r, float g, float b, float a = 1, float angleMult = 1)
         {
-            Vector4[] vertices = new Vector4[sides];
+            Vector4[] vertices = new Vector4[sides + 1];
             double rad = MathHelper.DegreesToRadians(angle);
 
-            for (int i = 0; i < sides; i++)
+            for (int i = 0; i < sides + 1; i++)
             {
-                double ar = rad + i / (float)sides * Math.PI * 2;
+                double ar = rad + i / (float)sides * Math.PI * 2 * angleMult;
                 float vx1 = (float)Math.Cos(ar) * (radius + width / 2);
                 float vy1 = (float)-Math.Sin(ar) * (radius + width / 2);
 
@@ -224,7 +225,7 @@ namespace New_SSQE.NewGUI
 
             for (int i = 0; i < sides; i++)
             {
-                int next = (i + 1) % sides;
+                int next = i + 1;
 
                 final[index++] = vertices[i].X;
                 final[index++] = vertices[i].Y;
@@ -272,7 +273,70 @@ namespace New_SSQE.NewGUI
             return final;
         }
 
-        public static float[] PolygonOutline(float x, float y, float radius, float width, int sides, float angle, Color color, float a = 1)
-            => PolygonOutline(x, y, radius, width, sides, angle, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
+        public static float[] PolygonOutline(float x, float y, float radius, float width, int sides, float angle, Color color, float a = 1, float angleMult = 1)
+            => PolygonOutline(x, y, radius, width, sides, angle, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a, angleMult);
+
+
+
+        public static float[] Squircle(float x, float y, float w, float h, int sides, float radius, float r, float g, float b, float a = 1)
+        {
+            float min = Math.Min(w, h);
+            radius = Math.Min(radius * min, min / 2);
+
+            float innerXLeft = x + radius;
+            float innerXRight = x + w - radius;
+            float innerYTop = y + radius;
+            float innerYBottom = y + h - radius;
+
+            float[] left = Rect(x, innerYTop, radius, h - 2 * radius, r, g, b, a);
+            float[] right = Rect(innerXRight, innerYTop, radius, h - 2 * radius, r, g, b, a);
+            float[] center = Rect(innerXLeft, y, w - 2 * radius, h, r, g, b, a);
+
+            float[] topLeft = Polygon(innerXLeft, innerYTop, radius, sides, 90, r, g, b, a, 0.25f);
+            float[] topRight = Polygon(innerXRight, innerYTop, radius, sides, 0, r, g, b, a, 0.25f);
+            float[] bottomLeft = Polygon(innerXLeft, innerYBottom, radius, sides, 180, r, g, b, a, 0.25f);
+            float[] bottomRight = Polygon(innerXRight, innerYBottom, radius, sides, 270, r, g, b, a, 0.25f);
+
+            return [..left, ..right, ..center, ..topLeft, ..topRight, ..bottomLeft, ..bottomRight];
+        }
+
+        public static float[] Squircle(RectangleF rect, int sides, float radius, float r, float g, float b, float a = 1)
+            => Squircle(rect.X, rect.Y, rect.Width, rect.Height, sides, radius, r, g, b, a);
+        public static float[] Squircle(float x, float y, float w, float h, int sides, float radius, Color color, float a = 1)
+            => Squircle(x, y, w, h, sides, radius, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
+        public static float[] Squircle(RectangleF rect, int sides, float radius, Color color, float a = 1)
+            => Squircle(rect.X, rect.Y, rect.Width, rect.Height, sides, radius, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
+
+
+
+        public static float[] SquircleOutline(float x, float y, float w, float h, float lw, int sides, float radius, float r, float g, float b, float a = 1)
+        {
+            float min = Math.Min(w, h);
+            radius = Math.Min(radius * min, min / 2);
+
+            float innerXLeft = x + radius;
+            float innerXRight = x + w - radius;
+            float innerYTop = y + radius;
+            float innerYBottom = y + h - radius;
+
+            float[] left = Line(x, innerYTop, x, innerYBottom, lw, r, g, b, a);
+            float[] right = Line(x + w, innerYTop, x + w, innerYBottom, lw, r, g, b, a);
+            float[] top = Line(innerXLeft, y, innerXRight, y, lw, r, g, b, a);
+            float[] bottom = Line(innerXLeft, y + h, innerXRight, y + h, lw, r, g, b, a);
+
+            float[] topLeft = PolygonOutline(innerXLeft, innerYTop, radius, lw, sides, 90, r, g, b, a, 0.25f);
+            float[] topRight = PolygonOutline(innerXRight, innerYTop, radius, lw, sides, 0, r, g, b, a, 0.25f);
+            float[] bottomLeft = PolygonOutline(innerXLeft, innerYBottom, radius, lw, sides, 180, r, g, b, a, 0.25f);
+            float[] bottomRight = PolygonOutline(innerXRight, innerYBottom, radius, lw, sides, 270, r, g, b, a, 0.25f);
+
+            return [..left, ..right, ..top, ..bottom, ..topLeft, ..topRight, ..bottomLeft, ..bottomRight];
+        }
+
+        public static float[] SquircleOutline(RectangleF rect, float lw, int sides, float radius, float r, float g, float b, float a = 1)
+            => SquircleOutline(rect.X, rect.Y, rect.Width, rect.Height, lw, sides, radius, r, g, b, a);
+        public static float[] SquircleOutline(float x, float y, float w, float h, float lw, int sides, float radius, Color color, float a = 1)
+            => SquircleOutline(x, y, w, h, lw, sides, radius, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
+        public static float[] SquircleOutline(RectangleF rect, float lw, int sides, float radius, Color color, float a = 1)
+            => SquircleOutline(rect.X, rect.Y, rect.Width, rect.Height, lw, sides, radius, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
     }
 }
