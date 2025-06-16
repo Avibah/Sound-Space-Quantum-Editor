@@ -1,4 +1,13 @@
 ----------------------------------
+    -- 2.3.1.6 - 6/16/2025 --
+
+- fixed the swap click mode keybind not working
+- fixed decimals not working properly in numeric textboxes
+- added a music offset option in the 'TIMING' tab in case the music isnt correctly aligned with the waveform
+- notes on the grid are now squircles by default!
+  > the appearance of grid notes can be modified in Menu > Settings > GRAPHICS
+
+----------------------------------
     -- 2.3.1.5 - 6/9/2025 --
 
 - definitely didnt leave a test flag enabled in the previous patch
