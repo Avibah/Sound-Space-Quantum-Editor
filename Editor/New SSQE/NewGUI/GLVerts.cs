@@ -278,65 +278,65 @@ namespace New_SSQE.NewGUI
 
 
 
-        public static float[] Squircle(float x, float y, float w, float h, int sides, float radius, float r, float g, float b, float a = 1)
+        public static float[] Squircle(float x, float y, float w, float h, int cornerDetail, float cornerRadius, float r, float g, float b, float a = 1)
         {
             float min = Math.Min(w, h);
-            radius = Math.Min(radius * min, min / 2);
+            cornerRadius = Math.Min(cornerRadius * min, min / 2);
 
-            float innerXLeft = x + radius;
-            float innerXRight = x + w - radius;
-            float innerYTop = y + radius;
-            float innerYBottom = y + h - radius;
+            float innerXLeft = x + cornerRadius;
+            float innerXRight = x + w - cornerRadius;
+            float innerYTop = y + cornerRadius;
+            float innerYBottom = y + h - cornerRadius;
 
-            float[] left = Rect(x, innerYTop, radius, h - 2 * radius, r, g, b, a);
-            float[] right = Rect(innerXRight, innerYTop, radius, h - 2 * radius, r, g, b, a);
-            float[] center = Rect(innerXLeft, y, w - 2 * radius, h, r, g, b, a);
+            float[] left = Rect(x, innerYTop, cornerRadius, h - 2 * cornerRadius, r, g, b, a);
+            float[] right = Rect(innerXRight, innerYTop, cornerRadius, h - 2 * cornerRadius, r, g, b, a);
+            float[] center = Rect(innerXLeft, y, w - 2 * cornerRadius, h, r, g, b, a);
 
-            float[] topLeft = Polygon(innerXLeft, innerYTop, radius, sides, 90, r, g, b, a, 0.25f);
-            float[] topRight = Polygon(innerXRight, innerYTop, radius, sides, 0, r, g, b, a, 0.25f);
-            float[] bottomLeft = Polygon(innerXLeft, innerYBottom, radius, sides, 180, r, g, b, a, 0.25f);
-            float[] bottomRight = Polygon(innerXRight, innerYBottom, radius, sides, 270, r, g, b, a, 0.25f);
+            float[] topLeft = Polygon(innerXLeft, innerYTop, cornerRadius, cornerDetail, 90, r, g, b, a, 0.25f);
+            float[] topRight = Polygon(innerXRight, innerYTop, cornerRadius, cornerDetail, 0, r, g, b, a, 0.25f);
+            float[] bottomLeft = Polygon(innerXLeft, innerYBottom, cornerRadius, cornerDetail, 180, r, g, b, a, 0.25f);
+            float[] bottomRight = Polygon(innerXRight, innerYBottom, cornerRadius, cornerDetail, 270, r, g, b, a, 0.25f);
 
             return [..left, ..right, ..center, ..topLeft, ..topRight, ..bottomLeft, ..bottomRight];
         }
 
-        public static float[] Squircle(RectangleF rect, int sides, float radius, float r, float g, float b, float a = 1)
-            => Squircle(rect.X, rect.Y, rect.Width, rect.Height, sides, radius, r, g, b, a);
-        public static float[] Squircle(float x, float y, float w, float h, int sides, float radius, Color color, float a = 1)
-            => Squircle(x, y, w, h, sides, radius, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
-        public static float[] Squircle(RectangleF rect, int sides, float radius, Color color, float a = 1)
-            => Squircle(rect.X, rect.Y, rect.Width, rect.Height, sides, radius, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
+        public static float[] Squircle(RectangleF rect, int cornerDetail, float cornerRadius, float r, float g, float b, float a = 1)
+            => Squircle(rect.X, rect.Y, rect.Width, rect.Height, cornerDetail, cornerRadius, r, g, b, a);
+        public static float[] Squircle(float x, float y, float w, float h, int cornerDetail, float cornerRadius, Color color, float a = 1)
+            => Squircle(x, y, w, h, cornerDetail, cornerRadius, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
+        public static float[] Squircle(RectangleF rect, int cornerDetail, float cornerRadius, Color color, float a = 1)
+            => Squircle(rect.X, rect.Y, rect.Width, rect.Height, cornerDetail, cornerRadius, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
 
 
 
-        public static float[] SquircleOutline(float x, float y, float w, float h, float lw, int sides, float radius, float r, float g, float b, float a = 1)
+        public static float[] SquircleOutline(float x, float y, float w, float h, float lw, int cornerDetail, float cornerRadius, float r, float g, float b, float a = 1)
         {
             float min = Math.Min(w, h);
-            radius = Math.Min(radius * min, min / 2);
+            cornerRadius = Math.Min(cornerRadius * min, min / 2);
 
-            float innerXLeft = x + radius;
-            float innerXRight = x + w - radius;
-            float innerYTop = y + radius;
-            float innerYBottom = y + h - radius;
+            float innerXLeft = x + cornerRadius;
+            float innerXRight = x + w - cornerRadius;
+            float innerYTop = y + cornerRadius;
+            float innerYBottom = y + h - cornerRadius;
 
             float[] left = Line(x, innerYTop, x, innerYBottom, lw, r, g, b, a);
             float[] right = Line(x + w, innerYTop, x + w, innerYBottom, lw, r, g, b, a);
             float[] top = Line(innerXLeft, y, innerXRight, y, lw, r, g, b, a);
             float[] bottom = Line(innerXLeft, y + h, innerXRight, y + h, lw, r, g, b, a);
 
-            float[] topLeft = PolygonOutline(innerXLeft, innerYTop, radius, lw, sides, 90, r, g, b, a, 0.25f);
-            float[] topRight = PolygonOutline(innerXRight, innerYTop, radius, lw, sides, 0, r, g, b, a, 0.25f);
-            float[] bottomLeft = PolygonOutline(innerXLeft, innerYBottom, radius, lw, sides, 180, r, g, b, a, 0.25f);
-            float[] bottomRight = PolygonOutline(innerXRight, innerYBottom, radius, lw, sides, 270, r, g, b, a, 0.25f);
+            float[] topLeft = PolygonOutline(innerXLeft, innerYTop, cornerRadius, lw, cornerDetail, 90, r, g, b, a, 0.25f);
+            float[] topRight = PolygonOutline(innerXRight, innerYTop, cornerRadius, lw, cornerDetail, 0, r, g, b, a, 0.25f);
+            float[] bottomLeft = PolygonOutline(innerXLeft, innerYBottom, cornerRadius, lw, cornerDetail, 180, r, g, b, a, 0.25f);
+            float[] bottomRight = PolygonOutline(innerXRight, innerYBottom, cornerRadius, lw, cornerDetail, 270, r, g, b, a, 0.25f);
 
             return [..left, ..right, ..top, ..bottom, ..topLeft, ..topRight, ..bottomLeft, ..bottomRight];
         }
 
-        public static float[] SquircleOutline(RectangleF rect, float lw, int sides, float radius, float r, float g, float b, float a = 1)
-            => SquircleOutline(rect.X, rect.Y, rect.Width, rect.Height, lw, sides, radius, r, g, b, a);
-        public static float[] SquircleOutline(float x, float y, float w, float h, float lw, int sides, float radius, Color color, float a = 1)
-            => SquircleOutline(x, y, w, h, lw, sides, radius, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
-        public static float[] SquircleOutline(RectangleF rect, float lw, int sides, float radius, Color color, float a = 1)
-            => SquircleOutline(rect.X, rect.Y, rect.Width, rect.Height, lw, sides, radius, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
+        public static float[] SquircleOutline(RectangleF rect, float lw, int cornerDetail, float cornerRadius, float r, float g, float b, float a = 1)
+            => SquircleOutline(rect.X, rect.Y, rect.Width, rect.Height, lw, cornerDetail, cornerRadius, r, g, b, a);
+        public static float[] SquircleOutline(float x, float y, float w, float h, float lw, int cornerDetail, float cornerRadius, Color color, float a = 1)
+            => SquircleOutline(x, y, w, h, lw, cornerDetail, cornerRadius, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
+        public static float[] SquircleOutline(RectangleF rect, float lw, int cornerDetail, float cornerRadius, Color color, float a = 1)
+            => SquircleOutline(rect.X, rect.Y, rect.Width, rect.Height, lw, cornerDetail, cornerRadius, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
     }
 }
