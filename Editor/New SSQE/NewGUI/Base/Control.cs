@@ -28,6 +28,9 @@ namespace New_SSQE.NewGUI.Base
 
         public bool Visible = true;
         public StretchMode Stretch = StretchMode.XY;
+        public bool Rounded = false;
+        public int CornerDetail = 8;
+        public float CornerRadius = 0.125f;
 
         public Vector2 RectOffset = Vector2.Zero;
 

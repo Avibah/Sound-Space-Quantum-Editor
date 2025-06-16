@@ -12,15 +12,17 @@ namespace New_SSQE.NewGUI.Controls
         {
             this.color = color ?? Color.Transparent;
             this.outline = outline;
+
+            Rounded = false;
         }
         public GuiSquare(Color? color = null, bool outline = false) : this(0, 0, 1920, 1080, color, outline) { }
 
         public override float[] Draw()
         {
             if (outline)
-                return GLVerts.Outline(rect, 2, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
+                return Rounded ? GLVerts.SquircleOutline(rect, 2, CornerDetail, CornerRadius, color) : GLVerts.Outline(rect, 2, color);
             else
-                return GLVerts.Rect(rect, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
+                return Rounded ? GLVerts.Squircle(rect, CornerDetail, CornerRadius, color) : GLVerts.Rect(rect, color);
         }
 
         public void SetColor(Color? color = null)

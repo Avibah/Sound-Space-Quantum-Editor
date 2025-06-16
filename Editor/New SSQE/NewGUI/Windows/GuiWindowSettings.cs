@@ -93,7 +93,8 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiLabel GridSquircleDetailLabel = new(700, 360, 200, 26, null, "Grid Squircle Corner Detail:", 30, "main", CenterMode.None);
         public static readonly GuiNumberBox GridSquircleRadiusTextbox = new(700, 485, 200, 50, 0.025f, Settings.gridSquircleRadius, true, true, "0.125", 30) { Style = ControlStyle.Textbox_Uncolored, Bounds = (0, 0.5f) };
         public static readonly GuiLabel GridSquircleRadiusLabel = new(700, 455, 200, 26, null, "Grid Squircle Corner Radius:", 30, "main", CenterMode.None);
-        public static readonly GuiSquareRounded GridSquirclePreview = new(955, 395, 40, 40, (int)Settings.gridSquircleDetail.Value, Settings.gridSquircleRadius.Value, Color.White, true) { Stretch = StretchMode.None };
+        public static readonly GuiSquare GridSquirclePreview = new(955, 395, 40, 40, Color.White, true) { Stretch = StretchMode.None, Rounded = true,
+            CornerDetail = (int)Settings.gridSquircleDetail.Value, CornerRadius = Settings.gridSquircleRadius.Value };
 
         public static readonly ControlContainer GraphicsNav = new(500, 80, 1220, 700, WaveformCheckbox, ClassicWaveformCheckbox, WaveformDetailTextbox, WaveformDetailLabel,
             UseVSyncCheckbox, LimitPlayerFPSCheckbox, FPSLimitSlider, FPSLimitLabel, LowerFPSInBackgroundCheckbox, MSAACheckbox, RestartLabel, FontScaleLabel, FontScaleTextbox,
@@ -307,8 +308,18 @@ namespace New_SSQE.NewGUI.Windows
             };
 
             FontScaleTextbox.ValueChanged += (s, e) => Update();
-            GridSquircleDetailTextbox.ValueChanged += (s, e) => GridSquirclePreview.CornerDetail = (int)e.Value;
-            GridSquircleRadiusTextbox.ValueChanged += (s, e) => GridSquirclePreview.CornerRadius = e.Value;
+
+            GridSquircleDetailTextbox.ValueChanged += (s, e) =>
+            {
+                GridSquirclePreview.CornerDetail = (int)e.Value;
+                GridSquirclePreview.Update();
+            };
+
+            GridSquircleRadiusTextbox.ValueChanged += (s, e) =>
+            {
+                GridSquirclePreview.CornerRadius = e.Value;
+                GridSquirclePreview.Update();
+            };
 
             MonoCheckbox.LeftClick += (s, e) => MusicPlayer.Reload();
 

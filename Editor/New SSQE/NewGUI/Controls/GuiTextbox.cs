@@ -31,10 +31,10 @@ namespace New_SSQE.NewGUI.Controls
             text = setting?.Value ?? text;
             SetColor(Style.Secondary);
 
-            float[] fill = GLVerts.Rect(rect, Style.Primary);
-            float[] outline = GLVerts.Outline(rect, 2, Style.Tertiary);
+            float[] fill = Rounded ? GLVerts.Squircle(rect, CornerDetail, CornerRadius, Style.Primary) : GLVerts.Rect(rect, Style.Primary);
+            float[] outline = Rounded ? GLVerts.SquircleOutline(rect, 2f, CornerDetail, CornerRadius, Style.Tertiary) : GLVerts.Outline(rect, 2f, Style.Tertiary);
             if (!cursorShowing)
-                return fill.Concat(outline).ToArray();
+                return [..fill, ..outline];
 
             string textBefore = "";
             if (cursorPos >= 0)
@@ -52,9 +52,9 @@ namespace New_SSQE.NewGUI.Controls
             if (CenterMode.HasFlag(CenterMode.Y))
                 textY += rect.Y + rect.Height / 2 - textH / 2;
 
-            float[] cursor = GLVerts.Line(textX, textY, textX, textY + textH, 2, Style.Secondary);
+            float[] cursor = GLVerts.Line(textX, textY, textX, textY + textH, 2f, Style.Secondary);
 
-            return fill.Concat(outline).Concat(cursor).ToArray();
+            return [..fill, ..outline, ..cursor];
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)

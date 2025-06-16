@@ -41,19 +41,29 @@ namespace New_SSQE.NewGUI.Controls
             float hGap = (rect.Height - width) / 2;
             RectangleF squareRect = new(rect.X, rect.Y + hGap, width, width);
 
-            float[] fill = GLVerts.Rect(squareRect, Style.Tertiary);
-            float[] outline = GLVerts.Outline(squareRect, 2, Style.Quaternary);
-
             float cWidth = width * 0.75f * checkSize;
             float cGap = (width - cWidth) / 2;
             RectangleF checkRect = new(rect.X + cGap, rect.Y + hGap + cGap, cWidth, cWidth);
 
             SetColor(Style.Primary);
-            float[] check = GLVerts.Rect(checkRect, Style.Secondary);
-
             xOffset = width * 1.15f;
 
-            return fill.Concat(outline).Concat(check).ToArray();
+            if (Rounded)
+            {
+                float[] fill = GLVerts.Squircle(squareRect, CornerDetail, CornerRadius, Style.Tertiary);
+                float[] outline = GLVerts.SquircleOutline(squareRect, 2f, CornerDetail, CornerRadius, Style.Quaternary);
+                float[] check = GLVerts.Squircle(checkRect, CornerDetail, CornerRadius, Style.Secondary);
+
+                return [..fill, ..outline, ..check];
+            }
+            else
+            {
+                float[] fill = GLVerts.Rect(squareRect, Style.Tertiary);
+                float[] outline = GLVerts.Outline(squareRect, 2f, Style.Quaternary);
+                float[] check = GLVerts.Rect(checkRect, Style.Secondary);
+
+                return [..fill, ..outline, ..check];
+            }
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)

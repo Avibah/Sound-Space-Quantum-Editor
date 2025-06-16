@@ -27,6 +27,7 @@ namespace New_SSQE.NewGUI.Controls
             prevValue = setting.Value.Value;
 
             Style = ControlStyle.Slider_Uncolored;
+            CornerRadius = 0.5f;
         }
 
         public override float[] Draw()
@@ -41,16 +42,16 @@ namespace New_SSQE.NewGUI.Controls
                 : new(rect.X + rect.Width / 2 - 1.5f, rect.Y + rect.Width / 2, 3, rect.Height - rect.Width);
             Vector2 circlePos = (lineRect.X + lineRect.Width * (horizontal ? progress : 0.5f), lineRect.Y + lineRect.Height * (horizontal ? 0.5f : progress));
 
-            float[] line = GLVerts.Rect(lineRect, Style.Secondary);
+            float[] line = Rounded ? GLVerts.Squircle(lineRect, CornerDetail, CornerRadius, Style.Secondary) : GLVerts.Rect(lineRect, Style.Secondary);
             float[] circle = GLVerts.Polygon(circlePos.X, circlePos.Y, 4, 16, 0, Style.Primary);
 
             if (hoverTime > 0)
             {
                 float[] hoverCircle = GLVerts.PolygonOutline(circlePos.X, circlePos.Y, 12 * hoverTime, 2, 6, 90 * hoverTime, Style.Primary);
-                circle = circle.Concat(hoverCircle).ToArray();
+                circle = [..circle, ..hoverCircle];
             }
 
-            return line.Concat(circle).ToArray();
+            return [..line, ..circle];
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)

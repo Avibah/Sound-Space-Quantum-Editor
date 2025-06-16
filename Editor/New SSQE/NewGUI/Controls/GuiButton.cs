@@ -14,11 +14,22 @@ namespace New_SSQE.NewGUI.Controls
 
         public override float[] Draw()
         {
-            float[] fill = GLVerts.Rect(rect, Style.Primary);
-            float[] outline = GLVerts.Outline(rect, 2f, Style.Secondary);
-            float[] mask = GLVerts.Rect(rect, Style.Tertiary, hoverTime);
+            if (Rounded)
+            {
+                float[] fill = GLVerts.Squircle(rect, CornerDetail, CornerRadius, Style.Primary);
+                float[] outline = GLVerts.SquircleOutline(rect, 2f, CornerDetail, CornerRadius, Style.Secondary);
+                float[] mask = GLVerts.Squircle(rect, CornerDetail, CornerRadius, Style.Tertiary, hoverTime);
 
-            return fill.Concat(outline).Concat(mask).ToArray();
+                return [..fill, ..outline, ..mask];
+            }
+            else
+            {
+                float[] fill = GLVerts.Rect(rect, Style.Primary);
+                float[] outline = GLVerts.Outline(rect, 2f, Style.Secondary);
+                float[] mask = GLVerts.Rect(rect, Style.Tertiary, hoverTime);
+
+                return [..fill, ..outline, ..mask];
+            }
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)
