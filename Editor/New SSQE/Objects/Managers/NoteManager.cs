@@ -19,8 +19,10 @@ namespace New_SSQE.Objects.Managers
             List<int> oldBez = [..BezierNodes];
             List<int> newBez = [];
             for (int i = 0; i < BezierNodes.Count; i++)
+            {
                 if (BezierNodes[i] < Notes.Count + newNotes.Count - oldNotes.Count)
                     newBez.Add(BezierNodes[i]);
+            }
 
             UndoRedoManager.Add(label, () =>
             {
