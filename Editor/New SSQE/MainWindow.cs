@@ -105,6 +105,8 @@ namespace New_SSQE
             GL.GetInteger(GetPName.MinorVersion, out minor);
             GL.GetInteger(GetPName.MaxFramebufferSamples, out MaxSamples);
 
+            Logging.Log($"Max samples: {MaxSamples}");
+
             if (string.IsNullOrWhiteSpace(version) || new Version(major, minor) < APIVersion)
                 throw new PlatformNotSupportedException($"Unsupported OpenGL version (Minimum: {APIVersion})");
             if (!PlatformUtils.ValidateOpenGL())
