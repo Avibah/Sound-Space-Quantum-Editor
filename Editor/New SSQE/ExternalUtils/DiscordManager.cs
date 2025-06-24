@@ -66,6 +66,8 @@ namespace New_SSQE.ExternalUtils
         {
             if (!enabled)
                 return;
+            if (client?.IsDisposed ?? true)
+                return;
 
             string details = status switch
             {

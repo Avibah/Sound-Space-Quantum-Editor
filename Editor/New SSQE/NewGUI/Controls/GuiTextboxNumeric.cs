@@ -57,6 +57,9 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void TextInput(string str)
         {
+            if (isPositive && str == "-")
+                return;
+
             prevText = text;
             prevCursor = cursorPos;
             base.TextInput(str);

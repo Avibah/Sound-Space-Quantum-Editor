@@ -4,7 +4,6 @@ using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Controls;
-using New_SSQE.NewGUI.Forms;
 using New_SSQE.NewGUI.Input;
 using New_SSQE.NewMaps;
 using New_SSQE.NewMaps.Parsing;
@@ -80,7 +79,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton StoreNodes = new(0, 390, 175, 40, "STORE NODES", 27);
         public static readonly GuiButton ClearNodes = new(185, 390, 175, 40, "CLEAR NODES", 27);
         public static readonly GuiCheckbox CurveBezier = new(0, 450, 30, 30, Settings.curveBezier, "Curve Bezier", 27);
-        public static readonly GuiNumberBox BezierBox = new(0, 520, 100, 40, 1, Settings.bezierDivisor, false, true, "4", 27);
+        public static readonly GuiNumberBox BezierBox = new(0, 520, 100, 40, 1, Settings.bezierDivisor, false, true, "4", 27) { Bounds = (1, float.MaxValue) };
         public static readonly GuiButton BezierButton = new(110, 520, 100, 40, "DRAW", 27);
 
         public static readonly GuiLabel RotateLabel = new(0, 80, 175, 30, Settings.color1, "Rotate by Degrees:", 30, "main", CenterMode.None);
