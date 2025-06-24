@@ -1,4 +1,12 @@
 ----------------------------------
+    -- 2.3.1.7 - 6/23/2025 --
+
+- fixed discord rpc causing a crash on close after trying to exit multiple times
+- fixed crashing while attempting to modify stored bezier nodes
+- fixed 0 being an accepted bezier divisor
+- slightly improved negative handling in positive numeric textboxes
+
+----------------------------------
     -- 2.3.1.6 - 6/16/2025 --
 
 - fixed the swap click mode keybind not working
