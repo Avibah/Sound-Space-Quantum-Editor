@@ -47,7 +47,12 @@ namespace New_SSQE.NewGUI.Controls
 
             UpButton.LeftClick += (s, e) => IncrementUp();
             DownButton.LeftClick += (s, e) => IncrementDown();
-            ValueBox.ValueChanged += (s, e) => Value = e.Value;
+
+            ValueBox.ValueChanged += (s, e) =>
+            {
+                Value = e.Value;
+                InvokeValueChanged(new(Value));
+            };
         }
 
         public float Increment(float increment)

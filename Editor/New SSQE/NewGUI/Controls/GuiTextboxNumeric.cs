@@ -28,6 +28,17 @@ namespace New_SSQE.NewGUI.Controls
                 Bounds = (0, float.MaxValue);
         }
 
+        public override void Reset()
+        {
+            base.Reset();
+
+            TextEntered += (s, e) =>
+            {
+                if (!float.TryParse(e.Text, out float value) || value < Bounds.X)
+                    SetText(Bounds.X.ToString());
+            };
+        }
+
         public override void KeyDown(Keys key)
         {
             if (!Focused)
@@ -76,14 +87,7 @@ namespace New_SSQE.NewGUI.Controls
 
             if (isFloat ? float.TryParse(temp, out numFloat) : int.TryParse(temp, out numInt))
             {
-                float value = numFloat + numInt;
-                
-                if (value < Bounds.X)
-                {
-                    value = Bounds.X;
-                    if (Bounds.X != float.MinValue)
-                        SetText(value.ToString());
-                }
+                float value = Math.Max(numFloat + numInt, Bounds.X);
 
                 if (value > Bounds.Y)
                 {
