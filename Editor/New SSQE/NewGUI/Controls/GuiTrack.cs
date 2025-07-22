@@ -151,6 +151,7 @@ namespace New_SSQE.NewGUI.Controls
             int colorCount = Settings.noteColors.Value.Count;
             float? lastRenderedText = null;
             hoveringObject = null;
+            hoveringDuration = null;
 
             MapObject? toPlay = null;
             int objCount = 0;
@@ -693,7 +694,7 @@ namespace New_SSQE.NewGUI.Controls
             float stepX = 60000f / bpm * MS_TO_PX / Settings.beatDivisor.Value.Value;
             float threshold = Math.Clamp(stepX / 1.75f, 1f, 12f);
 
-            if (draggingObjects.Count > 0 || draggingDuration != null)
+            if (draggingObjects.Count > 0)
                 cursorMs -= NoteSize / 2 * PX_TO_MS;
 
             if (draggingObjects.FirstOrDefault() is TimingPoint point)

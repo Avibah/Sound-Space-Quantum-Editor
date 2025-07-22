@@ -117,10 +117,11 @@ namespace New_SSQE.NewGUI.Controls
         {
             RectangleF lineRect = new(rect.X + rect.Height / 2f, rect.Y + rect.Height / 2f - 1.5f, rect.Width - rect.Height, 3f);
             float y = lineRect.Y + lineRect.Height / 2f;
+            float widthDiff = MainWindow.Instance.ClientSize.X / 1920f;
 
-            notes.UploadStaticData(GLVerts.Line(0, y + 5f, 0, y + 3f, 1, Color.White));
-            points.UploadStaticData(GLVerts.Line(0, y - 10f, 0, y - 6f, 2, Color.White));
-            objects.UploadStaticData(GLVerts.Line(0, y + 9f, 0, y + 7f, 2, Color.White));
+            notes.UploadStaticData(GLVerts.Line(0, y + 5f, 0, y + 3f, 1 * widthDiff, Color.White));
+            points.UploadStaticData(GLVerts.Line(0, y - 10f, 0, y - 6f, 2 * widthDiff, Color.White));
+            objects.UploadStaticData(GLVerts.Line(0, y + 9f, 0, y + 7f, 2 * widthDiff, Color.White));
 
             List<float> bookmarkVerts = [];
 
@@ -235,6 +236,12 @@ namespace New_SSQE.NewGUI.Controls
                 MusicPlayer.Play();
 
             base.MouseUpLeft(x, y);
+        }
+
+        public override void Resize(float screenWidth, float screenHeight)
+        {
+            base.Resize(screenWidth, screenHeight);
+            RefreshInstances();
         }
     }
 }

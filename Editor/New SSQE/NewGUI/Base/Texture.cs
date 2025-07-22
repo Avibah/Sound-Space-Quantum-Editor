@@ -45,6 +45,13 @@ namespace New_SSQE.NewGUI.Base
             }
         }
 
+        private Vector3 _color = Vector3.One;
+        public void SetColor(Color color)
+        {
+            _color = (color.R / 255f, color.G / 255f, color.B / 255f);
+            Draw(color.A / 255f);
+        }
+
         public Texture(string texture, SKBitmap? img = null, bool smooth = false, TextureUnit unit = TextureUnit.Texture0)
         {
             this.texture = Texturing.Generate(texture, img, smooth, unit);
@@ -76,6 +83,8 @@ namespace New_SSQE.NewGUI.Base
 
         public void Draw(float x, float y, float w, float h, float alpha = 1) => Draw(new(x, y, w, h), alpha);
 
+        public void Draw(float alpha = 1) => Draw(rect, alpha);
+
         public void Activate()
         {
             if (_disposed)
@@ -83,6 +92,7 @@ namespace New_SSQE.NewGUI.Base
 
             GLState.EnableTextureUnit(Shader, texUnit);
             GLState.EnableTexture(texture);
+            Shader.Uniform3("Color", _color);
         }
 
         public void Render()

@@ -17,6 +17,8 @@ namespace New_SSQE.NewGUI.Base
         protected Texture[] textures = [];
         public ControlStyle Style = new();
 
+        public Texture[] Textures => [..textures];
+
         protected int textureIndex = 0;
 
         protected readonly RectangleF startRect;

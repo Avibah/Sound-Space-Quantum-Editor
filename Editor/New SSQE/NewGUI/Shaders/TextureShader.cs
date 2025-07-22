@@ -26,12 +26,13 @@ out vec4 FragColor;
 in vec2 texCoord;
 in float alpha;
 
+uniform vec3 Color;
 uniform sampler2D texture0;
                                                 
 void main()
 {
     vec4 color = texture(texture0, texCoord);
-    FragColor = vec4(color.xyz, color.w * alpha);
+    FragColor = vec4(color.xyz * Color, color.w * alpha);
 }";
 
         public TextureShader() : base(vertex, fragment) { }

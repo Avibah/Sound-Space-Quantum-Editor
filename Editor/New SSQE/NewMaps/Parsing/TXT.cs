@@ -17,49 +17,55 @@ namespace New_SSQE.NewMaps.Parsing
 
             for (int i = 0; i < data.Length; i++)
             {
-                if (quoted && !escaped)
+                if (quoted)
                 {
-                    if (data[i] == '"')
-                        quoted = false;
-                    else
+                    if (escaped)
+                    {
+                        escaped = false;
                         chars.Add(data[i]);
-                    continue;
-                }
+                        continue;
+                    }
 
-                if (escaped)
-                {
-                    escaped = false;
-                    chars.Add(data[i]);
-                    continue;
+                    switch (data[i])
+                    {
+                        case '\\':
+                            escaped = true;
+                            break;
+                        case '"':
+                            quoted = false;
+                            break;
+                        default:
+                            chars.Add(data[i]);
+                            break;
+                    }
                 }
-
-                switch (data[i])
+                else
                 {
-                    case '\\':
-                        escaped = true;
-                        break;
-                    case '"':
-                        quoted = true;
-                        break;
-                    case '|':
-                        obj.Add(string.Join(null, chars));
-                        chars = [];
-                        break;
-                    case ',':
-                        obj.Add(string.Join(null, chars));
-                        chars = [];
-                        result.Add(obj.ToArray());
-                        obj = [];
-                        break;
-                    default:
-                        chars.Add(data[i]);
-                        break;
+                    switch (data[i])
+                    {
+                        case '"':
+                            quoted = true;
+                            break;
+                        case '|':
+                            obj.Add(string.Join(null, chars));
+                            chars = [];
+                            break;
+                        case ',':
+                            obj.Add(string.Join(null, chars));
+                            chars = [];
+                            result.Add([..obj]);
+                            obj = [];
+                            break;
+                        default:
+                            chars.Add(data[i]);
+                            break;
+                    }
                 }
             }
 
             obj.Add(string.Join(null, chars));
-            result.Add(obj.ToArray());
-            return result.ToArray();
+            result.Add([..obj]);
+            return [..result];
         }
 
         public static bool ReadData(string data)
@@ -163,8 +169,8 @@ namespace New_SSQE.NewMaps.Parsing
             return INI.Write(ini);
         }
 
-        private static MapHistory forcedHistory = new("save");
-        private static MapHistory autosaveHistory = new("autosave");
+        private static readonly MapHistory forcedHistory = new("save");
+        private static readonly MapHistory autosaveHistory = new("autosave");
 
         public static bool WriteForced(string path)
         {

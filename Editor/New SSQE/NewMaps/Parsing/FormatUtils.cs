@@ -53,6 +53,7 @@ namespace New_SSQE.NewMaps.Parsing
             false, // 13
             false, // 14
             false, // 15
+            false, // 16
         ];
 
         public static (List<MapObject>, List<MapObject>) SplitVFXSpecial(List<MapObject> objects)

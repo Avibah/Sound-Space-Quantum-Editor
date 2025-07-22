@@ -28,7 +28,8 @@ namespace New_SSQE.NewMaps
         Beat = 12,
         Glide = 13,
         Mine = 14,
-        Lyric = 15
+        Lyric = 15,
+        Fever = 16
     }
 
     internal enum ClickMode

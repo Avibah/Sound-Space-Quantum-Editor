@@ -40,6 +40,8 @@ namespace New_SSQE.NewGUI.Controls
             text = startText;
             textSize = startTextSize;
             font = startFont;
+
+            Update();
         }
     }
 }

@@ -145,6 +145,11 @@ namespace New_SSQE.Objects
 
                         obj = new Lyric(ms, lyric, fadeIn, fadeOut);
                         break;
+                    case 16:
+                        duration = long.Parse(data[++index]);
+
+                        obj = new Fever(ms, duration);
+                        break;
                     default:
                         obj = new(id ?? -1, ms);
                         break;

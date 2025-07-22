@@ -83,8 +83,8 @@ namespace New_SSQE.Preferences
         public static readonly Setting<string> rhythiaFolderPath = "";
         public static readonly Setting<string> replayPath = "";
         public static readonly Setting<ListSetting> cameraMode = new ListSetting(0, "half lock", "full lock", "spin");
-        public static readonly Setting<ListSetting> modchartGame = new ListSetting(1, "Rhythia", "Nova");
-        public static readonly Setting<ListSetting> exportType = new ListSetting(0, "Rhythia (SSPM)", "Nova (NPK)");
+        public static readonly Setting<ListSetting> modchartGame = new ListSetting(1, "Rhythia", "Novastra");
+        public static readonly Setting<ListSetting> exportType = new ListSetting(0, "Rhythia (SSPM)", "Novastra (NPK)");
 
         public static readonly Setting<float> vfxDuration = 0;
         public static readonly Setting<ListSetting> vfxStyle = new ListSetting(0, "Linear", "Sine", "Back", "Quad", "Quart", "Quint", "Bounce", "Elastic", "Exponential", "Circular", "Cubic");

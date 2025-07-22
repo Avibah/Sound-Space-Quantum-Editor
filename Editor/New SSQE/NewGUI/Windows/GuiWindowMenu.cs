@@ -169,6 +169,8 @@ namespace New_SSQE.NewGUI.Windows
 
             void Open(int index)
             {
+                if (mapIndex + index < 0 || mapIndex + index >= Mapping.Cache.Count)
+                    return;
                 Mapping.Open(Mapping.Cache[mapIndex + index]);
             }
 
@@ -180,6 +182,9 @@ namespace New_SSQE.NewGUI.Windows
 
             void Close(int index)
             {
+
+                if (mapIndex + index < 0 || mapIndex + index >= Mapping.Cache.Count)
+                    return;
                 Mapping.Close(Mapping.Cache[mapIndex + index]);
                 AssembleMapList();
             }

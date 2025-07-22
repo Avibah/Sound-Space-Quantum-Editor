@@ -22,7 +22,7 @@ namespace New_SSQE.NewMaps.Parsing
             string metadataPath = Path.Combine(directory, "metadata.json");
 
             Dictionary<string, JsonElement> metadata = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(metadataPath)) ?? [];
-            int formatVersion = metadata.TryGetValue("formatVersion", out JsonElement format) ? format.GetInt32() : 0;
+            int formatVersion = metadata.TryGetValue("formatVersion", out JsonElement format) ? format.GetInt32() : 1;
 
             if (formatVersion <= 0 || formatVersion > readers.Length || readers[formatVersion - 1] == null)
             {
@@ -30,7 +30,7 @@ namespace New_SSQE.NewMaps.Parsing
                 return false;
             }
 
-            return readers[formatVersion]!(path);
+            return readers[formatVersion - 1]!(path);
         }
 
         public static bool Write(string path)
@@ -49,13 +49,20 @@ namespace New_SSQE.NewMaps.Parsing
                 _ => throw new FormatException($"AUDIO - not MP3/OGG ({MusicPlayer.ctype})"),
             };
 
-            File.Copy(Metadata["coverPath"], Path.Combine(temp, $"{id}{Path.GetExtension(Metadata["coverPath"])}"), true);
-            File.Copy(Metadata["iconPath"], Path.Combine(temp, $"profile{Path.GetExtension(Metadata["iconPath"])}"), true);
+            bool hasCover = !string.IsNullOrWhiteSpace(Metadata["coverPath"]);
+            bool hasIcon = !string.IsNullOrWhiteSpace(Metadata["iconPath"]);
+
+            if (hasCover)
+                File.Copy(Metadata["coverPath"], Path.Combine(temp, $"{id}{Path.GetExtension(Metadata["coverPath"])}"), true);
+            if (hasIcon)
+                File.Copy(Metadata["iconPath"], Path.Combine(temp, $"profile{Path.GetExtension(Metadata["iconPath"])}"), true);
+            
             File.Copy(Path.Combine(Assets.CACHED, $"{id}.asset"), Path.Combine(temp, $"{id}{extension}"), true);
 
             List<Dictionary<string, object>> notes = new(Mapping.Current.Notes.Count);
             List<Dictionary<string, object>> beats = [];
             List<Dictionary<string, object>> glides = [];
+            List<Dictionary<string, object>> events = [];
 
             for (int i = 0; i < Mapping.Current.Notes.Count; i++)
             {
@@ -68,6 +75,16 @@ namespace New_SSQE.NewMaps.Parsing
                     {"t", note.Ms }
                 });
             }
+
+            Mapping.Current.Notes.Sort();
+            Mapping.Current.SpecialObjects.Sort();
+
+            MapObject[] validObjects = [..Mapping.Current.SpecialObjects.Where(n => n is Beat || n is Glide || n is Mine)];
+
+            long lastMs = Mapping.Current.Notes.LastOrDefault()?.Ms ?? 0;
+            lastMs = Math.Max(lastMs, validObjects.LastOrDefault()?.Ms ?? 0);
+
+            long? prevFeverMs = null;
 
             foreach (MapObject obj in Mapping.Current.SpecialObjects)
             {
@@ -104,17 +121,53 @@ namespace New_SSQE.NewMaps.Parsing
                             {"m", true }
                         });
                         break;
+
+                    case 16 when obj is Fever fever:
+                        if (fever.Ms >= lastMs)
+                            break;
+
+                        long curMs = Math.Max(prevFeverMs ?? 0, fever.Ms);
+                        prevFeverMs = fever.Ms + fever.Duration;
+
+                        events.Add(new()
+                        {
+                            {"type", "fever" },
+                            {"t", curMs },
+                            {"active", true }
+                        });
+
+                        events.Add(new()
+                        {
+                            {"type", "fever" },
+                            {"t", Math.Min(fever.Ms + fever.Duration, lastMs) },
+                            {"active", false }
+                        });
+                        break;
                 }
             }
 
+            foreach (TimingPoint point in Mapping.Current.TimingPoints)
+            {
+                events.Add(new()
+                {
+                    {"type", "tempo" },
+                    {"t", point.Ms },
+                    {"bpm", point.BPM }
+                });
+            }
+
             notes = [..notes.OrderBy(n => n["t"])];
+            beats = [..beats.OrderBy(n => n["t"])];
+            glides = [..glides.OrderBy(n => n["t"])];
+            events = [..events.OrderBy(n => n["t"])];
 
             Dictionary<string, object> chart = new()
             {
                 {"songOffset", long.Parse(Metadata["songOffset"]) },
                 {"notes", notes },
                 {"beats", beats },
-                {"glides", glides }
+                {"glides", glides },
+                {"events", events }
             };
 
             File.WriteAllText(Path.Combine(temp, "chart.nch"), JsonSerializer.Serialize(chart, Program.JsonOptions));
@@ -127,12 +180,13 @@ namespace New_SSQE.NewMaps.Parsing
                 {"mapCreatorPersonalLink", Metadata["mapCreatorPersonalLink"] },
                 {"previewStartTime", long.Parse(Metadata["previewStartTime"]) / 1000f },
                 {"previewDuration", long.Parse(Metadata["previewDuration"]) / 1000f },
-                {"formatVersion", CURRENT_VERSION }
+                {"formatVersion", CURRENT_VERSION },
+                {"ssqeVersion", Program.Version }
             };
 
             File.WriteAllText(Path.Combine(temp, "metadata.json"), JsonSerializer.Serialize(metadata, Program.JsonOptions));
 
-            Lyric[] lyrics = Mapping.Current.SpecialObjects.Where(n => n is Lyric).Cast<Lyric>().ToArray();
+            Lyric[] lyrics = [..Mapping.Current.SpecialObjects.Where(n => n is Lyric).Cast<Lyric>()];
 
             if (lyrics.Length > 0)
             {
@@ -144,9 +198,12 @@ namespace New_SSQE.NewMaps.Parsing
                     string text = lyric.Text;
                     string properties = "";
 
+                    if (string.IsNullOrWhiteSpace(text) && !lyric.FadeOut)
+                        properties += 'r';
+
                     if (text.StartsWith('-'))
                     {
-                        properties += 'c';
+                        properties += 'r';
                         text = text[1..];
                     }
 
@@ -161,11 +218,10 @@ namespace New_SSQE.NewMaps.Parsing
                     if (lyric.FadeOut)
                         properties += 'o';
 
-                    long minutes = lyric.Ms / 60000;
-                    long seconds = lyric.Ms % 60000 / 1000;
-                    long milliseconds = lyric.Ms % 1000;
+                    if (properties.Length == 0)
+                        properties = "x";
 
-                    set.Add($"{minutes:0#}:{seconds:0#}.{milliseconds:00#}|{properties}|{text}");
+                    set.Add($"{lyric.Ms}|{properties}|{text}");
                 }
 
                 File.WriteAllText(Path.Combine(temp, "lyrics.nlr"), string.Join('\n', set));
@@ -198,12 +254,13 @@ namespace New_SSQE.NewMaps.Parsing
             string mapper = Metadata["mapCreator"].ToLower().Replace(" ", "_");
             string title = Metadata["songTitle"].ToLower().Replace(" ", "_");
             string artist = Metadata["songArtist"].ToLower().Replace(" ", "_");
+            string id = FormatUtils.FixID($"{mapper}_-_{artist}_-_{title}");
 
             DialogResult result = new SaveFileDialog()
             {
                 Title = "Export NOVA",
-                Filter = "Nova Maps (*.npk)|*.npk",
-                InitialFileName = $"{mapper}_-_{artist}_-_{title}"
+                Filter = "Novastra Charts (*.npk)|*.npk",
+                InitialFileName = id
             }.Show(Settings.exportPath, out string fileName);
 
             if (result == DialogResult.OK)
@@ -230,6 +287,13 @@ namespace New_SSQE.NewMaps.Parsing
             string id = "";
             string profile = "";
             string icon = "";
+
+            Settings.songTitle.Value = "";
+            Settings.songArtist.Value = "";
+            Settings.mapCreator.Value = "";
+            Settings.mapCreatorPersonalLink.Value = "";
+            Settings.previewStartTime.Value = "";
+            Settings.previewDuration.Value = "";
 
             foreach (string file in Directory.GetFiles(directory))
             {
@@ -273,7 +337,7 @@ namespace New_SSQE.NewMaps.Parsing
 
                         break;
 
-                    case ".nlr" when filename == "lyrics":
+                    case ".nlr":
                         string[] lines = File.ReadAllLines(file);
                         Lyric? prev = null;
 
@@ -341,6 +405,8 @@ namespace New_SSQE.NewMaps.Parsing
                 File.Copy(profile, temp, true);
                 Settings.novaIcon.Value = temp;
             }
+            else
+                Settings.novaIcon.Value = "";
 
             if (!string.IsNullOrWhiteSpace(icon))
             {
@@ -349,6 +415,12 @@ namespace New_SSQE.NewMaps.Parsing
                 Settings.novaCover.Value = temp;
                 Settings.cover.Value = temp;
                 Settings.useCover.Value = true;
+            }
+            else
+            {
+                Settings.novaCover.Value = "";
+                Settings.cover.Value = "";
+                Settings.useCover.Value = false;
             }
 
             Mapping.Current.SoundID = id;
@@ -476,7 +548,7 @@ namespace New_SSQE.NewMaps.Parsing
 
                         break;
 
-                    case ".nlr" when filename == "lyrics":
+                    case ".nlr":
                         string[] lines = File.ReadAllLines(file);
 
                         for (int i = 0; i < lines.Length; i++)
@@ -488,21 +560,15 @@ namespace New_SSQE.NewMaps.Parsing
                             string timestamp = split[0];
                             string properties = split[1];
                             string text = string.Join('|', split[2..]);
-                            if (string.IsNullOrWhiteSpace(text))
-                                continue;
 
                             string[] components = timestamp.Split('.');
-                            string[] minSec = components[0].Split(':');
+                            long ms = long.Parse(components[0]);
 
-                            long minutes = long.Parse(minSec[0]);
-                            long seconds = long.Parse(minSec[1]);
-                            long ms = long.Parse(components[1]);
-                            ms += 60000 * minutes + 1000 * seconds;
-
-                            if (properties.Contains('c'))
+                            if (properties.Contains('r') && !string.IsNullOrWhiteSpace(text))
                                 text = $"-{text}";
                             if (properties.Contains('n'))
                                 text = $"{text}-";
+
                             bool fadeIn = properties.Contains('i');
                             bool fadeOut = properties.Contains('o');
 
@@ -552,6 +618,9 @@ namespace New_SSQE.NewMaps.Parsing
 
             Dictionary<string, JsonElement> result = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(path)) ?? [];
 
+            long lastMs = 0;
+            Fever? lastFever = null;
+
             foreach (string key in result.Keys)
             {
                 JsonElement value = result[key];
@@ -578,6 +647,8 @@ namespace New_SSQE.NewMaps.Parsing
                                 Mapping.Current.SpecialObjects.Add(new Mine(x, y, t));
                             else
                                 Mapping.Current.Notes.Add(new(x, y, t));
+
+                            lastMs = Math.Max(lastMs, t);
                         }
 
                         break;
@@ -591,6 +662,7 @@ namespace New_SSQE.NewMaps.Parsing
                             long t = beat["t"].GetInt64();
 
                             Mapping.Current.SpecialObjects.Add(new Beat(t));
+                            lastMs = Math.Max(lastMs, t);
                         }
 
                         break;
@@ -612,10 +684,53 @@ namespace New_SSQE.NewMaps.Parsing
                                 "left" => GlideDirection.Left,
                                 _ => GlideDirection.None
                             }));
+
+                            lastMs = Math.Max(lastMs, t);
+                        }
+
+                        break;
+
+                    case "events":
+                        Dictionary<string, JsonElement>[] eventSet = value.Deserialize<Dictionary<string, JsonElement>[]>() ?? [];
+                        
+                        for (int i = 0; i < eventSet.Length; i++)
+                        {
+                            Dictionary<string, JsonElement> tEvent = eventSet[i];
+                            string eventType = tEvent["type"].GetString() ?? "";
+                            long t = tEvent["t"].GetInt64();
+
+                            switch (eventType)
+                            {
+                                case "fever":
+                                    bool active = tEvent["active"].GetBoolean();
+
+                                    if (active)
+                                        lastFever = new(t, 0);
+                                    else if (lastFever != null)
+                                    {
+                                        lastFever.Duration = t - lastFever.Ms;
+                                        Mapping.Current.SpecialObjects.Add(lastFever);
+
+                                        lastFever = null;
+                                    }
+                                    
+                                    break;
+
+                                case "tempo":
+                                    float bpm = (float)tEvent["bpm"].GetDouble();
+                                    Mapping.Current.TimingPoints.Add(new(bpm, t));
+                                    break;
+                            }
                         }
 
                         break;
                 }
+            }
+
+            if (lastFever != null)
+            {
+                lastFever.Duration = lastMs - lastFever.Ms;
+                Mapping.Current.SpecialObjects.Add(lastFever);
             }
 
             return true;

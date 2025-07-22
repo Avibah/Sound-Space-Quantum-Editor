@@ -1,5 +1,6 @@
 ﻿using NativeFileDialogs.Net;
 using New_SSQE.ExternalUtils;
+using New_SSQE.NewGUI.Windows;
 using New_SSQE.Preferences;
 
 
@@ -19,11 +20,21 @@ namespace New_SSQE.Misc.Dialogs
             string name = filters[0];
             string extensions = filters[1].Replace("*.", "").Replace(';', ',');
 
-            NfdStatus status = Nfd.OpenDialog(out string? result, new Dictionary<string, string> {
-                { name, extensions}
-            }, InitialDirectory);
+            string? result = null;
 
-            Logging.Log($"Open NFD status: {status} | {result}");
+            try
+            {
+                NfdStatus status = Nfd.OpenDialog(out result, new Dictionary<string, string> {
+                    { name, extensions}
+                }, InitialDirectory);
+
+                Logging.Log($"Open NFD status: {status} | {result}");
+            }
+            catch (Exception ex)
+            {
+                Logging.Log($"Open NFD failed: {name} | {extensions}", LogSeverity.WARN, ex);
+                GuiWindowEditor.ShowToast("Failed to open dialog");
+            }
 
             if (!string.IsNullOrWhiteSpace(result))
             {

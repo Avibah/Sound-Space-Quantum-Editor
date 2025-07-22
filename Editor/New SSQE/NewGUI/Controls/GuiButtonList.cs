@@ -14,6 +14,9 @@ namespace New_SSQE.NewGUI.Controls
             this.prefix = prefix;
 
             PlayRightClickSound = true;
+
+            if (Array.IndexOf(setting.Value.Possible, setting.Value.Current) < 0)
+                setting.Value.Current = setting.Value.Possible[0];
             SetText(prefix + setting.Value.Current.ToString().ToUpper());
         }
 

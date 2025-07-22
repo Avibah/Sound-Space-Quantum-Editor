@@ -38,6 +38,10 @@ namespace New_SSQE.NewGUI.Controls
                 {(1, 0), new Glide(0, GlideDirection.Down) },
                 {(2, 1), new Glide(0, GlideDirection.Left) },
                 {(0, 1), new Glide(0, GlideDirection.Right) }
+            } },
+            {IndividualObjectMode.Fever, new()
+            {
+                {(1, 1), new Fever(0, 0) }
             } }
         };
 
@@ -313,7 +317,11 @@ namespace New_SSQE.NewGUI.Controls
                     y += lastY + (nextY - lastY) * t;
                 }
 
+                float widthDiff = MainWindow.Instance.ClientSize.X / 1920f;
+                float heightDiff = MainWindow.Instance.ClientSize.Y / 1080f;
+
                 float width = (float)Math.Sin(t * MathHelper.Pi) * 8 + 16;
+                width *= Math.Min(widthDiff, heightDiff);
 
                 autoplayCursor.UploadData([(x - width / 2, y - width / 2, width, 2 * 4 + 1)]);
             }

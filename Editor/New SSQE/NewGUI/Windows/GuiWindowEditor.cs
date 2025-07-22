@@ -139,12 +139,14 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton SpecialNavMine = new(0, 40, 150, 30, "Mines", 26);
         public static readonly GuiButton SpecialNavGlide = new(0, 80, 150, 30, "Glides", 26);
         public static readonly GuiButton SpecialNavLyric = new(0, 120, 150, 30, "Lyrics", 26);
-        public static readonly RadioButtonController SpecialNavController = new(null, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric);
+        public static readonly GuiButton SpecialNavFever = new(0, 160, 150, 30, "Fevers", 26);
+        public static readonly RadioButtonController SpecialNavController = new(null, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric, SpecialNavFever);
 
-        public static readonly ControlContainer SpecialNavNova = new(10, 200, 545, 756, SpecialNavBeat, SpecialNavMine, SpecialNavGlide/*, SpecialNavLyric*/);
+        public static readonly ControlContainer SpecialNavNova = new(10, 200, 545, 756, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric, SpecialNavFever);
         public static readonly GuiButtonList GameSwitch = new(10, 946, 545, 50, Settings.modchartGame, "GAME: ", 31);
         public static readonly GuiButton SpecialNavExit = new(10, 140, 545, 50, "CLOSE EXTRA OBJECTS", 31);
         public static readonly GuiLabel LyricPreview = new(0, 860, 1920, 56, Settings.color2, "", 48);
+        public static readonly GuiSquare FeverPreview = new(Color.FromArgb(23, 255, 0, 0));
 
         public static readonly GuiTextbox LyricBox = new(0, 0, 370, 30, null, "", 26);
         public static readonly GuiCheckbox LyricFadeIn = new(0, 40, 30, 30, null, "Fade In", 26);
@@ -152,13 +154,13 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton LyricCreate = new(0, 120, 370, 30, "", 26);
         public static readonly GuiLabel LyricInfo = new(0, 160, 370, 400, null, string.Join('\n',
             "Lyric usage:",
-            "> \"-\" prefix: Clear previous line",
+            "> \"-\" prefix: Replace previous line",
             "> \"-\" suffix: Apply next lyric as a syllable",
             "    (Without a space in between)",
             "> Press 'Enter' in the lyric textbox to quickly place a lyric"), 20, "main", CenterMode.None);
         public static readonly ControlContainer LyricNav = new(175, 200, 370, 756, LyricBox, LyricFadeIn, LyricFadeOut, LyricCreate, LyricInfo) { Visible = false };
 
-        public static readonly ControlContainer SpecialMapNavs = new(SpecialNavNova, GameSwitch, SpecialNavExit, LyricNav, LyricPreview) { Visible = false };
+        public static readonly ControlContainer SpecialMapNavs = new(FeverPreview, SpecialNavNova, GameSwitch, SpecialNavExit, LyricNav, LyricPreview) { Visible = false };
 
         /*
          *************************************
@@ -525,7 +527,7 @@ namespace New_SSQE.NewGUI.Windows
                     case "Rhythia (SSPM)":
                         ExportSSPM.ShowWindow();
                         break;
-                    case "Nova (NPK)":
+                    case "Novastra (NPK)":
                         ExportNOVA.ShowWindow();
                         break;
                 }
@@ -603,7 +605,7 @@ namespace New_SSQE.NewGUI.Windows
             {
                 switch (Settings.modchartGame.Value.Current)
                 {
-                    case "Nova":
+                    case "Novastra":
                         SpecialNavNova.Visible = true;
                         break;
                     case "Rhythia":
@@ -640,11 +642,13 @@ namespace New_SSQE.NewGUI.Windows
                     "Mines" => IndividualObjectMode.Mine,
                     "Glides" => IndividualObjectMode.Glide,
                     "Lyrics" => IndividualObjectMode.Lyric,
+                    "Fevers" => IndividualObjectMode.Fever,
                     _ => IndividualObjectMode.Disabled
                 };
 
                 LyricNav.Visible = e.Value == "Lyrics";
                 LyricPreview.Visible = e.Value == "Lyrics" || mode == IndividualObjectMode.Disabled;
+                FeverPreview.Visible = e.Value == "Fever" || mode == IndividualObjectMode.Fever;
 
                 Mapping.ObjectMode = mode;
             };
@@ -738,6 +742,7 @@ namespace New_SSQE.NewGUI.Windows
 
                 string text = "";
                 float alpha = 1;
+                bool fadingIn = false;
 
                 Lyric[] lyrics = Mapping.Current.SpecialObjects.Where(n => n is Lyric).Cast<Lyric>().ToArray();
 
@@ -755,10 +760,16 @@ namespace New_SSQE.NewGUI.Windows
 
 
                     if (current.FadeOut)
+                    {
                         alpha = 1 - Math.Clamp((currentTime.Value - current.Ms) / 1000, 0, 1);
+                        fadingIn = false;
+                    }
                     else if (current.FadeIn)
+                    {
                         alpha = Math.Clamp((currentTime.Value - current.Ms) / 1000, 0, 1);
-                    else
+                        fadingIn = true;
+                    }
+                    else if (!fadingIn)
                         alpha = 1;
 
                     if (!string.IsNullOrWhiteSpace(current.Text))
@@ -778,7 +789,7 @@ namespace New_SSQE.NewGUI.Windows
                         else
                             text = current.Text;
                     }
-                    else
+                    else if (!current.FadeOut)
                         text = current.Text;
                 }
 
@@ -787,6 +798,21 @@ namespace New_SSQE.NewGUI.Windows
 
                 LyricPreview.Text = text;
                 LyricPreview.SetColor(null, alpha);
+            }
+
+            bool feverVisible = Mapping.ObjectMode == IndividualObjectMode.Disabled || Mapping.ObjectMode == IndividualObjectMode.Fever;
+            FeverPreview.Visible = false;
+
+            if (feverVisible)
+            {
+                Fever[] fevers = Mapping.Current.SpecialObjects.Where(n => n is Fever).Cast<Fever>().ToArray();
+
+                for (int i = 0; i < fevers.Length; i++)
+                {
+                    Fever fever = fevers[i];
+
+                    FeverPreview.Visible |= currentTime.Value >= fever.Ms && currentTime.Value <= fever.Ms + fever.Duration;
+                }
             }
 
             base.Render(mousex, mousey, frametime);

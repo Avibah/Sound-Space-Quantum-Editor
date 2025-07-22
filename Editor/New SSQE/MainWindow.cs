@@ -26,7 +26,7 @@ namespace New_SSQE
     {
         public static bool DebugVersion = false;
 
-        public static readonly Vector2i SpriteSize = (4, 4);
+        public static readonly Vector2i SpriteSize = (4, 5);
 
         public static string InitialFile = "";
 
