@@ -1,11 +1,11 @@
-﻿using New_SSQE.NewGUI.Controls;
-using New_SSQE.NewGUI.Base;
-using New_SSQE.Preferences;
-using System.Drawing;
+﻿using New_SSQE.Audio;
 using New_SSQE.ExternalUtils;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
-using New_SSQE.Audio;
+using New_SSQE.NewGUI.Base;
+using New_SSQE.NewGUI.Controls;
+using New_SSQE.Preferences;
+using System.Drawing;
 
 namespace New_SSQE.NewGUI.Windows
 {
@@ -19,10 +19,11 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton NavColors = new(0, 0, 200, 50, "COLORS", 30);
         public static readonly GuiButton NavGraphics = new(0, 100, 200, 50, "GRAPHICS", 30);
         public static readonly GuiButton NavMapping = new(0, 200, 200, 50, "MAPPING", 30);
-        public static readonly GuiButton NavOther = new(0, 300, 200, 50, "OTHER", 30);
+        public static readonly GuiButton NavPlayer = new(0, 300, 200, 50, "PLAYER", 30);
+        public static readonly GuiButton NavOther = new(0, 400, 200, 50, "OTHER", 30);
 
-        public static readonly RadioButtonController NavController = new(0, NavColors, NavGraphics, NavMapping, NavOther);
-        public static readonly ControlContainer SettingNavs = new(180, 80, 200, 550, NavColors, NavGraphics, NavMapping, NavOther);
+        public static readonly RadioButtonController NavController = new(0, NavColors, NavGraphics, NavMapping, NavPlayer, NavOther);
+        public static readonly ControlContainer SettingNavs = new(180, 80, 200, 550, NavColors, NavGraphics, NavMapping, NavPlayer, NavOther);
 
 
 
@@ -109,12 +110,20 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiCheckbox CorrectOnCopyCheckbox = new(0, 215, 45, 45, Settings.correctOnCopy, "Correct Errors on Copy", 34) { Style = ControlStyle.Checkbox_Uncolored };
         public static readonly GuiCheckbox ReverseScrollCheckbox = new(0, 275, 45, 45, Settings.reverseScroll, "Reverse Scroll Direction", 34) { Style = ControlStyle.Checkbox_Uncolored };
 
-        public static readonly GuiCheckbox FullscreenPlayerCheckbox = new(0, 395, 45, 45, Settings.fullscreenPlayer, "Open Player in Fullscreen", 34) { Style = ControlStyle.Checkbox_Uncolored };
-        public static readonly GuiCheckbox UseRhythiaCheckbox = new(0, 455, 45, 45, Settings.useRhythia, "Use Rhythia as Player", 34) { Style = ControlStyle.Checkbox_Uncolored };
-        public static readonly GuiPathBox RhythiaPathBox = new(0, 515, 750, 50, PlatformUtils.ExecutableFilter, Settings.rhythiaFolderPath, Settings.rhythiaPath, "RHYTHIA PATH", 30);
-
         public static readonly ControlContainer MappingNav = new(500, 80, 1220, 700, AutosaveCheckbox, AutosaveIntervalTextbox, AutosaveIntervalLabel,
-            CorrectOnCopyCheckbox, ReverseScrollCheckbox, FullscreenPlayerCheckbox, UseRhythiaCheckbox, RhythiaPathBox);
+            CorrectOnCopyCheckbox, ReverseScrollCheckbox);
+
+
+        public static readonly GuiCheckbox NavRhythia = new(0, 0, 45, 45, null, "Rhythia", 34) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiCheckbox NavNova = new(0, 60, 45, 45, null, "Novastra", 34) { Style = ControlStyle.Checkbox_Uncolored };
+        public static readonly GuiCheckbox NavSSQEPlayer = new(0, 120, 45, 45, null, "SSQE Player", 34) { Style = ControlStyle.Checkbox_Uncolored };
+
+        public static readonly GuiPathBox RhythiaPathBox = new(300, 0, 750, 50, PlatformUtils.ExecutableFilter, Settings.rhythiaFolderPath, Settings.rhythiaPath, "RHYTHIA PATH", 30);
+        public static readonly GuiPathBox NovaPathBox = new(300, 60, 750, 50, PlatformUtils.ExecutableFilter, Settings.novaFolderPath, Settings.novaPath, "NOVASTRA PATH", 30);
+        public static readonly GuiCheckbox FullscreenPlayerCheckbox = new(0, 180, 45, 45, Settings.fullscreenPlayer, "Open SSQE Player in Fullscreen", 34) { Style = ControlStyle.Checkbox_Uncolored };
+
+        public static readonly RadioCheckboxController PlaytestGameController = new(Settings.playtestGame, NavRhythia, NavNova, NavSSQEPlayer);
+        public static readonly ControlContainer PlayerNav = new(500, 80, 1220, 700, NavRhythia, NavNova, NavSSQEPlayer, RhythiaPathBox, NovaPathBox, FullscreenPlayerCheckbox);
 
 
 
@@ -129,7 +138,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"), Color.FromArgb(30, 30, 30));
 
 
-        public GuiWindowSettings() : base(BackgroundSquare, SettingNavs, ColorsNav, GraphicsNav, MappingNav, OtherNav,
+        public GuiWindowSettings() : base(BackgroundSquare, SettingNavs, ColorsNav, GraphicsNav, MappingNav, PlayerNav, OtherNav,
             BackButton, ResetButton, OpenDirectoryButton, KeybindsButton)
         {
             RefreshNoteColors();
@@ -328,9 +337,11 @@ namespace New_SSQE.NewGUI.Windows
                 ColorsNav.Visible = e.Value == "COLORS";
                 GraphicsNav.Visible = e.Value == "GRAPHICS";
                 MappingNav.Visible = e.Value == "MAPPING";
+                PlayerNav.Visible = e.Value == "PLAYER";
                 OtherNav.Visible = e.Value == "OTHER";
             };
 
+            PlaytestGameController.Initialize();
             NavController.Initialize();
         }
     }

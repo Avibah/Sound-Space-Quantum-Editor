@@ -33,32 +33,8 @@ namespace New_SSQE.NewMaps.Parsing
             return readers[formatVersion - 1]!(path);
         }
 
-        public static bool Write(string path)
+        public static void WriteNCH(string path)
         {
-            string id = Mapping.Current.SoundID;
-
-            string temp = Path.Combine(Assets.TEMP, "nova");
-            Directory.CreateDirectory(temp);
-            foreach (string file in Directory.GetFiles(temp))
-                File.Delete(file);
-
-            string extension = MusicPlayer.ctype switch
-            {
-                BASSChannelType.BASS_CTYPE_STREAM_MP3 => ".mp3",
-                BASSChannelType.BASS_CTYPE_STREAM_OGG => ".ogg",
-                _ => throw new FormatException($"AUDIO - not MP3/OGG ({MusicPlayer.ctype})"),
-            };
-
-            bool hasCover = !string.IsNullOrWhiteSpace(Metadata["coverPath"]);
-            bool hasIcon = !string.IsNullOrWhiteSpace(Metadata["iconPath"]);
-
-            if (hasCover)
-                File.Copy(Metadata["coverPath"], Path.Combine(temp, $"{id}{Path.GetExtension(Metadata["coverPath"])}"), true);
-            if (hasIcon)
-                File.Copy(Metadata["iconPath"], Path.Combine(temp, $"profile{Path.GetExtension(Metadata["iconPath"])}"), true);
-            
-            File.Copy(Path.Combine(Assets.CACHED, $"{id}.asset"), Path.Combine(temp, $"{id}{extension}"), true);
-
             List<Dictionary<string, object>> notes = new(Mapping.Current.Notes.Count);
             List<Dictionary<string, object>> beats = [];
             List<Dictionary<string, object>> glides = [];
@@ -161,31 +137,23 @@ namespace New_SSQE.NewMaps.Parsing
             glides = [..glides.OrderBy(n => n["t"])];
             events = [..events.OrderBy(n => n["t"])];
 
+            long exportOffset = (long)Settings.exportOffset.Value;
+            long songOffset = long.TryParse(Metadata["songOffset"], out long result) ? result : 0;
+
             Dictionary<string, object> chart = new()
             {
-                {"songOffset", long.Parse(Metadata["songOffset"]) },
+                {"songOffset", songOffset - exportOffset },
                 {"notes", notes },
                 {"beats", beats },
                 {"glides", glides },
                 {"events", events }
             };
 
-            File.WriteAllText(Path.Combine(temp, "chart.nch"), JsonSerializer.Serialize(chart, Program.JsonOptions));
+            File.WriteAllText(path, JsonSerializer.Serialize(chart, Program.JsonOptions));
+        }
 
-            Dictionary<string, object> metadata = new()
-            {
-                {"songTitle", Metadata["songTitle"] },
-                {"songArtist", Metadata["songArtist"] },
-                {"mapCreator", Metadata["mapCreator"] },
-                {"mapCreatorPersonalLink", Metadata["mapCreatorPersonalLink"] },
-                {"previewStartTime", long.Parse(Metadata["previewStartTime"]) / 1000f },
-                {"previewDuration", long.Parse(Metadata["previewDuration"]) / 1000f },
-                {"formatVersion", CURRENT_VERSION },
-                {"ssqeVersion", Program.Version }
-            };
-
-            File.WriteAllText(Path.Combine(temp, "metadata.json"), JsonSerializer.Serialize(metadata, Program.JsonOptions));
-
+        public static void WriteNLR(string path)
+        {
             Lyric[] lyrics = [..Mapping.Current.SpecialObjects.Where(n => n is Lyric).Cast<Lyric>()];
 
             if (lyrics.Length > 0)
@@ -224,8 +192,53 @@ namespace New_SSQE.NewMaps.Parsing
                     set.Add($"{lyric.Ms}|{properties}|{text}");
                 }
 
-                File.WriteAllText(Path.Combine(temp, "lyrics.nlr"), string.Join('\n', set));
+                File.WriteAllText(path, string.Join('\n', set));
             }
+        }
+
+        public static bool Write(string path)
+        {
+            string id = Mapping.Current.SoundID;
+
+            string temp = Path.Combine(Assets.TEMP, "nova");
+            Directory.CreateDirectory(temp);
+            foreach (string file in Directory.GetFiles(temp))
+                File.Delete(file);
+
+            string extension = MusicPlayer.ctype switch
+            {
+                BASSChannelType.BASS_CTYPE_STREAM_MP3 => ".mp3",
+                BASSChannelType.BASS_CTYPE_STREAM_OGG => ".ogg",
+                _ => throw new FormatException($"AUDIO - not MP3/OGG ({MusicPlayer.ctype})"),
+            };
+
+            bool hasCover = !string.IsNullOrWhiteSpace(Metadata["coverPath"]);
+            bool hasIcon = !string.IsNullOrWhiteSpace(Metadata["iconPath"]);
+
+            if (hasCover)
+                File.Copy(Metadata["coverPath"], Path.Combine(temp, $"{id}{Path.GetExtension(Metadata["coverPath"])}"), true);
+            if (hasIcon)
+                File.Copy(Metadata["iconPath"], Path.Combine(temp, $"profile{Path.GetExtension(Metadata["iconPath"])}"), true);
+            
+            File.Copy(Path.Combine(Assets.CACHED, $"{id}.asset"), Path.Combine(temp, $"{id}{extension}"), true);
+
+            WriteNCH(Path.Combine(temp, "chart.nch"));
+
+            Dictionary<string, object> metadata = new()
+            {
+                {"songTitle", Metadata["songTitle"] },
+                {"songArtist", Metadata["songArtist"] },
+                {"mapCreator", Metadata["mapCreator"] },
+                {"mapCreatorPersonalLink", Metadata["mapCreatorPersonalLink"] },
+                {"previewStartTime", long.Parse(Metadata["previewStartTime"]) / 1000f },
+                {"previewDuration", long.Parse(Metadata["previewDuration"]) / 1000f },
+                {"formatVersion", CURRENT_VERSION },
+                {"ssqeVersion", Program.Version }
+            };
+
+            File.WriteAllText(Path.Combine(temp, "metadata.json"), JsonSerializer.Serialize(metadata, Program.JsonOptions));
+
+            WriteNLR(Path.Combine(temp, "lyrics.nlr"));
 
             if (File.Exists(path))
                 File.Delete(path);

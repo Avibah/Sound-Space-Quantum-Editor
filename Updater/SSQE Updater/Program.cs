@@ -6,7 +6,7 @@ namespace SSQE_Updater
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             var linux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
             var ssqeProcess = $"Sound Space Quantum Editor{(linux ? "" : ".exe")}";
@@ -36,35 +36,11 @@ namespace SSQE_Updater
                 }
             }
 
-            bool IsNewer(string oldVersion, string checkVersion)
-            {
-                if (string.IsNullOrWhiteSpace(oldVersion))
-                    return true;
-
-                string[] oldSplit = oldVersion.Split('.');
-                string[] checkSplit = checkVersion.Split('.');
-
-                for (int i = 0; i < oldSplit.Length; i++)
-                {
-                    string old = oldSplit[i];
-                    string check = checkSplit[i];
-                    int oldI = int.Parse(old);
-                    int checkI = int.Parse(check);
-
-                    if (oldI < checkI)
-                        return true;
-                    else if (oldI > checkI)
-                        return false;
-                }
-
-                return false;
-            }
-
             string[] GetOverwrites()
             {
                 try
                 {
-                    List<string> overwrites = new();
+                    List<string> overwrites = [];
 
                     var overwriteList = WebClient.DownloadString("https://raw.githubusercontent.com/Avibah/Sound-Space-Quantum-Editor/master/updater_overwrite");
                     var split = overwriteList.Split('\n');
@@ -83,11 +59,11 @@ namespace SSQE_Updater
                         if (j == 0 || string.IsNullOrWhiteSpace(split[j - 1]))
                             overwriteVersion = line;
 
-                        if (!string.IsNullOrWhiteSpace(line) && line != overwriteVersion && IsNewer(currentVersion, overwriteVersion))
+                        if (!string.IsNullOrWhiteSpace(line) && line != overwriteVersion && Version.Parse(currentVersion) < Version.Parse(overwriteVersion))
                             overwrites.Add(line);
                     }
 
-                    return overwrites.ToArray();
+                    return [..overwrites];
                 }
                 catch
                 {
@@ -95,7 +71,7 @@ namespace SSQE_Updater
                     Quit();
                 }
 
-                return Array.Empty<string>();
+                return [];
             }
 
             string CheckVersion()
@@ -106,10 +82,19 @@ namespace SSQE_Updater
 
                     if (!string.IsNullOrWhiteSpace(redirect))
                     {
-                        var version = redirect[(redirect.LastIndexOf("/") + 1)..];
+                        var version = redirect[(redirect.LastIndexOf('/') + 1)..];
                         
                         if (version != currentVersion)
                             return version;
+                        else
+                        {
+                            Console.Write("Latest editor version already installed. Would you like to update anyway? y/n: ");
+                            if (Console.ReadKey() == new ConsoleKeyInfo('y', ConsoleKey.Y, false, false, false))
+                            {
+                                Console.WriteLine();
+                                return version;
+                            }
+                        }
                     }
                 }
                 catch

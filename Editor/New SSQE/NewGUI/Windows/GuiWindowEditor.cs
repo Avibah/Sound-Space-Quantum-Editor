@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Security.Cryptography;
 using System.Text;
+using Un4seen.Bass;
 
 namespace New_SSQE.NewGUI.Windows
 {
@@ -269,7 +270,7 @@ namespace New_SSQE.NewGUI.Windows
         {
             BackgroundSquare.SetColor(Color.FromArgb((int)Settings.editorBGOpacity.Value, 30, 30, 30));
             
-            LNavPlayer.Visible = PlatformUtils.ExecutableExists("SSQE Player") || Settings.useRhythia.Value;
+            LNavPlayer.Visible = PlatformUtils.ExecutableExists("SSQE Player") || Settings.playtestGame.Value != "SSQE Player";
 
             BeatSnapDivisor.Update();
             QuantumSnapDivisor.Update();
@@ -299,7 +300,7 @@ namespace New_SSQE.NewGUI.Windows
                 PatternsNav.Visible = e.Value == "PATTERNS";
                 PlayerNav.Visible = e.Value == "PLAYTEST";
 
-                if (Settings.useRhythia.Value && e.Value == "PLAYTEST")
+                if (Settings.playtestGame.Value != "SSQE Player" && e.Value == "PLAYTEST")
                 {
                     if (options)
                         LNavController.UpdateSelection(LNavOptions);
@@ -312,41 +313,107 @@ namespace New_SSQE.NewGUI.Windows
                 }
             };
 
-            if (Settings.useRhythia.Value)
+            LNavPlayer.LeftClick += (s, e) =>
             {
-                LNavPlayer.LeftClick += (s, e) =>
+                string audio = Path.Combine(Assets.CACHED, $"{Mapping.Current.SoundID}.asset");
+
+                switch (Settings.playtestGame.Value)
                 {
-                    if (!File.Exists(Settings.rhythiaPath.Value))
-                    {
-                        Logging.Log($"Invalid Rhythia path - {Settings.rhythiaPath.Value}", LogSeverity.WARN);
-                        ShowToast("INVALID RHYTHIA PATH [MENU > SETTINGS > MAPPING]", Settings.color1.Value);
-                    }
-                    else
-                    {
-                        try
+                    case "Rhythia":
+                        if (!File.Exists(Settings.rhythiaPath.Value))
                         {
-                            if (MusicPlayer.IsPlaying)
-                                MusicPlayer.Pause();
-
-                            Settings.Save();
-                            TXT.Write(Path.Combine(Assets.TEMP, "tempmap.txt"));
-
-                            string[] args =
-                            [
-                                $"--a=\"{Path.GetFullPath(Path.Combine(Assets.CACHED, $"{Mapping.Current.SoundID}.asset")).Replace("\\", "/")}\"",
-                                $"--t=\"{Path.GetFullPath(Path.Combine(Assets.TEMP, "tempmap.txt")).Replace("\\", "/")}\""
-                            ];
-
-                            Process.Start(Settings.rhythiaPath.Value, string.Join(' ', args));
+                            Logging.Log($"Invalid Rhythia path - {Settings.rhythiaPath.Value}", LogSeverity.WARN);
+                            ShowToast("INVALID RHYTHIA PATH [MENU > SETTINGS > PLAYTESTING]", Settings.color1.Value);
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            Logging.Log("Failed to start Rhythia", LogSeverity.WARN, ex);
-                            ShowToast("FAILED TO START RHYTHIA", Settings.color1.Value);
+                            try
+                            {
+                                if (MusicPlayer.IsPlaying)
+                                    MusicPlayer.Pause();
+
+                                Settings.Save();
+
+                                string txt = Path.Combine(Assets.TEMP, "tempmap.txt");
+
+                                TXT.Write(txt);
+
+                                string audioPath = Path.GetFullPath(audio).Replace("\\", "/");
+                                string txtPath = Path.GetFullPath(txt).Replace("\\", "/");
+
+                                ProcessStartInfo info = new(Settings.rhythiaPath.Value)
+                                {
+                                    ArgumentList =
+                                    {
+                                        $"--a={audioPath}",
+                                        $"--t={txtPath}"
+                                    }
+                                };
+
+                                Process.Start(info);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logging.Log("Failed to start Rhythia", LogSeverity.WARN, ex);
+                                ShowToast("FAILED TO START RHYTHIA", Settings.color1.Value);
+                            }
                         }
-                    }
-                };
-            }
+                        break;
+
+                    case "Novastra":
+                        if (!File.Exists(Settings.novaPath.Value))
+                        {
+                            Logging.Log($"Invalid Novastra path - {Settings.novaPath.Value}", LogSeverity.WARN);
+                            ShowToast("INVALID NOVASTRA PATH [MENU > SETTINGS > PLAYER]", Settings.color1.Value);
+                        }
+                        else
+                        {
+                            try
+                            {
+                                if (MusicPlayer.IsPlaying)
+                                    MusicPlayer.Pause();
+
+                                Settings.Save();
+
+                                string temp = Path.Combine(Assets.TEMP, "novaPlaytest");
+                                Directory.CreateDirectory(temp);
+                                foreach (string file in Directory.GetFiles(temp))
+                                    File.Delete(file);
+
+                                File.Copy(audio, Path.Combine(temp, $"audio.{(MusicPlayer.ctype == BASSChannelType.BASS_CTYPE_STREAM_MP3 ? "mp3" : "ogg")}"), true);
+                                NPK.WriteNCH(Path.Combine(temp, "chart.nch"));
+                                NPK.WriteNLR(Path.Combine(temp, "lyrics.nlr"));
+
+                                string tempPath = Path.GetFullPath(temp).Replace("\\", "/");
+
+                                float tempo = Mapping.Current.Tempo;
+                                int ctrl = KeybindManager.CtrlHeld ? 1 : 0;
+                                int alt = KeybindManager.AltHeld ? 1 : 0;
+                                int shift = KeybindManager.ShiftHeld ? 1 : 0;
+
+                                ProcessStartInfo info = new(Settings.novaPath.Value)
+                                {
+                                    ArgumentList =
+                                    {
+                                        "--demo-mode",
+                                        $"-c={tempPath}",
+                                        $"-m={tempo},{ctrl},{alt},{shift}",
+                                        $"-f={Mapping.Current.FileID}",
+                                        $"-p={Settings.currentTime.Value.Value / 1000}"
+                                    }
+                                };
+
+                                Process.Start(info);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logging.Log("Failed to start Novastra", LogSeverity.WARN, ex);
+                                ShowToast("FAILED TO START NOVASTRA", Settings.color1.Value);
+                            }
+                        }
+                        break;
+                }
+            };
 
             RNavController.SelectionChanged += (s, e) =>
             {

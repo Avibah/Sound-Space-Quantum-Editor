@@ -33,7 +33,6 @@ namespace New_SSQE.Preferences
         public static readonly Setting<bool> applyOnPaste = false;
         public static readonly Setting<bool> jumpPaste = false;
         public static readonly Setting<bool> limitPlayerFPS = false;
-        public static readonly Setting<bool> useRhythia = true;
         public static readonly Setting<bool> pauseScroll = true;
         public static readonly Setting<bool> clampSR = true;
         public static readonly Setting<bool> pasteReversed = false;
@@ -81,7 +80,10 @@ namespace New_SSQE.Preferences
         public static readonly Setting<string> importPath = "";
         public static readonly Setting<string> rhythiaPath = "";
         public static readonly Setting<string> rhythiaFolderPath = "";
+        public static readonly Setting<string> novaPath = "";
+        public static readonly Setting<string> novaFolderPath = "";
         public static readonly Setting<string> replayPath = "";
+        public static readonly Setting<string> playtestGame = "Rhythia";
         public static readonly Setting<ListSetting> cameraMode = new ListSetting(0, "half lock", "full lock", "spin");
         public static readonly Setting<ListSetting> modchartGame = new ListSetting(1, "Rhythia", "Novastra");
         public static readonly Setting<ListSetting> exportType = new ListSetting(0, "Rhythia (SSPM)", "Novastra (NPK)");
