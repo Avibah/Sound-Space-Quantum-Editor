@@ -3,6 +3,7 @@
 
 - added a "Player" tab in Settings to more easily choose which game to use for playtesting
 - added support for playtesting in Novastra
+  > the editor's timestamp carries over to Novastra when playtesting
   > hold 'Shift' while clicking "PLAYTEST" to enable No-Fail
   > hold 'Ctrl' while clicking "PLAYTEST" to enable Auto-Cursor
   > hold 'Alt' while clicking "PLAYTEST" to enable Auto-Beat
