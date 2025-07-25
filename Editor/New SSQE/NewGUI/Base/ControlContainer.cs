@@ -307,6 +307,27 @@ namespace New_SSQE.NewGUI.Base
             return false;
         }
 
+        public InteractiveControl? GetHoveringInteractive(InteractiveControl? exclude = null)
+        {
+            foreach (InteractiveControl control in interactives)
+            {
+                if (!control.Visible)
+                    continue;
+
+                if (control is ControlContainer container)
+                {
+                    InteractiveControl? hovering = container.GetHoveringInteractive(exclude);
+
+                    if (hovering != null)
+                        return hovering;
+                }
+                else if (control.Hovering && control != exclude)
+                    return control;
+            }
+
+            return null;
+        }
+
         public override void DisconnectAll()
         {
             base.DisconnectAll();

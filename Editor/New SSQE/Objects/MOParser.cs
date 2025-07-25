@@ -20,8 +20,8 @@ namespace New_SSQE.Objects
                 long ms = long.Parse(data[index]);
 
                 long duration;
-                EasingStyle style;
-                EasingDirection direction;
+                EasingStyle style = EasingStyle.Linear;
+                EasingDirection direction = EasingDirection.In;
                 float intensity;
 
                 MapObject obj;
@@ -32,7 +32,16 @@ namespace New_SSQE.Objects
                         float x = float.Parse(data[++index], Program.Culture);
                         float y = float.Parse(data[++index], Program.Culture);
 
-                        obj = new Note(x, y, ms);
+                        bool enableEasing = false;
+
+                        if (index + 1 < data.Length)
+                            enableEasing = int.Parse(data[++index]) == 1;
+                        if (index + 1 < data.Length)
+                            style = (EasingStyle)int.Parse(data[++index]);
+                        if (index + 1 < data.Length)
+                            direction = (EasingDirection)int.Parse(data[++index]);
+
+                        obj = new Note(x, y, ms, enableEasing, style, direction);
                         break;
                     case 1:
                         float bpm = float.Parse(data[++index], Program.Culture);

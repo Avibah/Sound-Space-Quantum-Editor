@@ -50,7 +50,7 @@ namespace New_SSQE.NewGUI.Input
                 case "selectAll":
                     Mapping.ClearSelection();
 
-                    if (Mapping.RenderMode == ObjectRenderMode.Notes)
+                    if (Mapping.RenderMode == ObjectRenderMode.Notes || Mapping.ObjectMode == IndividualObjectMode.Note)
                         Mapping.Current.Notes.Selected = new(Mapping.Current.Notes);
                     else if (Mapping.ObjectMode != IndividualObjectMode.Disabled)
                     {
@@ -126,7 +126,7 @@ namespace New_SSQE.NewGUI.Input
 
                             copied.ForEach(n => n.Ms = (long)Math.Clamp(Settings.currentTime.Value.Value + n.Ms - offset, 0, Settings.currentTime.Value.Max));
 
-                            if (isNote && Mapping.RenderMode == ObjectRenderMode.Notes)
+                            if (isNote && (Mapping.RenderMode == ObjectRenderMode.Notes || Mapping.ObjectMode == IndividualObjectMode.Note))
                             {
                                 List<Note> copiedAsNotes = copied.Cast<Note>().ToList();
 

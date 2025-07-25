@@ -44,12 +44,23 @@ namespace New_SSQE.NewMaps.Parsing
             {
                 Note note = Mapping.Current.Notes[i];
 
-                notes.Add(new()
+                Dictionary<string, object> noteData = new()
                 {
                     {"x", 1 - note.X },
                     {"y", note.Y - 1 },
                     {"t", note.Ms }
-                });
+                };
+
+                if (note.EnableEasing)
+                {
+                    noteData.Add("e", new Dictionary<string, object>()
+                    {
+                        {"s", (int)note.Style },
+                        {"d", (int)note.Direction }
+                    });
+                }
+
+                notes.Add(noteData);
             }
 
             Mapping.Current.Notes.Sort();
@@ -655,11 +666,23 @@ namespace New_SSQE.NewMaps.Parsing
                             long t = note["t"].GetInt64();
 
                             bool m = note.TryGetValue("m", out JsonElement tempM) && tempM.GetBoolean();
+                            bool e = note.TryGetValue("e", out JsonElement tempE);
+
+                            EasingStyle s = EasingStyle.Linear;
+                            EasingDirection d = EasingDirection.In;
+
+                            if (e)
+                            {
+                                Dictionary<string, JsonElement> easing = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(tempE) ?? [];
+
+                                s = (EasingStyle)easing["s"].GetInt32();
+                                d = (EasingDirection)easing["d"].GetInt32();
+                            }
 
                             if (m)
                                 Mapping.Current.SpecialObjects.Add(new Mine(x, y, t));
                             else
-                                Mapping.Current.Notes.Add(new(x, y, t));
+                                Mapping.Current.Notes.Add(new(x, y, t, e, s, d));
 
                             lastMs = Math.Max(lastMs, t);
                         }

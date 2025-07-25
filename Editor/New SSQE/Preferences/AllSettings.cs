@@ -88,6 +88,9 @@ namespace New_SSQE.Preferences
         public static readonly Setting<ListSetting> modchartGame = new ListSetting(1, "Rhythia", "Novastra");
         public static readonly Setting<ListSetting> exportType = new ListSetting(0, "Rhythia (SSPM)", "Novastra (NPK)");
 
+        public static readonly Setting<ListSetting> modchartStyle = new ListSetting(0, "Linear", "Sine", "Back", "Quad", "Quart", "Quint", "Bounce", "Elastic", "Exponential", "Circular", "Cubic");
+        public static readonly Setting<ListSetting> modchartDirection = new ListSetting(0, "In", "Out");
+
         public static readonly Setting<float> vfxDuration = 0;
         public static readonly Setting<ListSetting> vfxStyle = new ListSetting(0, "Linear", "Sine", "Back", "Quad", "Quart", "Quint", "Bounce", "Elastic", "Exponential", "Circular", "Cubic");
         public static readonly Setting<ListSetting> vfxDirection = new ListSetting(2, "In", "Out", "InOut");

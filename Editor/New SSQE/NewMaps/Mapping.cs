@@ -24,6 +24,7 @@ namespace New_SSQE.NewMaps
     internal enum IndividualObjectMode
     {
         Disabled,
+        Note,
 
         Beat = 12,
         Glide = 13,
@@ -56,8 +57,9 @@ namespace New_SSQE.NewMaps
         {
             return RenderMode switch
             {
-                ObjectRenderMode.Notes => Current.Notes.Selected.Cast<MapObject>().ToList(),
+                ObjectRenderMode.Notes => [..Current.Notes.Selected.Cast<MapObject>()],
                 ObjectRenderMode.VFX => Current.VfxObjects.Selected,
+                ObjectRenderMode.Special when ObjectMode == IndividualObjectMode.Note => [..Current.Notes.Selected.Cast<MapObject>()],
                 ObjectRenderMode.Special => Current.SpecialObjects.Selected,
                 _ => []
             };
@@ -68,13 +70,29 @@ namespace New_SSQE.NewMaps
             switch (RenderMode)
             {
                 case ObjectRenderMode.Notes:
-                    Current.Notes.Selected = new(selected.Cast<Note>());
+                    Current.Notes.Selected = [..selected.Cast<Note>()];
                     break;
                 case ObjectRenderMode.VFX:
-                    Current.VfxObjects.Selected = new(selected);
+                    Current.VfxObjects.Selected = [..selected];
+                    break;
+                case ObjectRenderMode.Special when ObjectMode == IndividualObjectMode.Note:
+                    Current.Notes.Selected = [..selected.Cast<Note>()];
+
+                    if (selected.Count > 0 && selected[0] is Note note)
+                    {
+                        ListSetting style = Settings.modchartStyle.Value;
+                        ListSetting direction = Settings.modchartDirection.Value;
+
+                        style.Current = style.Possible[(int)note.Style];
+                        direction.Current = direction.Possible[(int)note.Direction];
+
+                        GuiWindowEditor.NoteEnableEasing.Toggle = note.EnableEasing;
+                        GuiWindowEditor.NoteEasingStyle.RefreshSetting();
+                        GuiWindowEditor.NoteEasingDirection.RefreshSetting();
+                    }
                     break;
                 case ObjectRenderMode.Special:
-                    Current.SpecialObjects.Selected = new(selected);
+                    Current.SpecialObjects.Selected = [..selected];
 
                     if (selected.Count == 1 && selected[0] is Lyric lyric)
                     {
@@ -118,6 +136,9 @@ namespace New_SSQE.NewMaps
                 case ObjectRenderMode.VFX:
                     Current.VfxObjects.Sort();
                     break;
+                case ObjectRenderMode.Special when ObjectMode == IndividualObjectMode.Note:
+                    Current.Notes.Sort();
+                    break;
                 case ObjectRenderMode.Special:
                     Current.SpecialObjects.Sort();
                     break;
@@ -126,7 +147,7 @@ namespace New_SSQE.NewMaps
 
         public static void SortTimings(bool updateList = true)
         {
-            Current.TimingPoints = new(Current.TimingPoints.OrderBy(n => n.Ms));
+            Current.TimingPoints = [..Current.TimingPoints.OrderBy(n => n.Ms)];
 
             if (updateList)
                 TimingsWindow.Instance?.ResetList();
@@ -135,7 +156,7 @@ namespace New_SSQE.NewMaps
 
         public static void SortBookmarks(bool updateList = true)
         {
-            Current.Bookmarks = new(Current.Bookmarks.OrderBy(n => n.Ms));
+            Current.Bookmarks = [..Current.Bookmarks.OrderBy(n => n.Ms)];
 
             if (updateList)
                 BookmarksWindow.Instance?.ResetList();
@@ -150,21 +171,25 @@ namespace New_SSQE.NewMaps
             {
                 case ObjectRenderMode.Notes:
                     (low, high) = Current.Notes.SearchRange(start, end);
-                    return Current.Notes.Take(new Range(low, high)).Cast<MapObject>().ToList();
+                    return [..Current.Notes.Take(new Range(low, high)).Cast<MapObject>()];
 
                 case ObjectRenderMode.VFX:
                     (low, high) = Current.VfxObjects.SearchRange(start, end);
                     if (ObjectMode == IndividualObjectMode.Disabled)
-                        return Current.VfxObjects.Take(new Range(low, high)).ToList();
+                        return [..Current.VfxObjects.Take(new Range(low, high))];
                     else
-                        return Current.VfxObjects.Take(new Range(low, high)).Where(n => n.ID == (int)ObjectMode).ToList();
+                        return [..Current.VfxObjects.Take(new Range(low, high)).Where(n => n.ID == (int)ObjectMode)];
 
+                case ObjectRenderMode.Special when ObjectMode == IndividualObjectMode.Note:
+                    (low, high) = Current.Notes.SearchRange(start, end);
+                    return [..Current.Notes.Take(new Range(low, high)).Cast<MapObject>()];
+                
                 case ObjectRenderMode.Special:
                     (low, high) = Current.SpecialObjects.SearchRange(start, end);
                     if (ObjectMode == IndividualObjectMode.Disabled)
-                        return Current.SpecialObjects.Take(new Range(low, high)).ToList();
+                        return [..Current.SpecialObjects.Take(new Range(low, high))];
                     else
-                        return Current.SpecialObjects.Take(new Range(low, high)).Where(n => n.ID == (int)ObjectMode).ToList();
+                        return [..Current.SpecialObjects.Take(new Range(low, high)).Where(n => n.ID == (int)ObjectMode)];
             }
 
             return [];

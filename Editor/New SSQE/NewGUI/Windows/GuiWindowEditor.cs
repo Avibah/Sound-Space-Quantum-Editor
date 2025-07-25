@@ -141,9 +141,10 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiButton SpecialNavGlide = new(0, 80, 150, 30, "Glides", 26);
         public static readonly GuiButton SpecialNavLyric = new(0, 120, 150, 30, "Lyrics", 26);
         public static readonly GuiButton SpecialNavFever = new(0, 160, 150, 30, "Fevers", 26);
-        public static readonly RadioButtonController SpecialNavController = new(null, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric, SpecialNavFever);
+        public static readonly GuiButton SpecialNavNotes = new(0, 700, 150, 30, "Modify Notes", 26);
+        public static readonly RadioButtonController SpecialNavController = new(null, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric, SpecialNavFever, SpecialNavNotes);
 
-        public static readonly ControlContainer SpecialNavNova = new(10, 200, 545, 756, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric, SpecialNavFever);
+        public static readonly ControlContainer SpecialNavNova = new(10, 200, 545, 756, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric, SpecialNavFever, SpecialNavNotes);
         public static readonly GuiButtonList GameSwitch = new(10, 946, 545, 50, Settings.modchartGame, "GAME: ", 31);
         public static readonly GuiButton SpecialNavExit = new(10, 140, 545, 50, "CLOSE EXTRA OBJECTS", 31);
         public static readonly GuiLabel LyricPreview = new(0, 860, 1920, 56, Settings.color2, "", 48);
@@ -161,7 +162,13 @@ namespace New_SSQE.NewGUI.Windows
             "> Press 'Enter' in the lyric textbox to quickly place a lyric"), 20, "main", CenterMode.None);
         public static readonly ControlContainer LyricNav = new(175, 200, 370, 756, LyricBox, LyricFadeIn, LyricFadeOut, LyricCreate, LyricInfo) { Visible = false };
 
-        public static readonly ControlContainer SpecialMapNavs = new(FeverPreview, SpecialNavNova, GameSwitch, SpecialNavExit, LyricNav, LyricPreview) { Visible = false };
+        public static readonly GuiCheckbox NoteEnableEasing = new(0, 0, 30, 30, null, "Enable Easing", 26);
+        public static readonly GuiButtonList NoteEasingStyle = new(0, 40, 370, 30, Settings.modchartStyle, "Easing Style: ", 26);
+        public static readonly GuiButtonList NoteEasingDirection = new(0, 80, 370, 30, Settings.modchartDirection, "Easing Direction: ", 26);
+        public static readonly GuiButton NoteApplyModifiers = new(0, 160, 370, 30, "Apply Modifications", 26);
+        public static readonly ControlContainer NoteNav = new(175, 200, 370, 756, NoteEnableEasing, NoteEasingStyle, NoteEasingDirection, NoteApplyModifiers) { Visible = false };
+
+        public static readonly ControlContainer SpecialMapNavs = new(FeverPreview, SpecialNavNova, GameSwitch, SpecialNavExit, LyricNav, LyricPreview, NoteNav) { Visible = false };
 
         /*
          *************************************
@@ -710,12 +717,14 @@ namespace New_SSQE.NewGUI.Windows
                     "Glides" => IndividualObjectMode.Glide,
                     "Lyrics" => IndividualObjectMode.Lyric,
                     "Fevers" => IndividualObjectMode.Fever,
+                    "Modify Notes" => IndividualObjectMode.Note,
                     _ => IndividualObjectMode.Disabled
                 };
 
                 LyricNav.Visible = e.Value == "Lyrics";
                 LyricPreview.Visible = e.Value == "Lyrics" || mode == IndividualObjectMode.Disabled;
                 FeverPreview.Visible = e.Value == "Fever" || mode == IndividualObjectMode.Fever;
+                NoteNav.Visible = e.Value == "Modify Notes";
 
                 Mapping.ObjectMode = mode;
             };
@@ -767,6 +776,19 @@ namespace New_SSQE.NewGUI.Windows
             };
             LyricFadeIn.LeftClick += (s, e) => LyricFadeOut.Toggle = false;
             LyricFadeOut.LeftClick += (s, e) => LyricFadeIn.Toggle = false;
+
+            NoteApplyModifiers.LeftClick += (s, e) =>
+            {
+                ListSetting style = Settings.modchartStyle.Value;
+                ListSetting direction = Settings.modchartDirection.Value;
+
+                NoteManager.Edit("MODIFY NOTE[S]", n =>
+                {
+                    n.EnableEasing = NoteEnableEasing.Toggle;
+                    n.Style = (EasingStyle)Array.IndexOf(style.Possible, style.Current);
+                    n.Direction = (EasingDirection)Array.IndexOf(direction.Possible, direction.Current);
+                });
+            };
 
             MusicMute.LeftClick += (s, e) => MusicPlayer.Volume = Settings.masterVolume.Value.Value;
         }

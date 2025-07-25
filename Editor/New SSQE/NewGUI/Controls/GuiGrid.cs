@@ -1,4 +1,5 @@
 ﻿using New_SSQE.Audio;
+using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Font;
 using New_SSQE.NewMaps;
@@ -201,6 +202,9 @@ namespace New_SSQE.NewGUI.Controls
             int gridNumberSize = (int)(28 * TextScale);
             hoveringXY = null;
 
+            bool isSpecialNotes = Mapping.RenderMode == ObjectRenderMode.Special;
+            bool isSelectMode = Mapping.ClickMode.HasFlag(ClickMode.Select);
+
             for (int i = low; i < high; i++)
             {
                 Note note = notes[i];
@@ -209,13 +213,20 @@ namespace New_SSQE.NewGUI.Controls
                 float x = rect.X + (2 - note.X) * CellSize + NoteGap;
                 float y = rect.Y + (2 - note.Y) * CellSize + NoteGap;
 
-                float progress = (float)Math.Min(1, Math.Pow(1 - Math.Min(1, (note.Ms - currentTime) * approachRate / 750), 2));
+                float progress = 1 - (float)Math.Min(1, (note.Ms - currentTime) * approachRate / 750);
+
+                if (isSpecialNotes && note.EnableEasing)
+                    progress = (float)Easing.Process(0, 1, progress, note.Style, note.Direction);
+                else
+                    progress = (float)Math.Min(1, Math.Pow(progress, 2));
+                progress = Math.Clamp(progress, 0, 1);
+
                 float approachSize = 4 + NoteSize + NoteSize * (1 - progress) * 2 + 0.5f;
 
                 noteConstants[i - low] = (x, y, 1, 2 * c + progress);
                 noteApproaches[i - low] = (x - approachSize / 2 + NoteSize / 2, y - approachSize / 2 + NoteSize / 2, approachSize, 2 * c + progress);
 
-                if (Mapping.ClickMode.HasFlag(ClickMode.Select))
+                if (isSelectMode)
                 {
                     if (Math.Abs(mousex - NoteSize / 2 - x) <= NoteSize / 2 && Math.Abs(mousey - NoteSize / 2 - y) <= NoteSize / 2)
                         hoveringXY ??= note;
@@ -328,7 +339,8 @@ namespace New_SSQE.NewGUI.Controls
 
             if (Mapping.RenderMode == ObjectRenderMode.Special)
             {
-                hoveringXY = null;
+                if (Mapping.ObjectMode != IndividualObjectMode.Note)
+                    hoveringXY = null;
                 bool shouldCheckID = respectObjectMode && Mapping.ObjectMode != IndividualObjectMode.Disabled;
 
                 List<Vector4> beatConstants = [];
@@ -594,7 +606,7 @@ namespace New_SSQE.NewGUI.Controls
                     int gx = key.Value.Item1;
                     int gy = key.Value.Item2;
 
-                    if (Mapping.RenderMode != ObjectRenderMode.Notes)
+                    if (Mapping.RenderMode != ObjectRenderMode.Notes && Mapping.ObjectMode != IndividualObjectMode.Note)
                     {
                         if (!objectLookup.TryGetValue(Mapping.ObjectMode, out Dictionary<Vector2, MapObject>? subLookup))
                             continue;
@@ -653,7 +665,7 @@ namespace New_SSQE.NewGUI.Controls
             if (Settings.approachSquares.Value)
                 noteApproach.Render();
 
-            if (Mapping.RenderMode == ObjectRenderMode.Notes)
+            if (Mapping.RenderMode == ObjectRenderMode.Notes || Mapping.ObjectMode == IndividualObjectMode.Note)
             {
                 noteSelect.Render();
                 noteHover.Render();
@@ -778,7 +790,7 @@ namespace New_SSQE.NewGUI.Controls
 
             if ((hoveringXY == null && Mapping.ClickMode == ClickMode.Both) || Mapping.ClickMode == ClickMode.Place)
             {
-                if (Mapping.RenderMode != ObjectRenderMode.Notes || hoveringCell == null)
+                if ((Mapping.RenderMode != ObjectRenderMode.Notes && Mapping.ObjectMode !=  IndividualObjectMode.Note) || hoveringCell == null)
                     return;
                 if (Windowing.HoveringInteractive(this))
                     return;
@@ -905,7 +917,7 @@ namespace New_SSQE.NewGUI.Controls
             if (ms < 0)
                 ms = (long)Settings.currentTime.Value.Value;
 
-            if (Mapping.RenderMode == ObjectRenderMode.Notes)
+            if (Mapping.RenderMode == ObjectRenderMode.Notes || Mapping.ObjectMode == IndividualObjectMode.Note)
             {
                 Note note = new(x, y, ms);
                 NoteManager.Add("ADD NOTE", note);

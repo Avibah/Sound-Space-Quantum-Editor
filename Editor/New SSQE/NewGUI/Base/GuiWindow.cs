@@ -149,6 +149,7 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual bool TextboxFocused() => container.TextboxFocused();
         public virtual bool HoveringInteractive(InteractiveControl? exclude = null) => container.HoveringInteractive(exclude);
+        public virtual InteractiveControl? GetHoveringInteractive(InteractiveControl? exclude = null) => container.GetHoveringInteractive(exclude);
 
         protected virtual void SetOffset(Vector2 offset)
         {

@@ -80,7 +80,7 @@
                     break;
 
                 case EasingStyle.Bounce:
-                    x = Out(0, 1, 1 - t, style);
+                    x = 1 - Out(0, 1, 1 - t, style);
                     break;
 
                 case EasingStyle.Elastic:

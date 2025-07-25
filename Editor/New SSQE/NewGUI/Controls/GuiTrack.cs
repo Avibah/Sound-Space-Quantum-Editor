@@ -21,6 +21,10 @@ namespace New_SSQE.NewGUI.Controls
         private float CellGap => rect.Height * 0.14f;
         private float CellPos(float x) => x * NoteSize * 0.3f + NoteSize * 0.1f;
 
+        private static bool RenderNotes => Mapping.RenderMode == ObjectRenderMode.Notes || Mapping.ObjectMode == IndividualObjectMode.Note;
+        private static bool RenderSpecial => Mapping.RenderMode == ObjectRenderMode.Special;
+        private static bool RenderVFX => Mapping.RenderMode == ObjectRenderMode.VFX;
+
         private bool selecting = false;
         private float selectMsStart;
         private float selectMsEnd;
@@ -162,7 +166,7 @@ namespace New_SSQE.NewGUI.Controls
             int color1Length = 0;
             int color2Length = 0;
 
-            if (Mapping.RenderMode == ObjectRenderMode.Notes)
+            if (RenderNotes)
             {
                 ObjectList<Note> notes = Mapping.Current.Notes;
                 (int low, int high) = notes.SearchRange(minMs, maxMs);
@@ -234,8 +238,8 @@ namespace New_SSQE.NewGUI.Controls
             }
             else
             {
-                ObjectList<MapObject> objects = Mapping.RenderMode == ObjectRenderMode.VFX ? Mapping.Current.VfxObjects : Mapping.Current.SpecialObjects;
-                bool shouldCheckID = Mapping.RenderMode == ObjectRenderMode.Special && Mapping.ObjectMode != IndividualObjectMode.Disabled;
+                ObjectList<MapObject> objects = RenderVFX ? Mapping.Current.VfxObjects : Mapping.Current.SpecialObjects;
+                bool shouldCheckID = RenderSpecial && Mapping.ObjectMode != IndividualObjectMode.Disabled;
                 List<int> indices = [];
 
                 int? first = null;
@@ -314,7 +318,7 @@ namespace New_SSQE.NewGUI.Controls
                             objSelects.Add((x, 0, 1, 2 * 6 + 1));
                     }
 
-                    if (Mapping.RenderMode == ObjectRenderMode.Special && obj.Ms <= currentTime - sfxOffset && obj.PlayHitsound)
+                    if (RenderSpecial && obj.Ms <= currentTime - sfxOffset && obj.PlayHitsound)
                         toPlay = obj;
 
                     if (x - 8 > (lastRenderedText ?? float.MinValue))
@@ -628,7 +632,7 @@ namespace New_SSQE.NewGUI.Controls
             
             selectBox.Render();
             
-            if (Mapping.RenderMode == ObjectRenderMode.Notes)
+            if (RenderNotes)
             {
                 noteLocation.Render();
                 noteConstant.Render();
@@ -843,6 +847,9 @@ namespace New_SSQE.NewGUI.Controls
                             case ObjectRenderMode.VFX:
                                 VfxObjectManager.Edit("MOVE OBJECT[S]", n => n.Ms += msDiff);
                                 break;
+                            case ObjectRenderMode.Special when RenderNotes:
+                                NoteManager.Edit("MOVE NOTE[S]", n => n.Ms += msDiff);
+                                break;
                             case ObjectRenderMode.Special:
                                 SpecialObjectManager.Edit("MOVE OBJECT[S]", n => n.Ms += msDiff);
                                 break;
@@ -893,7 +900,7 @@ namespace New_SSQE.NewGUI.Controls
                 selectMsStart = (x - cursorPos) * PX_TO_MS + currentMs;
                 selecting = true;
             }
-            else
+            else if ((Windowing.Current?.GetHoveringInteractive() ?? null) is not GuiButtonList)
                 Mapping.ClearSelection();
         }
 
@@ -924,6 +931,9 @@ namespace New_SSQE.NewGUI.Controls
                                 VfxObjectManager.Remove("DELETE OBJECT[S]");
                                 break;
 
+                            case ObjectRenderMode.Special when RenderNotes:
+                                NoteManager.Remove("DELETE NOTE[S]");
+                                break;
                             case ObjectRenderMode.Special:
                                 SpecialObjectManager.Remove("DELETE OBJECT[S]");
                                 break;

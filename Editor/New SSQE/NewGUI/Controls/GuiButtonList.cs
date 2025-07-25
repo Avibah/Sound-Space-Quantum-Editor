@@ -17,7 +17,7 @@ namespace New_SSQE.NewGUI.Controls
 
             if (Array.IndexOf(setting.Value.Possible, setting.Value.Current) < 0)
                 setting.Value.Current = setting.Value.Possible[0];
-            SetText(prefix + setting.Value.Current.ToString().ToUpper());
+            RefreshSetting();
         }
 
         private void UpdateSetting(bool right)
@@ -28,11 +28,16 @@ namespace New_SSQE.NewGUI.Controls
             int index = Array.IndexOf(possible, list.Current);
             index = index >= 0 ? index : possible.Length - 1;
 
-            int newIndex = (possible.Length + index + (right ? -1 : 1)) % possible.Length;
+            int newIndex = (possible.Length + index + (right ? 1 : -1)) % possible.Length;
             list.Current = possible[newIndex];
 
-            SetText(prefix + list.Current.ToString().ToUpper());
+            RefreshSetting();
             Update();
+        }
+
+        public void RefreshSetting()
+        {
+            SetText(prefix + setting.Value.Current.ToString().ToUpper());
         }
 
         public override void MouseClickLeft(float x, float y)

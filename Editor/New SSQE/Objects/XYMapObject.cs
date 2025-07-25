@@ -16,7 +16,7 @@
             double x = Math.Round(X, 2);
             double y = Math.Round(Y, 2);
 
-            return base.ToString(x.ToString(Program.Culture), y.ToString(Program.Culture));
+            return base.ToString(x.ToString(Program.Culture), y.ToString(Program.Culture), string.Join('|', data));
         }
 
         public override XYMapObject Clone()
