@@ -397,6 +397,8 @@ namespace New_SSQE.NewGUI.Font
                     else
                     {
                         char c = text[i];
+                        if (c == 0x202F || c == 0x00A0)
+                            c = (char)0x0020;
                         if (c < 0 || c > CharRange - 1)
                             c = (char)0;
 
