@@ -1,4 +1,10 @@
 ----------------------------------
+    -- 2.3.2.2 - 7/25/2025 --
+
+- added note easing options for Novastra mapping (Options > Edit Extra Objects > Modify Notes)
+- fixed thousands separators showing as invalid characters in some locales
+
+----------------------------------
     -- 2.3.2.1 - 7/23/2025 --
 
 - added a "Player" tab in Settings to more easily choose which game to use for playtesting
