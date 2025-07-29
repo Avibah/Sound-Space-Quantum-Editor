@@ -2,6 +2,7 @@
     -- 2.3.2.3 - 7/28/2025 --
 
 - fixed note easing settings (Novastra) not saving in the INI
+- fixed imported audio sometimes not being recognized after reopening a map
 
 ----------------------------------
     -- 2.3.2.2 - 7/25/2025 --
