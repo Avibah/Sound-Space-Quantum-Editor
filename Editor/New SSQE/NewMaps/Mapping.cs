@@ -320,6 +320,7 @@ namespace New_SSQE.NewMaps
                 if (string.IsNullOrWhiteSpace(id))
                     id = Path.GetFileNameWithoutExtension(fileName);
                 id = FormatUtils.FixID(id);
+                Current.SoundID = id;
 
                 if (fileName != Path.Combine(Assets.CACHED, $"{id}.asset"))
                     File.Copy(fileName, Path.Combine(Assets.CACHED, $"{id}.asset"), true);
