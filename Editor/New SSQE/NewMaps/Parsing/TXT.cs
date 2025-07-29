@@ -186,7 +186,8 @@ namespace New_SSQE.NewMaps.Parsing
 
         public static string CopyLegacy(bool correctNotes = false)
         {
-            List<Note> notes = Mapping.Current.Notes;
+            ObjectList<Note> notes = Mapping.Current.Notes;
+            notes.Sort();
 
             long offset = (long)Settings.exportOffset.Value;
             string[] final = new string[notes.Count + 1];
@@ -219,6 +220,8 @@ namespace New_SSQE.NewMaps.Parsing
             return CopyLegacy(correctNotes);
 
             ObjectList<Note> notes = Mapping.Current.Notes;
+            notes.Sort();
+
             ObjectList<MapObject> vfxObjects = new(Mapping.Current.VfxObjects.OrderBy(n => n.ID).ThenBy(n => n.Ms));
             ObjectList<MapObject> specObjects = new(Mapping.Current.SpecialObjects.OrderBy(n => n.ID).ThenBy(n => n.Ms));
             List<TimingPoint> timingPoints = Mapping.Current.TimingPoints;

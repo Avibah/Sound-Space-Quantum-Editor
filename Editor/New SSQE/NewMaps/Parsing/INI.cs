@@ -1,4 +1,5 @@
-﻿using New_SSQE.Objects;
+﻿using New_SSQE.Misc.Static;
+using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
@@ -169,6 +170,27 @@ namespace New_SSQE.NewMaps.Parsing
 
                             break;
 
+                        case "noteData":
+                            List<JsonElement> noteData = value.Deserialize<List<JsonElement>>() ?? [];
+                            List<Note> notes = Mapping.Current.Notes;
+
+                            foreach (JsonElement nData in noteData)
+                            {
+                                JsonElement[] values = nData.Deserialize<JsonElement[]>() ?? [];
+                                int index = values[0].GetInt32();
+
+                                if (index >= 0 && index < notes.Count)
+                                {
+                                    Note note = notes[index];
+
+                                    note.EnableEasing = true;
+                                    note.Style = (EasingStyle)values[1].GetInt32();
+                                    note.Direction = (EasingDirection)values[2].GetInt32();
+                                }
+                            }
+
+                            break;
+
                         case "currentTime":
                             Settings.currentTime.Value.Value = value.GetSingle();
                             break;
@@ -284,12 +306,23 @@ namespace New_SSQE.NewMaps.Parsing
             foreach (MapObject obj in Mapping.Current.SpecialObjects)
                 specialFinal.Add($"{obj.ID}|{obj.ToString()}");
 
+            List<object[]> noteData = [];
+
+            for (int i = 0; i < Mapping.Current.Notes.Count; i++)
+            {
+                Note note = Mapping.Current.Notes[i];
+
+                if (note.EnableEasing)
+                    noteData.Add([i, (int)note.Style, (int)note.Direction]);
+            }
+
             Dictionary<string, object> json = new()
             {
                 {"timings", timingfinal },
                 {"bookmarks", bookmarkfinal },
                 {"vfxObjects", vfxFinal },
                 {"specialObjects", specialFinal },
+                {"noteData", noteData },
 
                 {"currentTime", Settings.currentTime.Value.Value },
                 {"beatDivisor", Settings.beatDivisor.Value.Value },

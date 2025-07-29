@@ -330,7 +330,7 @@ namespace New_SSQE.NewGUI.Windows
                         if (!File.Exists(Settings.rhythiaPath.Value))
                         {
                             Logging.Log($"Invalid Rhythia path - {Settings.rhythiaPath.Value}", LogSeverity.WARN);
-                            ShowToast("INVALID RHYTHIA PATH [MENU > SETTINGS > PLAYTESTING]", Settings.color1.Value);
+                            ShowToast("INVALID RHYTHIA PATH [MENU > SETTINGS > PLAYER]", Settings.color1.Value);
                         }
                         else
                         {
