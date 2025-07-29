@@ -1,4 +1,9 @@
 ----------------------------------
+    -- 2.3.2.3 - 7/28/2025 --
+
+- fixed note easing settings (Novastra) not saving in the INI
+
+----------------------------------
     -- 2.3.2.2 - 7/25/2025 --
 
 - added note easing options for Novastra mapping (Options > Edit Extra Objects > Modify Notes)
