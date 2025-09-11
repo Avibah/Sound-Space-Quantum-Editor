@@ -1,11 +1,11 @@
 ﻿using New_SSQE.NewMaps;
 using New_SSQE.Misc.Static;
 using New_SSQE.Objects;
-using New_SSQE.Objects.Managers;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using System.Drawing;
 using New_SSQE.NewGUI.Base;
+using New_SSQE.Objects.Other;
 
 namespace New_SSQE.NewGUI.Controls
 {

@@ -23,7 +23,7 @@ namespace New_SSQE.NewGUI.Controls
             this.isPositive = isPositive;
 
             if (setting != null)
-                SetText(setting.Value.ToString());
+                Text = setting.Value.ToString();
             if (isPositive)
                 Bounds = (0, float.MaxValue);
         }
@@ -35,7 +35,7 @@ namespace New_SSQE.NewGUI.Controls
             TextEntered += (s, e) =>
             {
                 if (!float.TryParse(e.Text, out float value) || value < Bounds.X)
-                    SetText(Bounds.X.ToString());
+                    Text = Bounds.X.ToString();
             };
         }
 
@@ -45,7 +45,7 @@ namespace New_SSQE.NewGUI.Controls
                 return;
 
             bool ctrl = MainWindow.Instance.CtrlHeld;
-            cursorPos = Math.Clamp(cursorPos, 0, text.Length);
+            cursorPos = Math.Clamp(cursorPos, 0, Text.Length);
 
             switch (key)
             {
@@ -59,7 +59,7 @@ namespace New_SSQE.NewGUI.Controls
                 case Keys.Enter:
                 case Keys.KeyPadEnter:
                 case Keys.Escape:
-                    prevText = text;
+                    prevText = Text;
                     prevCursor = cursorPos;
                     base.KeyDown(key);
                     break;
@@ -71,7 +71,7 @@ namespace New_SSQE.NewGUI.Controls
             if (isPositive && str == "-")
                 return;
 
-            prevText = text;
+            prevText = Text;
             prevCursor = cursorPos;
             base.TextInput(str);
         }
@@ -81,7 +81,7 @@ namespace New_SSQE.NewGUI.Controls
             float numFloat = 0;
             int numInt = 0;
 
-            string temp = text;
+            string temp = Text;
             if (string.IsNullOrEmpty(temp) || temp == "-" || temp == Program.Culture.NumberFormat.NumberDecimalSeparator) 
                 temp = "0";
 
@@ -93,7 +93,7 @@ namespace New_SSQE.NewGUI.Controls
                 {
                     value = Bounds.Y;
                     if (Bounds.Y != float.MaxValue)
-                        SetText(value.ToString());
+                        Text = value.ToString();
                 }
 
                 if (setting != null)
@@ -111,10 +111,10 @@ namespace New_SSQE.NewGUI.Controls
             else
             {
                 cursorPos = prevCursor;
-                SetText(prevText);
+                Text = prevText;
             }
 
-            cursorPos = Math.Clamp(cursorPos, 0, text.Length);
+            cursorPos = Math.Clamp(cursorPos, 0, Text.Length);
             Update();
         }
     }

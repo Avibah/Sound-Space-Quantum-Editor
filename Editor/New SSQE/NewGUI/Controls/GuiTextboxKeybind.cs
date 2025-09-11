@@ -37,15 +37,15 @@ namespace New_SSQE.NewGUI.Controls
             setting.Value.Alt = alt;
             setting.Value.Shift = shift;
 
-            SetText(key.ToString().ToUpper());
-            cursorPos = text.Length;
+            Text = key.ToString().ToUpper();
+            cursorPos = Text.Length;
         }
 
         public override void TextInput(string str) { }
 
         public override float[] Draw()
         {
-            text = setting.Value.Key.ToString().ToUpper();
+            Text = setting.Value.Key.ToString().ToUpper();
 
             return base.Draw();
         }

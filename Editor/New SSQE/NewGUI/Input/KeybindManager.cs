@@ -160,7 +160,7 @@ namespace New_SSQE.NewGUI.Input
                                     }
                                 }
 
-                                NoteManager.Add("PASTE NOTE[S]", copiedAsNotes);
+                                Mapping.Current.Notes.Modify_Add("PASTE NOTE[S]", copiedAsNotes);
 
                                 if (Settings.jumpPaste.Value)
                                 {
@@ -174,9 +174,9 @@ namespace New_SSQE.NewGUI.Input
                                 (List<MapObject> vfxCopy, List<MapObject> specialCopy) = FormatUtils.SplitVFXSpecial(copied);
 
                                 if (Mapping.RenderMode ==  ObjectRenderMode.VFX)
-                                    VfxObjectManager.Add("PASTE OBJECT[S]", vfxCopy);
+                                    Mapping.Current.VfxObjects.Modify_Add("PASTE OBJECT[S]", vfxCopy);
                                 else
-                                    SpecialObjectManager.Add("PASTE OBJECT[S]", specialCopy);
+                                    Mapping.Current.SpecialObjects.Modify_Add("PASTE OBJECT[S]", specialCopy);
 
                                 if (Settings.jumpPaste.Value)
                                 {
@@ -203,7 +203,7 @@ namespace New_SSQE.NewGUI.Input
                             List<Note> copied = Mapping.Current.Notes.Selected.ToList();
                             Clipboard.SetData(copied.Cast<MapObject>().ToList());
 
-                            NoteManager.Remove("CUT NOTE[S]", copied);
+                            Mapping.Current.Notes.Modify_Remove("CUT NOTE[S]", copied);
                             GuiWindowEditor.ShowToast("CUT NOTES", Settings.color1.Value);
                         }
                         else if (Mapping.Current.VfxObjects.Selected.Count > 0)
@@ -211,7 +211,7 @@ namespace New_SSQE.NewGUI.Input
                             List<MapObject> copied = Mapping.Current.VfxObjects.Selected.ToList();
                             Clipboard.SetData(copied);
 
-                            VfxObjectManager.Remove("CUT OBJECT[S]", copied);
+                            Mapping.Current.VfxObjects.Modify_Remove("CUT OBJECT[S]", copied);
                             GuiWindowEditor.ShowToast("CUT OBJECTS", Settings.color1.Value);
                         }
                         else if (Mapping.Current.SpecialObjects.Selected.Count > 0)
@@ -219,7 +219,7 @@ namespace New_SSQE.NewGUI.Input
                             List<MapObject> copied = Mapping.Current.SpecialObjects.Selected.ToList();
                             Clipboard.SetData(copied);
 
-                            SpecialObjectManager.Remove("CUT OBJECT[S]", copied);
+                            Mapping.Current.SpecialObjects.Modify_Remove("CUT OBJECT[S]", copied);
                             GuiWindowEditor.ShowToast("CUT OBJECTS", Settings.color1.Value);
                         }
                     }
@@ -253,7 +253,7 @@ namespace New_SSQE.NewGUI.Input
 
                 case "anchorNode":
                     if (Mapping.Current.Notes.Selected.Count > 0)
-                        NoteManager.Edit("ANCHOR NODE[S]", n => n.Anchored ^= true);
+                        Mapping.Current.Notes.Modify_Edit("ANCHOR NODE[S]", n => n.Anchored ^= true);
 
                     break;
 

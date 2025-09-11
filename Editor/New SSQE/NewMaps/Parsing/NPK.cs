@@ -538,37 +538,20 @@ namespace New_SSQE.NewMaps.Parsing
                 {
                     case ".json" when filename == "metadata":
                         Dictionary<string, JsonElement> metadata = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(file)) ?? [];
+                        JsonElement temp;
 
-                        foreach (string key in metadata.Keys)
-                        {
-                            try
-                            {
-                                JsonElement value = metadata[key];
-
-                                switch (key)
-                                {
-                                    case "songTitle":
-                                        Settings.songTitle.Value = value.GetString() ?? "";
-                                        break;
-                                    case "songArtist":
-                                        Settings.songArtist.Value = value.GetString() ?? "";
-                                        break;
-                                    case "mapCreator":
-                                        Settings.mapCreator.Value = value.GetString() ?? "";
-                                        break;
-                                    case "mapCreatorPersonalLink":
-                                        Settings.mapCreatorPersonalLink.Value = value.GetString() ?? "";
-                                        break;
-                                    case "previewStartTime":
-                                        Settings.previewStartTime.Value = ((long)(value.GetDouble() * 1000d)).ToString();
-                                        break;
-                                    case "previewDuration":
-                                        Settings.previewDuration.Value = ((long)(value.GetDouble() * 1000d)).ToString();
-                                        break;
-                                }
-                            }
-                            catch { }
-                        }
+                        if (metadata.TryGetValue("songTitle", out temp))
+                            Settings.songTitle.Value = temp.GetString() ?? "";
+                        if (metadata.TryGetValue("songArtist", out temp))
+                            Settings.songArtist.Value = temp.GetString() ?? "";
+                        if (metadata.TryGetValue("mapCreator", out temp))
+                            Settings.mapCreator.Value = temp.GetString() ?? "";
+                        if (metadata.TryGetValue("mapCreatorPersonalLink", out temp))
+                            Settings.mapCreatorPersonalLink.Value = temp.GetString() ?? "";
+                        if (metadata.TryGetValue("previewStartTime", out temp))
+                            Settings.previewStartTime.Value = ((long)(temp.GetDouble() * 1000d)).ToString();
+                        if (metadata.TryGetValue("previewDuration", out temp))
+                            Settings.previewDuration.Value = ((long)(temp.GetDouble() * 1000d)).ToString();
 
                         break;
 
@@ -645,121 +628,112 @@ namespace New_SSQE.NewMaps.Parsing
             long lastMs = 0;
             Fever? lastFever = null;
 
-            foreach (string key in result.Keys)
+            if (result.TryGetValue("songOffset", out JsonElement songOffset))
+                Settings.songOffset.Value = songOffset.GetDouble().ToString(Program.Culture);
+
+            if (result.TryGetValue("notes", out JsonElement notes))
             {
-                JsonElement value = result[key];
+                Dictionary<string, JsonElement>[] noteSet = notes.Deserialize<Dictionary<string, JsonElement>[]>() ?? [];
 
-                switch (key)
+                for (int i = 0; i < noteSet.Length; i++)
                 {
-                    case "songOffset":
-                        Settings.songOffset.Value = value.GetDouble().ToString(Program.Culture);
-                        break;
+                    Dictionary<string, JsonElement> note = noteSet[i];
+                    float x = 1 - note["x"].GetSingle();
+                    float y = note["y"].GetSingle() + 1;
+                    long t = note["t"].GetInt64();
 
-                    case "notes":
-                        Dictionary<string, JsonElement>[] noteSet = value.Deserialize<Dictionary<string, JsonElement>[]>() ?? [];
+                    bool m = note.TryGetValue("m", out JsonElement tempM) && tempM.GetBoolean();
+                    bool e = note.TryGetValue("e", out JsonElement tempE);
 
-                        for (int i = 0; i < noteSet.Length; i++)
-                        {
-                            Dictionary<string, JsonElement> note = noteSet[i];
-                            float x = 1 - note["x"].GetSingle();
-                            float y = note["y"].GetSingle() + 1;
-                            long t = note["t"].GetInt64();
+                    EasingStyle s = EasingStyle.Linear;
+                    EasingDirection d = EasingDirection.In;
 
-                            bool m = note.TryGetValue("m", out JsonElement tempM) && tempM.GetBoolean();
-                            bool e = note.TryGetValue("e", out JsonElement tempE);
+                    if (e)
+                    {
+                        Dictionary<string, JsonElement> easing = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(tempE) ?? [];
 
-                            EasingStyle s = EasingStyle.Linear;
-                            EasingDirection d = EasingDirection.In;
+                        s = (EasingStyle)easing["s"].GetInt32();
+                        d = (EasingDirection)easing["d"].GetInt32();
+                    }
 
-                            if (e)
+                    if (m)
+                        Mapping.Current.SpecialObjects.Add(new Mine(x, y, t));
+                    else
+                        Mapping.Current.Notes.Add(new(x, y, t, e, s, d));
+
+                    lastMs = Math.Max(lastMs, t);
+                }
+            }
+
+            if (result.TryGetValue("beats", out JsonElement beats))
+            {
+                Dictionary<string, JsonElement>[] beatSet = beats.Deserialize<Dictionary<string, JsonElement>[]>() ?? [];
+
+                for (int i = 0; i < beatSet.Length; i++)
+                {
+                    Dictionary<string, JsonElement> beat = beatSet[i];
+                    long t = beat["t"].GetInt64();
+
+                    Mapping.Current.SpecialObjects.Add(new Beat(t));
+                    lastMs = Math.Max(lastMs, t);
+                }
+            }
+
+            if (result.TryGetValue("glides", out JsonElement glides))
+            {
+                Dictionary<string, JsonElement>[] glideSet = glides.Deserialize<Dictionary<string, JsonElement>[]>() ?? [];
+
+                for (int i = 0; i < glideSet.Length; i++)
+                {
+                    Dictionary<string, JsonElement> glide = glideSet[i];
+                    long t = glide["t"].GetInt64();
+                    string d = glide["d"].GetString() ?? "none";
+
+                    Mapping.Current.SpecialObjects.Add(new Glide(t, d switch
+                    {
+                        "up" => GlideDirection.Up,
+                        "right" => GlideDirection.Right,
+                        "down" => GlideDirection.Down,
+                        "left" => GlideDirection.Left,
+                        _ => GlideDirection.None
+                    }));
+
+                    lastMs = Math.Max(lastMs, t);
+                }
+            }
+
+            if (result.TryGetValue("events", out JsonElement events))
+            {
+                Dictionary<string, JsonElement>[] eventSet = events.Deserialize<Dictionary<string, JsonElement>[]>() ?? [];
+
+                for (int i = 0; i < eventSet.Length; i++)
+                {
+                    Dictionary<string, JsonElement> tEvent = eventSet[i];
+                    string eventType = tEvent["type"].GetString() ?? "";
+                    long t = tEvent["t"].GetInt64();
+
+                    switch (eventType)
+                    {
+                        case "fever":
+                            bool active = tEvent["active"].GetBoolean();
+
+                            if (active)
+                                lastFever = new(t, 0);
+                            else if (lastFever != null)
                             {
-                                Dictionary<string, JsonElement> easing = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(tempE) ?? [];
+                                lastFever.Duration = t - lastFever.Ms;
+                                Mapping.Current.SpecialObjects.Add(lastFever);
 
-                                s = (EasingStyle)easing["s"].GetInt32();
-                                d = (EasingDirection)easing["d"].GetInt32();
+                                lastFever = null;
                             }
 
-                            if (m)
-                                Mapping.Current.SpecialObjects.Add(new Mine(x, y, t));
-                            else
-                                Mapping.Current.Notes.Add(new(x, y, t, e, s, d));
+                            break;
 
-                            lastMs = Math.Max(lastMs, t);
-                        }
-
-                        break;
-
-                    case "beats":
-                        Dictionary<string, JsonElement>[] beatSet = value.Deserialize<Dictionary<string, JsonElement>[]>() ?? [];
-
-                        for (int i = 0; i < beatSet.Length; i++)
-                        {
-                            Dictionary<string, JsonElement> beat = beatSet[i];
-                            long t = beat["t"].GetInt64();
-
-                            Mapping.Current.SpecialObjects.Add(new Beat(t));
-                            lastMs = Math.Max(lastMs, t);
-                        }
-
-                        break;
-
-                    case "glides":
-                        Dictionary<string, JsonElement>[] glideSet = value.Deserialize<Dictionary<string, JsonElement>[]>() ?? [];
-
-                        for (int i = 0; i < glideSet.Length; i++)
-                        {
-                            Dictionary<string, JsonElement> glide = glideSet[i];
-                            long t = glide["t"].GetInt64();
-                            string d = glide["d"].GetString() ?? "none";
-
-                            Mapping.Current.SpecialObjects.Add(new Glide(t, d switch
-                            {
-                                "up" => GlideDirection.Up,
-                                "right" => GlideDirection.Right,
-                                "down" => GlideDirection.Down,
-                                "left" => GlideDirection.Left,
-                                _ => GlideDirection.None
-                            }));
-
-                            lastMs = Math.Max(lastMs, t);
-                        }
-
-                        break;
-
-                    case "events":
-                        Dictionary<string, JsonElement>[] eventSet = value.Deserialize<Dictionary<string, JsonElement>[]>() ?? [];
-                        
-                        for (int i = 0; i < eventSet.Length; i++)
-                        {
-                            Dictionary<string, JsonElement> tEvent = eventSet[i];
-                            string eventType = tEvent["type"].GetString() ?? "";
-                            long t = tEvent["t"].GetInt64();
-
-                            switch (eventType)
-                            {
-                                case "fever":
-                                    bool active = tEvent["active"].GetBoolean();
-
-                                    if (active)
-                                        lastFever = new(t, 0);
-                                    else if (lastFever != null)
-                                    {
-                                        lastFever.Duration = t - lastFever.Ms;
-                                        Mapping.Current.SpecialObjects.Add(lastFever);
-
-                                        lastFever = null;
-                                    }
-                                    
-                                    break;
-
-                                case "tempo":
-                                    float bpm = (float)tEvent["bpm"].GetDouble();
-                                    Mapping.Current.TimingPoints.Add(new(bpm, t));
-                                    break;
-                            }
-                        }
-
-                        break;
+                        case "tempo":
+                            float bpm = (float)tEvent["bpm"].GetDouble();
+                            Mapping.Current.TimingPoints.Add(new(bpm, t));
+                            break;
+                    }
                 }
             }
 

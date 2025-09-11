@@ -72,33 +72,33 @@ namespace New_SSQE.NewMaps.Parsing
             return (vfx, special);
         }
 
-        private static long encodeDiff = 0;
-        private static long encodePrev = 0;
+        private static long encodeDelta = 0;
+        private static long encodePrevRaw = 0;
 
         public static long EncodeTimestamp(long ms)
         {
-            long diff = ms - encodePrev;
-            long offset = diff - encodeDiff;
+            long delta = ms - encodePrevRaw;
+            long encoded = delta - encodeDelta;
 
-            encodeDiff = diff;
-            encodePrev = ms;
+            encodeDelta = delta;
+            encodePrevRaw = ms;
 
-            return offset;
+            return encoded;
         }
 
         public static void ResetEncode()
         {
-            encodeDiff = 0;
-            encodePrev = 0;
+            encodeDelta = 0;
+            encodePrevRaw = 0;
         }
 
         private static long decodeTotal = 0;
-        private static long decodePrev = 0;
+        private static long decodeDelta = 0;
 
         public static long DecodeTimestamp(long ms)
         {
-            decodePrev += ms;
-            decodeTotal += decodePrev;
+            decodeDelta += ms;
+            decodeTotal += decodeDelta;
 
             return decodeTotal;
         }
@@ -106,7 +106,7 @@ namespace New_SSQE.NewMaps.Parsing
         public static void ResetDecode()
         {
             decodeTotal = 0;
-            decodePrev = 0;
+            decodeDelta = 0;
         }
 
         public static string ConvertString(string str)

@@ -19,17 +19,19 @@ namespace New_SSQE.NewGUI.Controls
         {
             this.setting = setting;
             if (setting != null)
-                SetText(setting.Value);
+                Text = setting.Value;
 
             Style = ControlStyle.Textbox_Colored;
             PlayLeftClickSound = false;
             PlayRightClickSound = false;
+
+            Rounded = true;
         }
 
         public override float[] Draw()
         {
-            text = setting?.Value ?? text;
-            SetColor(Style.Secondary);
+            Text = setting?.Value ?? Text;
+            TextColor = Style.Secondary;
 
             float[] fill = Rounded ? GLVerts.Squircle(rect, CornerDetail, CornerRadius, Style.Primary) : GLVerts.Rect(rect, Style.Primary);
             float[] outline = Rounded ? GLVerts.SquircleOutline(rect, 2f, CornerDetail, CornerRadius, Style.Tertiary) : GLVerts.Outline(rect, 2f, Style.Tertiary);
@@ -38,14 +40,14 @@ namespace New_SSQE.NewGUI.Controls
 
             string textBefore = "";
             if (cursorPos >= 0)
-                textBefore = cursorPos >= text.Length ? text : text[..cursorPos];
-            cursorPos = Math.Min(cursorPos, text.Length);
+                textBefore = cursorPos >= Text.Length ? Text : Text[..cursorPos];
+            cursorPos = Math.Min(cursorPos, Text.Length);
 
-            float textBeforeWidth = FontRenderer.GetWidth(textBefore, TextSize, font);
+            float textBeforeWidth = FontRenderer.GetWidth(textBefore, TextSize, Font);
             float textX = textBeforeWidth;
             float textY = 0;
-            float textW = FontRenderer.GetWidth(text, TextSize, font);
-            float textH = FontRenderer.GetHeight(TextSize, font);
+            float textW = FontRenderer.GetWidth(Text, TextSize, Font);
+            float textH = FontRenderer.GetHeight(TextSize, Font);
 
             if (CenterMode.HasFlag(CenterMode.X))
                 textX += rect.X + rect.Width / 2 - textW / 2;
@@ -78,13 +80,14 @@ namespace New_SSQE.NewGUI.Controls
 
             bool ctrl = MainWindow.Instance.CtrlHeld;
 
-            cursorPos = Math.Clamp(cursorPos, 0, text.Length);
+            cursorPos = Math.Clamp(cursorPos, 0, Text.Length);
+            cursorTime = 0;
 
             switch (key)
             {
                 case Keys.C when ctrl:
-                    if (!string.IsNullOrWhiteSpace(text))
-                        Clipboard.SetText(text);
+                    if (!string.IsNullOrWhiteSpace(Text))
+                        Clipboard.SetText(Text);
                     break;
 
                 case Keys.V when ctrl:
@@ -92,23 +95,23 @@ namespace New_SSQE.NewGUI.Controls
 
                     if (!string.IsNullOrWhiteSpace(clipboard))
                     {
-                        SetText(text.Insert(cursorPos, clipboard));
+                        Text = Text.Insert(cursorPos, clipboard);
                         cursorPos += clipboard.Length;
                     }
 
                     break;
 
                 case Keys.X when ctrl:
-                    if (!string.IsNullOrWhiteSpace(text))
-                        Clipboard.SetText(text);
-                    SetText("");
+                    if (!string.IsNullOrWhiteSpace(Text))
+                        Clipboard.SetText(Text);
+                    Text = "";
                     cursorPos = 0;
 
                     break;
 
                 case Keys.Left:
                     if (ctrl)
-                        cursorPos = Math.Max(IndexOf(text, cursorPos - 1, false) + 1, 0);
+                        cursorPos = Math.Max(IndexOf(Text, cursorPos - 1, false), 0);
                     else
                         cursorPos--;
 
@@ -116,7 +119,7 @@ namespace New_SSQE.NewGUI.Controls
 
                 case Keys.Right:
                     if (ctrl)
-                        cursorPos = Math.Max(IndexOf(text, cursorPos + 1, true), 0);
+                        cursorPos = Math.Max(IndexOf(Text, cursorPos + 1, true), 0);
                     else
                         cursorPos++;
 
@@ -125,16 +128,16 @@ namespace New_SSQE.NewGUI.Controls
                 case Keys.Backspace:
                     if (ctrl)
                     {
-                        int index = Math.Max(IndexOf(text, cursorPos - 1, false), 0);
-                        string word = text.Substring(index, Math.Min(cursorPos - index, text.Length - index));
+                        int index = Math.Max(IndexOf(Text, cursorPos - 1, false), 0);
+                        string word = Text.Substring(index, Math.Min(cursorPos - index, Text.Length - index));
 
-                        SetText(text.Remove(index, word.Length));
+                        Text = Text.Remove(index, word.Length);
                         cursorPos -= word.Length;
                     }
-                    else if (text.Length > 0 && cursorPos > 0)
+                    else if (Text.Length > 0 && cursorPos > 0)
                     {
                         cursorPos--;
-                        SetText(text.Remove(cursorPos, 1));
+                        Text = Text.Remove(cursorPos, 1);
                     }
 
                     break;
@@ -142,20 +145,20 @@ namespace New_SSQE.NewGUI.Controls
                 case Keys.Delete:
                     if (ctrl)
                     {
-                        int index = Math.Max(IndexOf(text, cursorPos + 1, true), 0);
-                        string word = text.Substring(Math.Clamp(cursorPos, 0, text.Length - 1), Math.Max(index - cursorPos, 0));
+                        int index = Math.Max(IndexOf(Text, cursorPos + 1, true), 0);
+                        string word = Text.Substring(Math.Clamp(cursorPos, 0, Text.Length - 1), Math.Max(index - cursorPos, 0));
 
-                        SetText(text.Remove(cursorPos, word.Length));
+                        Text = Text.Remove(cursorPos, word.Length);
                     }
-                    else if (text.Length > 0 && cursorPos < text.Length)
-                        SetText(text.Remove(Math.Min(cursorPos, text.Length - 1), 1));
+                    else if (Text.Length > 0 && cursorPos < Text.Length)
+                        Text = Text.Remove(Math.Min(cursorPos, Text.Length - 1), 1);
 
                     break;
 
                 case Keys.Enter:
                 case Keys.KeyPadEnter:
                     Focused = false;
-                    InvokeTextEntered(new(text));
+                    InvokeTextEntered(new(Text));
                     break;
 
                 case Keys.Escape:
@@ -175,7 +178,7 @@ namespace New_SSQE.NewGUI.Controls
             if (MainWindow.Instance.CtrlHeld)
                 return;
 
-            SetText(text.Insert(cursorPos, str));
+            Text = Text.Insert(cursorPos, str);
             cursorPos++;
 
             FinishInput();
@@ -183,11 +186,11 @@ namespace New_SSQE.NewGUI.Controls
 
         protected virtual void FinishInput()
         {
-            cursorPos = Math.Clamp(cursorPos + 1, 0, text.Length);
+            cursorPos = Math.Clamp(cursorPos, 0, Text.Length);
             Update();
 
             if (setting != null)
-                setting.Value = text;
+                setting.Value = Text;
         }
 
         private int IndexOf(string set, int stop, bool onceAfter)
@@ -201,7 +204,7 @@ namespace New_SSQE.NewGUI.Controls
                     int store = set.IndexOf(' ', current + 1);
 
                     if (next && store < 0)
-                        store = text.Length;
+                        store = Text.Length;
 
                     if (store > current && (store < stop || next || (next && stop + 1 == store)))
                     {
@@ -220,13 +223,13 @@ namespace New_SSQE.NewGUI.Controls
         {
             cursorTime = 0;
             base.MouseClickLeft(x, y);
-            if (text.Length == 0)
+            if (Text.Length == 0)
                 return;
 
             // rough estimate of where the cursor clicked relative to the text
-            int textWidth = FontRenderer.GetWidth(text, TextSize, font);
+            int textWidth = FontRenderer.GetWidth(Text, TextSize, Font);
             float posX = x - rect.X - (rect.Width - textWidth) / 2;
-            float letterWidth = textWidth / text.Length;
+            float letterWidth = textWidth / Text.Length;
 
             posX = Math.Clamp(posX, 0, textWidth);
             cursorPos = (int)Math.Floor(posX / letterWidth + 0.3f);

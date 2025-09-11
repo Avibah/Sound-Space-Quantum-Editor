@@ -2,7 +2,6 @@
 using New_SSQE.EditHistory;
 using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Objects;
-using New_SSQE.Objects.Managers;
 using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
 
@@ -14,7 +13,7 @@ namespace New_SSQE.NewMaps
         public ObjectList<MapObject> VfxObjects = [];
         public ObjectList<MapObject> SpecialObjects = [];
 
-        public List<int> BezierNodes = [];
+        public List<int> BezierNodes => Notes.BezierNodes;
         public List<Bookmark> Bookmarks = [];
         public List<TimingPoint> TimingPoints = [];
 

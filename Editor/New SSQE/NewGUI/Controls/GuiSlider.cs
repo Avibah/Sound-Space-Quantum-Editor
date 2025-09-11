@@ -28,6 +28,8 @@ namespace New_SSQE.NewGUI.Controls
 
             Style = ControlStyle.Slider_Uncolored;
             CornerRadius = 0.5f;
+
+            Rounded = true;
         }
 
         public override float[] Draw()

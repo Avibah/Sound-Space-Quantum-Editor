@@ -12,7 +12,6 @@ namespace New_SSQE.Audio
         private static int waveLength = 0;
         private static int vao;
         private static int vbo;
-        private static int posLocation;
 
         private static bool isUploaded = false;
         private static double resolution = 0.0d;

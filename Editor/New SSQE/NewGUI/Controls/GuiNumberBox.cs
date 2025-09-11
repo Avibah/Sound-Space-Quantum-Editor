@@ -69,7 +69,7 @@ namespace New_SSQE.NewGUI.Controls
 
             if (setting != null)
                 setting.Value = Value;
-            ValueBox.SetText(Value.ToString());
+            ValueBox.Text = Value.ToString();
             InvokeValueChanged(new(Value));
 
             return Value;

@@ -1,5 +1,5 @@
 ﻿using New_SSQE.Objects;
-using New_SSQE.Objects.Managers;
+using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
 
 namespace New_SSQE.NewMaps.Parsing
@@ -156,6 +156,7 @@ namespace New_SSQE.NewMaps.Parsing
 
         public static bool Read(string path)
         {
+            Settings.exportOffset.Value = 0;
             string ini = Path.ChangeExtension(path, ".ini");
 
             return ReadData(File.ReadAllText(path)) && (!File.Exists(ini) || INI.Read(ini));

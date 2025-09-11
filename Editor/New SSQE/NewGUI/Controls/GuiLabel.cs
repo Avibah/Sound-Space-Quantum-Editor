@@ -11,7 +11,7 @@ namespace New_SSQE.NewGUI.Controls
         public GuiLabel(float x, float y, float w, float h, Setting<Color>? color = null, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, text, textSize, font, centerMode)
         {
             setting = color;
-            textColor = color?.Value ?? Color.White;
+            TextColor = color?.Value ?? Color.White;
         }
 
         public override float[] Draw()
@@ -29,7 +29,7 @@ namespace New_SSQE.NewGUI.Controls
 
         public void SetColor(Color color)
         {
-            textColor = color;
+            TextColor = color;
             Update();
         }
 
@@ -37,9 +37,9 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.Reset();
 
-            text = startText;
-            textSize = startTextSize;
-            font = startFont;
+            Text = startText;
+            TextSize = startTextSize;
+            Font = startFont;
 
             Update();
         }

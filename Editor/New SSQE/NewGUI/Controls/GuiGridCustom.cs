@@ -3,7 +3,7 @@ using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Font;
 using New_SSQE.NewMaps;
 using New_SSQE.Objects;
-using New_SSQE.Objects.Managers;
+using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -408,7 +408,7 @@ namespace New_SSQE.NewGUI.Controls
                 if (ms > 0 && ms <= currentTIme && Mapping.Current.Notes.FirstOrDefault(n => Math.Abs(n.Ms - ms) < 2) == null)
                 {
                     Vector2 pos = MouseToGridSpace(mousex, mousey);
-                    NoteManager.Add("ADD NOTE", new Note(pos.X, pos.Y, ms));
+                    Mapping.Current.Notes.Modify_Add("ADD NOTE", new Note(pos.X, pos.Y, ms));
                 }
             }
         }
@@ -490,7 +490,7 @@ namespace New_SSQE.NewGUI.Controls
                     long ms = Timing.GetClosestBeat(Settings.currentTime.Value.Value);
 
                     Note note = new(hover.X, hover.Y, ms >= 0 ? ms : (long)Settings.currentTime.Value.Value);
-                    NoteManager.Add("ADD NOTE", note);
+                    Mapping.Current.Notes.Modify_Add("ADD NOTE", note);
 
                     if (Settings.autoAdvance.Value)
                         Timing.Advance();
@@ -549,7 +549,7 @@ namespace New_SSQE.NewGUI.Controls
                 Vector2 toPlace = hoveringCell.Value;
 
                 Note note = new(toPlace.X, toPlace.Y, ms >= 0 ? ms : (long)Settings.currentTime.Value.Value);
-                NoteManager.Add("ADD NOTE", note);
+                Mapping.Current.Notes.Modify_Add("ADD NOTE", note);
 
                 if (Settings.autoAdvance.Value && !MusicPlayer.IsPlaying)
                     Timing.Advance();
@@ -617,7 +617,7 @@ namespace New_SSQE.NewGUI.Controls
                         draggingXY[i].Y -= cellDiff.Y;
                     }
 
-                    NoteManager.Edit($"MOVE {(draggingXY[0] is Note ? "NOTE" : "OBJECT")}[S]", n =>
+                    Mapping.Current.Notes.Modify_Edit($"MOVE {(draggingXY[0] is Note ? "NOTE" : "OBJECT")}[S]", n =>
                     {
                         n.X += cellDiff.X;
                         n.Y += cellDiff.Y;

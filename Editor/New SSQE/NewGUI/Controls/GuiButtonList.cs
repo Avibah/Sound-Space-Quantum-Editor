@@ -37,7 +37,7 @@ namespace New_SSQE.NewGUI.Controls
 
         public void RefreshSetting()
         {
-            SetText(prefix + setting.Value.Current.ToString().ToUpper());
+            Text = prefix + setting.Value.Current.ToString().ToUpper();
         }
 
         public override void MouseClickLeft(float x, float y)

@@ -14,11 +14,11 @@ namespace New_SSQE.NewGUI.Base
 
     internal abstract class TextControl : Control
     {
-        protected string text = "";
-        protected int textSize = 0;
-        protected string font = "main";
-        protected float alpha = 1;
-        protected Color textColor = Color.White;
+        private string text = "";
+        private int textSize = 0;
+        private string font = "main";
+        private float alpha = 1;
+        private Color textColor = Color.White;
 
         public CenterMode CenterMode = CenterMode.X;
         private Vector4[] verts = [];
@@ -70,6 +70,32 @@ namespace New_SSQE.NewGUI.Base
                 if (value != font)
                 {
                     font = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public float Alpha
+        {
+            get => alpha;
+            set
+            {
+                if (value != alpha)
+                {
+                    alpha = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public Color TextColor
+        {
+            get => textColor;
+            set
+            {
+                if (value != textColor)
+                {
+                    textColor = value;
                     shouldUpdate = true;
                 }
             }
@@ -131,26 +157,6 @@ namespace New_SSQE.NewGUI.Base
             FontRenderer.SetActive(font);
             FontRenderer.SetColor(textColor);
             FontRenderer.RenderData(font, verts, a);
-        }
-
-        public virtual void SetText(string? text = null, int? textSize = null, string? font = null)
-        {
-            string prevText = this.text;
-            int prevTextSize = this.textSize;
-            string prevFont = this.font;
-
-            this.text = text ?? this.text;
-            this.textSize = textSize ?? this.textSize;
-            this.font = font ?? this.font;
-
-            if (prevText != this.text || prevTextSize != this.textSize || prevFont != this.font)
-                shouldUpdate = true;
-        }
-
-        public virtual void SetColor(Color? color = null, float? alpha = null)
-        {
-            textColor = color ?? textColor;
-            this.alpha = alpha ?? this.alpha;
         }
     }
 }

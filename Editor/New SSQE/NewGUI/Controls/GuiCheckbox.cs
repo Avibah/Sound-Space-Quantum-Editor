@@ -31,6 +31,10 @@ namespace New_SSQE.NewGUI.Controls
 
             Style = ControlStyle.Checkbox_Colored;
             PlayRightClickSound = false;
+
+            Rounded = true;
+            CornerRadius = 1;
+            CornerDetail = 16;
         }
 
         public override float[] Draw()
@@ -45,7 +49,7 @@ namespace New_SSQE.NewGUI.Controls
             float cGap = (width - cWidth) / 2;
             RectangleF checkRect = new(rect.X + cGap, rect.Y + hGap + cGap, cWidth, cWidth);
 
-            SetColor(Style.Primary);
+            TextColor = Style.Primary;
             xOffset = width * 1.15f;
 
             if (Rounded)

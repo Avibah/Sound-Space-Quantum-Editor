@@ -18,8 +18,8 @@ namespace New_SSQE.NewGUI.Controls
 
         public void Show(string text, Color? color = null)
         {
-            this.text = text;
-            textColor = color ?? Color.White;
+            Text = text;
+            TextColor = color ?? Color.White;
 
             shouldShow = true;
         }
@@ -44,7 +44,7 @@ namespace New_SSQE.NewGUI.Controls
                 else if (toastTime >= 1.75f)
                     offset = (float)Math.Cos((toastTime - 1.75f) / 0.25f * MathHelper.PiOver2);
                 
-                alpha = (float)Math.Min(1, Math.Pow(offset, 3));
+                Alpha = (float)Math.Min(1, Math.Pow(offset, 3));
                 yOffset = -offset * rect.Height;
                 Update();
             }

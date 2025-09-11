@@ -10,6 +10,8 @@ namespace New_SSQE.NewGUI.Controls
         {
             Style = ControlStyle.Button_Uncolored;
             PlayRightClickSound = false;
+
+            Rounded = true;
         }
 
         public override float[] Draw()

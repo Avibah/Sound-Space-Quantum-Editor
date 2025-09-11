@@ -4,7 +4,7 @@ using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Font;
 using New_SSQE.NewMaps;
 using New_SSQE.Objects;
-using New_SSQE.Objects.Managers;
+using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -644,7 +644,7 @@ namespace New_SSQE.NewGUI.Controls
                 if (ms > 0 && ms <= currentTIme && Mapping.Current.Notes.FirstOrDefault(n => Math.Abs(n.Ms - ms) < 2) == null)
                 {
                     Vector2 pos = MouseToGridSpace(mousex, mousey);
-                    NoteManager.Add("ADD NOTE", new Note(pos.X, pos.Y, ms));
+                    Mapping.Current.Notes.Modify_Add("ADD NOTE", new Note(pos.X, pos.Y, ms));
                 }
             }
         }
@@ -740,7 +740,7 @@ namespace New_SSQE.NewGUI.Controls
                     long ms = Timing.GetClosestBeat(Settings.currentTime.Value.Value);
 
                     Note note = new(hover.X, hover.Y, ms >= 0 ? ms : (long)Settings.currentTime.Value.Value);
-                    NoteManager.Add("ADD NOTE", note);
+                    Mapping.Current.Notes.Modify_Add("ADD NOTE", note);
 
                     if (Settings.autoAdvance.Value)
                         Timing.Advance();
@@ -799,7 +799,7 @@ namespace New_SSQE.NewGUI.Controls
                 Vector2 toPlace = hoveringCell.Value;
 
                 Note note = new(toPlace.X, toPlace.Y, ms >= 0 ? ms : (long)Settings.currentTime.Value.Value);
-                NoteManager.Add("ADD NOTE", note);
+                Mapping.Current.Notes.Modify_Add("ADD NOTE", note);
 
                 if (Settings.autoAdvance.Value && !MusicPlayer.IsPlaying)
                     Timing.Advance();
@@ -868,14 +868,14 @@ namespace New_SSQE.NewGUI.Controls
                     switch (Mapping.RenderMode)
                     {
                         case ObjectRenderMode.Notes:
-                            NoteManager.Edit("MOVE NOTE[S]", n =>
+                            Mapping.Current.Notes.Modify_Edit("MOVE NOTE[S]", n =>
                             {
                                 n.X += cellDiff.X;
                                 n.Y += cellDiff.Y;
                             });
                             break;
                         case ObjectRenderMode.VFX:
-                            VfxObjectManager.Edit("MOVE OBJECT[S]", n =>
+                            Mapping.Current.VfxObjects.Modify_Edit("MOVE OBJECT[S]", n =>
                             {
                                 if (n is XYMapObject xy)
                                 {
@@ -885,7 +885,7 @@ namespace New_SSQE.NewGUI.Controls
                             });
                             break;
                         case ObjectRenderMode.Special:
-                            SpecialObjectManager.Edit("MOVE OBJECT[S]", n =>
+                            Mapping.Current.SpecialObjects.Modify_Edit("MOVE OBJECT[S]", n =>
                             {
                                 if (n is XYMapObject xy)
                                 {
@@ -920,7 +920,7 @@ namespace New_SSQE.NewGUI.Controls
             if (Mapping.RenderMode == ObjectRenderMode.Notes || Mapping.ObjectMode == IndividualObjectMode.Note)
             {
                 Note note = new(x, y, ms);
-                NoteManager.Add("ADD NOTE", note);
+                Mapping.Current.Notes.Modify_Add("ADD NOTE", note);
             }
             else if (Mapping.RenderMode == ObjectRenderMode.Special &&
                 objectLookup.TryGetValue(Mapping.ObjectMode, out Dictionary<Vector2, MapObject>? subLookup) && subLookup != null)
@@ -931,7 +931,7 @@ namespace New_SSQE.NewGUI.Controls
                 MapObject obj = value.Clone();
                 obj.Ms = ms;
 
-                SpecialObjectManager.Add($"ADD {obj.Name?.ToUpper()}", obj);
+                Mapping.Current.SpecialObjects.Modify_Add($"ADD {obj.Name?.ToUpper()}", obj);
             }
             else
                 return;

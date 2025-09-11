@@ -1,4 +1,5 @@
 ﻿using New_SSQE.Misc.Static;
+using New_SSQE.NewGUI.Windows;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Objects.Other;
@@ -149,7 +150,7 @@ namespace New_SSQE.NewMaps.Parsing
                             }
 
                             if (Mapping.Current.VfxObjects.Count + vfxObjects.Count > 0)
-                                VfxObjectManager.Replace("IMPORT VFX", Mapping.Current.VfxObjects, vfxObjects);
+                                Mapping.Current.VfxObjects.Modify_Replace("IMPORT VFX", Mapping.Current.VfxObjects, vfxObjects);
 
                             break;
 
@@ -166,7 +167,7 @@ namespace New_SSQE.NewMaps.Parsing
                             }
 
                             if (Mapping.Current.SpecialObjects.Count + specialObjects.Count > 0)
-                                SpecialObjectManager.Replace("IMPORT EXTRA", Mapping.Current.SpecialObjects, specialObjects);
+                                Mapping.Current.SpecialObjects.Modify_Replace("IMPORT EXTRA", Mapping.Current.SpecialObjects, specialObjects);
 
                             break;
 
@@ -204,6 +205,7 @@ namespace New_SSQE.NewMaps.Parsing
                                 note.Ms += (long)Settings.exportOffset.Value;
 
                             Settings.exportOffset.Value = value.GetSingle();
+                            GuiWindowEditor.ExportOffset.Text = $"{Math.Floor(Settings.exportOffset.Value)}";
 
                             foreach (Note note in Mapping.Current.Notes)
                                 note.Ms -= (long)Settings.exportOffset.Value;

@@ -30,7 +30,7 @@ namespace New_SSQE.NewMaps
             float mult = point.BPM / newBpm;
             List<Note> notes = GetNotesFromPoint(point);
 
-            NoteManager.Edit("ADJUST NOTE[S]", notes, n => n.Ms = (long)((n.Ms - point.Ms) * mult) + point.Ms);
+            Mapping.Current.Notes.Modify_Edit("ADJUST NOTE[S]", notes, n => n.Ms = (long)((n.Ms - point.Ms) * mult) + point.Ms);
         }
 
         public static void MovePoints(List<TimingPoint> points, long offset)
@@ -46,7 +46,7 @@ namespace New_SSQE.NewMaps
                     toAdjust.Add(notes[j]);
             }
 
-            NoteManager.Edit("ADJUST NOTE[S]", toAdjust, n => n.Ms += offset);
+            Mapping.Current.Notes.Modify_Edit("ADJUST NOTE[S]", toAdjust, n => n.Ms += offset);
         }
 
 

@@ -280,7 +280,7 @@ namespace New_SSQE.Audio
                 return TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, len) - 0.001);
             }
         }
-
+        
         public static TimeSpan CurrentTime
         {
             set

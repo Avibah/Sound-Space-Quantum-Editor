@@ -1,6 +1,7 @@
-﻿using New_SSQE.NewGUI.Windows;
+﻿using New_SSQE.EditHistory;
+using New_SSQE.NewGUI.Windows;
 
-namespace New_SSQE.Objects.Managers
+namespace New_SSQE.Objects.Other
 {
     internal class SelectionList<T> : List<T> where T : MapObject
     {
@@ -24,6 +25,8 @@ namespace New_SSQE.Objects.Managers
         public ObjectList(IEnumerable<T> collection) : base(collection) { }
 
 
+
+        public List<int> BezierNodes = [];
 
         private SelectionList<T> _selected = [];
         public SelectionList<T> Selected
@@ -169,5 +172,64 @@ namespace New_SSQE.Objects.Managers
                     itemIndex--;
             }
         }
+
+
+
+        public void Modify_Replace(string label, List<T> oldObjects, List<T> newObjects)
+        {
+            bool bezier = BezierNodes.Count > 0;
+            label = label.Replace("[S]", Math.Max(oldObjects.Count, newObjects.Count) > 1 ? "S" : "");
+
+            oldObjects = [..oldObjects];
+            newObjects = [..newObjects];
+
+            List<int> oldBez = [..BezierNodes];
+            List<int> newBez = [];
+
+            for (int i = 0; i < BezierNodes.Count; i++)
+            {
+                if (BezierNodes[i] < Count + newObjects.Count - oldObjects.Count)
+                    newBez.Add(BezierNodes[i]);
+            }
+
+            UndoRedoManager.Add(label, () =>
+            {
+                RemoveAll(newObjects);
+                AddRange(oldObjects);
+
+                Sort();
+                Selected = [..oldObjects];
+
+                BezierNodes = [..oldBez];
+            }, () =>
+            {
+                RemoveAll(oldObjects);
+                AddRange(newObjects);
+
+                Sort();
+                Selected = [..newObjects];
+
+                BezierNodes = [..newBez];
+            });
+        }
+
+        public void Modify_Edit(string label, List<T> toModify, Action<T> action)
+        {
+            if (toModify.Count == 0)
+                return;
+
+            List<T> completed = [..toModify.Select(n => n.Clone()).Cast<T>()];
+            completed.ForEach(action);
+
+            Modify_Replace(label, toModify, completed);
+        }
+        public void Modify_Edit(string label, Action<T> action) => Modify_Edit(label, _selected, action);
+
+        public void Modify_Add(string label, List<T> toAdd) => Modify_Replace(label, [], toAdd);
+        public void Modify_Add(string label, T toAdd) => Modify_Replace(label, [], [toAdd]);
+
+        public void Modify_Remove(string label, List<T> toRemove) => Modify_Replace(label, toRemove, []);
+        public void Modify_Remove(string label, T toRemove) => Modify_Replace(label, [toRemove], []);
+        public void Modify_Remove(string label) => Modify_Replace(label, _selected, []);
     }
 }

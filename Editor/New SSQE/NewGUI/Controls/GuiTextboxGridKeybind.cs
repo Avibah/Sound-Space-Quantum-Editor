@@ -30,15 +30,15 @@ namespace New_SSQE.NewGUI.Controls
 
             Settings.gridKeys.Value[gridKey] = key;
 
-            SetText(key.ToString().ToUpper());
-            cursorPos = text.Length;
+            Text = key.ToString().ToUpper();
+            cursorPos = Text.Length;
         }
 
         public override void TextInput(string str) { }
 
         public override float[] Draw()
         {
-            text = Settings.gridKeys.Value[gridKey].ToString().ToUpper();
+            Text = Settings.gridKeys.Value[gridKey].ToString().ToUpper();
 
             return base.Draw();
         }

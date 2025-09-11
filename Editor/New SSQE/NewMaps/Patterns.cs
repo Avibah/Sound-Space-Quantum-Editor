@@ -69,7 +69,7 @@ namespace New_SSQE.NewMaps
                 toAdd.Add(new(x, y, ms));
             }
 
-            NoteManager.Add("ADD PATTERN", toAdd);
+            Mapping.Current.Notes.Modify_Add("ADD PATTERN", toAdd);
         }
 
 
@@ -259,7 +259,7 @@ namespace New_SSQE.NewMaps
                 result.Add(nodes[0]);
 
                 if (success)
-                    NoteManager.Replace("DRAW BEZIER", nodes, result);
+                    Mapping.Current.Notes.Modify_Replace("DRAW BEZIER", nodes, result);
             }
 
             foreach (Note note in Mapping.Current.Notes)

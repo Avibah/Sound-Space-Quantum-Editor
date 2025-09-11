@@ -5,6 +5,7 @@ using New_SSQE.NewGUI.Windows;
 using New_SSQE.NewMaps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
+using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -842,16 +843,16 @@ namespace New_SSQE.NewGUI.Controls
                         switch (Mapping.RenderMode)
                         {
                             case ObjectRenderMode.Notes:
-                                NoteManager.Edit("MOVE NOTE[S]", n => n.Ms += msDiff);
+                                Mapping.Current.Notes.Modify_Edit("MOVE NOTE[S]", n => n.Ms += msDiff);
                                 break;
                             case ObjectRenderMode.VFX:
-                                VfxObjectManager.Edit("MOVE OBJECT[S]", n => n.Ms += msDiff);
+                                Mapping.Current.VfxObjects.Modify_Edit("MOVE OBJECT[S]", n => n.Ms += msDiff);
                                 break;
                             case ObjectRenderMode.Special when RenderNotes:
-                                NoteManager.Edit("MOVE NOTE[S]", n => n.Ms += msDiff);
+                                Mapping.Current.Notes.Modify_Edit("MOVE NOTE[S]", n => n.Ms += msDiff);
                                 break;
                             case ObjectRenderMode.Special:
-                                SpecialObjectManager.Edit("MOVE OBJECT[S]", n => n.Ms += msDiff);
+                                Mapping.Current.SpecialObjects.Modify_Edit("MOVE OBJECT[S]", n => n.Ms += msDiff);
                                 break;
                         }
                     }
@@ -868,10 +869,10 @@ namespace New_SSQE.NewGUI.Controls
                     switch (Mapping.RenderMode)
                     {
                         case ObjectRenderMode.VFX:
-                            VfxObjectManager.Edit("MOVE OBJ DURATION", [draggingDuration], n => n.Duration += msDiff);
+                            Mapping.Current.VfxObjects.Modify_Edit("MOVE OBJ DURATION", [draggingDuration], n => n.Duration += msDiff);
                             break;
                         case ObjectRenderMode.Special:
-                            SpecialObjectManager.Edit("MOVE OBJ DURATION", [draggingDuration], n => n.Duration += msDiff);
+                            Mapping.Current.SpecialObjects.Modify_Edit("MOVE OBJ DURATION", [draggingDuration], n => n.Duration += msDiff);
                             break;
                     }
                 }
@@ -924,18 +925,18 @@ namespace New_SSQE.NewGUI.Controls
                         switch (Mapping.RenderMode)
                         {
                             case ObjectRenderMode.Notes:
-                                NoteManager.Remove("DELETE NOTE[S]");
+                                Mapping.Current.Notes.Modify_Remove("DELETE NOTE[S]");
                                 break;
 
                             case ObjectRenderMode.VFX:
-                                VfxObjectManager.Remove("DELETE OBJECT[S]");
+                                Mapping.Current.VfxObjects.Modify_Remove("DELETE OBJECT[S]");
                                 break;
 
                             case ObjectRenderMode.Special when RenderNotes:
-                                NoteManager.Remove("DELETE NOTE[S]");
+                                Mapping.Current.Notes.Modify_Remove("DELETE NOTE[S]");
                                 break;
                             case ObjectRenderMode.Special:
-                                SpecialObjectManager.Remove("DELETE OBJECT[S]");
+                                Mapping.Current.SpecialObjects.Modify_Remove("DELETE OBJECT[S]");
                                 break;
                         }
                     }
