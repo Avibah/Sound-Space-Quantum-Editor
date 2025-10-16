@@ -174,9 +174,18 @@ namespace New_SSQE.Preferences
         public static readonly Setting<bool> debugMode = false;
         public static readonly Setting<bool> msaa = true;
 
-        public static readonly Setting<string> SSQE_Player_Version = "";
-        public static readonly Setting<string> SSQE_Updater_Version = "";
+        public static readonly Setting<string> ssqePlayerVersion = "";
+        public static readonly Setting<string> ssqeUpdaterVersion = "";
 
         public static readonly Setting<bool> detectWarningShown = false;
+
+        public static ClickMode ClickMode => separateClickTools.Value ? (selectTool.Value ? ClickMode.Select : ClickMode.Place) : ClickMode.Both;
+    }
+
+    internal enum ClickMode
+    {
+        Select = 1,
+        Place = 2,
+        Both = 3
     }
 }

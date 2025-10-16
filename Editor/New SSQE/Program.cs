@@ -31,7 +31,7 @@ namespace New_SSQE
             PlatformUtils.CheckDependencies();
             BuildAvaloniaApp();
 
-            Settings.Load(false);
+            Settings.Load();
             MainWindow.DebugVersion |= Settings.debugMode.Value;
             
             MainWindow window = new(Settings.msaa.Value ? 32 : 0);

@@ -434,8 +434,8 @@ namespace New_SSQE
             
             try
             {
-                Run("SSQE Player", "Map Player", Settings.SSQE_Player_Version);
-                Run("SSQE Updater", "Auto Updater", Settings.SSQE_Updater_Version);
+                Run("SSQE Player", "Map Player", Settings.ssqePlayerVersion);
+                Run("SSQE Updater", "Auto Updater", Settings.ssqeUpdaterVersion);
 
                 string redirect = Networking.GetRedirect(Links.EDITOR_REDIRECT);
 

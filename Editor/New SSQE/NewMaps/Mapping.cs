@@ -14,260 +14,32 @@ using System.IO.Compression;
 
 namespace New_SSQE.NewMaps
 {
-    internal enum ObjectRenderMode
-    {
-        Notes,
-        Special,
-        VFX
-    }
-
-    internal enum IndividualObjectMode
-    {
-        Disabled,
-        Note,
-
-        Beat = 12,
-        Glide = 13,
-        Mine = 14,
-        Lyric = 15,
-        Fever = 16
-    }
-
-    internal enum ClickMode
-    {
-        Select = 1,
-        Place = 2,
-        Both = 3
-    }
-
     internal class Mapping
     {
         public static List<Map> Cache = [];
-        public static Map Current { get; set; } = new();
-        static Mapping() => Current.OpenSettings();
-
-        public static ObjectRenderMode RenderMode = ObjectRenderMode.Notes;
-        public static IndividualObjectMode ObjectMode = IndividualObjectMode.Disabled;
-
-        public static ClickMode ClickMode => Settings.separateClickTools.Value ? (Settings.selectTool.Value ? ClickMode.Select : ClickMode.Place) : ClickMode.Both;
-
-        public static TimingPoint? SelectedPoint = null;
-
-        public static List<MapObject> GetSelected()
+        private static Map _current = new();
+        public static Map Current
         {
-            return RenderMode switch
+            get => _current;
+            set
             {
-                ObjectRenderMode.Notes => [..Current.Notes.Selected.Cast<MapObject>()],
-                ObjectRenderMode.VFX => Current.VfxObjects.Selected,
-                ObjectRenderMode.Special when ObjectMode == IndividualObjectMode.Note => [..Current.Notes.Selected.Cast<MapObject>()],
-                ObjectRenderMode.Special => Current.SpecialObjects.Selected,
-                _ => []
-            };
-        }
-
-        public static void SetSelected(List<MapObject> selected)
-        {
-            switch (RenderMode)
-            {
-                case ObjectRenderMode.Notes:
-                    Current.Notes.Selected = [..selected.Cast<Note>()];
-                    break;
-                case ObjectRenderMode.VFX:
-                    Current.VfxObjects.Selected = [..selected];
-                    break;
-                case ObjectRenderMode.Special when ObjectMode == IndividualObjectMode.Note:
-                    Current.Notes.Selected = [..selected.Cast<Note>()];
-
-                    if (selected.Count > 0 && selected[0] is Note note)
-                    {
-                        ListSetting style = Settings.modchartStyle.Value;
-                        ListSetting direction = Settings.modchartDirection.Value;
-
-                        style.Current = style.Possible[(int)note.Style];
-                        direction.Current = direction.Possible[(int)note.Direction];
-
-                        GuiWindowEditor.NoteEnableEasing.Toggle = note.EnableEasing;
-                        GuiWindowEditor.NoteEasingStyle.RefreshSetting();
-                        GuiWindowEditor.NoteEasingDirection.RefreshSetting();
-                    }
-                    break;
-                case ObjectRenderMode.Special:
-                    Current.SpecialObjects.Selected = [..selected];
-
-                    if (selected.Count == 1 && selected[0] is Lyric lyric)
-                    {
-                        GuiWindowEditor.LyricBox.Text = lyric.Text;
-                        GuiWindowEditor.LyricFadeIn.Toggle = lyric.FadeIn;
-                        GuiWindowEditor.LyricFadeOut.Toggle = lyric.FadeOut;
-                    }
-                    break;
+                _current.CloseSettings();
+                _current = value;
+                value.OpenSettings();
+                value.SortAll();
             }
         }
-
-        public static void SetSelected(TimingPoint? selected = null)
-        {
-            SelectedPoint = selected;
-        }
-
-        public static void ClearSelection()
-        {
-            Current.Notes.ClearSelection();
-            Current.VfxObjects.ClearSelection();
-            Current.SpecialObjects.ClearSelection();
-            SelectedPoint = null;
-        }
-
-        public static void SortAll(bool updateLists = true)
-        {
-            Current.Notes.Sort();
-            Current.VfxObjects.Sort();
-            Current.SpecialObjects.Sort();
-            SortTimings(updateLists);
-            SortBookmarks(updateLists);
-        }
-
-        public static void SortObjects()
-        {
-            switch (RenderMode)
-            {
-                case ObjectRenderMode.Notes:
-                    Current.Notes.Sort();
-                    break;
-                case ObjectRenderMode.VFX:
-                    Current.VfxObjects.Sort();
-                    break;
-                case ObjectRenderMode.Special when ObjectMode == IndividualObjectMode.Note:
-                    Current.Notes.Sort();
-                    break;
-                case ObjectRenderMode.Special:
-                    Current.SpecialObjects.Sort();
-                    break;
-            }
-        }
-
-        public static void SortTimings(bool updateList = true)
-        {
-            Current.TimingPoints = [..Current.TimingPoints.OrderBy(n => n.Ms)];
-
-            if (updateList)
-                TimingsWindow.Instance?.ResetList();
-            GuiWindowEditor.Timeline.Update();
-        }
-
-        public static void SortBookmarks(bool updateList = true)
-        {
-            Current.Bookmarks = [..Current.Bookmarks.OrderBy(n => n.Ms)];
-
-            if (updateList)
-                BookmarksWindow.Instance?.ResetList();
-            GuiWindowEditor.Timeline.Update();
-        }
-
-        public static List<MapObject> GetObjectsInRange(float start, float end)
-        {
-            int low, high;
-
-            switch (RenderMode)
-            {
-                case ObjectRenderMode.Notes:
-                    (low, high) = Current.Notes.SearchRange(start, end);
-                    return [..Current.Notes.Take(new Range(low, high)).Cast<MapObject>()];
-
-                case ObjectRenderMode.VFX:
-                    (low, high) = Current.VfxObjects.SearchRange(start, end);
-                    if (ObjectMode == IndividualObjectMode.Disabled)
-                        return [..Current.VfxObjects.Take(new Range(low, high))];
-                    else
-                        return [..Current.VfxObjects.Take(new Range(low, high)).Where(n => n.ID == (int)ObjectMode)];
-
-                case ObjectRenderMode.Special when ObjectMode == IndividualObjectMode.Note:
-                    (low, high) = Current.Notes.SearchRange(start, end);
-                    return [..Current.Notes.Take(new Range(low, high)).Cast<MapObject>()];
-                
-                case ObjectRenderMode.Special:
-                    (low, high) = Current.SpecialObjects.SearchRange(start, end);
-                    if (ObjectMode == IndividualObjectMode.Disabled)
-                        return [..Current.SpecialObjects.Take(new Range(low, high))];
-                    else
-                        return [..Current.SpecialObjects.Take(new Range(low, high)).Where(n => n.ID == (int)ObjectMode)];
-            }
-
-            return [];
-        }
-
-
-        public static void IncrementZoom(float increment)
-        {
-            float zoom = Current.Zoom;
-            float step = zoom < 0.1f || (zoom == 0.1f && increment < 0) ? 0.01f : 0.1f;
-
-            zoom = (float)Math.Round(zoom + increment * step, 2);
-            if (zoom > 0.1f)
-                zoom = (float)Math.Round(zoom * 10) / 10;
-
-            Current.Zoom = Math.Clamp(zoom, 0.01f, 10f);
-        }
-
-        public static void CopyBookmarks()
-        {
-            string[] data = new string[Current.Bookmarks.Count];
-
-            for (int i = 0; i < Current.Bookmarks.Count; i++)
-            {
-                Bookmark bookmark = Current.Bookmarks[i];
-
-                if (bookmark.Ms != bookmark.EndMs)
-                    data[i] = $"{bookmark.Ms}-{bookmark.EndMs} ~ {bookmark.Text.Replace(" ~", "_~")}";
-                else
-                    data[i] = $"{bookmark.Ms} ~ {bookmark.Text.Replace(" ~", "_~")}";
-            }
-
-            if (data.Length == 0)
-                return;
-
-            Clipboard.SetText(string.Join("\n", data));
-            GuiWindowEditor.ShowToast("COPIED TO CLIPBOARD", Color.FromArgb(0, 255, 200));
-        }
-
-        public static void PasteBookmarks()
-        {
-            string data = Clipboard.GetText();
-            string[] bookmarks = data.Split('\n');
-
-            List<Bookmark> tempBookmarks = [];
-
-            for (int i = 0; i < bookmarks.Length; i++)
-            {
-                bookmarks[i] = bookmarks[i].Trim();
-
-                string[] split = bookmarks[i].Split(" ~");
-                if (split.Length != 2)
-                    continue;
-
-                string[] subsplit = split[0].Split("-");
-
-                if (subsplit.Length == 1 && long.TryParse(subsplit[0], out long ms))
-                    tempBookmarks.Add(new Bookmark(split[1].Trim().Replace("_~", " ~"), ms, ms));
-                else if (subsplit.Length == 2 && long.TryParse(subsplit[0], out long startMs) && long.TryParse(subsplit[1], out long endMs))
-                    tempBookmarks.Add(new Bookmark(split[1].Trim().Replace("_~", " ~"), startMs, endMs));
-            }
-
-            if (tempBookmarks.Count > 0)
-                BookmarkManager.Replace("PASTE BOOKMARK[S]", Current.Bookmarks, tempBookmarks);
-        }
-
-
 
         private static long currentAutosave;
 
         public static void Autosave()
         {
-            if (Current.Notes.Count + Current.Bookmarks.Count + Current.TimingPoints.Count > 0)
+            if (_current.Notes.Count + _current.Bookmarks.Count + _current.TimingPoints.Count > 0)
             {
-                if (Current.IsSaved)
+                if (_current.IsSaved)
                     return;
 
-                if (Current.FileName == null)
+                if (_current.FileName == null)
                 {
                     string autosave = ToCache();
                     if (string.IsNullOrWhiteSpace(autosave))
@@ -320,7 +92,7 @@ namespace New_SSQE.NewMaps
                 if (string.IsNullOrWhiteSpace(id))
                     id = Path.GetFileNameWithoutExtension(fileName);
                 id = FormatUtils.FixID(id);
-                Current.SoundID = id;
+                _current.SoundID = id;
 
                 if (fileName != Path.Combine(Assets.CACHED, $"{id}.asset"))
                     File.Copy(fileName, Path.Combine(Assets.CACHED, $"{id}.asset"), true);
@@ -388,7 +160,6 @@ namespace New_SSQE.NewMaps
 
         public static Map? FromCache(string cache)
         {
-            Current.CloseSettings();
             Current = new();
 
             try
@@ -402,8 +173,8 @@ namespace New_SSQE.NewMaps
                 if (TXT.Read(tempCacheTXT))
                 {
                     if (!string.IsNullOrWhiteSpace(fileName))
-                        Current.FileName = fileName;
-                    return Current;
+                        _current.FileName = fileName;
+                    return _current;
                 }
             }
             catch (Exception ex)
@@ -416,12 +187,12 @@ namespace New_SSQE.NewMaps
 
         public static void SaveCache()
         {
-            Map old = Current;
+            Map old = _current;
 
             List<string> data = [];
             foreach (Map map in Cache)
             {
-                Open(map, false);
+                Current = map;
                 data.Add(ToCache());
             }
 
@@ -432,49 +203,39 @@ namespace New_SSQE.NewMaps
         public static string ToCache()
         {
             if (TXT.Write(tempCacheTXT))
-                return $"{File.ReadAllText(tempCacheTXT)}\n{File.ReadAllText(tempCacheINI)}\n[{Current.FileName}]";
+                return $"{File.ReadAllText(tempCacheTXT)}\n{File.ReadAllText(tempCacheINI)}\n[{_current.FileName}]";
 
             return "";
         }
 
 
 
-        public static bool Open(Map map, bool loadWindow = true)
+        public static bool Open()
         {
-            Current.CloseSettings();
-            Current = map;
-            map.OpenSettings();
+            if (!LoadAudio(_current.SoundID))
+                return false;
 
-            SortAll();
+            MusicPlayer.Volume = Settings.masterVolume.Value.Value;
+            Settings.currentTime.Value.Max = (float)MusicPlayer.TotalTime.TotalMilliseconds;
+            Settings.currentTime.Value.Step = (float)MusicPlayer.TotalTime.TotalMilliseconds / 2000f;
 
-            if (loadWindow)
-            {
-                if (!LoadAudio(map.SoundID))
-                    return false;
+            if (!Cache.Contains(_current))
+                Cache.Add(_current);
+            Map old = _current;
+            SaveCache();
+            old.OpenSettings();
 
-                MusicPlayer.Volume = Settings.masterVolume.Value.Value;
-                Settings.currentTime.Value.Max = (float)MusicPlayer.TotalTime.TotalMilliseconds;
-                Settings.currentTime.Value.Step = (float)MusicPlayer.TotalTime.TotalMilliseconds / 2000f;
-
-                if (!Cache.Contains(map))
-                    Cache.Add(map);
-                SaveCache();
-                map.OpenSettings();
-
-                Windowing.SwitchWindow(new GuiWindowEditor());
-                return Windowing.Current is GuiWindowEditor && Current.SoundID != "-1";
-            }
-
-            return true;
+            Windowing.SwitchWindow(new GuiWindowEditor());
+            return Windowing.Current is GuiWindowEditor && _current.SoundID != "-1";
         }
 
         public static bool Close()
         {
-            Current.CloseSettings();
+            _current.CloseSettings();
             
-            if (!Current.IsSaved)
+            if (!_current.IsSaved)
             {
-                DialogResult result = MessageBox.Show($"{Current.FileID} ({Current.SoundID})\n\nWould you like to save before closing?", MBoxIcon.Warning, MBoxButtons.Yes_No_Cancel);
+                DialogResult result = MessageBox.Show($"{_current.FileID} ({_current.SoundID})\n\nWould you like to save before closing?", MBoxIcon.Warning, MBoxButtons.Yes_No_Cancel);
 
                 if (result == DialogResult.Cancel)
                     return false;
@@ -482,7 +243,7 @@ namespace New_SSQE.NewMaps
                     Save();
             }
 
-            Cache.Remove(Current);
+            Cache.Remove(_current);
             SaveCache();
             Windowing.SwitchWindow(new GuiWindowMenu());
 
@@ -491,7 +252,7 @@ namespace New_SSQE.NewMaps
 
         public static bool Close(Map map)
         {
-            Open(map, false);
+            Current = map;
             return Close();
         }
 
@@ -501,7 +262,7 @@ namespace New_SSQE.NewMaps
 
             foreach (Map map in Cache.ToArray())
             {
-                Open(map, false);
+                Current = map;
                 Windowing.SwitchWindow(new GuiWindowEditor());
                 MainWindow.Instance.ForceRender();
 
@@ -516,18 +277,18 @@ namespace New_SSQE.NewMaps
 
         public static bool Save(bool forced = true, bool fromAutosave = false)
         {
-            if (forced && (!File.Exists(Current.FileName) || string.IsNullOrWhiteSpace(Current.FileName)))
+            if (forced && (!File.Exists(_current.FileName) || string.IsNullOrWhiteSpace(_current.FileName)))
                 return SaveAs();
 
             try
             {
-                if (string.IsNullOrWhiteSpace(Current.FileName))
+                if (string.IsNullOrWhiteSpace(_current.FileName))
                     return false;
-                return fromAutosave ? TXT.WriteAutosave(Current.FileName) : TXT.WriteForced(Current.FileName);
+                return fromAutosave ? TXT.WriteAutosave(_current.FileName) : TXT.WriteForced(_current.FileName);
             }
             catch (Exception ex)
             {
-                Logging.Log($"Failed to save map - {Current.FileName}", LogSeverity.WARN, ex);
+                Logging.Log($"Failed to save map - {_current.FileName}", LogSeverity.WARN, ex);
                 return false;
             }
         }
@@ -542,7 +303,7 @@ namespace New_SSQE.NewMaps
 
             if (result == DialogResult.OK)
             {
-                Current.FileName = path;
+                _current.FileName = path;
                 return Save(false);
             }
 
@@ -643,18 +404,16 @@ namespace New_SSQE.NewMaps
             foreach (Map map in Cache)
             {
                 if (map.FileName == data)
-                    return Open(map);
+                {
+                    Current = map;
+                    return Open();
+                }
             }
 
             try
             {
-                Current.CloseSettings();
                 Current = new();
 
-                Settings.tempo.Value.Value = Settings.tempo.Value.Default;
-                Settings.currentTime.Value.Value = Settings.currentTime.Value.Default;
-                Settings.beatDivisor.Value.Value = Settings.beatDivisor.Value.Default;
-                
                 if (!Parse(data))
                 {
                     MessageBox.Show("Failed to load map data\n\nExit and check '*\\logs.txt' for more info", MBoxIcon.Warning, MBoxButtons.OK);
@@ -662,8 +421,8 @@ namespace New_SSQE.NewMaps
                 }
 
                 if (File.Exists(data) && Path.GetExtension(data) == ".txt")
-                    Current.FileName = data;
-                return Open(Current);
+                    _current.FileName = data;
+                return Open();
             }
             catch (Exception ex)
             {

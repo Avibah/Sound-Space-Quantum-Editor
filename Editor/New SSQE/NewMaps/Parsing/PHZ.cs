@@ -6,9 +6,9 @@ namespace New_SSQE.NewMaps.Parsing
 {
     internal class PHZ : IFormatParser
     {
-        public static bool IsValid(string path)
+        public static bool IsValid(string data)
         {
-            Dictionary<string, JsonElement> result = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(path)) ?? [];
+            Dictionary<string, JsonElement> result = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(data)) ?? [];
             bool beat = result.TryGetValue("beat", out JsonElement beats);
             bool song = result.TryGetValue("song", out _);
 

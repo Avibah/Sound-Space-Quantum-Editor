@@ -39,7 +39,7 @@ namespace New_SSQE.Objects.Other
             }
         }
 
-        public void ClearSelection()
+        public void ClearSelected()
         {
             Selected = [];
         }

@@ -42,8 +42,8 @@ namespace New_SSQE.Preferences
             return new(value) { Type = typeof(T) };
         }
 
-        public override object GetValue() => Value;
-        public override object GetDefault() => Default;
+        public override object GetValue() => Value!;
+        public override object GetDefault() => Default!;
         public override void SetValue(object value) => Value = (T)value;
     }
 
@@ -82,7 +82,8 @@ namespace New_SSQE.Preferences
             HashSet<string> kept =
             [
                 "autosavedFile", "autosavedProperties", "lastFile", "defaultPath", "audioPath",
-                "exportPath", "coverPath", "importPath", "rhythiaPath", "rhythiaFolderPath", "patterns"
+                "exportPath", "coverPath", "importPath", "rhythiaPath", "rhythiaFolderPath", "patterns",
+                "novaPath", "novaFolderPath", "replayPath", "playtestGame", "createGame", "language"
             ];
 
             foreach (SettingBase setting in settings)
@@ -145,7 +146,7 @@ namespace New_SSQE.Preferences
             }
         }
 
-        public static void Load(bool init)
+        public static void Load()
         {
             try
             {
@@ -221,9 +222,6 @@ namespace New_SSQE.Preferences
                 Logging.Log($"Failed to load settings", LogSeverity.ERROR, ex);
                 Reset();
             }
-
-            if (init)
-                Init();
         }
 
         public static void Init()
@@ -299,7 +297,10 @@ namespace New_SSQE.Preferences
             }
             
             if (reload)
-                Load(true);
+            {
+                Load();
+                Init();
+            }
         }
 
         private static Keys ConvertToKey(JsonElement value)
