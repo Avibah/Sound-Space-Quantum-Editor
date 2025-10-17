@@ -1,6 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using New_SSQE.NewGUI.Base;
 using OpenTK.Mathematics;
-using SkiaSharp;
 
 namespace New_SSQE.NewGUI.Controls
 {
@@ -18,9 +17,9 @@ namespace New_SSQE.NewGUI.Controls
             set => textures[0].TileIndex = value;
         }
 
-        public GuiButtonTextured(float x, float y, float w, float h, string texture, SKBitmap? img = null, bool smooth = false, TextureUnit unit = TextureUnit.Texture0) : base(x, y, w, h)
+        public GuiButtonTextured(float x, float y, float w, float h, Texture texture) : base(x, y, w, h)
         {
-            textures = [new(texture, img, smooth, unit)];
+            textures = [texture];
         }
 
         public override float[] Draw()

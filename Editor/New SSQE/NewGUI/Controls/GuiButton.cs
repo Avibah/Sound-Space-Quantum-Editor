@@ -6,32 +6,19 @@ namespace New_SSQE.NewGUI.Controls
     {
         private float hoverTime = 0f;
         
-        public GuiButton(float x, float y, float w, float h, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, text, textSize, font, centerMode)
+        public GuiButton(float x, float y, float w, float h) : base(x, y, w, h)
         {
             Style = ControlStyle.Button_Uncolored;
             PlayRightClickSound = false;
-
-            Rounded = true;
         }
 
         public override float[] Draw()
         {
-            if (Rounded)
-            {
-                float[] fill = GLVerts.Squircle(rect, CornerDetail, CornerRadius, Style.Primary);
-                float[] outline = GLVerts.SquircleOutline(rect, 2f, CornerDetail, CornerRadius, Style.Secondary);
-                float[] mask = GLVerts.Squircle(rect, CornerDetail, CornerRadius, Style.Tertiary, hoverTime);
+            float[] fill = GLVerts.Rect(rect, Style.Primary);
+            float[] outline = GLVerts.Outline(rect, 2f, Style.Secondary);
+            float[] mask = GLVerts.Rect(rect, Style.Tertiary, hoverTime);
 
-                return [..fill, ..outline, ..mask];
-            }
-            else
-            {
-                float[] fill = GLVerts.Rect(rect, Style.Primary);
-                float[] outline = GLVerts.Outline(rect, 2f, Style.Secondary);
-                float[] mask = GLVerts.Rect(rect, Style.Tertiary, hoverTime);
-
-                return [..fill, ..outline, ..mask];
-            }
+            return [..fill, ..outline, ..mask];
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)

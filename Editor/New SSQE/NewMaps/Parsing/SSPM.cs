@@ -245,12 +245,13 @@ namespace New_SSQE.NewMaps.Parsing
                 }
                 catch { }
 
-                // jump to beginning of audio block in case custom data reading was unsuccessful
-                reader.BaseStream.Seek((long)audioOffset, SeekOrigin.Begin);
 
                 // read and cache audio
                 if (containsAudio)
                 {
+                    // jump to beginning of audio block in case custom data reading was unsuccessful
+                    reader.BaseStream.Seek((long)audioOffset, SeekOrigin.Begin);
+
                     byte[] audio = reader.ReadBytes((int)audioLength);
                     File.WriteAllBytes(Path.Combine(Assets.CACHED, $"{mapID}.asset"), audio);
                 }

@@ -24,13 +24,14 @@ namespace New_SSQE.NewGUI.Base
         protected readonly RectangleF startRect;
         protected RectangleF rect;
 
+        protected bool shouldUpdate = false;
+
         protected int vao;
         protected int vbo;
         protected int vertexCount;
 
         public bool Visible = true;
         public StretchMode Stretch = StretchMode.XY;
-        public bool Rounded = false;
         public int CornerDetail = 8;
         public float CornerRadius = 0.125f;
 
@@ -56,7 +57,14 @@ namespace New_SSQE.NewGUI.Base
             GLState.BufferData(vbo, vertices);
         }
 
-        public virtual void PreRender(float mousex, float mousey, float frametime) { }
+        public virtual void PreRender(float mousex, float mousey, float frametime)
+        {
+            if (shouldUpdate)
+            {
+                Update();
+                shouldUpdate = false;
+            }
+        }
 
         public virtual void Render(float mousex, float mousey, float frametime)
         {

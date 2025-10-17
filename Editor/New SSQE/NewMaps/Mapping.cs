@@ -5,11 +5,7 @@ using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI;
 using New_SSQE.NewGUI.Windows;
 using New_SSQE.NewMaps.Parsing;
-using New_SSQE.Objects;
-using New_SSQE.Objects.Managers;
-using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
-using System.Drawing;
 using System.IO.Compression;
 
 namespace New_SSQE.NewMaps

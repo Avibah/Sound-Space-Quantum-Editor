@@ -9,7 +9,7 @@ namespace New_SSQE.NewGUI.Base
         None,
         X,
         Y,
-        XY = 3
+        XY
     }
 
     internal abstract class TextControl : Control
@@ -20,7 +20,7 @@ namespace New_SSQE.NewGUI.Base
         private float alpha = 1;
         private Color textColor = Color.White;
 
-        public CenterMode CenterMode = CenterMode.X;
+        private CenterMode centerMode = CenterMode.XY;
         private Vector4[] verts = [];
 
         private float textX;
@@ -28,11 +28,24 @@ namespace New_SSQE.NewGUI.Base
         protected float xOffset = 0;
         protected float yOffset = 0;
 
-        private bool shouldUpdate = false;
+        protected string? startText = null;
+        protected int? startTextSize = null;
+        protected string? startFont = null;
+        protected float? startAlpha = null;
+        protected Color? startTextColor = null;
 
-        protected readonly string startText;
-        protected readonly int startTextSize;
-        protected readonly string startFont;
+        public CenterMode CenterMode
+        {
+            get => centerMode;
+            set
+            {
+                if (value != centerMode)
+                {
+                    centerMode = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
 
         public string Text
         {
@@ -44,6 +57,8 @@ namespace New_SSQE.NewGUI.Base
                     text = value;
                     shouldUpdate = true;
                 }
+
+                startText ??= value;
             }
         }
 
@@ -59,6 +74,8 @@ namespace New_SSQE.NewGUI.Base
                     textSize = value;
                     shouldUpdate = true;
                 }
+
+                startTextSize ??= value;
             }
         }
         
@@ -72,6 +89,8 @@ namespace New_SSQE.NewGUI.Base
                     font = value;
                     shouldUpdate = true;
                 }
+
+                startFont ??= value;
             }
         }
 
@@ -101,18 +120,7 @@ namespace New_SSQE.NewGUI.Base
             }
         }
 
-        public TextControl(float x, float y, float w, float h, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h)
-        {
-            startText = text;
-            startTextSize = textSize;
-            startFont = font;
-
-            this.text = text;
-            this.textSize = textSize;
-            this.font = font;
-
-            CenterMode = centerMode;
-        }
+        public TextControl(float x, float y, float w, float h) : base(x, y, w, h) { }
 
         public override void Update()
         {
@@ -135,16 +143,6 @@ namespace New_SSQE.NewGUI.Base
             verts = FontRenderer.Print(textX, textY, text, TextSize, font);
         }
 
-        public override void PreRender(float mousex, float mousey, float frametime)
-        {
-            base.PreRender(mousex, mousey, frametime);
-            if (shouldUpdate)
-            {
-                Update();
-                shouldUpdate = false;
-            }
-        }
-
         public override void PostRender(float mousex, float mousey, float frametime)
         {
             base.PostRender(mousex, mousey, frametime);
@@ -157,6 +155,19 @@ namespace New_SSQE.NewGUI.Base
             FontRenderer.SetActive(font);
             FontRenderer.SetColor(textColor);
             FontRenderer.RenderData(font, verts, a);
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+
+            text = startText ?? text;
+            textSize = startTextSize ?? textSize;
+            font = startFont ?? font;
+            alpha = startAlpha ?? alpha;
+            textColor = startTextColor ?? textColor;
+
+            shouldUpdate = true;
         }
     }
 }

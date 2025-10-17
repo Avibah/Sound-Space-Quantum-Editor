@@ -22,11 +22,11 @@ namespace New_SSQE.Objects.Managers
                 Points.AddRange(oldPoints);
 
                 if (oldPoints.Count == 1)
-                    Mapping.SelectedPoint = oldPoints[0];
+                    Mapping.Current.SelectedPoint = oldPoints[0];
                 else
-                    Mapping.SelectedPoint = null;
+                    Mapping.Current.SelectedPoint = null;
 
-                Mapping.SortTimings();
+                Mapping.Current.SortTimings();
                 TimingsWindow.Instance?.ResetList();
             }, () =>
             {
@@ -35,11 +35,11 @@ namespace New_SSQE.Objects.Managers
                 Points.AddRange(newPoints);
 
                 if (newPoints.Count == 1)
-                    Mapping.SelectedPoint = newPoints[0];
+                    Mapping.Current.SelectedPoint = newPoints[0];
                 else
-                    Mapping.SelectedPoint = null;
+                    Mapping.Current.SelectedPoint = null;
 
-                Mapping.SortTimings();
+                Mapping.Current.SortTimings();
                 TimingsWindow.Instance?.ResetList();
             });
         }

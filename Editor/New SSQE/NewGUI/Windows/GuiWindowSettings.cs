@@ -32,7 +32,7 @@ namespace New_SSQE.NewGUI.Windows
             float colorWidth = rect.Width / colors.Count;
 
             for (int i = 0; i < colors.Count; i++)
-                squares[i] = new(colorWidth * i, 0, colorWidth, rect.Height, colors[i]);
+                squares[i] = new(colorWidth * i, 0, colorWidth, rect.Height) { Color = colors[i] };
 
             NoteColorSquares.SetControls(squares);
         }
@@ -75,20 +75,20 @@ namespace New_SSQE.NewGUI.Windows
             else
                 hoverIndex = -1;
 
-            Color1Square.SetColor(Settings.color1.Value);
-            Color2Square.SetColor(Settings.color2.Value);
-            Color3Square.SetColor(Settings.color3.Value);
-            Color4Square.SetColor(Settings.color4.Value);
-            Color5Square.SetColor(Settings.color5.Value);
+            Color1Square.Color = Settings.color1.Value;
+            Color2Square.Color = Settings.color2.Value;
+            Color3Square.Color = Settings.color3.Value;
+            Color4Square.Color = Settings.color4.Value;
+            Color5Square.Color = Settings.color5.Value;
 
             int editorBGOpacity = (int)Math.Clamp(Settings.editorBGOpacity.Value, 0, 255);
-            EditorBGOpacitySquare.SetColor(Color.FromArgb(editorBGOpacity, 255, 255, 255));
+            EditorBGOpacitySquare.Color = Color.FromArgb(editorBGOpacity, 255, 255, 255);
 
             int gridOpacity = (int)Math.Clamp(Settings.gridOpacity.Value, 0, 255);
-            GridOpacitySquare.SetColor(Color.FromArgb(gridOpacity, 255, 255, 255));
+            GridOpacitySquare.Color = Color.FromArgb(gridOpacity, 255, 255, 255);
 
             int trackOpacity = (int)Math.Clamp(Settings.trackOpacity.Value, 0, 255);
-            TrackOpacitySquare.SetColor(Color.FromArgb(trackOpacity, 255, 255, 255));
+            TrackOpacitySquare.Color = Color.FromArgb(trackOpacity, 255, 255, 255);
 
             SliderSetting fpsLimit = Settings.fpsLimit.Value;
 

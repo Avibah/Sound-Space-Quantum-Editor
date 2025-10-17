@@ -18,14 +18,14 @@ namespace New_SSQE.NewGUI.Base
         private readonly GuiButton[] controls;
         private GuiButton? active;
 
-        private int? initialIndex = null;
+        private int? prevActive = null;
 
         public string Active => active != null ? texts[active] : "";
 
         public RadioButtonController(int? activeIndex, params GuiButton[] controls)
         {
             this.controls = controls;
-            initialIndex = activeIndex;
+            prevActive = activeIndex;
         }
 
         public void UpdateSelection(GuiButton control)
@@ -36,7 +36,7 @@ namespace New_SSQE.NewGUI.Base
                 active.Text = texts[active];
 
             active = active == control ? null : control;
-            initialIndex = active == null ? null : Array.IndexOf(controls, control);
+            prevActive = active == null ? null : Array.IndexOf(controls, control);
             control.Text = active == control ? $"[{text}]" : text;
 
             SelectionChanged?.Invoke(active, new());
@@ -55,10 +55,10 @@ namespace New_SSQE.NewGUI.Base
                 control.LeftClick += (s, e) => UpdateSelection(control);
             }
 
-            if (initialIndex != null)
+            if (prevActive != null)
             {
                 ClearSelection();
-                UpdateSelection(controls[initialIndex.Value]);
+                UpdateSelection(controls[prevActive.Value]);
             }
         }
 

@@ -134,7 +134,8 @@ namespace New_SSQE.NewGUI.Windows
             {
                 if (mapIndex + index < 0 || mapIndex + index >= Mapping.Cache.Count)
                     return;
-                Mapping.Open(Mapping.Cache[mapIndex + index]);
+                Mapping.Current = Mapping.Cache[mapIndex + index];
+                Mapping.Open();
             }
 
             MapSelect0.LeftClick += (s, e) => Open(0);
@@ -234,7 +235,7 @@ namespace New_SSQE.NewGUI.Windows
             }
         }
 
-        private void ScrollMapList(bool right)
+        private static void ScrollMapList(bool right)
         {
             if (right)
                 mapIndex++;

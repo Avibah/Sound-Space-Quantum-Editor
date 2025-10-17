@@ -50,10 +50,7 @@ namespace New_SSQE.NewGUI.Base
         public bool PlayLeftClickSound = true;
         public bool PlayRightClickSound = true;
 
-        public InteractiveControl(float x, float y, float w, float h, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, text, textSize, font, centerMode)
-        {
-
-        }
+        public InteractiveControl(float x, float y, float w, float h) : base(x, y, w, h) { }
 
         public virtual void MouseEnter(float x, float y) => Hovering = true;
         public virtual void MouseLeave(float x, float y) => Hovering = false;

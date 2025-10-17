@@ -6,12 +6,24 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiLabel : TextControl
     {
-        private readonly Setting<Color>? setting;
+        private Setting<Color>? colorSetting;
 
-        public GuiLabel(float x, float y, float w, float h, Setting<Color>? color = null, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, text, textSize, font, centerMode)
+        public Setting<Color>? ColorSetting
         {
-            setting = color;
-            TextColor = color?.Value ?? Color.White;
+            get => colorSetting;
+            set
+            {
+                if (value != colorSetting)
+                {
+                    colorSetting = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public GuiLabel(float x, float y, float w, float h) : base(x, y, w, h)
+        {
+            TextColor = colorSetting?.Value ?? Color.White;
         }
 
         public override float[] Draw()
@@ -23,25 +35,8 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.Resize(screenWidth, screenHeight);
 
-            if (setting != null)
-                SetColor(setting.Value);
-        }
-
-        public void SetColor(Color color)
-        {
-            TextColor = color;
-            Update();
-        }
-
-        public override void Reset()
-        {
-            base.Reset();
-
-            Text = startText;
-            TextSize = startTextSize;
-            Font = startFont;
-
-            Update();
+            if (colorSetting != null)
+                TextColor = colorSetting.Value;
         }
     }
 }

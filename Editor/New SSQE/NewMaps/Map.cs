@@ -82,7 +82,7 @@ namespace New_SSQE.NewMaps
         private float beatDivisor;
 
         private URAction[] urActions = [];
-        private int urActionIndex;
+        private int urActionIndex = -1;
 
         private readonly SettingBase[] _baseSettings =
         [

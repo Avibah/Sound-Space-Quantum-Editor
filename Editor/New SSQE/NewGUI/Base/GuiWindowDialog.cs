@@ -25,10 +25,27 @@ namespace New_SSQE.NewGUI.Base
         {
             InnerContainer = new(0, 0, w, h, controls);
 
-            CloseButton = new(w - 26, -18, 30, 18, "X", 14, "square") { Style = ControlStyle.Transparent, Stretch = StretchMode.XY };
-            DragStrip = new(-2, -18, w - 24, 18) { PlayLeftClickSound = false, Style = ControlStyle.Transparent, Stretch = StretchMode.XY };
-            
-            BackgroundSquare = new(-2, -18, w + 4, h + 20, Color.FromArgb(127, 127, 127)) { Stretch = StretchMode.XY };
+            CloseButton = new(w - 26, -18, 30, 18)
+            {
+                Text = "X",
+                TextSize = 14,
+                Font = "square",
+                Style = ControlStyle.Transparent,
+                Stretch = StretchMode.XY
+            };
+
+            DragStrip = new(-2, -18, w - 24, 18)
+            {
+                PlayLeftClickSound = false,
+                Style = ControlStyle.Transparent,
+                Stretch = StretchMode.XY
+            };
+
+            BackgroundSquare = new(-2, -18, w + 4, h + 20)
+            {
+                Color = Color.FromArgb(127, 127, 127),
+                Stretch = StretchMode.XY
+            };
 
             base.SetControls(BackgroundSquare, CloseButton, DragStrip, InnerContainer);
 

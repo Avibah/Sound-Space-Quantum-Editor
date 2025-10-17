@@ -1,18 +1,39 @@
 ﻿using New_SSQE.Preferences;
-using OpenTK.Mathematics;
 
 namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiSliderInfinite : GuiSlider
     {
-        private readonly float min;
-        private readonly float max;
+        private float min;
+        private float max;
 
-        public GuiSliderInfinite(float x, float y, float w, float h, float min, float max, Setting<SliderSetting> setting, bool reverse = false) : base(x, y, w, h, setting, reverse)
+        public float Min
         {
-            this.min = min;
-            this.max = max;
+            get => min;
+            set
+            {
+                if (value != min)
+                {
+                    min = value;
+                    shouldUpdate = true;
+                }
+            }
         }
+
+        public float Max
+        {
+            get => max;
+            set
+            {
+                if (value != max)
+                {
+                    max = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public GuiSliderInfinite(float x, float y, float w, float h, Setting<SliderSetting> setting) : base(x, y, w, h, setting) { }
 
         public override void MouseMove(float x, float y)
         {

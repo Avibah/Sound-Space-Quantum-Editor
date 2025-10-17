@@ -21,7 +21,7 @@ namespace New_SSQE.NewGUI.Controls
         private Bookmark? hoveringBookmark = null;
         private Vector4[] hoveringBookmarkText = [];
 
-        public GuiSliderTimeline(float x, float y, float w, float h, bool reverse = false) : base(x, y, w, h, Settings.currentTime, reverse)
+        public GuiSliderTimeline(float x, float y, float w, float h) : base(x, y, w, h, Settings.currentTime)
         {
             notes = Instancing.Generate("timeline_notes", Shader.InstancedMain);
             points = Instancing.Generate("timeline_points", Shader.InstancedMain);
@@ -30,8 +30,6 @@ namespace New_SSQE.NewGUI.Controls
             canReset = false;
             PlayRightClickSound = false;
         }
-
-        private bool shouldUpdate = true;
 
         public void RefreshInstances()
         {
@@ -152,6 +150,9 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void PreRender(float mousex, float mousey, float frametime)
         {
+            if (shouldUpdate)
+                UpdateInstanceData();
+
             base.PreRender(mousex, mousey, frametime);
             Update();
         }
@@ -159,9 +160,6 @@ namespace New_SSQE.NewGUI.Controls
         public override void Render(float mousex, float mousey, float frametime)
         {
             base.Render(mousex, mousey, frametime);
-
-            if (shouldUpdate)
-                UpdateInstanceData();
 
             notes.Render();
             points.Render();

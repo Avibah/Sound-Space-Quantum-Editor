@@ -1,22 +1,30 @@
-﻿using New_SSQE.NewGUI.Base;
-using New_SSQE.Preferences;
+﻿using New_SSQE.Preferences;
 
 namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiButtonList : GuiButton
     {
         private readonly Setting<ListSetting> setting;
-        private readonly string prefix;
+        private string prefix = "";
 
-        public GuiButtonList(float x, float y, float w, float h, Setting<ListSetting> setting, string prefix = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, "", textSize, font, centerMode)
+        public string Prefix
+        {
+            get => prefix;
+            set
+            {
+                if (value != prefix)
+                {
+                    prefix = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public GuiButtonList(float x, float y, float w, float h, Setting<ListSetting> setting) : base(x, y, w, h)
         {
             this.setting = setting;
-            this.prefix = prefix;
-
             PlayRightClickSound = true;
 
-            if (Array.IndexOf(setting.Value.Possible, setting.Value.Current) < 0)
-                setting.Value.Current = setting.Value.Possible[0];
             RefreshSetting();
         }
 
@@ -37,7 +45,11 @@ namespace New_SSQE.NewGUI.Controls
 
         public void RefreshSetting()
         {
-            Text = prefix + setting.Value.Current.ToString().ToUpper();
+            ListSetting list = setting.Value;
+
+            if (Array.IndexOf(list.Possible, list.Current) < 0)
+                list.Current = list.Possible[0];
+            Text = prefix + list.Current.ToString().ToUpper();
         }
 
         public override void MouseClickLeft(float x, float y)

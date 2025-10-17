@@ -146,6 +146,14 @@ namespace New_SSQE.NewMaps.Parsing
                 metadata.Add(fieldName, value);
             }
 
+            foreach (string field in metadata.Keys)
+            {
+                switch (field)
+                {
+
+                }
+            }
+
             ObjectList<Note> notes = Mapping.Current.Notes;
             ObjectList<MapObject> vfxObjects = Mapping.Current.VfxObjects;
             ObjectList<MapObject> specialObjects = Mapping.Current.SpecialObjects;
@@ -155,6 +163,24 @@ namespace New_SSQE.NewMaps.Parsing
             {
                 // [1]: Object ID
                 int id = reader.ReadByte();
+
+                try
+                {
+                    MapObject parsed = ParseObj(id);
+                }
+                catch (InvalidDataException)
+                {
+                    continue;
+                }
+                catch { }
+
+                // [2]: Object name
+                string objName = ReadString();
+
+                // No known overrides for object name
+                if (objName.Length > 0)
+                    continue;
+
                 // [1]: Number of types
                 int numTypes = reader.ReadByte();
                 

@@ -1,5 +1,4 @@
-﻿using New_SSQE.Audio;
-using New_SSQE.ExternalUtils;
+﻿using New_SSQE.ExternalUtils;
 using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewMaps;
@@ -12,8 +11,6 @@ namespace New_SSQE.NewGUI.Windows
         private const string TAG_SOUND_SPACE = "Sound Space";
         private const string TAG_RHYTHIA = "Rhythia";
         private const string TAG_NOVA = "Novastra/Phoenyx/Other";
-
-        private static readonly string audioFilter = $"Audio Files ({MusicPlayer.SupportedExtensionsString})|{MusicPlayer.SupportedExtensionsString}";
 
         public GuiWindowCreate() : base(BackgroundSquare, Persistent, GameNavs, SoundSpaceContainer, RhythiaContainer, NovaContainer)
         {

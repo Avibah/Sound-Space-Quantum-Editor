@@ -1,7 +1,4 @@
-﻿using New_SSQE.ExternalUtils;
-using New_SSQE.NewGUI.Base;
-using New_SSQE.Preferences;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using System.Drawing;
 
 namespace New_SSQE.NewGUI.Controls
@@ -11,10 +8,7 @@ namespace New_SSQE.NewGUI.Controls
         private float toastTime = 0;
         private bool shouldShow = false;
 
-        public GuiLabelToast(float x, float y, float w, float h, Setting<Color>? color = null, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, color, text, textSize, font, centerMode)
-        {
-            
-        }
+        public GuiLabelToast(float x, float y, float w, float h) : base(x, y, w, h) { }
 
         public void Show(string text, Color? color = null)
         {

@@ -24,7 +24,7 @@ namespace New_SSQE.NewGUI.Windows
             MusicVolumeLabel, MusicVolumeValueLabel, SfxVolumeLabel, SfxVolumeValueLabel, CurrentTimeLabel, CurrentMsLabel,
             MusicMute, SfxMute, TotalTimeLabel, NotesLabel, Grid, Track)
         {
-            BackgroundSquare.SetColor(Color.FromArgb((int)Settings.editorBGOpacity.Value, 30, 30, 30));
+            BackgroundSquare.Color = Color.FromArgb((int)Settings.editorBGOpacity.Value, 30, 30, 30);
             
             LNavPlayer.Visible = PlatformUtils.ExecutableExists("SSQE Player") || Settings.playtestGame.Value != "SSQE Player";
 
@@ -286,8 +286,8 @@ namespace New_SSQE.NewGUI.Windows
             PlayMap.LeftClick += (s, e) => Playtest(false);
             FromStart.LeftClick += (s, e) => Playtest(true);
 
-            CopyBookmarks.LeftClick += (s, e) => Mapping.CopyBookmarks();
-            PasteBookmarks.LeftClick += (s, e) => Mapping.PasteBookmarks();
+            CopyBookmarks.LeftClick += (s, e) => Mapping.Current.CopyBookmarks();
+            PasteBookmarks.LeftClick += (s, e) => Mapping.Current.PasteBookmarks();
 
             SaveButton.LeftClick += (s, e) =>
             {
@@ -446,7 +446,7 @@ namespace New_SSQE.NewGUI.Windows
                 StandardMapNavs.Visible = false;
                 SpecialMapNavs.Visible = true;
 
-                Mapping.RenderMode = ObjectRenderMode.Special;
+                Mapping.Current.RenderMode = ObjectRenderMode.Special;
             };
 
             SpecialNavExit.LeftClick += (s, e) =>
@@ -454,7 +454,7 @@ namespace New_SSQE.NewGUI.Windows
                 StandardMapNavs.Visible = true;
                 SpecialMapNavs.Visible = false;
 
-                Mapping.RenderMode = ObjectRenderMode.Notes;
+                Mapping.Current.RenderMode = ObjectRenderMode.Notes;
             };
 
             Dictionary<GuiButton, IndividualObjectMode> objModes = new()
@@ -478,7 +478,7 @@ namespace New_SSQE.NewGUI.Windows
                 FeverPreview.Visible = s == SpecialNavFever || mode == IndividualObjectMode.Disabled;
                 NoteNav.Visible = s == SpecialNavNotes;
 
-                Mapping.ObjectMode = mode;
+                Mapping.Current.ObjectMode = mode;
             };
 
             SpecialNavController.Initialize();
@@ -514,7 +514,7 @@ namespace New_SSQE.NewGUI.Windows
                         Timing.Advance();
                 }
 
-                Mapping.ClearSelection();
+                Mapping.Current.ClearSelected();
                 LyricBox.Text = "";
                 LyricFadeIn.Toggle = false;
                 LyricFadeOut.Toggle = false;
@@ -550,8 +550,8 @@ namespace New_SSQE.NewGUI.Windows
             SliderSetting currentTime = Settings.currentTime.Value;
 
             ZoomValueLabel.Text = $"{Math.Round(Mapping.Current.Zoom * 100)}%";
-            ClickModeLabel.Text = $"Click: {(Mapping.ClickMode == ClickMode.Select ? "Select" : "Place")}";
-            ClickModeLabel.Visible = Mapping.ClickMode != ClickMode.Both;
+            ClickModeLabel.Text = $"Click: {(Settings.ClickMode == ClickMode.Select ? "Select" : "Place")}";
+            ClickModeLabel.Visible = Settings.ClickMode != ClickMode.Both;
 
             BeatDivisorLabel.Text = $"Beat Divisor: {Math.Round(Settings.beatDivisor.Value.Value * 10) / 10 + 1}";
 
@@ -565,7 +565,7 @@ namespace New_SSQE.NewGUI.Windows
             CurrentMsLabel.SetRect(timelineRect.X + timelineRect.Height / 2 + (timelineRect.Width - timelineRect.Height) * progress - currentMsRect.Width / 2, currentMsRect.Y, currentMsRect.Width, currentMsRect.Height);
             CurrentMsLabel.Text = $"{(long)currentTime.Value:##,##0}ms";
 
-            NotesLabel.Text = Mapping.RenderMode switch
+            NotesLabel.Text = Mapping.Current.RenderMode switch
             {
                 ObjectRenderMode.Notes => $"{Mapping.Current.Notes.Count} Notes",
                 ObjectRenderMode.VFX => $"{Mapping.Current.VfxObjects.Count} Objects",
@@ -641,7 +641,7 @@ namespace New_SSQE.NewGUI.Windows
                 LyricPreview.Alpha = alpha;
             }
 
-            bool feverVisible = Mapping.ObjectMode == IndividualObjectMode.Disabled || Mapping.ObjectMode == IndividualObjectMode.Fever;
+            bool feverVisible = Mapping.Current.ObjectMode == IndividualObjectMode.Disabled || Mapping.Current.ObjectMode == IndividualObjectMode.Fever;
             FeverPreview.Visible = false;
 
             if (feverVisible)
@@ -677,7 +677,7 @@ namespace New_SSQE.NewGUI.Windows
                 BeatSnapDivisor.Update();
             }
             else if (KeybindManager.CtrlHeld)
-                Mapping.IncrementZoom(delta);
+                Mapping.Current.IncrementZoom(delta);
             else
                 Timing.Scroll(delta < 0 ^ Settings.reverseScroll.Value, Math.Abs(delta));
         }

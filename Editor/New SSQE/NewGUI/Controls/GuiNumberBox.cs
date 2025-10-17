@@ -10,35 +10,110 @@ namespace New_SSQE.NewGUI.Controls
         public readonly GuiButtonTextured UpButton;
         public readonly GuiButtonTextured DownButton;
 
-        public Vector2 Bounds { get => ValueBox.Bounds; set => ValueBox.Bounds = value; }
-        public new ControlStyle Style { get => ValueBox.Style; set => ValueBox.Style = value; }
-
         public float Value = 0;
 
-        private readonly Setting<float>? setting;
-        private readonly float increment;
-
-        private readonly bool isFloat;
-        private readonly bool isPositive;
-
-        public GuiNumberBox(float x, float y, float w, float h, float increment, Setting<float>? setting = null, bool isFloat = false, bool isPositive = false, string text = "0", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h)
+        public Vector2 Bounds
         {
-            ValueBox = new(0, 0, w - w / 8 - 2, h, setting, isFloat, isPositive, text, textSize, font, centerMode) { Stretch = StretchMode.XY };
-            UpButton = new(w - w / 8, 0, w / 8, h / 2, "Arrows") { Stretch = StretchMode.XY, TileSize = (2, 1) };
-            DownButton = new(w - w / 8, h / 2, w / 8, h / 2, "Arrows") { Stretch = StretchMode.XY, TileSize = (2, 1), TileIndex = 1 };
+            get => ValueBox.Bounds;
+            set => ValueBox.Bounds = value;
+        }
+
+        public new ControlStyle Style
+        {
+            get => ValueBox.Style;
+            set => ValueBox.Style = value;
+        }
+
+        public new string Text
+        {
+            get => ValueBox.Text;
+            set
+            {
+                if (!float.TryParse(value, out Value))
+                    Value = 0;
+                ValueBox.Text = value;
+            }
+        }
+
+        public new int TextSize
+        {
+            get => ValueBox.TextSize;
+            set => ValueBox.TextSize = value;
+        }
+
+        public new string Font
+        {
+            get => ValueBox.Font;
+            set => ValueBox.Font = value;
+        }
+
+        public new CenterMode CenterMode
+        {
+            get => ValueBox.CenterMode;
+            set => ValueBox.CenterMode = value;
+        }
+
+        public Setting<float>? Setting
+        {
+            get => ValueBox.Setting;
+            set
+            {
+                if (value != null)
+                    Value = value.Value;
+                ValueBox.Setting = value;
+            }
+        }
+
+        public bool IsFloat
+        {
+            get => ValueBox.IsFloat;
+            set => ValueBox.IsFloat = value;
+        }
+
+        public bool IsPositive
+        {
+            get => ValueBox.IsPositive;
+            set => ValueBox.IsPositive = value;
+        }
+
+        private float increment;
+        
+        public float Increment
+        {
+            get => increment;
+            set
+            {
+                value = Math.Abs(value);
+
+                if (value != increment)
+                {
+                    increment = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public GuiNumberBox(float x, float y, float w, float h) : base(x, y, w, h)
+        {
+            ValueBox = new(0, 0, w - w / 8 - 2, h)
+            {
+                Stretch = StretchMode.XY
+            };
+
+            UpButton = new(w - w / 8, 0, w / 8, h / 2, new("Arrows"))
+            {
+                Stretch = StretchMode.XY,
+                TileSize = (2, 1)
+            };
+
+            DownButton = new(w - w / 8, h / 2, w / 8, h / 2, new("Arrows"))
+            {
+                Stretch = StretchMode.XY,
+                TileSize = (2, 1),
+                TileIndex = 1
+            };
 
             SetControls(ValueBox, UpButton, DownButton);
-
-            if (setting != null)
-                Value = setting.Value;
-            else if (!float.TryParse(text, out Value))
-                Value = 0;
-
-            this.setting = setting;
-            this.increment = Math.Abs(increment);
-
-            this.isFloat = isFloat;
-            this.isPositive = isPositive;
         }
 
         public override void Reset()
@@ -55,26 +130,26 @@ namespace New_SSQE.NewGUI.Controls
             };
         }
 
-        public float Increment(float increment)
+        public float ApplyIncrement(float increment)
         {
             Value += increment;
 
-            if (isPositive)
+            if (IsPositive)
                 Value = Math.Max(Value, this.increment);
-            if (!isFloat)
+            if (!IsFloat)
                 Value = (int)Value;
 
             Value = Math.Clamp(Value, Bounds.X, Bounds.Y);
             Value = (float)Math.Round(Value, 3);
 
-            if (setting != null)
-                setting.Value = Value;
+            if (Setting != null)
+                Setting.Value = Value;
             ValueBox.Text = Value.ToString();
             InvokeValueChanged(new(Value));
 
             return Value;
         }
-        public float IncrementUp() => Increment(increment);
-        public float IncrementDown() => Increment(-increment);
+        public float IncrementUp() => ApplyIncrement(increment);
+        public float IncrementDown() => ApplyIncrement(-increment);
     }
 }

@@ -254,7 +254,7 @@ namespace New_SSQE.NewMaps
                     }
                 }
 
-                Mapping.ClearSelection();
+                Mapping.Current.ClearSelected();
 
                 result.Add(nodes[0]);
 

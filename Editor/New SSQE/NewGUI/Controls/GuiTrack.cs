@@ -22,9 +22,9 @@ namespace New_SSQE.NewGUI.Controls
         private float CellGap => rect.Height * 0.14f;
         private float CellPos(float x) => x * NoteSize * 0.3f + NoteSize * 0.1f;
 
-        private static bool RenderNotes => Mapping.RenderMode == ObjectRenderMode.Notes || Mapping.ObjectMode == IndividualObjectMode.Note;
-        private static bool RenderSpecial => Mapping.RenderMode == ObjectRenderMode.Special;
-        private static bool RenderVFX => Mapping.RenderMode == ObjectRenderMode.VFX;
+        private static bool RenderNotes => Mapping.Current.RenderMode == ObjectRenderMode.Notes || Mapping.Current.ObjectMode == IndividualObjectMode.Note;
+        private static bool RenderSpecial => Mapping.Current.RenderMode == ObjectRenderMode.Special;
+        private static bool RenderVFX => Mapping.Current.RenderMode == ObjectRenderMode.VFX;
 
         private bool selecting = false;
         private float selectMsStart;
@@ -240,7 +240,7 @@ namespace New_SSQE.NewGUI.Controls
             else
             {
                 ObjectList<MapObject> objects = RenderVFX ? Mapping.Current.VfxObjects : Mapping.Current.SpecialObjects;
-                bool shouldCheckID = RenderSpecial && Mapping.ObjectMode != IndividualObjectMode.Disabled;
+                bool shouldCheckID = RenderSpecial && Mapping.Current.ObjectMode != IndividualObjectMode.Disabled;
                 List<int> indices = [];
 
                 int? first = null;
@@ -274,7 +274,7 @@ namespace New_SSQE.NewGUI.Controls
                         continue;
                     if (obj.Ms > maxMs)
                         break;
-                    if (shouldCheckID && obj.ID != (int)Mapping.ObjectMode)
+                    if (shouldCheckID && obj.ID != (int)Mapping.Current.ObjectMode)
                         continue;
 
                     first ??= i;
@@ -440,7 +440,7 @@ namespace New_SSQE.NewGUI.Controls
 
                 if (hoveringObject == point)
                     bpmHovers = (currentX, 0, 1, 2 * 5 + 1);
-                else if (Mapping.SelectedPoint == point)
+                else if (Mapping.Current.SelectedPoint == point)
                     bpmSelects = (currentX, 0, 1, 2 * 6 + 1);
 
                 // full beat ticks
@@ -611,7 +611,7 @@ namespace New_SSQE.NewGUI.Controls
                 float start = Math.Min(selectMsStart, selectMsEnd) - NoteSize * PX_TO_MS;
                 float end = Math.Max(selectMsStart, selectMsEnd);
 
-                Mapping.SetSelected(Mapping.GetObjectsInRange(start, end));
+                Mapping.Current.SelectedObjects = Mapping.Current.GetObjectsInRange(start, end);
             }
         }
 
@@ -716,7 +716,7 @@ namespace New_SSQE.NewGUI.Controls
 
                 point.Ms = (long)Math.Min(cursorMs, totalTime);
 
-                Mapping.SortTimings(false);
+                Mapping.Current.SortTimings(false);
             }
             else
             {
@@ -739,7 +739,7 @@ namespace New_SSQE.NewGUI.Controls
                     foreach (MapObject obj in draggingObjects)
                         obj.Ms = (long)Math.Clamp(obj.DragStartMs + offset, 0, totalTime);
 
-                    Mapping.SortObjects();
+                    Mapping.Current.SortObjects();
                 }
                 else if (Dragging)
                 {
@@ -763,8 +763,8 @@ namespace New_SSQE.NewGUI.Controls
                 draggingDuration = null;
                 point.DragStartMs = point.Ms;
 
-                Mapping.ClearSelection();
-                Mapping.SetSelected(point);
+                Mapping.Current.ClearSelected();
+                Mapping.Current.SelectedPoint = point;
             }
             else if (hoveringDuration != null)
             {
@@ -772,11 +772,11 @@ namespace New_SSQE.NewGUI.Controls
                 draggingDuration = hoveringDuration;
                 draggingDuration.DragStartMs = draggingDuration.Duration;
 
-                Mapping.ClearSelection();
+                Mapping.Current.ClearSelected();
             }
             else if (hoveringObject != null)
             {
-                List<MapObject> selected = Mapping.GetSelected();
+                List<MapObject> selected = Mapping.Current.SelectedObjects;
 
                 if (MainWindow.Instance.ShiftHeld)
                 {
@@ -786,7 +786,7 @@ namespace New_SSQE.NewGUI.Controls
                     long min = Math.Min(first.Ms, last.Ms);
                     long max = Math.Max(first.Ms, last.Ms);
 
-                    selected = Mapping.GetObjectsInRange(min, max);
+                    selected = Mapping.Current.GetObjectsInRange(min, max);
                     selected.Remove(first);
                     selected.Insert(0, first);
                 }
@@ -800,8 +800,8 @@ namespace New_SSQE.NewGUI.Controls
                 else if (!selected.Contains(hoveringObject))
                     selected = [hoveringObject];
 
-                Mapping.ClearSelection();
-                Mapping.SetSelected(selected);
+                Mapping.Current.ClearSelected();
+                Mapping.Current.SelectedObjects = selected;
 
                 if (hoveringObject.Selected)
                 {
@@ -840,7 +840,7 @@ namespace New_SSQE.NewGUI.Controls
                         PointManager.Edit("MOVE POINT", point, n => n.Ms += msDiff);
                     else
                     {
-                        switch (Mapping.RenderMode)
+                        switch (Mapping.Current.RenderMode)
                         {
                             case ObjectRenderMode.Notes:
                                 Mapping.Current.Notes.Modify_Edit("MOVE NOTE[S]", n => n.Ms += msDiff);
@@ -866,7 +866,7 @@ namespace New_SSQE.NewGUI.Controls
                 {
                     draggingDuration.Duration = draggingDuration.DragStartMs;
 
-                    switch (Mapping.RenderMode)
+                    switch (Mapping.Current.RenderMode)
                     {
                         case ObjectRenderMode.VFX:
                             Mapping.Current.VfxObjects.Modify_Edit("MOVE OBJ DURATION", [draggingDuration], n => n.Duration += msDiff);
@@ -891,7 +891,7 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.MouseClickRight(x, y);
 
-            Mapping.SelectedPoint = null;
+            Mapping.Current.SelectedPoint = null;
 
             if (Hovering)
             {
@@ -902,7 +902,7 @@ namespace New_SSQE.NewGUI.Controls
                 selecting = true;
             }
             else if ((Windowing.Current?.GetHoveringInteractive() ?? null) is not GuiButtonList)
-                Mapping.ClearSelection();
+                Mapping.Current.ClearSelected();
         }
 
         public override void MouseUpRight(float x, float y)
@@ -918,11 +918,11 @@ namespace New_SSQE.NewGUI.Controls
             switch (keybind)
             {
                 case "delete":
-                    if (Mapping.SelectedPoint != null)
-                        PointManager.Remove("DELETE POINT", Mapping.SelectedPoint);
+                    if (Mapping.Current.SelectedPoint != null)
+                        PointManager.Remove("DELETE POINT", Mapping.Current.SelectedPoint);
                     else
                     {
-                        switch (Mapping.RenderMode)
+                        switch (Mapping.Current.RenderMode)
                         {
                             case ObjectRenderMode.Notes:
                                 Mapping.Current.Notes.Modify_Remove("DELETE NOTE[S]");
@@ -967,7 +967,7 @@ namespace New_SSQE.NewGUI.Controls
                     Timing.Scroll(key == Keys.Left);
 
                 if (key == Keys.Escape)
-                    Mapping.ClearSelection();
+                    Mapping.Current.ClearSelected();
             }
         }
     }

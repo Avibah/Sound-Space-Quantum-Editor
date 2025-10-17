@@ -14,22 +14,31 @@ namespace New_SSQE.NewGUI.Controls
         protected Setting<SliderSetting> setting;
         protected bool canReset = true;
 
-        private readonly bool reverse;
+        private bool reverse;
         private float hoverTime = 0f;
 
         private float prevValue = 0f;
 
-        public GuiSlider(float x, float y, float w, float h, Setting<SliderSetting> setting, bool reverse = false) : base(x, y, w, h, "", 0, "main", CenterMode.XY)
+        public bool Reverse
+        {
+            get => reverse;
+            set
+            {
+                if (value != reverse)
+                {
+                    reverse = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public GuiSlider(float x, float y, float w, float h, Setting<SliderSetting> setting) : base(x, y, w, h)
         {
             this.setting = setting;
-            this.reverse = reverse;
 
             prevValue = setting.Value.Value;
 
             Style = ControlStyle.Slider_Uncolored;
-            CornerRadius = 0.5f;
-
-            Rounded = true;
         }
 
         public override float[] Draw()
@@ -44,7 +53,7 @@ namespace New_SSQE.NewGUI.Controls
                 : new(rect.X + rect.Width / 2 - 1.5f, rect.Y + rect.Width / 2, 3, rect.Height - rect.Width);
             Vector2 circlePos = (lineRect.X + lineRect.Width * (horizontal ? progress : 0.5f), lineRect.Y + lineRect.Height * (horizontal ? 0.5f : progress));
 
-            float[] line = Rounded ? GLVerts.Squircle(lineRect, CornerDetail, CornerRadius, Style.Secondary) : GLVerts.Rect(lineRect, Style.Secondary);
+            float[] line = GLVerts.Squircle(lineRect, CornerDetail, CornerRadius, Style.Secondary);
             float[] circle = GLVerts.Polygon(circlePos.X, circlePos.Y, 4, 16, 0, Style.Primary);
 
             if (hoverTime > 0)

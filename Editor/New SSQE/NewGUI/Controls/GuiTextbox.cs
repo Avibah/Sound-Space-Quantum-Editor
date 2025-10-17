@@ -13,19 +13,29 @@ namespace New_SSQE.NewGUI.Controls
         private bool cursorShowing = false;
         private float cursorTime = 0;
 
-        private readonly Setting<string>? setting;
+        private Setting<string>? setting;
 
-        public GuiTextbox(float x, float y, float w, float h, Setting<string>? setting = null, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, text, textSize, font, centerMode)
+        public Setting<string>? Setting
         {
-            this.setting = setting;
-            if (setting != null)
-                Text = setting.Value;
+            get => setting;
+            set
+            {
+                if (value != setting)
+                {
+                    setting = value;
+                    shouldUpdate = true;
+                }
 
+                if (value != null)
+                    Text = value.Value;
+            }
+        }
+
+        public GuiTextbox(float x, float y, float w, float h) : base(x, y, w, h)
+        {
             Style = ControlStyle.Textbox_Colored;
             PlayLeftClickSound = false;
             PlayRightClickSound = false;
-
-            Rounded = true;
         }
 
         public override float[] Draw()
@@ -33,8 +43,8 @@ namespace New_SSQE.NewGUI.Controls
             Text = setting?.Value ?? Text;
             TextColor = Style.Secondary;
 
-            float[] fill = Rounded ? GLVerts.Squircle(rect, CornerDetail, CornerRadius, Style.Primary) : GLVerts.Rect(rect, Style.Primary);
-            float[] outline = Rounded ? GLVerts.SquircleOutline(rect, 2f, CornerDetail, CornerRadius, Style.Tertiary) : GLVerts.Outline(rect, 2f, Style.Tertiary);
+            float[] fill = GLVerts.Squircle(rect, CornerDetail, CornerRadius, Style.Primary);
+            float[] outline = GLVerts.SquircleOutline(rect, 2f, CornerDetail, CornerRadius, Style.Tertiary);
             if (!cursorShowing)
                 return [..fill, ..outline];
 

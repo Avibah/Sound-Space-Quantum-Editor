@@ -271,7 +271,7 @@ namespace New_SSQE.NewGUI
                 }
 
                 Mapping.Current.TimingPoints = newPoints.ToList();
-                Mapping.SortTimings();
+                Mapping.Current.SortTimings();
             }
             catch (Exception ex)
             {
@@ -436,7 +436,7 @@ namespace New_SSQE.NewGUI
                 }
 
                 Mapping.Current.TimingPoints = newPoints.ToList();
-                Mapping.SortTimings();
+                Mapping.Current.SortTimings();
             }
             catch (Exception ex)
             {
@@ -502,7 +502,7 @@ namespace New_SSQE.NewGUI
                     newPoints.Add(new((float)bpmList[i], (long)msList[i]));
 
                 Mapping.Current.TimingPoints = newPoints.ToList();
-                Mapping.SortTimings();
+                Mapping.Current.SortTimings();
             }
             catch (Exception ex)
             {

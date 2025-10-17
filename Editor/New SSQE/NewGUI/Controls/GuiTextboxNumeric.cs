@@ -1,5 +1,4 @@
-﻿using New_SSQE.NewGUI.Base;
-using New_SSQE.Preferences;
+﻿using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
@@ -7,21 +6,62 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiTextboxNumeric : GuiTextbox
     {
-        private readonly Setting<float>? setting;
-        private readonly bool isFloat;
-        private readonly bool isPositive;
+        private Setting<float>? setting = null;
+        private bool isFloat = false;
+        private bool isPositive = false;
+
+        public new Setting<float>? Setting
+        {
+            get => setting;
+            set
+            {
+                if (value != setting)
+                {
+                    setting = value;
+                    shouldUpdate = true;
+                }
+
+                Refresh();
+            }
+        }
+
+        public bool IsFloat
+        {
+            get => isFloat;
+            set
+            {
+                if (value != isFloat)
+                {
+                    isFloat = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public bool IsPositive
+        {
+            get => isPositive;
+            set
+            {
+                if (value != isPositive)
+                {
+                    isPositive = value;
+                    shouldUpdate = true;
+                }
+
+                Refresh();
+            }
+        }
 
         private string prevText = "";
         private int prevCursor = 0;
 
         public Vector2 Bounds = (float.MinValue, float.MaxValue);
 
-        public GuiTextboxNumeric(float x, float y, float w, float h, Setting<float>? setting = null, bool isFloat = false, bool isPositive = false, string text = "0", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, null, text, textSize, font, centerMode)
-        {
-            this.setting = setting;
-            this.isFloat = isFloat;
-            this.isPositive = isPositive;
+        public GuiTextboxNumeric(float x, float y, float w, float h) : base(x, y, w, h) { }
 
+        private void Refresh()
+        {
             if (setting != null)
                 Text = setting.Value.ToString();
             if (isPositive)
@@ -31,6 +71,7 @@ namespace New_SSQE.NewGUI.Controls
         public override void Reset()
         {
             base.Reset();
+            Refresh();
 
             TextEntered += (s, e) =>
             {

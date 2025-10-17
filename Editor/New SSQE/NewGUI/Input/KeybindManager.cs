@@ -8,6 +8,7 @@ using New_SSQE.Objects.Managers;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Xml.Serialization;
 
 namespace New_SSQE.NewGUI.Input
 {
@@ -48,20 +49,20 @@ namespace New_SSQE.NewGUI.Input
             switch (keybind)
             {
                 case "selectAll":
-                    Mapping.ClearSelection();
+                    Mapping.Current.ClearSelected();
 
-                    if (Mapping.RenderMode == ObjectRenderMode.Notes || Mapping.ObjectMode == IndividualObjectMode.Note)
+                    if (Mapping.Current.RenderMode == ObjectRenderMode.Notes || Mapping.Current.ObjectMode == IndividualObjectMode.Note)
                         Mapping.Current.Notes.Selected = new(Mapping.Current.Notes);
-                    else if (Mapping.ObjectMode != IndividualObjectMode.Disabled)
+                    else if (Mapping.Current.ObjectMode != IndividualObjectMode.Disabled)
                     {
-                        if (Mapping.RenderMode == ObjectRenderMode.VFX)
-                            Mapping.Current.VfxObjects.Selected = new(Mapping.Current.VfxObjects.Where(n => n.ID == (int)Mapping.ObjectMode));
+                        if (Mapping.Current.RenderMode == ObjectRenderMode.VFX)
+                            Mapping.Current.VfxObjects.Selected = new(Mapping.Current.VfxObjects.Where(n => n.ID == (int)Mapping.Current.ObjectMode));
                         else
-                            Mapping.Current.SpecialObjects.Selected = new(Mapping.Current.SpecialObjects.Where(n => n.ID == (int)Mapping.ObjectMode));
+                            Mapping.Current.SpecialObjects.Selected = new(Mapping.Current.SpecialObjects.Where(n => n.ID == (int)Mapping.Current.ObjectMode));
                     }
                     else
                     {
-                        if (Mapping.RenderMode == ObjectRenderMode.VFX)
+                        if (Mapping.Current.RenderMode == ObjectRenderMode.VFX)
                             Mapping.Current.VfxObjects.Selected = new(Mapping.Current.VfxObjects);
                         else
                             Mapping.Current.SpecialObjects.Selected = new(Mapping.Current.SpecialObjects);
@@ -126,7 +127,7 @@ namespace New_SSQE.NewGUI.Input
 
                             copied.ForEach(n => n.Ms = (long)Math.Clamp(Settings.currentTime.Value.Value + n.Ms - offset, 0, Settings.currentTime.Value.Max));
 
-                            if (isNote && (Mapping.RenderMode == ObjectRenderMode.Notes || Mapping.ObjectMode == IndividualObjectMode.Note))
+                            if (isNote && (Mapping.Current.RenderMode == ObjectRenderMode.Notes || Mapping.Current.ObjectMode == IndividualObjectMode.Note))
                             {
                                 List<Note> copiedAsNotes = copied.Cast<Note>().ToList();
 
@@ -169,11 +170,11 @@ namespace New_SSQE.NewGUI.Input
                                         Timing.Advance();
                                 }
                             }
-                            else if (!isNote && Mapping.RenderMode != ObjectRenderMode.Notes)
+                            else if (!isNote && Mapping.Current.RenderMode != ObjectRenderMode.Notes)
                             {
                                 (List<MapObject> vfxCopy, List<MapObject> specialCopy) = FormatUtils.SplitVFXSpecial(copied);
 
-                                if (Mapping.RenderMode ==  ObjectRenderMode.VFX)
+                                if (Mapping.Current.RenderMode ==  ObjectRenderMode.VFX)
                                     Mapping.Current.VfxObjects.Modify_Add("PASTE OBJECT[S]", vfxCopy);
                                 else
                                     Mapping.Current.SpecialObjects.Modify_Add("PASTE OBJECT[S]", specialCopy);

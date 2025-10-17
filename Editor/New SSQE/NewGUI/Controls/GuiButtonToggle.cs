@@ -1,6 +1,5 @@
-﻿using New_SSQE.Preferences;
-using OpenTK.Graphics.OpenGL;
-using SkiaSharp;
+﻿using New_SSQE.NewGUI.Base;
+using New_SSQE.Preferences;
 
 namespace New_SSQE.NewGUI.Controls
 {
@@ -8,7 +7,7 @@ namespace New_SSQE.NewGUI.Controls
     {
         private readonly Setting<bool> setting;
 
-        public GuiButtonToggle(float x, float y, float w, float h, Setting<bool> setting, string texture, SKBitmap? bmp = null, bool smooth = false, TextureUnit unit = TextureUnit.Texture3) : base(x, y, w, h, texture, bmp, smooth, unit)
+        public GuiButtonToggle(float x, float y, float w, float h, Setting<bool> setting, Texture texture) : base(x, y, w, h, texture)
         {
             this.setting = setting;
             textures[0].TileSize = (2, 1);

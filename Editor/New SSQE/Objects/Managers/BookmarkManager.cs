@@ -22,7 +22,7 @@ namespace New_SSQE.Objects.Managers
                     Bookmarks.Remove(n);
                 Bookmarks.AddRange(oldBookmarks);
 
-                Mapping.SortBookmarks();
+                Mapping.Current.SortBookmarks();
                 BookmarksWindow.Instance?.ResetList();
             }, () =>
             {
@@ -30,7 +30,7 @@ namespace New_SSQE.Objects.Managers
                     Bookmarks.Remove(n);
                 Bookmarks.AddRange(newBookmarks);
 
-                Mapping.SortBookmarks();
+                Mapping.Current.SortBookmarks();
                 BookmarksWindow.Instance?.ResetList();
             });
         }

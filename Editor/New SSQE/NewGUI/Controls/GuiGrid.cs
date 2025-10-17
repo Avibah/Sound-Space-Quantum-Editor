@@ -104,12 +104,23 @@ namespace New_SSQE.NewGUI.Controls
 
         public static Vector2 CellBounds => Settings.enableQuantum.Value ? (-0.85f, 2.85f) : (0, 2);
 
-        private readonly bool respectObjectMode;
+        private bool respectObjectMode;
 
-        public GuiGrid(float x, float y, float w, float h, bool respectObjectMode = true) : base(x, y, w, h)
+        public bool RespectObjectMode
         {
-            this.respectObjectMode = respectObjectMode;
+            get => respectObjectMode;
+            set
+            {
+                if (value != respectObjectMode)
+                {
+                    respectObjectMode = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
 
+        public GuiGrid(float x, float y, float w, float h) : base(x, y, w, h)
+        {
             (bezierPreviewLineVAO, bezierPreviewLineVBO) = GLState.NewVAO_VBO(2, 4);
 
             autoplayCursor = Instancing.Generate("grid_autoplayCursor", Shader.InstancedMain);
@@ -202,8 +213,8 @@ namespace New_SSQE.NewGUI.Controls
             int gridNumberSize = (int)(28 * TextScale);
             hoveringXY = null;
 
-            bool isSpecialNotes = Mapping.RenderMode == ObjectRenderMode.Special;
-            bool isSelectMode = Mapping.ClickMode.HasFlag(ClickMode.Select);
+            bool isSpecialNotes = Mapping.Current.RenderMode == ObjectRenderMode.Special;
+            bool isSelectMode = Settings.ClickMode.HasFlag(ClickMode.Select);
 
             for (int i = low; i < high; i++)
             {
@@ -337,11 +348,11 @@ namespace New_SSQE.NewGUI.Controls
                 autoplayCursor.UploadData([(x - width / 2, y - width / 2, width, 2 * 4 + 1)]);
             }
 
-            if (Mapping.RenderMode == ObjectRenderMode.Special)
+            if (Mapping.Current.RenderMode == ObjectRenderMode.Special)
             {
-                if (Mapping.ObjectMode != IndividualObjectMode.Note)
+                if (Mapping.Current.ObjectMode != IndividualObjectMode.Note)
                     hoveringXY = null;
-                bool shouldCheckID = respectObjectMode && Mapping.ObjectMode != IndividualObjectMode.Disabled;
+                bool shouldCheckID = respectObjectMode && Mapping.Current.ObjectMode != IndividualObjectMode.Disabled;
 
                 List<Vector4> beatConstants = [];
                 List<Vector4> beatApproaches = [];
@@ -369,7 +380,7 @@ namespace New_SSQE.NewGUI.Controls
 
                     if (obj.Ms < currentTime)
                         continue;
-                    if (shouldCheckID && obj.ID != (int)Mapping.ObjectMode)
+                    if (shouldCheckID && obj.ID != (int)Mapping.Current.ObjectMode)
                         continue;
 
                     float progress = (float)Math.Min(1, (float)Math.Pow(1 - Math.Min(1, (obj.Ms - currentTime) * approachRate / 750), 2));
@@ -384,7 +395,7 @@ namespace New_SSQE.NewGUI.Controls
 
                         float approachSize = 4 + size + size * (1 - progress) * 2 + 0.5f;
 
-                        if (Mapping.ClickMode.HasFlag(ClickMode.Select))
+                        if (Settings.ClickMode.HasFlag(ClickMode.Select))
                         {
                             if (Math.Abs(mousex - size / 2 - x) <= size / 2 && Math.Abs(mousey - size / 2 - y) <= size / 2)
                                 hoveringXY ??= xy;
@@ -437,7 +448,7 @@ namespace New_SSQE.NewGUI.Controls
             List<Vector4> notePreviews = [];
             bezierPositions = [];
 
-            if (hoveringCell != null && hoveringXY == null && Mapping.ClickMode.HasFlag(ClickMode.Place))
+            if (hoveringCell != null && hoveringXY == null && Settings.ClickMode.HasFlag(ClickMode.Place))
             {
                 Vector2 hover = hoveringCell ?? Vector2.One;
                 float x = rect.X + (2 - hover.X) * CellSize + PreviewGap;
@@ -606,9 +617,9 @@ namespace New_SSQE.NewGUI.Controls
                     int gx = key.Value.Item1;
                     int gy = key.Value.Item2;
 
-                    if (Mapping.RenderMode != ObjectRenderMode.Notes && Mapping.ObjectMode != IndividualObjectMode.Note)
+                    if (Mapping.Current.RenderMode != ObjectRenderMode.Notes && Mapping.Current.ObjectMode != IndividualObjectMode.Note)
                     {
-                        if (!objectLookup.TryGetValue(Mapping.ObjectMode, out Dictionary<Vector2, MapObject>? subLookup))
+                        if (!objectLookup.TryGetValue(Mapping.Current.ObjectMode, out Dictionary<Vector2, MapObject>? subLookup))
                             continue;
                         if (subLookup == null || !subLookup.ContainsKey((2 - gx, 2 - gy)))
                             continue;
@@ -665,13 +676,13 @@ namespace New_SSQE.NewGUI.Controls
             if (Settings.approachSquares.Value)
                 noteApproach.Render();
 
-            if (Mapping.RenderMode == ObjectRenderMode.Notes || Mapping.ObjectMode == IndividualObjectMode.Note)
+            if (Mapping.Current.RenderMode == ObjectRenderMode.Notes || Mapping.Current.ObjectMode == IndividualObjectMode.Note)
             {
                 noteSelect.Render();
                 noteHover.Render();
                 notePreview.Render();
             }
-            else if (Mapping.RenderMode == ObjectRenderMode.Special)
+            else if (Mapping.Current.RenderMode == ObjectRenderMode.Special)
             {
                 beatConstant.Render();
                 if (Settings.approachSquares.Value)
@@ -788,9 +799,9 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.MouseClickLeft(x, y);
 
-            if ((hoveringXY == null && Mapping.ClickMode == ClickMode.Both) || Mapping.ClickMode == ClickMode.Place)
+            if ((hoveringXY == null && Settings.ClickMode == ClickMode.Both) || Settings.ClickMode == ClickMode.Place)
             {
-                if ((Mapping.RenderMode != ObjectRenderMode.Notes && Mapping.ObjectMode !=  IndividualObjectMode.Note) || hoveringCell == null)
+                if ((Mapping.Current.RenderMode != ObjectRenderMode.Notes && Mapping.Current.ObjectMode !=  IndividualObjectMode.Note) || hoveringCell == null)
                     return;
                 if (Windowing.HoveringInteractive(this))
                     return;
@@ -809,7 +820,7 @@ namespace New_SSQE.NewGUI.Controls
             }
             else if (hoveringXY != null)
             {
-                List<XYMapObject> selected = new(Mapping.GetSelected().Where(n => n is XYMapObject).Cast<XYMapObject>());
+                List<XYMapObject> selected = new(Mapping.Current.SelectedObjects.Where(n => n is XYMapObject).Cast<XYMapObject>());
 
                 if (MainWindow.Instance.ShiftHeld)
                 {
@@ -819,7 +830,7 @@ namespace New_SSQE.NewGUI.Controls
                     long min = Math.Min(first.Ms, last.Ms);
                     long max = Math.Max(first.Ms, last.Ms);
 
-                    selected = Mapping.GetObjectsInRange(min, max).Cast<XYMapObject>().ToList();
+                    selected = Mapping.Current.GetObjectsInRange(min, max).Cast<XYMapObject>().ToList();
                     selected.Remove(first);
                     selected.Insert(0, first);
                 }
@@ -833,7 +844,7 @@ namespace New_SSQE.NewGUI.Controls
                 else if (selected.Count == 0 || !selected.Contains(hoveringXY))
                     selected = [hoveringXY];
 
-                Mapping.SetSelected(new List<MapObject>(selected));
+                Mapping.Current.SelectedObjects = new(selected);
 
                 if (hoveringXY.Selected)
                 {
@@ -865,7 +876,7 @@ namespace New_SSQE.NewGUI.Controls
                         draggingXY[i].Y -= cellDiff.Y;
                     }
 
-                    switch (Mapping.RenderMode)
+                    switch (Mapping.Current.RenderMode)
                     {
                         case ObjectRenderMode.Notes:
                             Mapping.Current.Notes.Modify_Edit("MOVE NOTE[S]", n =>
@@ -917,13 +928,13 @@ namespace New_SSQE.NewGUI.Controls
             if (ms < 0)
                 ms = (long)Settings.currentTime.Value.Value;
 
-            if (Mapping.RenderMode == ObjectRenderMode.Notes || Mapping.ObjectMode == IndividualObjectMode.Note)
+            if (Mapping.Current.RenderMode == ObjectRenderMode.Notes || Mapping.Current.ObjectMode == IndividualObjectMode.Note)
             {
                 Note note = new(x, y, ms);
                 Mapping.Current.Notes.Modify_Add("ADD NOTE", note);
             }
-            else if (Mapping.RenderMode == ObjectRenderMode.Special &&
-                objectLookup.TryGetValue(Mapping.ObjectMode, out Dictionary<Vector2, MapObject>? subLookup) && subLookup != null)
+            else if (Mapping.Current.RenderMode == ObjectRenderMode.Special &&
+                objectLookup.TryGetValue(Mapping.Current.ObjectMode, out Dictionary<Vector2, MapObject>? subLookup) && subLookup != null)
             {
                 if (!subLookup.TryGetValue((x, y), out MapObject? value) || value == null)
                     return;

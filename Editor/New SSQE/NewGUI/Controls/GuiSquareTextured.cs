@@ -1,11 +1,10 @@
 ﻿using SkiaSharp;
-using System.Drawing;
 
 namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiSquareTextured : GuiSquare
     {
-        public GuiSquareTextured(float x, float y, float w, float h, string texture, string? fileSource = null, Color? backupColor = null) : base(x, y, w, h, backupColor ?? Color.Black, false)
+        public GuiSquareTextured(float x, float y, float w, float h, string texture, string? fileSource = null) : base(x, y, w, h)
         {
             if (fileSource != null && File.Exists(fileSource))
             {
@@ -15,12 +14,12 @@ namespace New_SSQE.NewGUI.Controls
             else
                 textures = [new(texture)];
         }
-        public GuiSquareTextured(string texture, string? fileSource = null, Color? backupColor = null) : this(0, 0, 1920, 1080, texture, fileSource, backupColor) { }
+        public GuiSquareTextured(string texture, string? fileSource = null) : this(0, 0, 1920, 1080, texture, fileSource) { }
 
         public override float[] Draw()
         {
             if (textures.Length > 0)
-                textures[0].Draw(rect, color.A / 255f);
+                textures[0].Draw(rect, Color.A / 255f);
             return base.Draw();
         }
     }

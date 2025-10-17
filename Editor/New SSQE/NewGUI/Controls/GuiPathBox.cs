@@ -2,7 +2,6 @@
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Font;
 using New_SSQE.Preferences;
-using System.Drawing;
 
 namespace New_SSQE.NewGUI.Controls
 {
@@ -13,9 +12,15 @@ namespace New_SSQE.NewGUI.Controls
         public readonly GuiSquare PathBackdrop;
         public readonly GuiSquare PathOutline;
 
-        private readonly Setting<string>? folder;
-        private readonly Setting<string>? setting;
-        private readonly string filter;
+        private Setting<string>? folder;
+        private Setting<string>? setting;
+        private string filter = "All Files (*.*)|*.*";
+
+        public string Filter
+        {
+            get => filter;
+            set => filter = value;
+        }
 
         private string _file;
         public string SelectedFile
@@ -28,22 +33,66 @@ namespace New_SSQE.NewGUI.Controls
             }
         }
 
-        private readonly int numChars;
-
-        public GuiPathBox(float x, float y, float w, float h, string filter, Setting<string>? folder = null, Setting<string>? setting = null, string text = "CHOOSE", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.Y) : base(x, y, w, h)
+        public new string Text
         {
-            PathButton = new(0, 0, w / 4, h, text, textSize, font) { Stretch = StretchMode.XY };
-            PathLabel = new(w / 4 + 8, 0, w * 3 / 4 - 8, h, null, "", textSize, font, centerMode) { Stretch = StretchMode.XY };
-            PathBackdrop = new(w / 4, 0, w * 3 / 4, h, PathButton.Style.Primary) { Stretch = StretchMode.XY };
-            PathOutline = new(w / 4, 0, w * 3 / 4, h, PathButton.Style.Secondary, true) { Stretch = StretchMode.XY };
+            get => PathLabel.Text;
+            set => PathLabel.Text = value;
+        }
+
+        public new int TextSize
+        {
+            get => PathLabel.TextSize;
+            set => PathLabel.TextSize = value;
+        }
+
+        public new string Font
+        {
+            get => PathLabel.Font;
+            set => PathLabel.Font = value;
+        }
+
+        public new CenterMode CenterMode
+        {
+            get => PathLabel.CenterMode;
+            set => PathLabel.CenterMode = value;
+        }
+
+        public Setting<string>? Folder
+        {
+            get => folder;
+            set
+            {
+                if (value != folder)
+                {
+                    folder = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public Setting<string>? Setting
+        {
+            get => setting;
+            set
+            {
+                if (value != setting)
+                {
+                    setting = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        private int numChars;
+
+        public GuiPathBox(float x, float y, float w, float h) : base(x, y, w, h)
+        {
+            PathButton = new(0, 0, w / 4, h) { Stretch = StretchMode.XY };
+            PathLabel = new(w / 4 + 8, 0, w * 3 / 4 - 8, h) { Stretch = StretchMode.XY };
+            PathBackdrop = new(w / 4, 0, w * 3 / 4, h) { Stretch = StretchMode.XY, Color = PathButton.Style.Primary };
+            PathOutline = new(w / 4, 0, w * 3 / 4, h) { Stretch = StretchMode.XY, Color = PathButton.Style.Secondary, Outline = true };
 
             SetControls(PathButton, PathLabel, PathBackdrop, PathOutline);
-
-            this.folder = folder;
-            this.setting = setting;
-            this.filter = filter;
-
-            numChars = (int)(PathLabel.GetRect().Width / FontRenderer.GetWidth("0", textSize, font)) / 2;
 
             _file = setting?.Value ?? "";
             UpdateFile();
@@ -55,6 +104,7 @@ namespace New_SSQE.NewGUI.Controls
 
             PathButton.LeftClick += (s, e) => ChooseFile();
             SelectedFile = setting?.Value ?? "";
+            numChars = (int)(PathLabel.GetRect().Width / FontRenderer.GetWidth("0", TextSize, Font)) / 2;
         }
 
         private void UpdateFile()
@@ -79,7 +129,7 @@ namespace New_SSQE.NewGUI.Controls
 
         public void ChooseFile()
         {
-            OpenFileDialog dialog = new OpenFileDialog()
+            OpenFileDialog dialog = new()
             {
                 Title = "Choose File",
                 Filter = filter,

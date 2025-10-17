@@ -40,7 +40,7 @@ namespace New_SSQE.NewMaps.Parsing
                                 Mapping.Current.TimingPoints.Add(new(bpm, ms));
                         }
 
-                        Mapping.SortTimings();
+                        Mapping.Current.SortTimings();
 
                         break;
 
@@ -57,7 +57,7 @@ namespace New_SSQE.NewMaps.Parsing
                                 Mapping.Current.Bookmarks.Add(new(bookmarksplit[0], startMs, endMs));
                         }
 
-                        Mapping.SortBookmarks();
+                        Mapping.Current.SortBookmarks();
 
                         break;
 
@@ -271,7 +271,7 @@ namespace New_SSQE.NewMaps.Parsing
                     }
                 }
 
-                Mapping.ClearSelection();
+                Mapping.Current.ClearSelected();
                 return true;
             }
             catch

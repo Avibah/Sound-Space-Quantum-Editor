@@ -5,30 +5,47 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiSquare : Control
     {
-        protected Color color;
-        protected readonly bool outline;
+        private Color color = Color.Transparent;
+        private bool outline;
 
-        public GuiSquare(float x, float y, float w, float h, Color? color = null, bool outline = false) : base(x, y, w, h)
+        public Color Color
         {
-            this.color = color ?? Color.Transparent;
-            this.outline = outline;
-
-            Rounded = false;
+            get => color;
+            set
+            {
+                if (value != color)
+                {
+                    color = value;
+                    shouldUpdate = true;
+                }
+            }
         }
-        public GuiSquare(Color? color = null, bool outline = false) : this(0, 0, 1920, 1080, color, outline) { }
+
+        public bool Outline
+        {
+            get => outline;
+            set
+            {
+                if (value != outline)
+                {
+                    outline = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public GuiSquare(float x, float y, float w, float h) : base(x, y, w, h)
+        {
+            CornerRadius = 0;
+        }
+        public GuiSquare() : this(0, 0, 1920, 1080) { }
 
         public override float[] Draw()
         {
             if (outline)
-                return Rounded ? GLVerts.SquircleOutline(rect, 2, CornerDetail, CornerRadius, color) : GLVerts.Outline(rect, 2, color);
+                return GLVerts.SquircleOutline(rect, 2, CornerDetail, CornerRadius, color);
             else
-                return Rounded ? GLVerts.Squircle(rect, CornerDetail, CornerRadius, color) : GLVerts.Rect(rect, color);
-        }
-
-        public void SetColor(Color? color = null)
-        {
-            this.color = color ?? this.color;
-            Update();
+                return GLVerts.Squircle(rect, CornerDetail, CornerRadius, color);
         }
     }
 }

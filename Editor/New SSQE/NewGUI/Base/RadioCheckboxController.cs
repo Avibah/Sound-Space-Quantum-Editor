@@ -17,11 +17,11 @@ namespace New_SSQE.NewGUI.Base
     {
         public event EventHandler<RadioCheckboxEventArgs>? SelectionChanged;
 
-        private GuiCheckbox[] controls;
+        private readonly GuiCheckbox[] controls;
         private GuiCheckbox active;
         public string Active => active.Text;
 
-        private Setting<string>? setting;
+        private readonly Setting<string>? setting;
 
         public RadioCheckboxController(int activeIndex, params GuiCheckbox[] controls)
         {

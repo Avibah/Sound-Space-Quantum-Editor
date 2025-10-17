@@ -8,7 +8,7 @@ namespace New_SSQE.NewGUI.Controls
     {
         private readonly Setting<Keybind> setting;
 
-        public GuiTextboxKeybind(float x, float y, float w, float h, Setting<Keybind> setting, string text = "", int textSize = 0, string font = "main", CenterMode centerMode = CenterMode.XY) : base(x, y, w, h, null, text, textSize, font, centerMode)
+        public GuiTextboxKeybind(float x, float y, float w, float h, Setting<Keybind> setting) : base(x, y, w, h)
         {
             this.setting = setting;
         }

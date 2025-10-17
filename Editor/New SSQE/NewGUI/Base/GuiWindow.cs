@@ -144,7 +144,10 @@ namespace New_SSQE.NewGUI.Base
                 loaded = Mapping.Load(file);
 
             if (!loaded && prev != null)
-                Mapping.Open(prev);
+            {
+                Mapping.Current = prev;
+                Mapping.Open();
+            }
         }
 
         public virtual bool TextboxFocused() => container.TextboxFocused();

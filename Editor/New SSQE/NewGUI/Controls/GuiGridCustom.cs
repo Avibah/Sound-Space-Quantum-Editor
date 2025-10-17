@@ -57,10 +57,8 @@ namespace New_SSQE.NewGUI.Controls
 
         private readonly bool respectObjectMode;
 
-        public GuiGridCustom(float x, float y, float w, float h, bool respectObjectMode = true) : base(x, y, w, h)
+        public GuiGridCustom(float x, float y, float w, float h) : base(x, y, w, h)
         {
-            this.respectObjectMode = respectObjectMode;
-
             (bezierPreviewLineVAO, bezierPreviewLineVBO) = GLState.NewVAO_VBO(2, 4);
 
             autoplayCursor = Instancing.Generate("grid_autoplayCursor", Shader.InstancedMain);
@@ -161,7 +159,7 @@ namespace New_SSQE.NewGUI.Controls
                 noteConstants[i - low] = (x, y, 1, 2 * c + progress);
                 noteApproaches[i - low] = (approachSize.X, approachSize.Y, approachScale, 2 * c + progress);
 
-                if (Mapping.ClickMode.HasFlag(ClickMode.Select))
+                if (Settings.ClickMode.HasFlag(ClickMode.Select))
                 {
                     if (Math.Abs(mousex - NoteSize.X / 2 - x) <= NoteSize.X / 2 && Math.Abs(mousey - NoteSize.Y / 2 - y) <= NoteSize.Y / 2)
                         hoveringXY ??= note;
@@ -226,9 +224,9 @@ namespace New_SSQE.NewGUI.Controls
                 autoplayCursor.UploadData([(x - width / 2, y - width / 2, width, 2 * 4 + 1)]);
             }
 
-            if (Mapping.RenderMode == ObjectRenderMode.Special)
+            if (Mapping.Current.RenderMode == ObjectRenderMode.Special)
             {
-                bool shouldCheckID = respectObjectMode && Mapping.ObjectMode != IndividualObjectMode.Disabled;
+                bool shouldCheckID = respectObjectMode && Mapping.Current.ObjectMode != IndividualObjectMode.Disabled;
 
                 List<Vector4> beatConstants = [];
                 List<Vector4> beatApproaches = [];
@@ -241,7 +239,7 @@ namespace New_SSQE.NewGUI.Controls
                     MapObject obj = objects[i];
                     float progress = (float)Math.Min(1, (float)Math.Pow(1 - Math.Min(1, (obj.Ms - currentTime) * approachRate / 750), 2));
 
-                    if (shouldCheckID && obj.ID != (int)Mapping.ObjectMode)
+                    if (shouldCheckID && obj.ID != (int)Mapping.Current.ObjectMode)
                         continue;
 
                     switch (obj.ID)
@@ -262,7 +260,7 @@ namespace New_SSQE.NewGUI.Controls
             List<Vector4> notePreviews = [];
             bezierPositions = [];
 
-            if (hoveringCell != null && hoveringXY == null && Mapping.ClickMode.HasFlag(ClickMode.Place))
+            if (hoveringCell != null && hoveringXY == null && Settings.ClickMode.HasFlag(ClickMode.Place))
             {
                 Vector2 hover = hoveringCell ?? Vector2.One;
                 float x = rect.X + (CELL_MAX.X - hover.X) * CellSize.X + PreviewGap.X;
@@ -434,7 +432,7 @@ namespace New_SSQE.NewGUI.Controls
                 autoplayCursor.Render();
             notePreview.Render();
 
-            if (Mapping.RenderMode == ObjectRenderMode.Special)
+            if (Mapping.Current.RenderMode == ObjectRenderMode.Special)
             {
                 beatConstant.Render();
                 if (Settings.approachSquares.Value)
@@ -538,9 +536,9 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.MouseClickLeft(x, y);
 
-            if ((hoveringXY == null && Mapping.ClickMode == ClickMode.Both) || Mapping.ClickMode == ClickMode.Place)
+            if ((hoveringXY == null && Settings.ClickMode == ClickMode.Both) || Settings.ClickMode == ClickMode.Place)
             {
-                if (Mapping.RenderMode != ObjectRenderMode.Notes || hoveringCell == null)
+                if (Mapping.Current.RenderMode != ObjectRenderMode.Notes || hoveringCell == null)
                     return;
                 if (Windowing.HoveringInteractive(this))
                     return;
@@ -560,7 +558,7 @@ namespace New_SSQE.NewGUI.Controls
             else if (hoveringXY != null)
             {
                 ObjectList<XYMapObject> objects = hoveringXY is Note ? new(Mapping.Current.Notes.Cast<XYMapObject>()) : new(Mapping.Current.SpecialObjects.Where(n => n is XYMapObject).Cast<XYMapObject>());
-                List<XYMapObject> selected = new(Mapping.GetSelected().Where(n => n is XYMapObject).Cast<XYMapObject>());
+                List<XYMapObject> selected = new(Mapping.Current.SelectedObjects.Where(n => n is XYMapObject).Cast<XYMapObject>());
 
                 if (MainWindow.Instance.ShiftHeld)
                 {
@@ -585,7 +583,7 @@ namespace New_SSQE.NewGUI.Controls
                 else if (selected.Count == 0)
                     selected = [hoveringXY];
 
-                Mapping.SetSelected(new List<MapObject>(selected));
+                Mapping.Current.SelectedObjects = new(selected);
 
                 if (hoveringXY.Selected)
                 {

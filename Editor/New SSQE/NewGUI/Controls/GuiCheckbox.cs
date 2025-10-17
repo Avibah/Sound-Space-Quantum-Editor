@@ -6,35 +6,44 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiCheckbox : InteractiveControl
     {
-        private bool _toggle;
-        public bool Toggle
+        private Setting<bool>? setting;
+        private bool toggle;
+
+        public Setting<bool>? Setting
         {
-            get => _toggle;
+            get => setting;
             set
             {
-                _toggle = value;
+                if (value != setting)
+                {
+                    setting = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public bool Toggle
+        {
+            get => toggle;
+            set
+            {
+                toggle = value;
 
                 if (setting != null)
                     setting.Value = value;
             }
         }
 
-        private readonly Setting<bool>? setting;
         private float checkSize = 0f;
 
-        public GuiCheckbox(float x, float y, float w, float h, Setting<bool>? setting = null, string text = "", int textSize = 0, string font = "main") : base(x, y, w, h, text, textSize, font, CenterMode.Y)
+        public GuiCheckbox(float x, float y, float w, float h) : base(x, y, w, h)
         {
             if (setting != null)
                 Toggle = setting.Value;
 
-            this.setting = setting;
-
             Style = ControlStyle.Checkbox_Colored;
             PlayRightClickSound = false;
-
-            Rounded = true;
-            CornerRadius = 1;
-            CornerDetail = 16;
+            CenterMode = CenterMode.Y;
         }
 
         public override float[] Draw()
@@ -52,22 +61,11 @@ namespace New_SSQE.NewGUI.Controls
             TextColor = Style.Primary;
             xOffset = width * 1.15f;
 
-            if (Rounded)
-            {
-                float[] fill = GLVerts.Squircle(squareRect, CornerDetail, CornerRadius, Style.Tertiary);
-                float[] outline = GLVerts.SquircleOutline(squareRect, 2f, CornerDetail, CornerRadius, Style.Quaternary);
-                float[] check = GLVerts.Squircle(checkRect, CornerDetail, CornerRadius, Style.Secondary);
+            float[] fill = GLVerts.Rect(squareRect, Style.Tertiary);
+            float[] outline = GLVerts.Outline(squareRect, 2f, Style.Quaternary);
+            float[] check = GLVerts.Rect(checkRect, Style.Secondary);
 
-                return [..fill, ..outline, ..check];
-            }
-            else
-            {
-                float[] fill = GLVerts.Rect(squareRect, Style.Tertiary);
-                float[] outline = GLVerts.Outline(squareRect, 2f, Style.Quaternary);
-                float[] check = GLVerts.Rect(checkRect, Style.Secondary);
-
-                return [..fill, ..outline, ..check];
-            }
+            return [..fill, ..outline, ..check];
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)
