@@ -54,17 +54,13 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void MouseClickLeft(float x, float y)
         {
-            if (Hovering)
-                UpdateSetting(true);
-
+            UpdateSetting(true);
             base.MouseClickLeft(x, y);
         }
 
         public override void MouseClickRight(float x, float y)
         {
-            if (Hovering)
-                UpdateSetting(false);
-
+            UpdateSetting(false);
             base.MouseClickRight(x, y);
         }
     }

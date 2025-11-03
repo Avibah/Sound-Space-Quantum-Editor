@@ -9,7 +9,8 @@ namespace SSQE_Player
         {
             try
             {
-                string[] newArgs = ["true", "false", "false"];
+                // from start, is replay, is autoplay
+                string[] newArgs = ["true", "false", "true"];
                 for (int i = 0; i < Math.Min(args.Length, newArgs.Length); i++)
                     newArgs[i] = args[i];
 

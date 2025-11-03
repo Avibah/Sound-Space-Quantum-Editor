@@ -649,10 +649,10 @@ namespace New_SSQE.NewGUI.Controls
 
             if (placing && MusicPlayer.IsPlaying)
             {
-                float currentTIme = Settings.currentTime.Value.Value;
-                long ms = Timing.GetClosestBeat(currentTIme);
+                float currentTime = Settings.currentTime.Value.Value;
+                long ms = Timing.GetClosestBeat(currentTime);
 
-                if (ms > 0 && ms <= currentTIme && Mapping.Current.Notes.FirstOrDefault(n => Math.Abs(n.Ms - ms) < 2) == null)
+                if (ms > 0 && ms <= currentTime && Mapping.Current.Notes.FirstOrDefault(n => Math.Abs(n.Ms - ms) < 2) == null)
                 {
                     Vector2 pos = MouseToGridSpace(mousex, mousey);
                     Mapping.Current.Notes.Modify_Add("ADD NOTE", new Note(pos.X, pos.Y, ms));
@@ -795,9 +795,9 @@ namespace New_SSQE.NewGUI.Controls
             }
         }
 
-        public override void MouseClickLeft(float x, float y)
+        public override void MouseClickLeftGlobal(float x, float y)
         {
-            base.MouseClickLeft(x, y);
+            base.MouseClickLeftGlobal(x, y);
 
             if ((hoveringXY == null && Settings.ClickMode == ClickMode.Both) || Settings.ClickMode == ClickMode.Place)
             {
@@ -857,9 +857,9 @@ namespace New_SSQE.NewGUI.Controls
             }
         }
 
-        public override void MouseUpLeft(float x, float y)
+        public override void MouseUpLeftGlobal(float x, float y)
         {
-            base.MouseUpLeft(x, y);
+            base.MouseUpLeftGlobal(x, y);
 
             placing = false;
             lastPlacedPos = null;

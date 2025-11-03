@@ -88,27 +88,27 @@ namespace New_SSQE.NewGUI.Input
                             List<MapObject> copied = Mapping.Current.Notes.Selected.Cast<MapObject>().ToList();
                             Clipboard.SetData(copied);
 
-                            GuiWindowEditor.ShowToast("COPIED NOTES", Settings.color1.Value);
+                            GuiWindowEditor.ShowOther("COPIED NOTES");
                         }
                         else if (Mapping.Current.VfxObjects.Selected.Count > 0)
                         {
                             List<MapObject> copied = Mapping.Current.VfxObjects.Selected.ToList();
                             Clipboard.SetData(copied);
 
-                            GuiWindowEditor.ShowToast("COPIED OBJECTS", Settings.color1.Value);
+                            GuiWindowEditor.ShowOther("COPIED OBJECTS");
                         }
                         else if (Mapping.Current.SpecialObjects.Selected.Count > 0)
                         {
                             List<MapObject> copied = Mapping.Current.SpecialObjects.Selected.ToList();
                             Clipboard.SetData(copied);
 
-                            GuiWindowEditor.ShowToast("COPIED OBJECTS", Settings.color1.Value);
+                            GuiWindowEditor.ShowOther("COPIED OBJECTS");
                         }
                     }
                     catch (Exception ex)
                     {
                         Logging.Log("Failed to copy objects", LogSeverity.WARN, ex);
-                        GuiWindowEditor.ShowToast("FAILED TO COPY", Settings.color1.Value);
+                        GuiWindowEditor.ShowError("FAILED TO COPY");
                     }
 
                     break;
@@ -191,7 +191,7 @@ namespace New_SSQE.NewGUI.Input
                     catch (Exception ex)
                     {
                         Logging.Log("Failed to paste objects", LogSeverity.WARN, ex);
-                        GuiWindowEditor.ShowToast("FAILED TO PASTE", Settings.color1.Value);
+                        GuiWindowEditor.ShowError("FAILED TO PASTE");
                     }
 
                     break;
@@ -205,7 +205,7 @@ namespace New_SSQE.NewGUI.Input
                             Clipboard.SetData(copied.Cast<MapObject>().ToList());
 
                             Mapping.Current.Notes.Modify_Remove("CUT NOTE[S]", copied);
-                            GuiWindowEditor.ShowToast("CUT NOTES", Settings.color1.Value);
+                            GuiWindowEditor.ShowOther("CUT NOTES");
                         }
                         else if (Mapping.Current.VfxObjects.Selected.Count > 0)
                         {
@@ -213,7 +213,7 @@ namespace New_SSQE.NewGUI.Input
                             Clipboard.SetData(copied);
 
                             Mapping.Current.VfxObjects.Modify_Remove("CUT OBJECT[S]", copied);
-                            GuiWindowEditor.ShowToast("CUT OBJECTS", Settings.color1.Value);
+                            GuiWindowEditor.ShowOther("CUT OBJECTS");
                         }
                         else if (Mapping.Current.SpecialObjects.Selected.Count > 0)
                         {
@@ -221,13 +221,13 @@ namespace New_SSQE.NewGUI.Input
                             Clipboard.SetData(copied);
 
                             Mapping.Current.SpecialObjects.Modify_Remove("CUT OBJECT[S]", copied);
-                            GuiWindowEditor.ShowToast("CUT OBJECTS", Settings.color1.Value);
+                            GuiWindowEditor.ShowOther("CUT OBJECTS");
                         }
                     }
                     catch (Exception ex)
                     {
                         Logging.Log("Failed to cut objects", LogSeverity.WARN, ex);
-                        GuiWindowEditor.ShowToast("FAILED TO CUT", Settings.color1.Value);
+                        GuiWindowEditor.ShowError("FAILED TO CUT");
                     }
 
                     break;

@@ -16,12 +16,8 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void MouseClickLeft(float x, float y)
         {
-            if (Hovering)
-            {
-                setting.Value ^= true;
-                textures[0].TileIndex = setting.Value ? 1 : 0;
-            }
-
+            setting.Value ^= true;
+            textures[0].TileIndex = setting.Value ? 1 : 0;
             base.MouseClickLeft(x, y);
         }
     }

@@ -1,8 +1,9 @@
 ﻿using New_SSQE.NewGUI.Base;
+using New_SSQE.NewGUI.Controls;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 
-namespace New_SSQE.NewGUI.Controls
+namespace New_SSQE.NewGUI.CompoundControls
 {
     internal class GuiNumberBox : ControlContainer
     {

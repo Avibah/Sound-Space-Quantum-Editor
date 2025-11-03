@@ -31,7 +31,6 @@ namespace New_SSQE.NewGUI.Base
         private readonly ControlContainer container;
 
         private bool connected = false;
-        public static bool LockClick = false;
 
         public GuiWindow(float x, float y, float w, float h, params Control[] controls)
         {
@@ -84,26 +83,26 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void MouseDown(MouseButtonEventArgs e)
         {
-            if (LockClick)
+            if (Windowing.ClickLocked)
                 return;
 
             if (e.Button == MouseButton.Left)
-                container.MouseClickLeft(prevMouse.X, prevMouse.Y);
+                container.MouseClickLeftGlobal(prevMouse.X, prevMouse.Y);
             else if (e.Button == MouseButton.Right)
-                container.MouseClickRight(prevMouse.X, prevMouse.Y);
+                container.MouseClickRightGlobal(prevMouse.X, prevMouse.Y);
         }
 
         public virtual void MouseUp(MouseButtonEventArgs e)
         {
             if (e.Button == MouseButton.Left)
-                container.MouseUpLeft(prevMouse.X, prevMouse.Y);
+                container.MouseUpLeftGlobal(prevMouse.X, prevMouse.Y);
             else if (e.Button == MouseButton.Right)
-                container.MouseUpRight(prevMouse.X, prevMouse.Y);
+                container.MouseUpRightGlobal(prevMouse.X, prevMouse.Y);
         }
 
         public virtual void MouseScroll(float delta)
         {
-            container.MouseScroll(prevMouse.X, prevMouse.Y, delta);
+            container.MouseScrollGlobal(prevMouse.X, prevMouse.Y, delta);
         }
 
         public virtual void KeyDown(Keys key)
@@ -153,6 +152,7 @@ namespace New_SSQE.NewGUI.Base
         public virtual bool TextboxFocused() => container.TextboxFocused();
         public virtual bool HoveringInteractive(InteractiveControl? exclude = null) => container.HoveringInteractive(exclude);
         public virtual InteractiveControl? GetHoveringInteractive(InteractiveControl? exclude = null) => container.GetHoveringInteractive(exclude);
+        public virtual bool ShouldConsumeScroll() => container.ShouldConsumeScroll();
 
         protected virtual void SetOffset(Vector2 offset)
         {

@@ -11,17 +11,11 @@ namespace New_SSQE.NewMaps.Parsing
     {
         public static bool Read(string path)
         {
-            string temp = Path.Combine(Assets.TEMP, "phxm");
-            Directory.CreateDirectory(temp);
-            foreach (string file in Directory.GetFiles(temp))
-                File.Delete(file);
-
             bool hasAudio = false;
             string audioId = "";
             string audioExt = "";
 
-            ZipFile.ExtractToDirectory(path, temp, true);
-            Dictionary<string, JsonElement> metadata = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(Path.Combine(temp, "metadata.json"))) ?? [];
+            Dictionary<string, JsonElement> metadata = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(Path.Combine(path, "metadata.json"))) ?? [];
 
             foreach (string key in metadata.Keys)
             {
@@ -71,12 +65,12 @@ namespace New_SSQE.NewMaps.Parsing
             Mapping.Current.SoundID = audioId;
 
             if (hasAudio)
-                File.Copy(Path.Combine(temp, $"audio.{audioExt}"), Path.Combine(Assets.CACHED, $"{audioId}.asset"), true);
+                File.Copy(Path.Combine(path, $"audio.{audioExt}"), Path.Combine(Assets.CACHED, $"{audioId}.asset"), true);
 
             if (Settings.useCover.Value)
             {
                 string cover = Path.Combine(Assets.CACHED, $"{audioId}-cover.png");
-                File.Copy(Path.Combine(temp, "cover.png"), cover, true);
+                File.Copy(Path.Combine(path, "cover.png"), cover, true);
 
                 Settings.cover.Value = cover;
                 Settings.novaCover.Value = cover;
@@ -85,12 +79,12 @@ namespace New_SSQE.NewMaps.Parsing
             if (Settings.useVideo.Value)
             {
                 string video = Path.Combine(Assets.CACHED, $"{audioId}-video.mp4");
-                File.Copy(Path.Combine(temp, "video.mp4"), video, true);
+                File.Copy(Path.Combine(path, "video.mp4"), video, true);
 
                 Settings.video.Value = video;
             }
 
-            using FileStream data = new(Path.Combine(temp, "objects.phxmo"), FileMode.Open, FileAccess.Read);
+            using FileStream data = new(Path.Combine(path, "objects.phxmo"), FileMode.Open, FileAccess.Read);
             data.Seek(0, SeekOrigin.Begin);
             using BinaryReader reader = new(data);
 

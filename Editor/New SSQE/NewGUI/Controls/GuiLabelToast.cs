@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using New_SSQE.Preferences;
+using OpenTK.Mathematics;
 using System.Drawing;
 
 namespace New_SSQE.NewGUI.Controls
@@ -7,13 +8,14 @@ namespace New_SSQE.NewGUI.Controls
     {
         private float toastTime = 0;
         private bool shouldShow = false;
+        private bool showing = false;
 
         public GuiLabelToast(float x, float y, float w, float h) : base(x, y, w, h) { }
 
         public void Show(string text, Color? color = null)
         {
             Text = text;
-            TextColor = color ?? Color.White;
+            TextColor = color ?? Settings.color1.Value;
 
             shouldShow = true;
         }
@@ -23,9 +25,15 @@ namespace New_SSQE.NewGUI.Controls
             float prevAlpha = toastTime;
             toastTime = Math.Clamp(toastTime + frametime, 0, 2);
             
-            if (shouldShow)
+            if (showing)
             {
                 toastTime = 0;
+                showing = false;
+            }
+            // delayed one frame to account for toasts shown immediately after heavy operations
+            if (shouldShow)
+            {
+                showing = true;
                 shouldShow = false;
             }
 

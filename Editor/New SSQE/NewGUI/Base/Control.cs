@@ -21,7 +21,7 @@ namespace New_SSQE.NewGUI.Base
 
         protected int textureIndex = 0;
 
-        protected readonly RectangleF startRect;
+        protected RectangleF StartRect { get; private set; }
         protected RectangleF rect;
 
         protected bool shouldUpdate = false;
@@ -31,15 +31,17 @@ namespace New_SSQE.NewGUI.Base
         protected int vertexCount;
 
         public bool Visible = true;
+        public bool RenderOnTop = false;
         public StretchMode Stretch = StretchMode.XY;
         public int CornerDetail = 8;
         public float CornerRadius = 0.125f;
 
         public Vector2 RectOffset = Vector2.Zero;
+        public Gradient? Gradient = null;
 
         public Control(RectangleF rect)
         {
-            startRect = rect;
+            StartRect = rect;
             this.rect = rect;
 
             (vao, vbo) = GLState.NewVAO_VBO(2, 4);
@@ -68,6 +70,8 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void Render(float mousex, float mousey, float frametime)
         {
+            Gradient?.PreRender(mousex, mousey, frametime);
+
             if (vertexCount > 0)
             {
                 shader.Enable();
@@ -76,6 +80,9 @@ namespace New_SSQE.NewGUI.Base
 
             if (textureIndex >= 0 && textureIndex < textures.Length)
                 textures[textureIndex].Render();
+            
+            Gradient?.Render(mousex, mousey, frametime);
+            Gradient?.PostRender(mousex, mousey, frametime);
         }
 
         public virtual void PostRender(float mousex, float mousey, float frametime) { }
@@ -85,42 +92,55 @@ namespace New_SSQE.NewGUI.Base
             float widthDiff = screenWidth / 1920;
             float heightDiff = screenHeight / 1080;
 
-            float x = startRect.X * widthDiff;
-            float y = startRect.Y * heightDiff;
-            float w = startRect.Width * widthDiff;
-            float h = startRect.Height * heightDiff;
+            float x = StartRect.X * widthDiff;
+            float y = StartRect.Y * heightDiff;
+            float w = StartRect.Width * widthDiff;
+            float h = StartRect.Height * heightDiff;
             
             float min = Math.Min(widthDiff, heightDiff);
 
             if (!Stretch.HasFlag(StretchMode.X))
             {
-                float width = startRect.Width * min;
+                float width = StartRect.Width * min;
                 x += (w - width) / 2;
                 w = width;
             }
 
             if (!Stretch.HasFlag(StretchMode.Y))
             {
-                float height = startRect.Height * min;
+                float height = StartRect.Height * min;
                 y += (h - height) / 2;
                 h = height;
             }
 
             SetRect(x + RectOffset.X * widthDiff, y + RectOffset.Y * heightDiff, w, h);
+            Gradient?.SetRect(rect);
         }
 
         public virtual void SetRect(RectangleF rect)
         {
             this.rect = rect;
-            Update();
+            shouldUpdate = true;
         }
 
-        public virtual void SetRect(float x, float y, float width, float height) => SetRect(new(x, y, width, height));
+        public virtual void SetRect(float x, float y, float w, float h) => SetRect(new(x, y, w, h));
+
+        public virtual void SetOrigin(RectangleF rect)
+        {
+            StartRect = rect;
+        }
+
+        public virtual void SetOrigin(float x, float y, float w, float h) => SetOrigin(new(x, y, w, h));
 
         public virtual RectangleF GetRect() => rect;
 
-        public virtual RectangleF GetOrigin() => startRect;
+        public virtual RectangleF GetOrigin() => StartRect;
 
         public virtual void Reset() { }
+
+        /// <summary>
+        /// Returns extents of inner content relative to the control's origin (left, up, right, down)
+        /// </summary>
+        public virtual Vector4 GetExtents() => (0, 0, StartRect.Width, StartRect.Height);
     }
 }

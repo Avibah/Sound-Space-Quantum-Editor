@@ -28,6 +28,29 @@ namespace New_SSQE.NewGUI
 
 
 
+        public static float[] Rect2C(float x, float y, float w, float h, float r1, float g1, float b1, float a1, float r2, float g2, float b2, float a2)
+        {
+            return
+            [
+                x, y, r1, g1, b1, a1,
+                x + w, y, r2, g2, b2, a2,
+                x, y + h, r1, g1, b1, a1,
+
+                x + w, y + h, r2, g2, b2, a2,
+                x, y + h, r1, g1, b1, a1,
+                x + w, y, r2, g2, b2, a2
+            ];
+        }
+
+        public static float[] Rect2C(RectangleF rect, float r1, float g1, float b1, float a1, float r2, float g2, float b2, float a2)
+            => Rect2C(rect.X, rect.Y, rect.Width, rect.Height, r1, g1, b1, a1, r2, g2, b2, a2);
+        public static float[] Rect2C(float x, float y, float w, float h, Color color1, Color color2)
+            => Rect2C(x, y, w, h, color1.R / 255f, color1.G / 255f, color1.B / 255f, color1.A / 255f, color2.R / 255f, color2.G / 255f, color2.B / 255f, color2.A / 255f);
+        public static float[] Rect2C(RectangleF rect, Color color1, Color color2)
+            => Rect2C(rect.X, rect.Y, rect.Width, rect.Height, color1.R / 255f, color1.G / 255f, color1.B / 255f, color1.A / 255f, color2.R / 255f, color2.G / 255f, color2.B / 255f, color2.A / 255f);
+
+
+
         public static float[] Outline(float x, float y, float w, float h, float lw, float r, float g, float b, float a = 1)
         {
             x -= lw / 2;

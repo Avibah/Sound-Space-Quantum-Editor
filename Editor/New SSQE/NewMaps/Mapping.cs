@@ -46,10 +46,10 @@ namespace New_SSQE.NewMaps
                     Settings.autosavedProperties.Value = data[1];
                     Settings.Save(false);
 
-                    GuiWindowEditor.ShowToast("AUTOSAVED", Settings.color1.Value);
+                    GuiWindowEditor.ShowInfo("AUTOSAVED");
                 }
                 else if (Save(false, true))
-                    GuiWindowEditor.ShowToast("AUTOSAVED", Settings.color1.Value);
+                    GuiWindowEditor.ShowInfo("AUTOSAVED");
             }
         }
 
@@ -101,6 +101,9 @@ namespace New_SSQE.NewMaps
 
         public static bool LoadAudio(string id)
         {
+            if (id == "-1")
+                return false;
+
             try
             {
                 if (!File.Exists(Path.Combine(Assets.CACHED, $"{id}.asset")))
@@ -204,6 +207,12 @@ namespace New_SSQE.NewMaps
             return "";
         }
 
+        public static void CacheCurrent()
+        {
+            if (!Cache.Contains(_current))
+                Cache.Add(_current);
+        }
+
 
 
         public static bool Open()
@@ -215,8 +224,7 @@ namespace New_SSQE.NewMaps
             Settings.currentTime.Value.Max = (float)MusicPlayer.TotalTime.TotalMilliseconds;
             Settings.currentTime.Value.Step = (float)MusicPlayer.TotalTime.TotalMilliseconds / 2000f;
 
-            if (!Cache.Contains(_current))
-                Cache.Add(_current);
+            CacheCurrent();
             Map old = _current;
             SaveCache();
             old.OpenSettings();
@@ -316,7 +324,6 @@ namespace New_SSQE.NewMaps
                 {
                     ".txt" => TXT.WriteForced(path),
                     ".sspm" => SSPM.Write(path),
-                    ".rhym" => RHYM.Write(path),
                     ".npk" => NPK.Write(path),
 
                     _ => throw new NotSupportedException($"File extension not supported for saving: {extension}")
@@ -327,6 +334,19 @@ namespace New_SSQE.NewMaps
                 Logging.Log($"Failed to save map - {path}", LogSeverity.WARN, ex);
                 return false;
             }
+        }
+
+        private static string Unzip(string path)
+        {
+            string extension = Path.GetExtension(path);
+            string directory = Path.Combine(Assets.TEMP, extension);
+
+            if (Directory.Exists(directory))
+                Directory.Delete(directory, true);
+            Directory.CreateDirectory(directory);
+            
+            ZipFile.ExtractToDirectory(path, directory);
+            return directory;
         }
 
         public static bool Parse(string data)
@@ -341,36 +361,30 @@ namespace New_SSQE.NewMaps
 
                     if (extension == ".npk")
                     {
-                        string npk = Path.Combine(Assets.TEMP, "nova");
-                        Directory.CreateDirectory(npk);
-                        foreach (string temp in Directory.GetFiles(npk))
-                            File.Delete(temp);
-                        ZipFile.ExtractToDirectory(data, npk);
-
+                        string npk = Unzip(data);
                         data = Path.Combine(npk, "chart.nch");
                     }
 
                     if (extension == ".phz")
                     {
-                        string phz = Path.Combine(Assets.TEMP, "pulsus");
-                        Directory.CreateDirectory(phz);
-                        foreach (string temp in Directory.GetFiles(phz))
-                            File.Delete(temp);
-                        ZipFile.ExtractToDirectory(data, phz);
-
+                        string phz = Unzip(data);
                         data = Directory.GetFiles(phz).FirstOrDefault() ?? "";
+                        extension = Path.GetExtension(data);
                     }
 
-                    extension = Path.GetExtension(data);
+                    if (extension == ".rhym")
+                        data = Unzip(data);
+                    if (extension == ".phxm")
+                        data = Unzip(data);
 
                     return extension switch
                     {
                         ".txt" => TXT.Read(data),
                         ".sspm" => SSPM.Read(data),
-                        ".rhym" => RHYM.Read(data),
                         ".phxm" => PHXM.Read(data),
-                        ".nch" => NPK.Read(data),
+                        ".npk" or ".nch" => NPK.Read(data),
                         ".osu" => OSU.Read(data),
+                        ".qem" => QEM.Read(data),
                         ".json" when PHZ.IsValid(data) => PHZ.Read(data),
 
                         _ => throw new NotSupportedException($"File extension not supported for loading: {extension}")

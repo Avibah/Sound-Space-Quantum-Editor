@@ -5,11 +5,11 @@ namespace New_SSQE.NewGUI.Base
 {
     internal class RadioCheckboxEventArgs : EventArgs
     {
-        public string Value;
+        public GuiCheckbox Active;
 
-        public RadioCheckboxEventArgs(string value)
+        public RadioCheckboxEventArgs(GuiCheckbox active)
         {
-            Value = value;
+            Active = active;
         }
     }
 
@@ -19,7 +19,7 @@ namespace New_SSQE.NewGUI.Base
 
         private readonly GuiCheckbox[] controls;
         private GuiCheckbox active;
-        public string Active => active.Text;
+        public GuiCheckbox Active => active;
 
         private readonly Setting<string>? setting;
 
@@ -45,7 +45,7 @@ namespace New_SSQE.NewGUI.Base
                 control.LeftClick += (s, e) =>
                 {
                     active = control;
-                    SelectionChanged?.Invoke(control, new(control.Text));
+                    SelectionChanged?.Invoke(this, new(control));
 
                     foreach (GuiCheckbox checkbox in controls)
                         checkbox.Toggle = checkbox == active;
@@ -55,7 +55,7 @@ namespace New_SSQE.NewGUI.Base
                 };
             }
 
-            SelectionChanged?.Invoke(active, new(active.Text));
+            SelectionChanged?.Invoke(this, new(active));
         }
 
         public void Disconnect()

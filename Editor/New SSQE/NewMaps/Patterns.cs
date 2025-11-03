@@ -37,7 +37,7 @@ namespace New_SSQE.NewMaps
             if (pattern.Length > 0)
                 pattern = pattern[1..];
 
-            GuiWindowEditor.ShowToast($"BOUND PATTERN {index}", Settings.color1.Value);
+            GuiWindowEditor.ShowInfo($"BOUND PATTERN {index}");
 
             Settings.patterns.Value[index] = pattern;
         }
@@ -45,7 +45,7 @@ namespace New_SSQE.NewMaps
         public static void ClearPattern(int index)
         {
             Settings.patterns.Value[index] = "";
-            GuiWindowEditor.ShowToast($"UNBOUND PATTERN {index}", Settings.color1.Value);
+            GuiWindowEditor.ShowInfo($"UNBOUND PATTERN {index}");
         }
 
         public static void RecallPattern(int index)
@@ -244,12 +244,12 @@ namespace New_SSQE.NewMaps
                     }
                     catch (OverflowException)
                     {
-                        GuiWindowEditor.ShowToast("TOO MANY NODES", Color.FromArgb(255, 255, 200, 0));
+                        GuiWindowEditor.ShowError("TOO MANY NODES");
                         return;
                     }
                     catch
                     {
-                        GuiWindowEditor.ShowToast("FAILED TO DRAW BEZIER", Color.FromArgb(255, 255, 200, 0));
+                        GuiWindowEditor.ShowError("FAILED TO DRAW BEZIER");
                         return;
                     }
                 }

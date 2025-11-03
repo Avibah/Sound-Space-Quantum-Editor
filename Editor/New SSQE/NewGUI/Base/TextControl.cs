@@ -19,6 +19,9 @@ namespace New_SSQE.NewGUI.Base
         private string font = "main";
         private float alpha = 1;
         private Color textColor = Color.White;
+        private bool textWrapped = false;
+
+        public string RenderedText => textWrapped ? WrapText() : text;
 
         private CenterMode centerMode = CenterMode.XY;
         private Vector4[] verts = [];
@@ -28,11 +31,24 @@ namespace New_SSQE.NewGUI.Base
         protected float xOffset = 0;
         protected float yOffset = 0;
 
-        protected string? startText = null;
-        protected int? startTextSize = null;
-        protected string? startFont = null;
-        protected float? startAlpha = null;
-        protected Color? startTextColor = null;
+        private string? startText = null;
+        private int? startTextSize = null;
+        private string? startFont = null;
+        private float? startAlpha = null;
+        private Color? startTextColor = null;
+
+        public bool TextWrapped
+        {
+            get => textWrapped;
+            set
+            {
+                if (value != textWrapped)
+                {
+                    textWrapped = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
 
         public CenterMode CenterMode
         {
@@ -62,7 +78,7 @@ namespace New_SSQE.NewGUI.Base
             }
         }
 
-        public float TextScale => Math.Min(rect.Width / startRect.Width, rect.Height / startRect.Height);
+        public float TextScale => Math.Min(rect.Width / StartRect.Width, rect.Height / StartRect.Height);
 
         public int TextSize
         {
@@ -104,6 +120,8 @@ namespace New_SSQE.NewGUI.Base
                     alpha = value;
                     shouldUpdate = true;
                 }
+
+                startAlpha ??= value;
             }
         }
 
@@ -117,6 +135,8 @@ namespace New_SSQE.NewGUI.Base
                     textColor = value;
                     shouldUpdate = true;
                 }
+
+                startTextColor ??= value;
             }
         }
 
@@ -129,32 +149,35 @@ namespace New_SSQE.NewGUI.Base
             textX = rect.X + xOffset;
             textY = rect.Y + yOffset;
 
+            string curText = RenderedText;
+
             if (CenterMode.HasFlag(CenterMode.X))
             {
-                float width = FontRenderer.GetWidth(text, TextSize, font);
+                float width = FontRenderer.GetWidth(curText, TextSize, font);
                 textX = rect.X + rect.Width / 2 - width / 2 + xOffset;
             }
             if (CenterMode.HasFlag(CenterMode.Y))
             {
-                float height = FontRenderer.GetHeight(TextSize, font) * text.Split('\n').Length;
+                float height = FontRenderer.GetHeight(TextSize, font) * curText.Split('\n').Length;
                 textY = rect.Y + rect.Height / 2 - height / 2 + yOffset;
             }
 
-            verts = FontRenderer.Print(textX, textY, text, TextSize, font);
+            verts = FontRenderer.Print(textX, textY, curText, TextSize, font);
         }
 
         public override void PostRender(float mousex, float mousey, float frametime)
         {
+            if (verts.Length != 0)
+            {
+                float[] a = new float[verts.Length];
+                Array.Fill(a, 1 - alpha);
+
+                FontRenderer.SetActive(font);
+                FontRenderer.SetColor(textColor);
+                FontRenderer.RenderData(font, verts, a);
+            }
+
             base.PostRender(mousex, mousey, frametime);
-            if (verts.Length == 0)
-                return;
-
-            float[] a = new float[verts.Length];
-            Array.Fill(a, 1 - alpha);
-
-            FontRenderer.SetActive(font);
-            FontRenderer.SetColor(textColor);
-            FontRenderer.RenderData(font, verts, a);
         }
 
         public override void Reset()
@@ -168,6 +191,37 @@ namespace New_SSQE.NewGUI.Base
             textColor = startTextColor ?? textColor;
 
             shouldUpdate = true;
+        }
+
+        public override Vector4 GetExtents()
+        {
+            Vector4 extents = base.GetExtents();
+
+            float tx = xOffset;
+            float ty = yOffset;
+            float tw = FontRenderer.GetWidth(text, TextSize, font);
+            float th = FontRenderer.GetHeight(TextSize, font) * text.Split('\n').Length;
+
+            if (CenterMode.HasFlag(CenterMode.X))
+            {
+                tx += rect.Width / 2;
+                tw = tw / 2 + rect.Width / 2;
+            }
+            if (CenterMode.HasFlag(CenterMode.Y))
+            {
+                ty += rect.Height / 2;
+                th = th / 2 + rect.Height / 2;
+            }
+
+            tw += xOffset;
+            th += yOffset;
+
+            return Vector4.ComponentMax(extents, (-tx, -ty, tw, th));
+        }
+
+        private string WrapText()
+        {
+            return text;
         }
     }
 }

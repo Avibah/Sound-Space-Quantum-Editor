@@ -186,7 +186,7 @@ namespace New_SSQE
                 }
             }
 
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.StencilBufferBit);
             GLState.ResetScissor();
 
             if (MusicPlayer.IsPlaying)
@@ -252,9 +252,6 @@ namespace New_SSQE
                 OnRenderFrame(new FrameEventArgs());
             }
         }
-
-        public void LockClick() => GuiWindow.LockClick = true;
-        public void UnlockClick() => GuiWindow.LockClick = false;
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {

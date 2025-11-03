@@ -206,11 +206,11 @@ namespace New_SSQE.NewGUI.Windows
 
             NavController.SelectionChanged += (s, e) =>
             {
-                ColorsNav.Visible = s == NavColors;
-                GraphicsNav.Visible = s == NavGraphics;
-                MappingNav.Visible = s == NavMapping;
-                PlayerNav.Visible = s == NavPlayer;
-                OtherNav.Visible = s == NavOther;
+                ColorsNav.Visible = e.Active == NavColors;
+                GraphicsNav.Visible = e.Active == NavGraphics;
+                MappingNav.Visible = e.Active == NavMapping;
+                PlayerNav.Visible = e.Active == NavPlayer;
+                OtherNav.Visible = e.Active == NavOther;
             };
 
             PlaytestGameController.Initialize();

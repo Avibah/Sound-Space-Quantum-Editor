@@ -90,7 +90,8 @@ namespace New_SSQE.NewMaps
             Settings.mappers, Settings.songName, Settings.difficulty, Settings.useCover, Settings.cover,
             Settings.customDifficulty, Settings.rating, Settings.useVideo, Settings.video, Settings.songOffset,
             Settings.songTitle, Settings.songArtist, Settings.mapCreator, Settings.mapCreatorPersonalLink,
-            Settings.previewStartTime, Settings.previewDuration, Settings.novaCover, Settings.novaIcon
+            Settings.previewStartTime, Settings.previewDuration, Settings.novaCover, Settings.novaIcon,
+            Settings.romanizedArtist, Settings.romanizedTitle, Settings.colorsetPath
         ];
 
         private readonly Dictionary<string, object> settings = [];
@@ -131,8 +132,8 @@ namespace New_SSQE.NewMaps
                             direction.Current = direction.Possible[(int)note.Direction];
 
                             GuiWindowEditor.NoteEnableEasing.Toggle = note.EnableEasing;
-                            GuiWindowEditor.NoteEasingStyle.RefreshSetting();
-                            GuiWindowEditor.NoteEasingDirection.RefreshSetting();
+                            GuiWindowEditor.NoteEasingStyle.Reset();
+                            GuiWindowEditor.NoteEasingDirection.Reset();
                         }
                         break;
                     case ObjectRenderMode.Special:
@@ -304,7 +305,7 @@ namespace New_SSQE.NewMaps
                 return;
 
             Clipboard.SetText(string.Join("\n", data));
-            GuiWindowEditor.ShowToast("COPIED TO CLIPBOARD", Color.FromArgb(0, 255, 200));
+            GuiWindowEditor.ShowOther("COPIED TO CLIPBOARD");
         }
 
         public void PasteBookmarks()

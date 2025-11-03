@@ -1,9 +1,10 @@
 ﻿using New_SSQE.Misc.Dialogs;
 using New_SSQE.NewGUI.Base;
+using New_SSQE.NewGUI.Controls;
 using New_SSQE.NewGUI.Font;
 using New_SSQE.Preferences;
 
-namespace New_SSQE.NewGUI.Controls
+namespace New_SSQE.NewGUI.CompoundControls
 {
     internal class GuiPathBox : ControlContainer
     {

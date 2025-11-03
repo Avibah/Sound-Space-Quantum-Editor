@@ -171,6 +171,10 @@ namespace New_SSQE.Preferences
         public static readonly Setting<string> novaCover = "";
         public static readonly Setting<string> novaIcon = "";
 
+        public static readonly Setting<string> romanizedArtist = "";
+        public static readonly Setting<string> romanizedTitle = "";
+        public static readonly Setting<string> colorsetPath = "";
+
         public static readonly Setting<bool> debugMode = false;
         public static readonly Setting<bool> msaa = true;
 

@@ -18,6 +18,9 @@ namespace New_SSQE.NewMaps.Parsing
             byte[] signature = reader.ReadBytes(4);
             if (Encoding.ASCII.GetString(signature) != "IQEM")
                 throw new InvalidDataException("Incorrect file signature for QEM");
+            int version = reader.ReadInt16();
+            if (version != 0)
+                throw new InvalidDataException("Unrecognized QEM version");
 
             // [2]: Number of fields
             int numFields = reader.ReadInt16();
@@ -80,7 +83,7 @@ namespace New_SSQE.NewMaps.Parsing
             // UInt8 length type array
             object[] ReadTypeArray()
             {
-                int length = reader.ReadByte();
+                int length = reader.ReadInt16();
                 byte type = reader.ReadByte();
 
                 object[] typeData = new object[length];
@@ -94,7 +97,7 @@ namespace New_SSQE.NewMaps.Parsing
             // UInt16 length type array
             object[] ReadTypeArrayLong()
             {
-                int length = reader.ReadInt16();
+                int length = reader.ReadInt32();
                 byte type = reader.ReadByte();
 
                 object[] typeData = new object[length];
@@ -109,8 +112,8 @@ namespace New_SSQE.NewMaps.Parsing
             {
                 return id switch
                 {
-                    0 => new Note((float)data[0], (float)data[1], (long)data[2], (bool)data[3], (EasingStyle)data[4], (EasingDirection)data[5]),
-                    1 => new TimingPoint((float)data[0], (long)data[1], ((float)data[2], (float)data[3])),
+                    0 => new Note((float)data[1], (float)data[2], (long)data[0], (bool)data[3], (EasingStyle)data[4], (EasingDirection)data[5]),
+                    1 => new TimingPoint((float)data[1], (long)data[0], ((float)data[2], (float)data[3])),
                     2 => new Brightness((long)data[0], (long)data[1], (EasingStyle)data[2], (EasingDirection)data[3], (float)data[4]),
                     3 => new Contrast((long)data[0], (long)data[1], (EasingStyle)data[2], (EasingDirection)data[3], (float)data[4]),
                     4 => new Saturation((long)data[0], (long)data[1], (EasingStyle)data[2], (EasingDirection)data[3], (float)data[4]),
@@ -192,7 +195,7 @@ namespace New_SSQE.NewMaps.Parsing
                     types[j] = reader.ReadByte();
 
                 // [4]: Number of objects
-                int numObjects = reader.ReadInt32();
+                long numObjects = reader.ReadInt64();
 
                 // For number of objects:
                 for (int j = 0; j < numObjects; j++)
@@ -201,10 +204,11 @@ namespace New_SSQE.NewMaps.Parsing
                     double ms = reader.ReadDouble();
 
                     // [x]: Type data (variable)
-                    object[] objectData = new object[numTypes];
+                    object[] objectData = new object[numTypes + 1];
+                    objectData[0] = ms;
 
                     for (int k = 0; k < numTypes; k++)
-                        objectData[k] = ReadType(types[k]);
+                        objectData[k + 1] = ReadType(types[k]);
 
                     MapObject obj = ParseObj(id, objectData); // make parser for objs with default data for each id
 

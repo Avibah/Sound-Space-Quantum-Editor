@@ -1,6 +1,7 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
+using New_SSQE.NewGUI.CompoundControls;
 using New_SSQE.NewGUI.Controls;
 using New_SSQE.Preferences;
 using System.Drawing;
@@ -13,19 +14,19 @@ namespace New_SSQE.NewGUI.Windows
 
         public static readonly GuiCheckbox NavSoundSpace = new(0, 0, 50, 50)
         {
-            Text = TAG_SOUND_SPACE,
+            Text = "Sound Space",
             TextSize = 30,
             Style = ControlStyle.Checkbox_Uncolored
         };
         public static readonly GuiCheckbox NavRhythia = new(0, 100, 50, 50)
         {
-            Text = TAG_RHYTHIA,
+            Text = "Rhythia",
             TextSize = 30,
             Style = ControlStyle.Checkbox_Uncolored
         };
         public static readonly GuiCheckbox NavNova = new(0, 200, 50, 50)
         {
-            Text = TAG_NOVA,
+            Text = "Novastra/Phoenyx/Other",
             TextSize = 30,
             Style = ControlStyle.Checkbox_Uncolored
         };
@@ -67,21 +68,18 @@ namespace New_SSQE.NewGUI.Windows
             Text = "CHOOSE",
             TextSize = 28
         };
-        public static readonly GuiLabel OrLabelRhythia = new(690, 470, 540, 50)
+        public static readonly GuiLabel OnlineDisclaimerRhythia = new(690, 500, 540, 100)
         {
-            Text = "[OR]",
-            TextSize = 36
+            Text = string.Join('\n',
+                "Rhythia Online is no longer supported for importing",
+                "and should not be used for new work.",
+                "",
+                "discord.gg/rhythia -> #Announcements"
+            ),
+            TextSize = 20,
+            CenterMode = CenterMode.XY
         };
-        public static readonly GuiLabel OnlineLabelRhythia = new(690, 520, 540, 50)
-        {
-            Text = "Import Rhythia Online Map",
-            TextSize = 36
-        };
-        public static readonly GuiTextbox OnlineBoxRhythia = new(690, 570, 540, 50)
-        {
-            TextSize = 36
-        };
-        public static readonly ControlContainer RhythiaContainer = new(AudioPathLabelRhythia, AudioPathRhythia, OrLabelRhythia, OnlineLabelRhythia, OnlineBoxRhythia);
+        public static readonly ControlContainer RhythiaContainer = new(AudioPathLabelRhythia, AudioPathRhythia, OnlineDisclaimerRhythia);
 
         public static readonly GuiLabel AudioPathLabelNova = new(690, 370, 540, 50)
         {

@@ -52,16 +52,6 @@ namespace New_SSQE.ExternalUtils
                         case "file":
                             MainWindow.FileToLoad = string.Join(' ', args[2..]);
                             break;
-                        case "rhyonline":
-                            if (!int.TryParse(args[2], out int id))
-                                break;
-
-                            string path = Path.Combine(Assets.TEMP, "tempdownload.sspm");
-                            string url = Networking.GetBeatmapURLFromRhythiaMapID(id);
-
-                            Networking.DownloadFile(url, path);
-                            MainWindow.FileToLoad = path;
-                            break;
                     }
 
                     break;

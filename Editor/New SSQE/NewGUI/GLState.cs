@@ -331,7 +331,7 @@ namespace New_SSQE.NewGUI
         {
             EnableFBO(msaa_fbo);
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.StencilBufferBit);
             GL.Viewport((int)viewport.X, (int)viewport.Y, (int)viewport.Width, (int)viewport.Height);
         }
         public static void BeginFBORender(float vpX, float vpY, float vpW, float vpH, int msaa_fbo) => BeginFBORender(new(vpX, vpY, vpW, vpH), msaa_fbo);
@@ -386,7 +386,7 @@ namespace New_SSQE.NewGUI
         public static void ResetScissor()
         {
             Box2i rect = MainWindow.Instance?.ClientRectangle ?? Box2i.Empty;
-            Vector4i vec = (rect.X, rect.Y, rect.Width, rect.Height);
+            Vector4i vec = (0, 0, rect.Width, rect.Height);
 
             scissors = [];
             scissors.Push(vec);
@@ -402,10 +402,10 @@ namespace New_SSQE.NewGUI
             Vector4i prev = scissors.Peek();
             w -= Math.Max(0, prev.X - x);
             h -= Math.Max(0, prev.Y - y);
-            x = Math.Clamp(x, prev.X, prev.X + w);
-            y = Math.Clamp(y, prev.Y, prev.Y + h);
-            w = Math.Clamp(x + w, x, prev.X + prev.Z) - x;
-            h = Math.Clamp(y + h, y, prev.Y + prev.W) - x;
+            x = Math.Clamp(x, prev.X, prev.X + prev.Z) + 0.5f;
+            y = Math.Clamp(y, prev.Y, prev.Y + prev.W) + 0.5f;
+            w = Math.Clamp(x + w, x, prev.X + prev.Z) - x + 0.5f;
+            h = Math.Clamp(y + h, y, prev.Y + prev.W) - y + 0.5f;
 
             Vector4i vec = ((int)x, (int)y, (int)w, (int)h);
             GL.Scissor(vec.X, vec.Y, vec.Z, vec.W);
@@ -427,6 +427,26 @@ namespace New_SSQE.NewGUI
             }
             if (--_scissor == 0)
                 GL.Disable(EnableCap.ScissorTest);
+        }
+
+        public static void PreStencilMask()
+        {
+            GL.Clear(ClearBufferMask.StencilBufferBit);
+            GL.Enable(EnableCap.StencilTest);
+            GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
+            GL.StencilFunc(StencilFunction.Always, 1, 0xFF);
+            GL.StencilMask(0xFF);
+        }
+
+        public static void StencilMask()
+        {
+            GL.StencilFunc(StencilFunction.Equal, 1, 0xFF);
+            GL.StencilMask(0x00);
+        }
+
+        public static void PostStencilMask()
+        {
+            GL.Disable(EnableCap.StencilTest);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace New_SSQE.EditHistory
 
                     if (prevTime == null || (curTime - prevTime)?.TotalMilliseconds >= 5000)
                     {
-                        GuiWindowEditor.ShowToast("Please use BPM!", Settings.color2.Value);
+                        GuiWindowEditor.ShowWarn("Please use BPM!");
                         prevTime = curTime;
                     }
                 }
@@ -51,7 +51,7 @@ namespace New_SSQE.EditHistory
             if (_index >= 0)
             {
                 URAction action = actions[_index];
-                GuiWindowEditor.ShowToast($"UNDONE: {action.Label}", Color.FromArgb(255, 109, 0));
+                GuiWindowEditor.ShowOther($"UNDONE: {action.Label}");
 
                 action.Undo?.Invoke();
                 _index--;
@@ -63,7 +63,7 @@ namespace New_SSQE.EditHistory
             if (_index + 1 < actions.Count)
             {
                 URAction action = actions[_index + 1];
-                GuiWindowEditor.ShowToast($"REDONE: {action.Label}", Color.FromArgb(255, 109, 0));
+                GuiWindowEditor.ShowOther($"REDONE: {action.Label}");
 
                 action.Redo?.Invoke();
                 _index++;

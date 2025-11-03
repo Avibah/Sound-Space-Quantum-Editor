@@ -1,5 +1,6 @@
 ﻿using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
+using New_SSQE.NewGUI.CompoundControls;
 using New_SSQE.NewGUI.Controls;
 using New_SSQE.Preferences;
 using System.Drawing;
@@ -283,7 +284,7 @@ namespace New_SSQE.NewGUI.Windows
             StoreNodes, ClearNodes, CurveBezier, BezierBox, BezierButton, RotateLabel, ScaleLabel, DrawBezierLabel);
 
         // Player
-        public static readonly GuiButtonList CameraMode = new(0, 50, 150, 40, Settings.cameraMode)
+        public static readonly GuiButtonDropdown CameraMode = new(0, 50, 150, 40, Settings.cameraMode)
         {
             TextSize = 27
         };
@@ -490,7 +491,7 @@ namespace New_SSQE.NewGUI.Windows
 
         public static readonly GuiButtonList GameSwitch = new(10, 946, 545, 50, Settings.modchartGame)
         {
-            Text = "GAME: ",
+            Prefix = "GAME: ",
             TextSize = 31
         };
         public static readonly GuiButton SpecialNavExit = new(10, 140, 545, 50)
@@ -547,14 +548,14 @@ namespace New_SSQE.NewGUI.Windows
             Text = "Enable Easing",
             TextSize = 26
         };
-        public static readonly GuiButtonList NoteEasingStyle = new(0, 40, 370, 30, Settings.modchartStyle)
+        public static readonly GuiButtonDropdown NoteEasingStyle = new(0, 40, 370, 30, Settings.modchartStyle, 8)
         {
-            Text = "Easing Style: ",
+            Prefix = "Easing Style: ",
             TextSize = 26
         };
-        public static readonly GuiButtonList NoteEasingDirection = new(0, 80, 370, 30, Settings.modchartDirection)
+        public static readonly GuiButtonDropdown NoteEasingDirection = new(0, 80, 370, 30, Settings.modchartDirection)
         {
-            Text = "Easing Direction: ",
+            Prefix = "Easing Direction: ",
             TextSize = 26
         };
         public static readonly GuiButton NoteApplyModifiers = new(0, 160, 370, 30)
@@ -562,7 +563,7 @@ namespace New_SSQE.NewGUI.Windows
             Text = "Apply Modifications",
             TextSize = 26
         };
-        public static readonly ControlContainer NoteNav = new(175, 200, 370, 756, NoteEnableEasing, NoteEasingStyle, NoteEasingDirection, NoteApplyModifiers)
+        public static readonly ControlContainer NoteNav = new(175, 200, 370, 756, NoteEnableEasing, NoteEasingDirection, NoteEasingStyle, NoteApplyModifiers)
         {
             Visible = false
         };
@@ -696,9 +697,10 @@ namespace New_SSQE.NewGUI.Windows
             Text = "SAVE AS",
             TextSize = 27
         };
-        public static readonly GuiButtonList ExportSwitch = new(255, 90, 250, 40, Settings.exportType)
+        public static readonly GuiButtonDropdown ExportSwitch = new(255, 90, 250, 40, Settings.exportType)
         {
-            TextSize = 27
+            TextSize = 27,
+            Prefix = "Export: "
         };
         public static readonly GuiButton ExportButton = new(275, 140, 210, 40)
         {
@@ -719,11 +721,6 @@ namespace New_SSQE.NewGUI.Windows
             Text = "CONVERT TO MP3",
             TextSize = 27
         };
-        public static readonly GuiButton CalculateSR = new(0, 20, 210, 40)
-        {
-            Text = "CALCULATE SR/RP",
-            TextSize = 27
-        };
 
         public static readonly GuiLabel ReplaceIDLabel = new(275, 190, 210, 40)
         {
@@ -739,7 +736,7 @@ namespace New_SSQE.NewGUI.Windows
         };
 
         public static readonly ControlContainer ExportNav = new(1365, 190, 545, 756, SaveButton, SaveAsButton, ExportSwitch, ExportButton, ReplaceIDBox, ReplaceID, ConvertAudio,
-            CalculateSR, ReplaceIDLabel, SRLabel);
+            ReplaceIDLabel, SRLabel);
         public static readonly ControlContainer ConstantMapNavs = new(RNavSnapping, RNavGraphics, RNavExport, SnappingNav, GraphicsNav, ExportNav);
 
         /*

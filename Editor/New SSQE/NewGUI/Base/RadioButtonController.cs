@@ -4,9 +4,11 @@ namespace New_SSQE.NewGUI.Base
 {
     internal class RadioButtonEventArgs : EventArgs
     {
-        public RadioButtonEventArgs()
+        public readonly GuiButton? Active;
+
+        public RadioButtonEventArgs(GuiButton? active)
         {
-            
+            Active = active;
         }
     }
 
@@ -20,7 +22,7 @@ namespace New_SSQE.NewGUI.Base
 
         private int? prevActive = null;
 
-        public string Active => active != null ? texts[active] : "";
+        public GuiButton? Active => active;
 
         public RadioButtonController(int? activeIndex, params GuiButton[] controls)
         {
@@ -39,7 +41,7 @@ namespace New_SSQE.NewGUI.Base
             prevActive = active == null ? null : Array.IndexOf(controls, control);
             control.Text = active == control ? $"[{text}]" : text;
 
-            SelectionChanged?.Invoke(active, new());
+            SelectionChanged?.Invoke(this, new(active));
         }
 
         public void Initialize()
@@ -68,7 +70,7 @@ namespace New_SSQE.NewGUI.Base
                 active.Text = texts[active];
 
             active = null;
-            SelectionChanged?.Invoke(null, new());
+            SelectionChanged?.Invoke(this, new(active));
         }
 
         public void Disconnect()

@@ -214,18 +214,24 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void MouseClickLeft(float x, float y)
         {
+            if (hoveringBookmark == null)
+            {
+                wasPlaying = MusicPlayer.IsPlaying;
+                MusicPlayer.Pause();
+            }
+            
+            base.MouseClickLeft(x, y);
+        }
+
+        public override void MouseClickLeftGlobal(float x, float y)
+        {
             if (hoveringBookmark != null)
             {
                 MusicPlayer.Pause();
                 Settings.currentTime.Value.Value = KeybindManager.ShiftHeld ? hoveringBookmark.EndMs : hoveringBookmark.Ms;
             }
-            else if (Hovering)
-            {
-                wasPlaying = MusicPlayer.IsPlaying;
-                MusicPlayer.Pause();
-            }
 
-            base.MouseClickLeft(x, y);
+            base.MouseClickLeftGlobal(x, y);
         }
 
         public override void MouseUpLeft(float x, float y)

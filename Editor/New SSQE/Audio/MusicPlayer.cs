@@ -1,6 +1,7 @@
 ﻿using New_SSQE.ExternalUtils;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
+using New_SSQE.NewGUI.Windows;
 using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
 using Un4seen.Bass;
@@ -45,6 +46,7 @@ namespace New_SSQE.Audio
                     File.Move(Path.Combine(Assets.TEMP, "tempaudio.mp3"), lastFile);
 
                     streamFileID = Bass.BASS_StreamCreateFile(lastFile, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_STREAM_PRESCAN | BASSFlag.BASS_FX_FREESOURCE);
+                    GuiWindowEditor.ShowInfo("Successfully converted to MP3");
                 }
                 else
                     throw new FormatException(Bass.BASS_ErrorGetCode().ToString());

@@ -1,5 +1,7 @@
 ﻿using New_SSQE.NewGUI.Controls;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Drawing;
 
 namespace New_SSQE.NewGUI.Base
 {
@@ -25,6 +27,7 @@ namespace New_SSQE.NewGUI.Base
 
         public void SetControls(params Control[] controls)
         {
+            List<InteractiveControl> deferredInteractives = [];
             List<InteractiveControl> interactives = [];
 
             this.controls = [];
@@ -35,11 +38,16 @@ namespace New_SSQE.NewGUI.Base
             foreach (Control control in controls)
             {
                 if (control is InteractiveControl interactive)
-                    interactives.Add(interactive);
+                {
+                    if (control.RenderOnTop)
+                        deferredInteractives.Add(interactive);
+                    else
+                        interactives.Add(interactive);
+                }
             }
 
             this.controls = controls;
-            this.interactives = [..interactives];
+            this.interactives = [.. interactives, .. deferredInteractives];
 
             Resize(MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y);
         }
@@ -65,7 +73,7 @@ namespace New_SSQE.NewGUI.Base
 
             foreach (Control control in controls)
             {
-                if (control.Visible)
+                if (control.Visible && !control.RenderOnTop)
                     control.PreRender(mousex, mousey, frametime);
             }
 
@@ -84,7 +92,7 @@ namespace New_SSQE.NewGUI.Base
 
             foreach (Control control in controls)
             {
-                if (control.Visible)
+                if (control.Visible && !control.RenderOnTop)
                     control.Render(mousex, mousey, frametime);
             }
 
@@ -96,18 +104,32 @@ namespace New_SSQE.NewGUI.Base
         {
             if (!Visible)
                 return;
-            if (ClipDescendants)
+            bool scissor = ClipDescendants;
+            if (scissor)
                 GLState.EnableScissor(rect);
 
             base.PostRender(mousex, mousey, frametime);
+            List<Control> deferred = [];
 
             foreach (Control control in controls)
             {
                 if (control.Visible)
-                    control.PostRender(mousex, mousey, frametime);
+                {
+                    if (control.RenderOnTop)
+                        deferred.Add(control);
+                    else
+                        control.PostRender(mousex, mousey, frametime);
+                }
             }
 
-            if (ClipDescendants)
+            foreach (Control control in deferred)
+            {
+                control.PreRender(mousex, mousey, frametime);
+                control.Render(mousex, mousey, frametime);
+                control.PostRender(mousex, mousey, frametime);
+            }
+
+            if (scissor)
                 GLState.DisableScissor();
         }
 
@@ -117,68 +139,68 @@ namespace New_SSQE.NewGUI.Base
 
             foreach (Control control in controls)
             {
-                control.RectOffset = (startRect.X, startRect.Y) + RectOffset;
+                control.RectOffset = (StartRect.X, StartRect.Y) + RectOffset;
                 control.Resize(screenWidth, screenHeight);
             }
         }
 
-        public override void MouseClickLeft(float x, float y)
+        public override void MouseClickLeftGlobal(float x, float y)
         {
             if (!Visible)
                 return;
 
-            base.MouseClickLeft(x, y);
+            base.MouseClickLeftGlobal(x, y);
 
             for (int i = interactives.Length - 1; i >= 0; i--)
             {
                 InteractiveControl control = interactives[i];
 
                 if (control.Visible)
-                    control.MouseClickLeft(x, y);
+                    control.MouseClickLeftGlobal(x, y);
             }
         }
 
-        public override void MouseClickRight(float x, float y)
+        public override void MouseClickRightGlobal(float x, float y)
         {
             if (!Visible)
                 return;
 
-            base.MouseClickRight(x, y);
+            base.MouseClickRightGlobal(x, y);
 
             for (int i = interactives.Length - 1; i >= 0; i--)
             {
                 InteractiveControl control = interactives[i];
 
                 if (control.Visible)
-                    control.MouseClickRight(x, y);
+                    control.MouseClickRightGlobal(x, y);
             }
         }
 
-        public override void MouseUpLeft(float x, float y)
+        public override void MouseUpLeftGlobal(float x, float y)
         {
             if (!Visible)
                 return;
 
-            base.MouseUpLeft(x, y);
+            base.MouseUpLeftGlobal(x, y);
 
             foreach (InteractiveControl control in interactives)
             {
                 if (control.Visible)
-                    control.MouseUpLeft(x, y);
+                    control.MouseUpLeftGlobal(x, y);
             }
         }
 
-        public override void MouseUpRight(float x, float y)
+        public override void MouseUpRightGlobal(float x, float y)
         {
             if (!Visible)
                 return;
 
-            base.MouseUpRight(x, y);
+            base.MouseUpRightGlobal(x, y);
 
             foreach (InteractiveControl control in interactives)
             {
                 if (control.Visible)
-                    control.MouseUpRight(x, y);
+                    control.MouseUpRightGlobal(x, y);
             }
         }
 
@@ -188,6 +210,7 @@ namespace New_SSQE.NewGUI.Base
                 return;
 
             base.MouseMove(x, y);
+            bool canHover = !ClipDescendants || Hovering;
 
             foreach (InteractiveControl control in interactives)
             {
@@ -196,24 +219,24 @@ namespace New_SSQE.NewGUI.Base
 
                 if (control.Hovering && !control.GetRect().Contains(x, y))
                     control.MouseLeave(x, y);
-                else if (!control.Hovering && control.GetRect().Contains(x, y))
+                else if (canHover && !control.Hovering && control.GetRect().Contains(x, y))
                     control.MouseEnter(x, y);
 
                 control.MouseMove(x, y);
             }
         }
 
-        public override void MouseScroll(float x, float y, float delta)
+        public override void MouseScrollGlobal(float x, float y, float delta)
         {
             if (!Visible)
                 return;
 
-            base.MouseScroll(x, y, delta);
+            base.MouseScrollGlobal(x, y, delta);
 
             foreach (InteractiveControl control in interactives)
             {
                 if (control.Visible)
-                    control.MouseScroll(x, y, delta);
+                    control.MouseScrollGlobal(x, y, delta);
             }
         }
 
@@ -342,6 +365,38 @@ namespace New_SSQE.NewGUI.Base
 
             foreach (Control control in controls)
                 control.Reset();
+        }
+
+        public override Vector4 GetExtents()
+        {
+            if (controls.Length == 0)
+                return Vector4.Zero;
+
+            Vector4 extents = Vector4.NegativeInfinity;
+
+            foreach (Control control in controls)
+            {
+                RectangleF origin = control.GetOrigin();
+                Vector4 cExtents = control.GetExtents() + (-origin.X, -origin.Y, origin.X, origin.Y);
+
+                extents = Vector4.ComponentMax(extents, cExtents);
+            }
+
+            return extents;
+        }
+
+        public override bool ShouldConsumeScroll()
+        {
+            if (base.ShouldConsumeScroll())
+                return true;
+
+            foreach (InteractiveControl control in interactives)
+            {
+                if (control.ShouldConsumeScroll())
+                    return true;
+            }
+
+            return false;
         }
     }
 }

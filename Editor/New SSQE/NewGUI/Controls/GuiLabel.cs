@@ -31,9 +31,9 @@ namespace New_SSQE.NewGUI.Controls
             return [];
         }
 
-        public override void Resize(float screenWidth, float screenHeight)
+        public override void Update()
         {
-            base.Resize(screenWidth, screenHeight);
+            base.Update();
 
             if (colorSetting != null)
                 TextColor = colorSetting.Value;

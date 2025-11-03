@@ -1,6 +1,7 @@
 ﻿using New_SSQE.ExternalUtils;
 using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
+using New_SSQE.NewGUI.CompoundControls;
 using New_SSQE.NewGUI.Controls;
 using New_SSQE.Preferences;
 using System.Drawing;

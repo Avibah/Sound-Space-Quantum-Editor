@@ -78,7 +78,7 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void MouseClickRight(float x, float y)
         {
-            if (Hovering && canReset)
+            if (canReset)
             {
                 setting.Value.Value = setting.Value.Default;
                 UpdateSlider();

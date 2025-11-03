@@ -51,12 +51,12 @@ namespace New_SSQE.NewGUI.Windows
                 bool timing = TimingNav.Visible;
                 bool patterns = PatternsNav.Visible;
 
-                OptionsNav.Visible = s == LNavOptions;
-                TimingNav.Visible = s == LNavTiming;
-                PatternsNav.Visible = s == LNavPatterns;
-                PlayerNav.Visible = s == LNavPlayer;
+                OptionsNav.Visible = e.Active == LNavOptions;
+                TimingNav.Visible = e.Active == LNavTiming;
+                PatternsNav.Visible = e.Active == LNavPatterns;
+                PlayerNav.Visible = e.Active == LNavPlayer;
 
-                if (Settings.playtestGame.Value != "SSQE Player" && s == LNavPlayer)
+                if (Settings.playtestGame.Value != "SSQE Player" && e.Active == LNavPlayer)
                 {
                     if (options)
                         LNavController.UpdateSelection(LNavOptions);
@@ -79,7 +79,7 @@ namespace New_SSQE.NewGUI.Windows
                         if (!File.Exists(Settings.rhythiaPath.Value))
                         {
                             Logging.Log($"Invalid Rhythia path - {Settings.rhythiaPath.Value}", LogSeverity.WARN);
-                            ShowToast("INVALID RHYTHIA PATH [MENU > SETTINGS > PLAYER]", Settings.color1.Value);
+                            ShowInfo("INVALID RHYTHIA PATH [MENU > SETTINGS > PLAYER]");
                         }
                         else
                         {
@@ -111,7 +111,7 @@ namespace New_SSQE.NewGUI.Windows
                             catch (Exception ex)
                             {
                                 Logging.Log("Failed to start Rhythia", LogSeverity.WARN, ex);
-                                ShowToast("FAILED TO START RHYTHIA", Settings.color1.Value);
+                                ShowInfo("FAILED TO START RHYTHIA");
                             }
                         }
                         break;
@@ -120,7 +120,7 @@ namespace New_SSQE.NewGUI.Windows
                         if (!File.Exists(Settings.novaPath.Value))
                         {
                             Logging.Log($"Invalid Novastra path - {Settings.novaPath.Value}", LogSeverity.WARN);
-                            ShowToast("INVALID NOVASTRA PATH [MENU > SETTINGS > PLAYER]", Settings.color1.Value);
+                            ShowInfo("INVALID NOVASTRA PATH [MENU > SETTINGS > PLAYER]");
                         }
                         else
                         {
@@ -164,7 +164,7 @@ namespace New_SSQE.NewGUI.Windows
                             catch (Exception ex)
                             {
                                 Logging.Log("Failed to start Novastra", LogSeverity.WARN, ex);
-                                ShowToast("FAILED TO START NOVASTRA", Settings.color1.Value);
+                                ShowInfo("FAILED TO START NOVASTRA");
                             }
                         }
                         break;
@@ -173,9 +173,9 @@ namespace New_SSQE.NewGUI.Windows
 
             RNavController.SelectionChanged += (s, e) =>
             {
-                SnappingNav.Visible = s == RNavSnapping;
-                GraphicsNav.Visible = s == RNavGraphics;
-                ExportNav.Visible = s == RNavExport;
+                SnappingNav.Visible = e.Active == RNavSnapping;
+                GraphicsNav.Visible = e.Active == RNavGraphics;
+                ExportNav.Visible = e.Active == RNavExport;
 
                 ConvertAudio.Visible = ExportNav.Visible && !PlatformUtils.IsLinux;
             };
@@ -192,12 +192,12 @@ namespace New_SSQE.NewGUI.Windows
                     else
                         Clipboard.SetText(TXT.Copy(Settings.correctOnCopy.Value));
 
-                    ShowToast("COPIED TO CLIPBOARD", Settings.color1.Value);
+                    ShowInfo("COPIED TO CLIPBOARD");
                 }
                 catch (Exception ex)
                 {
                     Logging.Log("Failed to copy", LogSeverity.WARN, ex);
-                    ShowToast("FAILED TO COPY", Settings.color2.Value);
+                    ShowWarn("FAILED TO COPY");
                 }
             };
 
@@ -292,14 +292,14 @@ namespace New_SSQE.NewGUI.Windows
             SaveButton.LeftClick += (s, e) =>
             {
                 if (Mapping.Save())
-                    ShowToast("SAVED", Settings.color1.Value);
+                    ShowInfo("SAVED");
             };
             SaveButton.BindKeybind("save");
 
             SaveAsButton.LeftClick += (s, e) =>
             {
                 if (Mapping.SaveAs())
-                    ShowToast("SAVED", Settings.color1.Value);
+                    ShowInfo("SAVED");
             };
             SaveAsButton.BindKeybind("saveAs");
 
@@ -330,13 +330,13 @@ namespace New_SSQE.NewGUI.Windows
                         else
                             Mapping.Autosave();
 
-                        ShowToast($"REPLACED AUDIO ID WITH {id}", Settings.color1.Value);
+                        ShowInfo($"REPLACED AUDIO ID WITH {id}");
                     }
                 }
                 catch (Exception ex)
                 {
                     Logging.Log("Failed to replace audio ID", LogSeverity.WARN, ex);
-                    ShowToast("FAILED TO REPLACE ID", Settings.color1.Value);
+                    ShowInfo("FAILED TO REPLACE ID");
                 }
             };
 
@@ -354,46 +354,6 @@ namespace New_SSQE.NewGUI.Windows
                         ExportNOVA.ShowWindow();
                         break;
                 }
-            };
-
-            Dictionary<string, (float, Dictionary<string, float>)> srCache = [];
-            bool calculating = false;
-
-            CalculateSR.LeftClick += (s, e) =>
-            {
-                if (calculating)
-                    return;
-                calculating = true;
-
-                Task.Run(() =>
-                {
-                    string data = TXT.CopyLegacy();
-                    byte[] bytes = Encoding.UTF8.GetBytes(data[data.IndexOf(',')..]);
-                    string hash = Encoding.UTF8.GetString(SHA512.HashData(bytes));
-
-                    float sr;
-                    Dictionary<string, float> rp;
-
-                    if (srCache.TryGetValue(hash, out (float, Dictionary<string, float>) value))
-                    {
-                        sr = value.Item1;
-                        rp = value.Item2;
-                    }
-                    else
-                    {
-                        Networking.GetDifficultyMetrics(data, out sr, out rp);
-                        srCache.Add(hash, (sr, rp));
-                    }
-
-                    string result = sr > 0 ? $"SR: {Math.Round(sr, 2)}\n" : "";
-                    string suffix = sr > 0 ? "RP" : "";
-
-                    foreach (KeyValuePair<string, float> kvp in rp)
-                        result += $"\n{kvp.Key}: {Math.Round(kvp.Value, 2)} {suffix}";
-
-                    SRLabel.Text = result;
-                    calculating = false;
-                });
             };
 
             void ApproachRateChanged() => ApproachRateLabel.Text = $"Approach Rate: {Math.Round(Settings.approachRate.Value.Value + 1)}";
@@ -470,13 +430,13 @@ namespace New_SSQE.NewGUI.Windows
             SpecialNavController.SelectionChanged += (s, e) =>
             {
                 IndividualObjectMode mode = IndividualObjectMode.Disabled;
-                if (s is GuiButton button)
+                if (e.Active is GuiButton button)
                     objModes.TryGetValue(button, out mode);
 
-                LyricNav.Visible = s == SpecialNavLyric;
+                LyricNav.Visible = e.Active == SpecialNavLyric;
                 LyricPreview.Visible = LyricNav.Visible || mode == IndividualObjectMode.Disabled;
-                FeverPreview.Visible = s == SpecialNavFever || mode == IndividualObjectMode.Disabled;
-                NoteNav.Visible = s == SpecialNavNotes;
+                FeverPreview.Visible = e.Active == SpecialNavFever || mode == IndividualObjectMode.Disabled;
+                NoteNav.Visible = e.Active == SpecialNavNotes;
 
                 Mapping.Current.ObjectMode = mode;
             };
@@ -543,6 +503,8 @@ namespace New_SSQE.NewGUI.Windows
             };
 
             MusicMute.LeftClick += (s, e) => MusicPlayer.Volume = Settings.masterVolume.Value.Value;
+
+            ConvertAudio.LeftClick += (s, e) => MusicPlayer.ConvertToMP3();
         }
 
         public override void Render(float mousex, float mousey, float frametime)
@@ -659,7 +621,43 @@ namespace New_SSQE.NewGUI.Windows
             base.Render(mousex, mousey, frametime);
         }
 
-        public static void ShowToast(string text, Color? color = null)
+        /// <summary>
+        /// Color shown: Settings.color1.Value
+        /// </summary>
+        /// <param name="text"></param>
+        public static void ShowInfo(string text)
+        {
+            ToastLabel.Show(text, Settings.color1.Value);
+        }
+
+        /// <summary>
+        /// Color shown: Settings.color2.Value
+        /// </summary>
+        /// <param name="text"></param>
+        public static void ShowWarn(string text)
+        {
+            ToastLabel.Show(text, Settings.color2.Value);
+        }
+
+        /// <summary>
+        /// Color shown: Color.FromArgb(255, 200, 0)
+        /// </summary>
+        /// <param name="text"></param>
+        public static void ShowError(string text)
+        {
+            ToastLabel.Show(text, Color.FromArgb(255, 200, 0));
+        }
+
+        /// <summary>
+        /// Color shown: Color.FromArgb(255, 109, 0)
+        /// </summary>
+        /// <param name="text"></param>
+        public static void ShowOther(string text)
+        {
+            ToastLabel.Show(text, Color.FromArgb(255, 109, 0));
+        }
+
+        public static void ShowCustom(string text, Color? color = null)
         {
             ToastLabel.Show(text, color);
         }
@@ -667,6 +665,8 @@ namespace New_SSQE.NewGUI.Windows
         public override void MouseScroll(float delta)
         {
             base.MouseScroll(delta);
+            if (ShouldConsumeScroll())
+                return;
 
             if (KeybindManager.ShiftHeld)
             {

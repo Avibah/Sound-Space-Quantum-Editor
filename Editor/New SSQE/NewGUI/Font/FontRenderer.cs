@@ -88,7 +88,7 @@ namespace New_SSQE.NewGUI.Font
             if (GetWidth(text, textSize, font) < width)
                 return text;
 
-            while (GetWidth(text, textSize, font) >= width - endWidth)
+            while (text.Length > 0 && GetWidth(text, textSize, font) >= width - endWidth)
                 text = text[..^1];
 
             return text + end;

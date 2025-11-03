@@ -1,5 +1,6 @@
 ﻿using NativeFileDialogs.Net;
 using New_SSQE.ExternalUtils;
+using New_SSQE.NewGUI;
 using New_SSQE.NewGUI.Windows;
 using New_SSQE.Preferences;
 
@@ -16,6 +17,8 @@ namespace New_SSQE.Misc.Dialogs
 
         public DialogResult Show()
         {
+            Windowing.LockClick();
+
             string[] filters = (Filter ?? "").Split('|');
             string name = filters[0];
             string extensions = filters[1].Replace("*.", "").Replace(';', ',');
@@ -33,8 +36,10 @@ namespace New_SSQE.Misc.Dialogs
             catch (Exception ex)
             {
                 Logging.Log($"Save NFD failed: {name} | {extensions}", LogSeverity.WARN, ex);
-                GuiWindowEditor.ShowToast("Failed to open dialog");
+                GuiWindowEditor.ShowError("Failed to open dialog");
             }
+
+            Windowing.UnlockClick();
 
             if (!string.IsNullOrWhiteSpace(result))
             {

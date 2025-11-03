@@ -757,16 +757,7 @@ namespace New_SSQE.NewGUI.Controls
         {
             bool playCheck = false;
 
-            if (hoveringObject is TimingPoint point)
-            {
-                draggingObjects = [point];
-                draggingDuration = null;
-                point.DragStartMs = point.Ms;
-
-                Mapping.Current.ClearSelected();
-                Mapping.Current.SelectedPoint = point;
-            }
-            else if (hoveringDuration != null)
+            if (hoveringDuration != null)
             {
                 draggingObjects = [];
                 draggingDuration = hoveringDuration;
@@ -812,7 +803,7 @@ namespace New_SSQE.NewGUI.Controls
 
                 draggingDuration = null;
             }
-            else if (Hovering)
+            else
                 playCheck = true;
 
             dragMsStart = Settings.currentTime.Value.Value;
@@ -823,6 +814,21 @@ namespace New_SSQE.NewGUI.Controls
                 MusicPlayer.Pause();
 
             base.MouseClickLeft(x, y);
+        }
+
+        public override void MouseClickLeftGlobal(float x, float y)
+        {
+            if (hoveringObject is TimingPoint point)
+            {
+                draggingObjects = [point];
+                draggingDuration = null;
+                point.DragStartMs = point.Ms;
+
+                Mapping.Current.ClearSelected();
+                Mapping.Current.SelectedPoint = point;
+            }
+
+            base.MouseClickLeftGlobal(x, y);
         }
 
         public override void MouseUpLeft(float x, float y)
@@ -891,18 +897,21 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.MouseClickRight(x, y);
 
+            float cursorPos = rect.Width * Settings.cursorPos.Value.Value / 100f;
+            float currentMs = Settings.currentTime.Value.Value;
+
+            selectMsStart = (x - cursorPos) * PX_TO_MS + currentMs;
+            selecting = true;
+        }
+
+        public override void MouseClickRightGlobal(float x, float y)
+        {
             Mapping.Current.SelectedPoint = null;
 
-            if (Hovering)
-            {
-                float cursorPos = rect.Width * Settings.cursorPos.Value.Value / 100f;
-                float currentMs = Settings.currentTime.Value.Value;
-
-                selectMsStart = (x - cursorPos) * PX_TO_MS + currentMs;
-                selecting = true;
-            }
-            else if ((Windowing.Current?.GetHoveringInteractive() ?? null) is not GuiButtonList)
+            if (!Hovering && (Windowing.Current?.GetHoveringInteractive() ?? null) is not GuiButtonList)
                 Mapping.Current.ClearSelected();
+
+            base.MouseClickRightGlobal(x, y);
         }
 
         public override void MouseUpRight(float x, float y)

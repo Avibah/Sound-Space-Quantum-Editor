@@ -157,12 +157,47 @@ namespace SSQE_Player
             {
                 if (AutoIndex < Notes.Length)
                 {
-                    Note last = AutoIndex > 0 ? Notes[AutoIndex - 1] : new(1, 1, 0, Vector3.Zero);
-                    Note next = Notes[AutoIndex];
+                    int index = Math.Max(0, AutoIndex - 1);
+                    Note defaultNote = new(1, 1, 0, Vector3.Zero);
+
+                    Note lastFar = index > 0 && index < Notes.Length ? Notes[index - 1] : defaultNote;
+                    Note last = index < Notes.Length ? Notes[index] : defaultNote;
+                    Note next = index + 1 < Notes.Length ? Notes[index + 1] : last;
+                    Note nextFar = index + 2 < Notes.Length ? Notes[index + 2] : next;
+
+                    if (currentTime > next.Ms)
+                    {
+                        lastFar = last;
+                        last = next;
+                    }
+
+                    if (currentTime < last.Ms)
+                    {
+                        nextFar = next;
+                        next = last;
+                    }
+
+                    Vector2 result;
 
                     long diff = next.Ms - last.Ms;
                     float t = diff == 0 ? 1 : (currentTime - last.Ms - CurrentWindow.Offset) / diff;
-                    Vector2 result = Lerp((last.X - 1, last.Y - 1), (next.X - 1, next.Y - 1), (float)Math.Sin(Math.Clamp(t, 0, 1) * MathHelper.PiOver2));
+
+                    if (Settings.smoothAutoplay.Value)
+                    {
+                        Vector2 p0 = (lastFar.X, lastFar.Y);
+                        Vector2 p1 = (last.X, last.Y);
+                        Vector2 p2 = (next.X, next.Y);
+                        Vector2 p3 = (nextFar.X, nextFar.Y);
+
+                        result = 0.5f * (
+                            2 * p1 +
+                            (-p0 + p2) * t +
+                            (2 * p0 - 5 * p1 + 4 * p2 - p3) * MathF.Pow(t, 2) +
+                            (-p0 + 3 * p1 - 3 * p2 + p3) * MathF.Pow(t, 3)
+                        ) - Vector2.One;
+                    }
+                    else
+                        result = Lerp((last.X - 1, last.Y - 1), (next.X - 1, next.Y - 1), (float)Math.Sin(Math.Clamp(t, 0, 1) * MathHelper.PiOver2));
 
                     Camera.SetReplay(result);
                     LastCursorPos = (result.X, result.Y, 0);

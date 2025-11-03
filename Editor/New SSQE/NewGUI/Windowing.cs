@@ -13,6 +13,8 @@ namespace New_SSQE.NewGUI
     internal static class Windowing
     {
         public static bool ButtonClicked = false;
+        public static bool ClickLocked = false;
+        private static bool shouldUnlock = false;
 
         private static readonly Stack<GuiWindow> windowStack = [];
         public static GuiWindow? Current => windowStack.FirstOrDefault(n => n is not GuiWindowDialog);
@@ -68,6 +70,12 @@ namespace New_SSQE.NewGUI
         {
             foreach (GuiWindow window in windowStack.Reverse())
                 window.Render(mousex, mousey, frametime);
+
+            if (shouldUnlock)
+            {
+                ClickLocked = false;
+                shouldUnlock = false;
+            }
         }
 
         public static void Resize(ResizeEventArgs e)
@@ -195,5 +203,8 @@ namespace New_SSQE.NewGUI
             
             return false;
         }
+
+        public static void LockClick() => ClickLocked = true;
+        public static void UnlockClick() => shouldUnlock = true;
     }
 }

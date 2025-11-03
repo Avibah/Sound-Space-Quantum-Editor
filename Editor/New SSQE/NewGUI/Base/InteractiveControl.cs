@@ -46,9 +46,11 @@ namespace New_SSQE.NewGUI.Base
         public bool Hovering = false;
         public bool Dragging = false;
         public bool Focused = false;
+        public bool RightDragging = false;
 
         public bool PlayLeftClickSound = true;
         public bool PlayRightClickSound = true;
+        public bool ConsumeScroll = false;
 
         public InteractiveControl(float x, float y, float w, float h) : base(x, y, w, h) { }
 
@@ -57,33 +59,40 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void MouseClickLeft(float x, float y)
         {
+            if (PlayLeftClickSound)
+                SoundPlayer.Play(Settings.clickSound.Value);
+
+            Focused = true;
+            Dragging = true;
+            LeftClick?.Invoke(this, new ClickEventArgs(x, y));
+            MouseMove(x, y);
+
+            if (this is not ControlContainer)
+                Windowing.ButtonClicked = true;
+        }
+
+        public virtual void MouseClickLeftGlobal(float x, float y)
+        {
             if (Hovering && !Windowing.ButtonClicked)
-            {
-                if (PlayLeftClickSound)
-                    SoundPlayer.Play(Settings.clickSound.Value);
-
-                Focused = true;
-                Dragging = true;
-                LeftClick?.Invoke(this, new ClickEventArgs(x, y));
-                MouseMove(x, y);
-
-                if (this is not ControlContainer)
-                    Windowing.ButtonClicked = true;
-            }
+                MouseClickLeft(x, y);
             else
                 Focused = false;
         }
 
         public virtual void MouseClickRight(float x, float y)
         {
-            if (Hovering)
-            {
-                if (PlayRightClickSound)
-                    SoundPlayer.Play(Settings.clickSound.Value);
+            if (PlayRightClickSound)
+                SoundPlayer.Play(Settings.clickSound.Value);
 
-                RightClick?.Invoke(this, new ClickEventArgs(x, y));
-                Windowing.ButtonClicked = true;
-            }
+            RightDragging = true;
+            RightClick?.Invoke(this, new ClickEventArgs(x, y));
+            Windowing.ButtonClicked = true;
+        }
+
+        public virtual void MouseClickRightGlobal(float x, float y)
+        {
+            if (Hovering)
+                MouseClickRight(x, y);
         }
 
         public virtual void MouseUpLeft(float x, float y)
@@ -91,10 +100,30 @@ namespace New_SSQE.NewGUI.Base
             Dragging = false;
         }
 
-        public virtual void MouseUpRight(float x, float y) { }
+        public virtual void MouseUpLeftGlobal(float x, float y)
+        {
+            if (Dragging)
+                MouseUpLeft(x, y);
+        }
+
+        public virtual void MouseUpRight(float x, float y)
+        {
+            RightDragging = false;
+        }
+
+        public virtual void MouseUpRightGlobal(float x, float y)
+        {
+            if (RightDragging)
+                MouseUpRight(x, y);
+        }
 
         public virtual void MouseMove(float x, float y) { }
         public virtual void MouseScroll(float x, float y, float delta) { }
+        public virtual void MouseScrollGlobal(float x, float y, float delta)
+        {
+            if (Hovering)
+                MouseScroll(x, y, delta);
+        }
 
         public virtual void KeyDown(Keys key) { }
         public virtual void KeyUp(Keys key) { }
@@ -113,5 +142,7 @@ namespace New_SSQE.NewGUI.Base
             TextEntered = null;
             ValueChanged = null;
         }
+
+        public virtual bool ShouldConsumeScroll() => ConsumeScroll && Hovering;
     }
 }

@@ -44,6 +44,8 @@ namespace New_SSQE.NewGUI.Controls
             Style = ControlStyle.Checkbox_Colored;
             PlayRightClickSound = false;
             CenterMode = CenterMode.Y;
+
+            CornerRadius = 0.5f;
         }
 
         public override float[] Draw()
@@ -61,9 +63,9 @@ namespace New_SSQE.NewGUI.Controls
             TextColor = Style.Primary;
             xOffset = width * 1.15f;
 
-            float[] fill = GLVerts.Rect(squareRect, Style.Tertiary);
-            float[] outline = GLVerts.Outline(squareRect, 2f, Style.Quaternary);
-            float[] check = GLVerts.Rect(checkRect, Style.Secondary);
+            float[] fill = GLVerts.Squircle(squareRect, CornerDetail, CornerRadius, Style.Tertiary);
+            float[] outline = GLVerts.SquircleOutline(squareRect, 2f, CornerDetail, CornerRadius, Style.Quaternary);
+            float[] check = GLVerts.Squircle(checkRect, CornerDetail, CornerRadius, Style.Secondary);
 
             return [..fill, ..outline, ..check];
         }
@@ -81,9 +83,7 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void MouseClickLeft(float x, float y)
         {
-            if (Hovering)
-                Toggle ^= true;
-
+            Toggle ^= true;
             base.MouseClickLeft(x, y);
         }
     }
