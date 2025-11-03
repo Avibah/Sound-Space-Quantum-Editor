@@ -1,4 +1,22 @@
 ----------------------------------
+    -- 2.3.3.0 - 11/3/2025 --
+
+- Rhythia Online importing and the SR calculator have been removed
+  > it is advised not to use Rhythia Online or its associated online client(s) going into the future
+  > discord.gg/rhythia -> #Announcements
+
+- replaced most list buttons with dropdown lists
+- most controls now have rounded corners
+- changed the font for menu buttons
+- key presses now reset the textbox cursor time like a normal textbox
+
+- fixed incorrect textbox cursor position handling
+- fixed clicking outside of a file dialog causing it to open multiple times after closing
+- fixed a crash when attempting to close a map
+- fixed maps attempting to load an invalid audio id
+- fixed the 'CONVERT TO MP3' button in the 'Export' tab not working
+
+----------------------------------
     -- 2.3.2.3 - 7/28/2025 --
 
 - fixed note easing settings (Novastra) not saving in the INI
