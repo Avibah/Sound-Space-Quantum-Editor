@@ -36,20 +36,28 @@ namespace New_SSQE.NewGUI.CompoundControls
 
         public new string Text
         {
-            get => PathLabel.Text;
-            set => PathLabel.Text = value;
+            get => PathButton.Text;
+            set => PathButton.Text = value;
         }
 
         public new int TextSize
         {
             get => PathLabel.TextSize;
-            set => PathLabel.TextSize = value;
+            set
+            {
+                PathLabel.TextSize = value;
+                PathButton.TextSize = value;
+            }
         }
 
         public new string Font
         {
             get => PathLabel.Font;
-            set => PathLabel.Font = value;
+            set
+            {
+                PathLabel.Font = value;
+                PathButton.Font = value;
+            }
         }
 
         public new CenterMode CenterMode
