@@ -129,6 +129,8 @@ namespace New_SSQE.NewGUI.CompoundControls
                 Value = e.Value;
                 InvokeValueChanged(new(Value));
             };
+
+            Value = Setting?.Value ?? Value;
         }
 
         public float ApplyIncrement(float increment)

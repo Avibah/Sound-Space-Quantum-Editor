@@ -65,6 +65,7 @@ namespace New_SSQE.Preferences
         public static readonly Setting<float> maxMapHistory = 5;
         public static readonly Setting<float> gridSquircleDetail = 8;
         public static readonly Setting<float> gridSquircleRadius = 0.125f;
+        public static readonly Setting<float> maxPolyphony = 1;
 
         public static readonly Setting<string> createGame = "";
         public static readonly Setting<string> language = "english";

@@ -10,7 +10,7 @@ namespace New_SSQE.NewGUI.Windows
 {
     internal partial class GuiWindowSettings : GuiWindow
     {
-        public GuiWindowSettings() : base(BackgroundSquare, SettingNavs, ColorsNav, GraphicsNav, MappingNav, PlayerNav, OtherNav,
+        public GuiWindowSettings() : base(BackgroundSquare, SettingNavs, ColorsNav, GraphicsNav, MappingNav, PlayerNav, AudioNav, OtherNav,
             BackButton, ResetButton, OpenDirectoryButton, KeybindsButton)
         {
             RefreshNoteColors();
@@ -210,6 +210,7 @@ namespace New_SSQE.NewGUI.Windows
                 GraphicsNav.Visible = e.Active == NavGraphics;
                 MappingNav.Visible = e.Active == NavMapping;
                 PlayerNav.Visible = e.Active == NavPlayer;
+                AudioNav.Visible = e.Active == NavAudio;
                 OtherNav.Visible = e.Active == NavOther;
             };
 

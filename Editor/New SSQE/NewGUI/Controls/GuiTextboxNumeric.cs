@@ -65,7 +65,7 @@ namespace New_SSQE.NewGUI.Controls
             if (setting != null)
                 Text = setting.Value.ToString();
             if (isPositive)
-                Bounds = (0, float.MaxValue);
+                Bounds = (Math.Max(0, Bounds.X), Math.Min(float.MaxValue, Bounds.Y));
         }
 
         public override void Reset()

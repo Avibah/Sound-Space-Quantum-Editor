@@ -12,7 +12,17 @@ namespace New_SSQE.Audio
             string[] sounds = Directory.GetFiles(Assets.SOUNDS);
 
             foreach (string file in sounds)
-                queues.Add(Path.GetFileNameWithoutExtension(file), new(file));
+            {
+                string tag = Path.GetFileNameWithoutExtension(file);
+
+                if (queues.ContainsKey(tag))
+                {
+                    if (Path.GetExtension(file) != ".wav")
+                        queues[tag] = new(file);
+                }
+                else
+                    queues.Add(tag, new(file));
+            }
         }
 
         public static void Play(string fileName)

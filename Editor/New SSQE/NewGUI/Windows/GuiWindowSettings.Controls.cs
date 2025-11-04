@@ -51,14 +51,19 @@ namespace New_SSQE.NewGUI.Windows
             Text = "PLAYER",
             TextSize = 30
         };
-        public static readonly GuiButton NavOther = new(0, 400, 200, 50)
+        public static readonly GuiButton NavAudio = new(0, 400, 200, 50)
+        {
+            Text = "AUDIO",
+            TextSize = 30
+        };
+        public static readonly GuiButton NavOther = new(0, 500, 200, 50)
         {
             Text = "OTHER",
             TextSize = 30
         };
 
-        public static readonly RadioButtonController NavController = new(0, NavColors, NavGraphics, NavMapping, NavPlayer, NavOther);
-        public static readonly ControlContainer SettingNavs = new(180, 80, 200, 550, NavColors, NavGraphics, NavMapping, NavPlayer, NavOther);
+        public static readonly RadioButtonController NavController = new(0, NavColors, NavGraphics, NavMapping, NavPlayer, NavAudio, NavOther);
+        public static readonly ControlContainer SettingNavs = new(180, 80, 200, 550, NavColors, NavGraphics, NavMapping, NavPlayer, NavAudio, NavOther);
 
 
 
@@ -185,7 +190,7 @@ namespace New_SSQE.NewGUI.Windows
         };
         public static readonly GuiSquare EditorBGOpacitySquare = new(860, 0, 75, 50);
 
-        public static readonly GuiNumberBox GridOpacityTextbox = new(860, 200, 75, 50)
+        public static readonly GuiNumberBox GridOpacityTextbox = new(650, 100, 200, 50)
         {
             Increment = 5,
             Setting = Settings.gridOpacity,
@@ -472,6 +477,35 @@ namespace New_SSQE.NewGUI.Windows
 
 
 
+        public static readonly GuiCheckbox MonoCheckbox = new(0, 0, 45, 45)
+        {
+            Setting = Settings.monoAudio,
+            Text = "Mono Audio",
+            TextSize = 34,
+            Style = ControlStyle.Checkbox_Uncolored
+        };
+        public static readonly GuiNumberBox PolyphonyTextbox = new(0, 90, 200, 50)
+        {
+            Increment = 1,
+            Setting = Settings.maxPolyphony,
+            IsPositive = true,
+            IsFloat = false,
+            Text = "1",
+            TextSize = 34,
+            Style = ControlStyle.Textbox_Uncolored,
+            Bounds = (1, 16)
+        };
+        public static readonly GuiLabel PolyphonyLabel = new(0, 60, 200, 26)
+        {
+            Text = "Maximum Polyphony:",
+            TextSize = 30,
+            CenterMode = CenterMode.None
+        };
+
+        public static readonly ControlContainer AudioNav = new(500, 80, 1220, 700, MonoCheckbox, PolyphonyTextbox, PolyphonyLabel);
+
+
+
         public static readonly GuiCheckbox SkipDownloadCheckbox = new(0, 0, 45, 45)
         {
             Setting = Settings.skipDownload,
@@ -486,15 +520,8 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 34,
             Style = ControlStyle.Checkbox_Uncolored
         };
-        public static readonly GuiCheckbox MonoCheckbox = new(0, 120, 45, 45)
-        {
-            Setting = Settings.monoAudio,
-            Text = "Mono Audio",
-            TextSize = 34,
-            Style = ControlStyle.Checkbox_Uncolored
-        };
 
-        public static readonly ControlContainer OtherNav = new(500, 80, 1220, 700, SkipDownloadCheckbox, CheckForUpdatesCheckbox, MonoCheckbox);
+        public static readonly ControlContainer OtherNav = new(500, 80, 1220, 700, SkipDownloadCheckbox, CheckForUpdatesCheckbox);
 
 
 

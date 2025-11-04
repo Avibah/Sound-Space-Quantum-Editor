@@ -230,7 +230,7 @@ namespace New_SSQE.NewMaps
 
             if (updateList)
                 TimingsWindow.Instance?.ResetList();
-            GuiWindowEditor.Timeline.Update();
+            GuiWindowEditor.Timeline.RefreshInstances();
         }
 
         public void SortBookmarks(bool updateList = true)
@@ -239,7 +239,7 @@ namespace New_SSQE.NewMaps
 
             if (updateList)
                 BookmarksWindow.Instance?.ResetList();
-            GuiWindowEditor.Timeline.Update();
+            GuiWindowEditor.Timeline.RefreshInstances();
         }
 
         public List<MapObject> GetObjectsInRange(float start, float end)

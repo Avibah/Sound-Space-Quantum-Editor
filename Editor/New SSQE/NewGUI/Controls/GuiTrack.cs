@@ -159,6 +159,7 @@ namespace New_SSQE.NewGUI.Controls
             hoveringDuration = null;
 
             MapObject? toPlay = null;
+            int polyphony = 0;
             int objCount = 0;
 
             List<(float, string)> color1Strings = [];
@@ -211,7 +212,11 @@ namespace New_SSQE.NewGUI.Controls
                     }
 
                     if (note.Ms <= currentTime - sfxOffset)
+                    {
                         toPlay = note;
+                        if (note.Ms > (lastPlayedObject?.Ms ?? -1))
+                            polyphony++;
+                    }
 
                     if (x - 8 > (lastRenderedText ?? float.MinValue))
                     {
@@ -320,7 +325,11 @@ namespace New_SSQE.NewGUI.Controls
                     }
 
                     if (RenderSpecial && obj.Ms <= currentTime - sfxOffset && obj.PlayHitsound)
+                    {
                         toPlay = obj;
+                        if (obj.Ms > (lastPlayedObject?.Ms ?? -1))
+                            polyphony++;
+                    }
 
                     if (x - 8 > (lastRenderedText ?? float.MinValue))
                     {
@@ -521,7 +530,10 @@ namespace New_SSQE.NewGUI.Controls
                 lastPlayedObject = toPlay;
                 
                 if (toPlay != null && MusicPlayer.IsPlaying && MainWindow.Focused)
-                    SoundPlayer.Play("hit");
+                {
+                    for (int i = 0; i < Math.Min(Settings.maxPolyphony.Value, polyphony); i++)
+                        SoundPlayer.Play("hit");
+                }
             }
 
             if (Settings.metronome.Value && MainWindow.Focused)
