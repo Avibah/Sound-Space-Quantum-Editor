@@ -1,7 +1,7 @@
 ----------------------------------
     -- 2.3.3.1 - 11/3/2025 --
 
-- added an option for the max number of sounds that can play in one frame (Polyphony)
+- added an option in 'Settings/Audio' for the max number of sounds that can play in one frame (Polyphony)
 - fixed custom sounds being overridden and causing a crash if their extension is not '.wav'
 - fixed number boxes not being properly clamped
 - fixed number boxes not initializing with the correct value
