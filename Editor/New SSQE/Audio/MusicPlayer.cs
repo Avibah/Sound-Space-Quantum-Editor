@@ -14,7 +14,7 @@ namespace New_SSQE.Audio
     {
         private static int streamFileID;
         private static int streamID;
-        private static string lastFile;
+        private static string lastFile = "";
         public static BASSChannelType ctype;
 
         private static float originVal;
