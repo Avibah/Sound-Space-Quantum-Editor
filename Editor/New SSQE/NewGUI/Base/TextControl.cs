@@ -15,13 +15,15 @@ namespace New_SSQE.NewGUI.Base
     internal abstract class TextControl : Control
     {
         private string text = "";
-        private int textSize = 0;
+        private float textSize = 0;
         private string font = "main";
         private float alpha = 1;
         private Color textColor = Color.White;
         private bool textWrapped = false;
+        private string prefix = "";
+        private string suffix = "";
 
-        public string RenderedText => textWrapped ? WrapText() : text;
+        public string RenderedText => prefix + (textWrapped ? WrapText() : text) + suffix;
 
         private CenterMode centerMode = CenterMode.XY;
         private Vector4[] verts = [];
@@ -32,7 +34,7 @@ namespace New_SSQE.NewGUI.Base
         protected float yOffset = 0;
 
         private string? startText = null;
-        private int? startTextSize = null;
+        private float? startTextSize = null;
         private string? startFont = null;
         private float? startAlpha = null;
         private Color? startTextColor = null;
@@ -78,11 +80,37 @@ namespace New_SSQE.NewGUI.Base
             }
         }
 
+        public string Prefix
+        {
+            get => prefix;
+            set
+            {
+                if (value != prefix)
+                {
+                    prefix = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public string Suffix
+        {
+            get => suffix;
+            set
+            {
+                if (value != suffix)
+                {
+                    suffix = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
         public float TextScale => Math.Min(rect.Width / StartRect.Width, rect.Height / StartRect.Height);
 
-        public int TextSize
+        public float TextSize
         {
-            get => (int)(textSize * TextScale);
+            get => textSize * TextScale;
             set
             {
                 if (value != textSize)

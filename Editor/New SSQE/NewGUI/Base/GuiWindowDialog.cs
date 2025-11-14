@@ -97,9 +97,9 @@ namespace New_SSQE.NewGUI.Base
             }
         }
 
-        public override void MouseUp(MouseButtonEventArgs e)
+        public override void MouseUp(float x, float y, MouseButtonEventArgs e)
         {
-            base.MouseUp(e);
+            base.MouseUp(x, y, e);
 
             if (e.Button == MouseButton.Left && dragging)
             {

@@ -31,14 +31,14 @@ namespace New_SSQE.NewGUI.Font
             {"squareo", new("squareo", fontUnits["squareo"]) }
         };
 
-        public static Vector4[] Print(float x, float y, string text, int textSize, string font)
-            => fonts[font].Print(x, y, text, (int)(textSize * Settings.fontScale.Value), Unicode);
-        public static void PrintInto(Vector4[] array, int offset, float x, float y, string text, int textSize, string font)
-            => fonts[font].PrintInto(array, offset, x, y, text, (int)(textSize * Settings.fontScale.Value), Unicode);
-        public static int GetWidth(string text, int textSize, string font)
-            => fonts[font].Extent(text, (int)(textSize * Settings.fontScale.Value), Unicode);
-        public static int GetHeight(int textSize, string font)
-            => fonts[font].Baseline((int)(textSize * Settings.fontScale.Value), Unicode);
+        public static Vector4[] Print(float x, float y, string text, float textSize, string font)
+            => fonts[font].Print(x, y, text, textSize * Settings.fontScale.Value, Unicode);
+        public static void PrintInto(Vector4[] array, int offset, float x, float y, string text, float textSize, string font)
+            => fonts[font].PrintInto(array, offset, x, y, text, textSize * Settings.fontScale.Value, Unicode);
+        public static float GetWidth(string text, float textSize, string font)
+            => fonts[font].Extent(text, textSize * Settings.fontScale.Value, Unicode);
+        public static float GetHeight(float textSize, string font)
+            => fonts[font].Baseline(textSize * Settings.fontScale.Value, Unicode);
 
         private static (string, bool) activeFont = ("", false);
         private static Shader Shader => Unicode ? Shader.Unicode : Shader.Font;
@@ -80,10 +80,10 @@ namespace New_SSQE.NewGUI.Font
             }
         }
 
-        public static string TrimText(string text, int textSize, string font, int width)
+        public static string TrimText(string text, float textSize, string font, int width)
         {
             string end = "...";
-            int endWidth = GetWidth(end, textSize, font);
+            float endWidth = GetWidth(end, textSize, font);
 
             if (GetWidth(text, textSize, font) < width)
                 return text;

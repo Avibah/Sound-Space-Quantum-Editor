@@ -84,7 +84,7 @@ namespace New_SSQE.NewGUI
                 window.Resize(e);
         }
 
-        public static void MouseDown(MouseButtonEventArgs e)
+        public static void MouseDown(float x, float y, MouseButtonEventArgs e)
         {
             ButtonClicked = false;
 
@@ -94,24 +94,24 @@ namespace New_SSQE.NewGUI
                 {
                     if (dialog.IsHovering())
                     {
-                        window.MouseDown(e);
+                        window.MouseDown(x, y, e);
                         break;
                     }
                     else
                         continue;
                 }
 
-                window.MouseDown(e);
+                window.MouseDown(x, y, e);
             }
         }
 
-        public static void MouseUp(MouseButtonEventArgs e)
+        public static void MouseUp(float x, float y, MouseButtonEventArgs e)
         {
             foreach (GuiWindow window in windowStack.ToArray())
-                window.MouseUp(e);
+                window.MouseUp(x, y, e);
         }
 
-        public static void MouseScroll(float delta)
+        public static void MouseScroll(float x, float y, float delta)
         {
             foreach (GuiWindow window in windowStack.ToArray())
             {
@@ -119,14 +119,14 @@ namespace New_SSQE.NewGUI
                 {
                     if (dialog.IsHovering())
                     {
-                        window.MouseScroll(delta);
+                        window.MouseScroll(x, y, delta);
                         break;
                     }
                     else
                         continue;
                 }
 
-                window.MouseScroll(delta);
+                window.MouseScroll(x, y, delta);
             }
         }
 

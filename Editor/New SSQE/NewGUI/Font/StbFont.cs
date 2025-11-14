@@ -276,20 +276,16 @@ namespace New_SSQE.NewGUI.Font
         }
 
         // Returns baseline of font scaled depending on font size
-        public int Baseline(int fontSize, bool unicode = false)
+        public float Baseline(float fontSize, bool unicode = false)
         {
             if (unicode)
-                return (int)(fontSize * UnicodeMult);
+                return fontSize * UnicodeMult;
             else
-            {
-                float scale = fontSize / (float)OriginSize;
-
-                return (int)(_baseline * scale);
-            }
+                return _baseline * fontSize / OriginSize;
         }
 
         // Returns width of string scaled depending on the font size
-        public int Extent(string text, int fontSize, bool unicode = false)
+        public float Extent(string text, float fontSize, bool unicode = false)
         {
             if (unicode)
             {
@@ -312,11 +308,10 @@ namespace New_SSQE.NewGUI.Font
                     max = Math.Max(cur, max);
                 }
 
-                return (int)(max * fontSize * UnicodeMult / UnicodeWidth);
+                return max * fontSize * UnicodeMult / UnicodeWidth;
             }
             else
             {
-                float scale = fontSize / (float)OriginSize;
                 string[] split = text.Split('\n');
 
                 float maxX = 0;
@@ -338,11 +333,11 @@ namespace New_SSQE.NewGUI.Font
                     maxX = Math.Max(maxX, currentX);
                 }
 
-                return (int)(maxX * scale);
+                return maxX * fontSize / OriginSize;
             }
         }
 
-        public Vector4[] Print(float x, float y, string text, int fontSize, bool unicode = false)
+        public Vector4[] Print(float x, float y, string text, float fontSize, bool unicode = false)
         {
             Vector4[] verts = new Vector4[text.Replace("\n", "").Length];
             PrintInto(verts, 0, x, y, text, fontSize, unicode);
@@ -352,7 +347,7 @@ namespace New_SSQE.NewGUI.Font
 
         // Prints one Vector4 per character into a given Vector4 array with the necessary data to be passed to a corresponding shader for rendering
         // Formatted as x/y/scale/char
-        public void PrintInto(Vector4[] verts, int offset, float x, float y, string text, int fontSize, bool unicode = false)
+        public void PrintInto(Vector4[] verts, int offset, float x, float y, string text, float fontSize, bool unicode = false)
         {
             if (unicode)
             {
@@ -382,7 +377,7 @@ namespace New_SSQE.NewGUI.Font
             }
             else
             {
-                float scale = fontSize / (float)OriginSize;
+                float scale = fontSize / OriginSize;
                 float cx = x;
                 int vi = 0;
 

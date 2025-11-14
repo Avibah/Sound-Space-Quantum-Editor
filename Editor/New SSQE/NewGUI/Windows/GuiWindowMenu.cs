@@ -245,9 +245,9 @@ namespace New_SSQE.NewGUI.Windows
             AssembleMapList();
         }
 
-        public override void MouseScroll(float delta)
+        public override void MouseScroll(float x, float y, float delta)
         {
-            base.MouseScroll(delta);
+            base.MouseScroll(x, y, delta);
 
             bool hovering = NavLeft.Hovering || NavRight.Hovering;
             foreach ((GuiButton, GuiButton) nav in mapSelects)

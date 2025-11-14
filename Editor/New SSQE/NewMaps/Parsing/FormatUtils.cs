@@ -6,7 +6,6 @@ namespace New_SSQE.NewMaps.Parsing
     {
         public static string FixID(string id)
         {
-            id = id.ToLower();
             char[] fix = new char[id.Length];
 
             for (int i = 0; i < id.Length; i++)

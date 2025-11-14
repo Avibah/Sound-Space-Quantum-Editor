@@ -251,8 +251,8 @@ namespace New_SSQE.NewGUI.Controls
                 if (gridNumbers)
                 {
                     string numText = $"{i + 1:##,###}";
-                    int width = FontRenderer.GetWidth(numText, gridNumberSize, FONT);
-                    int height = FontRenderer.GetHeight(gridNumberSize, FONT);
+                    float width = FontRenderer.GetWidth(numText, gridNumberSize, FONT);
+                    float height = FontRenderer.GetHeight(gridNumberSize, FONT);
 
                     gridNumStrings.Add(((x + NoteSize / 2 - width / 2, y + NoteSize / 2 - height / 2, 1 - progress), numText));
                     gridNumLength += numText.Length;
@@ -630,8 +630,8 @@ namespace New_SSQE.NewGUI.Controls
                     float x = rect.X + gx * CellSize + CellSize / 2;
                     float y = rect.Y + gy * CellSize + CellSize / 2;
 
-                    int width = FontRenderer.GetWidth(letter, gridLetterSize, FONT);
-                    int height = FontRenderer.GetHeight(gridLetterSize, FONT);
+                    float width = FontRenderer.GetWidth(letter, gridLetterSize, FONT);
+                    float height = FontRenderer.GetHeight(gridLetterSize, FONT);
 
                     keyVerts.AddRange(FontRenderer.Print(x - width / 2f, y - height / 2f, letter, gridLetterSize, FONT));
                 }

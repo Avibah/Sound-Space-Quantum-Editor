@@ -230,7 +230,7 @@ namespace New_SSQE.NewGUI.Windows
 
         public static readonly ControlContainer ColorsNav = new(500, 80, 1220, 700, Color1Picker, Color1Label, Color1Square, Color2Picker, Color2Label, Color2Square,
             Color3Picker, Color3Label, Color3Square, Color4Picker, Color4Label, Color4Square, Color5Picker, Color5Label, Color5Square,
-            NoteColorPicker, NoteColorLabel, NoteColorInfo, NoteColorHoverSquare, NoteColorSquares,
+            NoteColorPicker, NoteColorLabel, NoteColorInfo, NoteColorSquares, NoteColorHoverSquare,
             EditorBGOpacityTextbox, EditorBGOpacityLabel, EditorBGOpacitySquare, GridOpacityTextbox, GridOpacityLabel, GridOpacitySquare,
             TrackOpacityTextbox, TrackOpacityLabel, TrackOpacitySquare);
 

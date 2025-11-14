@@ -20,6 +20,14 @@ namespace New_SSQE.NewGUI.Controls
             shouldShow = true;
         }
 
+        public override void Reset()
+        {
+            base.Reset();
+
+            shouldShow = false;
+            showing = false;
+        }
+
         public override void PostRender(float mousex, float mousey, float frametime)
         {
             float prevAlpha = toastTime;

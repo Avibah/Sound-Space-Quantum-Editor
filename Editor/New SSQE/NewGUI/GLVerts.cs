@@ -5,49 +5,65 @@ namespace New_SSQE.NewGUI
 {
     internal class GLVerts
     {
+        public static float[] Quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float r, float g, float b, float a = 1)
+        {
+            return
+            [
+                x1, y1, r, g, b, a,
+                x2, y2, r, g, b, a,
+                x3, y3, r, g, b, a,
+
+                x4, y4, r, g, b, a,
+                x3, y3, r, g, b, a,
+                x2, y2, r, g, b, a
+            ];
+        }
+
+        public static float[] Quad(Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4, float r, float g, float b, float a = 1)
+            => Quad(v1.X, v1.Y, v2.X, v2.Y, v3.X, v3.Y, v4.X, v4.Y, r, g, b, a);
+        public static float[] Quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, Color color, float a = 1)
+            => Quad(x1, y1, x2, y2, x3, y3, x4, y4, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
+        public static float[] Quad(Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4, Color color, float a = 1)
+            => Quad(v1.X, v1.Y, v2.X, v2.Y, v3.X, v3.Y, v4.X, v4.Y, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
         public static float[] Rect(float x, float y, float w, float h, float r, float g, float b, float a = 1)
-        {
-            return
-            [
-                x, y, r, g, b, a,
-                x + w, y, r, g, b, a,
-                x, y + h, r, g, b, a,
-
-                x + w, y + h, r, g, b, a,
-                x, y + h, r, g, b, a,
-                x + w, y, r, g, b, a
-            ];
-        }
-
+            => Quad(x, y, x + w, y, x, y + h, x + w, y + h, r, g, b, a);
         public static float[] Rect(RectangleF rect, float r, float g, float b, float a = 1)
-            => Rect(rect.X, rect.Y, rect.Width, rect.Height, r, g, b, a);
+            => Quad(rect.X, rect.Y, rect.Right, rect.Y, rect.X, rect.Bottom, rect.Right, rect.Bottom, r, g, b, a);
         public static float[] Rect(float x, float y, float w, float h, Color color, float a = 1)
-            => Rect(x, y, w, h, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
+            => Quad(x, y, x + w, y, x, y + h, x + w, y + h, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
         public static float[] Rect(RectangleF rect, Color color, float a = 1)
-            => Rect(rect.X, rect.Y, rect.Width, rect.Height, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
+            => Quad(rect.X, rect.Y, rect.Right, rect.Y, rect.X, rect.Bottom, rect.Right, rect.Bottom, color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f * a);
 
 
 
-        public static float[] Rect2C(float x, float y, float w, float h, float r1, float g1, float b1, float a1, float r2, float g2, float b2, float a2)
+        public static float[] Quad2C(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float r1, float g1, float b1, float a1, float r2, float g2, float b2, float a2)
         {
             return
             [
-                x, y, r1, g1, b1, a1,
-                x + w, y, r2, g2, b2, a2,
-                x, y + h, r1, g1, b1, a1,
+                x1, y1, r1, g1, b1, a1,
+                x2, y2, r2, g2, b2, a2,
+                x3, y3, r1, g1, b1, a1,
 
-                x + w, y + h, r2, g2, b2, a2,
-                x, y + h, r1, g1, b1, a1,
-                x + w, y, r2, g2, b2, a2
+                x4, y4, r2, g2, b2, a2,
+                x3, y3, r1, g1, b1, a1,
+                x2, y2, r2, g2, b2, a2
             ];
         }
 
+        public static float[] Quad2C(Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4, float r1, float g1, float b1, float a1, float r2, float g2, float b2, float a2)
+            => Quad2C(v1.X, v1.Y, v2.X, v2.Y, v3.X, v3.Y, v4.X, v4.Y, r1, g1, b1, a1, r2, g2, b2, a2);
+        public static float[] Quad2C(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, Color color1, Color color2)
+            => Quad2C(x1, y1, x2, y2, x3, y3, x4, y4, color1.R / 255f, color1.G / 255f, color1.B / 255f, color1.A / 255f, color2.R / 255f, color2.G / 255f, color2.B / 255f, color2.A / 255f);
+        public static float[] Quad2C(Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4, Color color1, Color color2)
+            => Quad2C(v1.X, v1.Y, v2.X, v2.Y, v3.X, v3.Y, v4.X, v4.Y, color1.R / 255f, color1.G / 255f, color1.B / 255f, color1.A / 255f, color2.R / 255f, color2.G / 255f, color2.B / 255f, color2.A / 255f);
+        public static float[] Rect2C(float x, float y, float w, float h, float r1, float g1, float b1, float a1, float r2, float g2, float b2, float a2)
+            => Quad2C(x, y, x + w, y, x, y + h, x + w, y + h, r1, g1, b1, a1, r2, g2, b2, a2);
         public static float[] Rect2C(RectangleF rect, float r1, float g1, float b1, float a1, float r2, float g2, float b2, float a2)
-            => Rect2C(rect.X, rect.Y, rect.Width, rect.Height, r1, g1, b1, a1, r2, g2, b2, a2);
+            => Quad2C(rect.X, rect.Y, rect.Right, rect.Y, rect.X, rect.Bottom, rect.Right, rect.Bottom, r1, g1, b1, a1, r2, g2, b2, a2);
         public static float[] Rect2C(float x, float y, float w, float h, Color color1, Color color2)
-            => Rect2C(x, y, w, h, color1.R / 255f, color1.G / 255f, color1.B / 255f, color1.A / 255f, color2.R / 255f, color2.G / 255f, color2.B / 255f, color2.A / 255f);
+            => Quad2C(x, y, x + w, y, x, y + h, x + w, y + h, color1.R / 255f, color1.G / 255f, color1.B / 255f, color1.A / 255f, color2.R / 255f, color2.G / 255f, color2.B / 255f, color2.A / 255f);
         public static float[] Rect2C(RectangleF rect, Color color1, Color color2)
-            => Rect2C(rect.X, rect.Y, rect.Width, rect.Height, color1.R / 255f, color1.G / 255f, color1.B / 255f, color1.A / 255f, color2.R / 255f, color2.G / 255f, color2.B / 255f, color2.A / 255f);
+            => Quad2C(rect.X, rect.Y, rect.Right, rect.Y, rect.X, rect.Bottom, rect.Right, rect.Bottom, color1.R / 255f, color1.G / 255f, color1.B / 255f, color1.A / 255f, color2.R / 255f, color2.G / 255f, color2.B / 255f, color2.A / 255f);
 
 
 

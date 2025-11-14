@@ -1,36 +1,98 @@
-﻿using System.Drawing;
+﻿using OpenTK.Mathematics;
+using System.Drawing;
 
 namespace New_SSQE.NewGUI.Base
 {
     internal class Gradient : Control
     {
-        public float Rotation = 0;
-        public float Offset = 0;
-        public Color StartColor = Color.Transparent;
-        public Color EndColor = Color.Transparent;
+        private float rotation = 0;
+        private Color startColor = Color.Transparent;
+        private Color endColor = Color.Transparent;
 
-        private float _alpha = 0;
+        public float Rotation
+        {
+            get => rotation;
+            set
+            {
+                if (rotation != value)
+                {
+                    rotation = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
 
-        public Gradient() : base(0, 0, 0, 0)
+        public Color StartColor
+        {
+            get => startColor;
+            set
+            {
+                if (startColor != value)
+                {
+                    startColor = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public Color EndColor
+        {
+            get => endColor;
+            set
+            {
+                if (endColor != value)
+                {
+                    endColor = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public Gradient(float x, float y, float w, float h) : base(x, y, w, h)
         {
             
         }
 
+        private float MaxProjection(Vector2 onto)
+        {
+            Vector2 tl = (-rect.Width / 2, -rect.Height / 2);
+            Vector2 tr = (rect.Width / 2, -rect.Height / 2);
+            Vector2 bl = (-rect.Width / 2, rect.Height / 2);
+            Vector2 br = (rect.Width / 2, rect.Height / 2);
+
+            float tlDist = Vector2.Dot(onto, tl);
+            float trDist = Vector2.Dot(onto, tr);
+            float blDist = Vector2.Dot(onto, bl);
+            float brDist = Vector2.Dot(onto, br);
+
+            float tMax = Math.Max(tlDist, trDist);
+            float bMax = Math.Max(blDist, brDist);
+
+            return Math.Max(tMax, bMax);
+        }
+
         public override float[] Draw()
         {
-            float x = rect.X;
-            if (Offset < 0)
-                x += Offset * rect.Width;
+            float rad = MathHelper.DegreesToRadians(rotation);
+            float x = MathF.Cos(rad);
+            float y = MathF.Sin(rad);
+            Vector2 xy = (x, y);
+            Vector2 xyPerp = xy.PerpendicularLeft;
+            
+            float xyProj = MaxProjection(xy);
+            float xyPerpProj = MaxProjection(xyPerp);
 
-            return GLVerts.Rect2C(x, rect.Y, rect.Width * (Math.Abs(Offset) + 1), rect.Height, StartColor, EndColor);
+            Vector2 offset = (rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
+            Vector2 startL = offset + xy * -xyProj + xyPerp * xyPerpProj;
+            Vector2 startR = offset + xy * -xyProj + xyPerp * -xyPerpProj;
+            Vector2 endL = offset + xy * xyProj + xyPerp * xyPerpProj;
+            Vector2 endR = offset + xy * xyProj + xyPerp * -xyPerpProj;
+
+            return GLVerts.Quad2C(startL, startR, endL, endR, startColor, endColor);
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)
         {
-            _alpha += frametime;
-            Offset = (float)Math.Sin(_alpha);
-            Update();
-
             GLState.PreStencilMask();
             base.PreRender(mousex, mousey, frametime);
         }

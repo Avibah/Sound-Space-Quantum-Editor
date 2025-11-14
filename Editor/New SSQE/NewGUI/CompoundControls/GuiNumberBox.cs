@@ -36,7 +36,7 @@ namespace New_SSQE.NewGUI.CompoundControls
             }
         }
 
-        public new int TextSize
+        public new float TextSize
         {
             get => ValueBox.TextSize;
             set => ValueBox.TextSize = value;

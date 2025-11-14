@@ -50,7 +50,7 @@
           <!-- Tap Button -->
           <Button Width="184" Height="65" Name="TapButton"
                   VerticalAlignment="Top"
-                  Click="TapButton_Click">TAP</Button>
+                  Click="TapButton_Click">TAP OR PRESS ANY KEY</Button>
           <!-- Reset Button -->
           <Button Width="184" Height="41" Name="ResetButton"
                   VerticalAlignment="Bottom"

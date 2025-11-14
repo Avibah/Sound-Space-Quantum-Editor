@@ -82,7 +82,7 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiCheckbox PauseOnScroll = new(0, 180, 30, 30)
         {
             Setting = Settings.pauseScroll,
-            Text = "Pase on Seek",
+            Text = "Pause on Seek",
             TextSize = 26
         };
         public static readonly GuiButton EditMapVFX = new(0, 240, 200, 40)
@@ -754,6 +754,11 @@ namespace New_SSQE.NewGUI.Windows
         };
         public static readonly GuiButton BackButton = new(810, 774, 300, 42)
         {
+            Gradient = new(810, 774, 300, 42)
+            {
+                StartColor = Color.Red,
+                EndColor = Color.Teal
+            },
             Text = "BACK TO MENU",
             TextSize = 27
         };

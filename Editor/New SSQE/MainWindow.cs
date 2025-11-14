@@ -255,12 +255,12 @@ namespace New_SSQE
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
-            Windowing.MouseDown(e);
+            Windowing.MouseDown(MouseState.X, MouseState.Y, e);
         }
 
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
-            Windowing.MouseUp(e);
+            Windowing.MouseUp(MouseState.X, MouseState.Y, e);
         }
 
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
@@ -313,7 +313,7 @@ namespace New_SSQE
             AltHeld = keyboard.IsKeyDown(Keys.LeftAlt) || keyboard.IsKeyDown(Keys.RightAlt);
             ShiftHeld = keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift);
 
-            Windowing.MouseScroll(e.OffsetY);
+            Windowing.MouseScroll(MouseState.X, MouseState.Y, e.OffsetX + e.OffsetY);
         }
 
         private bool forceClose = false;

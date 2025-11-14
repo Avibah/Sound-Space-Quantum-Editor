@@ -130,7 +130,7 @@ namespace New_SSQE.NewGUI.Controls
                     float x = text[i].Item1;
                     float y = primary ? rect.Height : rect.Height * 1.2f;
 
-                    FontRenderer.PrintInto(data, offset, x, y + yOffset, str, (int)(rect.Height / 4), "main");
+                    FontRenderer.PrintInto(data, offset, x, y + yOffset, str, rect.Height / 4, "main");
                 }
 
                 offset += str.Length;
@@ -845,7 +845,7 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void MouseUpLeft(float x, float y)
         {
-            if (draggingObjects.Count > 0)
+            if (draggingObjects.Count > 0 && draggingObjects[0] is not TimingPoint)
             {
                 long msDiff = draggingObjects[0].Ms - draggingObjects[0].DragStartMs;
 
@@ -854,25 +854,20 @@ namespace New_SSQE.NewGUI.Controls
                     foreach (MapObject obj in draggingObjects)
                         obj.Ms = obj.DragStartMs;
 
-                    if (draggingObjects[0] is TimingPoint point)
-                        PointManager.Edit("MOVE POINT", point, n => n.Ms += msDiff);
-                    else
+                    switch (Mapping.Current.RenderMode)
                     {
-                        switch (Mapping.Current.RenderMode)
-                        {
-                            case ObjectRenderMode.Notes:
-                                Mapping.Current.Notes.Modify_Edit("MOVE NOTE[S]", n => n.Ms += msDiff);
-                                break;
-                            case ObjectRenderMode.VFX:
-                                Mapping.Current.VfxObjects.Modify_Edit("MOVE OBJECT[S]", n => n.Ms += msDiff);
-                                break;
-                            case ObjectRenderMode.Special when RenderNotes:
-                                Mapping.Current.Notes.Modify_Edit("MOVE NOTE[S]", n => n.Ms += msDiff);
-                                break;
-                            case ObjectRenderMode.Special:
-                                Mapping.Current.SpecialObjects.Modify_Edit("MOVE OBJECT[S]", n => n.Ms += msDiff);
-                                break;
-                        }
+                        case ObjectRenderMode.Notes:
+                            Mapping.Current.Notes.Modify_Edit("MOVE NOTE[S]", n => n.Ms += msDiff);
+                            break;
+                        case ObjectRenderMode.VFX:
+                            Mapping.Current.VfxObjects.Modify_Edit("MOVE OBJECT[S]", n => n.Ms += msDiff);
+                            break;
+                        case ObjectRenderMode.Special when RenderNotes:
+                            Mapping.Current.Notes.Modify_Edit("MOVE NOTE[S]", n => n.Ms += msDiff);
+                            break;
+                        case ObjectRenderMode.Special:
+                            Mapping.Current.SpecialObjects.Modify_Edit("MOVE OBJECT[S]", n => n.Ms += msDiff);
+                            break;
                     }
                 }
             }
@@ -903,6 +898,25 @@ namespace New_SSQE.NewGUI.Controls
                 MusicPlayer.Play();
 
             base.MouseUpLeft(x, y);
+        }
+
+        public override void MouseUpLeftGlobal(float x, float y)
+        {
+            if (draggingObjects.Count > 0 && draggingObjects[0] is TimingPoint point)
+            {
+                long msDiff = draggingObjects[0].Ms - draggingObjects[0].DragStartMs;
+
+                if (msDiff != 0)
+                {
+                    point.Ms = point.DragStartMs;
+                    PointManager.Edit("MOVE POINT", point, n => n.Ms += msDiff);
+                }
+
+                draggingObjects = [];
+                draggingDuration = null;
+            }
+
+            base.MouseUpLeftGlobal(x, y);
         }
 
         public override void MouseClickRight(float x, float y)

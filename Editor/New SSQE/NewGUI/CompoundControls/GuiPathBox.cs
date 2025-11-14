@@ -40,7 +40,7 @@ namespace New_SSQE.NewGUI.CompoundControls
             set => PathButton.Text = value;
         }
 
-        public new int TextSize
+        public new float TextSize
         {
             get => PathLabel.TextSize;
             set

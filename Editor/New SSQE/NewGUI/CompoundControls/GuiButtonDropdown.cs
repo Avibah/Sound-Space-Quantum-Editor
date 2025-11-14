@@ -42,7 +42,7 @@ namespace New_SSQE.NewGUI.CompoundControls
             set => MainButton.Text = value;
         }
 
-        public new int TextSize
+        public new float TextSize
         {
             get => MainButton.TextSize;
             set

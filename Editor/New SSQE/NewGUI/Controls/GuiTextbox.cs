@@ -237,7 +237,7 @@ namespace New_SSQE.NewGUI.Controls
                 return;
 
             // rough estimate of where the cursor clicked relative to the text
-            int textWidth = FontRenderer.GetWidth(Text, TextSize, Font);
+            float textWidth = FontRenderer.GetWidth(Text, TextSize, Font);
             float posX = x - rect.X - (rect.Width - textWidth) / 2;
             float letterWidth = textWidth / Text.Length;
 

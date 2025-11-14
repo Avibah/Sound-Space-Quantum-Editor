@@ -81,10 +81,11 @@ namespace New_SSQE.NewGUI.Base
             container.Resize(e.Width, e.Height);
         }
 
-        public virtual void MouseDown(MouseButtonEventArgs e)
+        public virtual void MouseDown(float x, float y, MouseButtonEventArgs e)
         {
             if (Windowing.ClickLocked)
                 return;
+            prevMouse = (x, y);
 
             if (e.Button == MouseButton.Left)
                 container.MouseClickLeftGlobal(prevMouse.X, prevMouse.Y);
@@ -92,16 +93,20 @@ namespace New_SSQE.NewGUI.Base
                 container.MouseClickRightGlobal(prevMouse.X, prevMouse.Y);
         }
 
-        public virtual void MouseUp(MouseButtonEventArgs e)
+        public virtual void MouseUp(float x, float y, MouseButtonEventArgs e)
         {
+            prevMouse = (x, y);
+
             if (e.Button == MouseButton.Left)
                 container.MouseUpLeftGlobal(prevMouse.X, prevMouse.Y);
             else if (e.Button == MouseButton.Right)
                 container.MouseUpRightGlobal(prevMouse.X, prevMouse.Y);
         }
 
-        public virtual void MouseScroll(float delta)
+        public virtual void MouseScroll(float x, float y, float delta)
         {
+            prevMouse = (x, y);
+
             container.MouseScrollGlobal(prevMouse.X, prevMouse.Y, delta);
         }
 

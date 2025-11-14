@@ -662,9 +662,9 @@ namespace New_SSQE.NewGUI.Windows
             ToastLabel.Show(text, color);
         }
 
-        public override void MouseScroll(float delta)
+        public override void MouseScroll(float x, float y, float delta)
         {
-            base.MouseScroll(delta);
+            base.MouseScroll(x, y, delta);
             if (ShouldConsumeScroll())
                 return;
 

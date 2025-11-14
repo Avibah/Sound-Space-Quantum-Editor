@@ -20,6 +20,7 @@ namespace New_SSQE.NewGUI.Controls
         public GuiButtonTextured(float x, float y, float w, float h, Texture texture) : base(x, y, w, h)
         {
             textures = [texture];
+            Stretch = StretchMode.None;
         }
 
         public override float[] Draw()
