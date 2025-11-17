@@ -6,6 +6,8 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiCheckbox : InteractiveControl
     {
+        public EventHandler<ValueChangedEventArgs<bool>>? ValueChanged;
+
         private Setting<bool>? setting;
         private bool toggle;
 
@@ -28,13 +30,12 @@ namespace New_SSQE.NewGUI.Controls
             set
             {
                 toggle = value;
+                Animator.Reversed = !value;
 
                 if (setting != null)
                     setting.Value = value;
             }
         }
-
-        private float checkSize = 0f;
 
         public GuiCheckbox(float x, float y, float w, float h) : base(x, y, w, h)
         {
@@ -46,6 +47,13 @@ namespace New_SSQE.NewGUI.Controls
             CenterMode = CenterMode.Y;
 
             CornerRadius = 0.5f;
+            Animator.AddKey("CheckSize", 0.125f);
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            Animator.Play();
         }
 
         public override float[] Draw()
@@ -56,7 +64,7 @@ namespace New_SSQE.NewGUI.Controls
             float hGap = (rect.Height - width) / 2;
             RectangleF squareRect = new(rect.X, rect.Y + hGap, width, width);
 
-            float cWidth = width * 0.75f * checkSize;
+            float cWidth = width * 0.75f * Animator["CheckSize"];
             float cGap = (width - cWidth) / 2;
             RectangleF checkRect = new(rect.X + cGap, rect.Y + hGap + cGap, cWidth, cWidth);
 
@@ -70,21 +78,17 @@ namespace New_SSQE.NewGUI.Controls
             return [..fill, ..outline, ..check];
         }
 
-        public override void PreRender(float mousex, float mousey, float frametime)
-        {
-            base.PreRender(mousex, mousey, frametime);
-
-            float prevSize = checkSize;
-            checkSize = Toggle ? Math.Min(1, checkSize + frametime * 8) : Math.Max(0, checkSize - frametime * 8);
-
-            if (checkSize != prevSize)
-                Update();
-        }
-
         public override void MouseClickLeft(float x, float y)
         {
             Toggle ^= true;
+            ValueChanged?.Invoke(this, new(Toggle));
             base.MouseClickLeft(x, y);
+        }
+
+        public override void DisconnectAll()
+        {
+            base.DisconnectAll();
+            ValueChanged = null;
         }
     }
 }

@@ -7,6 +7,8 @@ namespace New_SSQE.NewGUI.CompoundControls
 {
     internal class GuiNumberBox : ControlContainer
     {
+        public EventHandler<ValueChangedEventArgs<float>>? ValueChanged;
+
         public readonly GuiTextboxNumeric ValueBox;
         public readonly GuiButtonTextured UpButton;
         public readonly GuiButtonTextured DownButton;
@@ -127,7 +129,7 @@ namespace New_SSQE.NewGUI.CompoundControls
             ValueBox.ValueChanged += (s, e) =>
             {
                 Value = e.Value;
-                InvokeValueChanged(new(Value));
+                ValueChanged?.Invoke(this, new(Value));
             };
 
             Value = Setting?.Value ?? Value;
@@ -148,11 +150,17 @@ namespace New_SSQE.NewGUI.CompoundControls
             if (Setting != null)
                 Setting.Value = Value;
             ValueBox.Text = Value.ToString();
-            InvokeValueChanged(new(Value));
+            ValueChanged?.Invoke(this, new(Value));
 
             return Value;
         }
         public float IncrementUp() => ApplyIncrement(increment);
         public float IncrementDown() => ApplyIncrement(-increment);
+
+        public override void DisconnectAll()
+        {
+            base.DisconnectAll();
+            ValueChanged = null;
+        }
     }
 }

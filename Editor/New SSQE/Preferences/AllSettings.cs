@@ -44,6 +44,7 @@ namespace New_SSQE.Preferences
         public static readonly Setting<bool> muteMusic = false;
         public static readonly Setting<bool> smoothAutoplay = true;
         public static readonly Setting<bool> gridSquircles = true;
+        public static readonly Setting<bool> controlGradients = true;
 
         public static readonly Setting<float> editorBGOpacity = 255;
         public static readonly Setting<float> gridOpacity = 255;

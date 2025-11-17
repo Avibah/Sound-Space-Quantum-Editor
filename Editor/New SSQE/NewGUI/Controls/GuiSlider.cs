@@ -9,13 +9,14 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiSlider : InteractiveControl
     {
+        public EventHandler<ValueChangedEventArgs<float>>? ValueChanged;
+
         public float ShiftIncrement = 1;
 
         protected Setting<SliderSetting> setting;
         protected bool canReset = true;
 
         private bool reverse;
-        private float hoverTime = 0f;
 
         private float prevValue = 0f;
 
@@ -39,6 +40,8 @@ namespace New_SSQE.NewGUI.Controls
             prevValue = setting.Value.Value;
 
             Style = ControlStyle.Slider_Uncolored;
+            Animator.AddKey("HoverTime", 0.1f);
+            Animator.Reversed = true;
         }
 
         public override float[] Draw()
@@ -56,6 +59,7 @@ namespace New_SSQE.NewGUI.Controls
             float[] line = GLVerts.Squircle(lineRect, CornerDetail, CornerRadius, Style.Secondary);
             float[] circle = GLVerts.Polygon(circlePos.X, circlePos.Y, 4, 16, 0, Style.Primary);
 
+            float hoverTime = Animator["HoverTime"];
             if (hoverTime > 0)
             {
                 float[] hoverCircle = GLVerts.PolygonOutline(circlePos.X, circlePos.Y, 12 * hoverTime, 2, 6, 90 * hoverTime, Style.Primary);
@@ -65,15 +69,30 @@ namespace New_SSQE.NewGUI.Controls
             return [..line, ..circle];
         }
 
-        public override void PreRender(float mousex, float mousey, float frametime)
+        public override void Reset()
         {
-            base.PreRender(mousex, mousey, frametime);
+            base.Reset();
+            Animator.Play();
+        }
 
-            float prevTime = hoverTime;
-            hoverTime = Math.Clamp(hoverTime + (Hovering || Dragging ? 10 : -10) * frametime, 0, 1);
+        public override void MouseEnter(float x, float y)
+        {
+            base.MouseEnter(x, y);
+            Animator.Reversed = false;
+        }
 
-            if (hoverTime != prevTime)
-                Update();
+        public override void MouseLeave(float x, float y)
+        {
+            base.MouseLeave(x, y);
+            if (!Dragging)
+                Animator.Reversed = true;
+        }
+
+        public override void MouseUpLeft(float x, float y)
+        {
+            base.MouseUpLeft(x, y);
+            if (!Hovering)
+                Animator.Reversed = true;
         }
 
         public override void MouseClickRight(float x, float y)
@@ -133,8 +152,14 @@ namespace New_SSQE.NewGUI.Controls
             }
 
             if (setting.Value.Value != prevValue)
-                InvokeValueChanged(new(setting.Value.Value));
+                ValueChanged?.Invoke(this, new(setting.Value.Value));
             prevValue = setting.Value.Value;
+        }
+
+        public override void DisconnectAll()
+        {
+            base.DisconnectAll();
+            ValueChanged = null;
         }
     }
 }

@@ -10,8 +10,7 @@ namespace New_SSQE.NewGUI.Windows
 {
     internal partial class GuiWindowSettings : GuiWindow
     {
-        public GuiWindowSettings() : base(BackgroundSquare, SettingNavs, ColorsNav, GraphicsNav, MappingNav, PlayerNav, AudioNav, OtherNav,
-            BackButton, ResetButton, OpenDirectoryButton, KeybindsButton)
+        public GuiWindowSettings() : base(BackgroundSquare, NavController, BackButton, ResetButton, OpenDirectoryButton, KeybindsButton)
         {
             RefreshNoteColors();
         }
@@ -202,20 +201,11 @@ namespace New_SSQE.NewGUI.Windows
                 GridSquirclePreview.Update();
             };
 
-            MonoCheckbox.LeftClick += (s, e) => MusicPlayer.Reload();
-
-            NavController.SelectionChanged += (s, e) =>
-            {
-                ColorsNav.Visible = e.Active == NavColors;
-                GraphicsNav.Visible = e.Active == NavGraphics;
-                MappingNav.Visible = e.Active == NavMapping;
-                PlayerNav.Visible = e.Active == NavPlayer;
-                AudioNav.Visible = e.Active == NavAudio;
-                OtherNav.Visible = e.Active == NavOther;
-            };
+            MonoCheckbox.ValueChanged += (s, e) => MusicPlayer.Reload();
 
             PlaytestGameController.Initialize();
-            NavController.Initialize();
+
+            GradientCheckbox.ValueChanged += (s, e) => Update();
         }
     }
 }

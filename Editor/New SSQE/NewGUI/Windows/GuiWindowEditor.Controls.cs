@@ -29,7 +29,6 @@ namespace New_SSQE.NewGUI.Windows
             Text = "PLAYTEST",
             TextSize = 31
         };
-        public static readonly RadioButtonController LNavController = new(1, LNavOptions, LNavTiming, LNavPatterns, LNavPlayer);
 
         public static readonly GuiButton RNavSnapping = new(1365, 140, 175, 50)
         {
@@ -46,7 +45,6 @@ namespace New_SSQE.NewGUI.Windows
             Text = "EXPORT",
             TextSize = 31
         };
-        public static readonly RadioButtonController RNavController = new(0, RNavSnapping, RNavGraphics, RNavExport);
 
         /*
          *************************************
@@ -440,8 +438,12 @@ namespace New_SSQE.NewGUI.Windows
             ApproachDistance, HitWindow, PlayerApproachRate, ApproachFade, FromStart, PlayMap, CameraModeLabel, NoteScaleLabel, CursorScaleLabel, SensitivityLabel,
             ParallaxLabel, FieldOfViewLabel, ApproachDistanceLabel, HitWindowLabel, PlayerApproachRateLabel);
 
-        public static readonly ControlContainer StandardMapNavs = new(LNavOptions, LNavTiming, LNavPatterns, LNavPlayer,
-            OptionsNav, TimingNav, PatternsNav, PlayerNav);
+        public static readonly GuiRadioPanelButton StandardNavController = new(1,
+            (LNavOptions, OptionsNav),
+            (LNavTiming, TimingNav),
+            (LNavPatterns, PatternsNav),
+            (LNavPlayer, PlayerNav)
+        );
 
         /*
          *************************************
@@ -737,7 +739,11 @@ namespace New_SSQE.NewGUI.Windows
 
         public static readonly ControlContainer ExportNav = new(1365, 190, 545, 756, SaveButton, SaveAsButton, ExportSwitch, ExportButton, ReplaceIDBox, ReplaceID, ConvertAudio,
             ReplaceIDLabel, SRLabel);
-        public static readonly ControlContainer ConstantMapNavs = new(RNavSnapping, RNavGraphics, RNavExport, SnappingNav, GraphicsNav, ExportNav);
+        public static readonly GuiRadioPanelButton ConstantNavController = new(0,
+            (RNavSnapping, SnappingNav),
+            (RNavGraphics, GraphicsNav),
+            (RNavExport, ExportNav)
+        );
 
         /*
          *************************************
@@ -754,11 +760,6 @@ namespace New_SSQE.NewGUI.Windows
         };
         public static readonly GuiButton BackButton = new(810, 774, 300, 42)
         {
-            Gradient = new(810, 774, 300, 42)
-            {
-                StartColor = Color.Red,
-                EndColor = Color.Teal
-            },
             Text = "BACK TO MENU",
             TextSize = 27
         };

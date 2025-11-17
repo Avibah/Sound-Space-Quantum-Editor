@@ -111,7 +111,7 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual bool IsHovering()
         {
-            return BackgroundSquare.GetRect().Contains(prevMouse.X, prevMouse.Y);
+            return BackgroundSquare.GetRect().Contains(PrevMouse.X, PrevMouse.Y);
         }
     }
 }

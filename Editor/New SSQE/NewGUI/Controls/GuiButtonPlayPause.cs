@@ -1,20 +1,16 @@
 ﻿using New_SSQE.Audio;
+using New_SSQE.NewGUI.Base;
 using New_SSQE.Preferences;
 using OpenTK.Graphics.OpenGL;
 
 namespace New_SSQE.NewGUI.Controls
 {
-    internal class GuiButtonPlayPause : GuiButton
+    internal class GuiButtonPlayPause : GuiButtonTextured
     {
-        public GuiButtonPlayPause(float x, float y, float w, float h) : base(x, y, w, h)
+        public GuiButtonPlayPause(float x, float y, float w, float h) : base(x, y, w, h, new("widgets", null, false, TextureUnit.Texture1))
         {
-            textures = [new("widgets", null, false, TextureUnit.Texture1) { TileSize = (2, 2) }];
-        }
-
-        public override float[] Draw()
-        {
-            textures[0].Draw(rect);
-            return [];
+            TileSize = (2, 2);
+            Style = ControlStyle.Transparent;
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)
@@ -26,8 +22,6 @@ namespace New_SSQE.NewGUI.Controls
         public override void MouseClickLeft(float x, float y)
         {
             base.MouseClickLeft(x, y);
-            if (!Hovering)
-                return;
 
             SliderSetting currentTime = Settings.currentTime.Value;
 

@@ -62,9 +62,6 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 30
         };
 
-        public static readonly RadioButtonController NavController = new(0, NavColors, NavGraphics, NavMapping, NavPlayer, NavAudio, NavOther);
-        public static readonly ControlContainer SettingNavs = new(180, 80, 200, 550, NavColors, NavGraphics, NavMapping, NavPlayer, NavAudio, NavOther);
-
 
 
         public static readonly GuiButton Color1Picker = new(0, 0, 200, 50)
@@ -228,7 +225,7 @@ namespace New_SSQE.NewGUI.Windows
         };
         public static readonly GuiSquare TrackOpacitySquare = new(860, 200, 75, 50);
 
-        public static readonly ControlContainer ColorsNav = new(500, 80, 1220, 700, Color1Picker, Color1Label, Color1Square, Color2Picker, Color2Label, Color2Square,
+        public static readonly ControlContainer ColorsNav = new(320, 0, 1220, 700, Color1Picker, Color1Label, Color1Square, Color2Picker, Color2Label, Color2Square,
             Color3Picker, Color3Label, Color3Square, Color4Picker, Color4Label, Color4Square, Color5Picker, Color5Label, Color5Square,
             NoteColorPicker, NoteColorLabel, NoteColorInfo, NoteColorSquares, NoteColorHoverSquare,
             EditorBGOpacityTextbox, EditorBGOpacityLabel, EditorBGOpacitySquare, GridOpacityTextbox, GridOpacityLabel, GridOpacitySquare,
@@ -301,6 +298,13 @@ namespace New_SSQE.NewGUI.Windows
         {
             Setting = Settings.msaa,
             Text = "Use Anti-Aliasing",
+            TextSize = 34,
+            Style = ControlStyle.Checkbox_Uncolored
+        };
+        public static readonly GuiCheckbox GradientCheckbox = new(700, 60, 45, 45)
+        {
+            Setting = Settings.controlGradients,
+            Text = "Show Control Gradients",
             TextSize = 34,
             Style = ControlStyle.Checkbox_Uncolored
         };
@@ -378,8 +382,8 @@ namespace New_SSQE.NewGUI.Windows
             CornerRadius = Settings.gridSquircleRadius.Value,
         };
 
-        public static readonly ControlContainer GraphicsNav = new(500, 80, 1220, 700, WaveformCheckbox, ClassicWaveformCheckbox, WaveformDetailTextbox, WaveformDetailLabel,
-            UseVSyncCheckbox, LimitPlayerFPSCheckbox, FPSLimitSlider, FPSLimitLabel, LowerFPSInBackgroundCheckbox, MSAACheckbox, RestartLabel, FontScaleLabel, FontScaleTextbox,
+        public static readonly ControlContainer GraphicsNav = new(320, 0, 1220, 700, WaveformCheckbox, ClassicWaveformCheckbox, WaveformDetailTextbox, WaveformDetailLabel,
+            UseVSyncCheckbox, LimitPlayerFPSCheckbox, FPSLimitSlider, FPSLimitLabel, LowerFPSInBackgroundCheckbox, MSAACheckbox, GradientCheckbox, RestartLabel, FontScaleLabel, FontScaleTextbox,
             GridSquircles, GridSquircleDetailTextbox, GridSquircleDetailLabel, GridSquircleRadiusTextbox, GridSquircleRadiusLabel, GridSquirclePreview);
 
         
@@ -424,7 +428,7 @@ namespace New_SSQE.NewGUI.Windows
             Style = ControlStyle.Checkbox_Uncolored
         };
 
-        public static readonly ControlContainer MappingNav = new(500, 80, 1220, 700, AutosaveCheckbox, AutosaveIntervalTextbox, AutosaveIntervalLabel,
+        public static readonly ControlContainer MappingNav = new(320, 0, 1220, 700, AutosaveCheckbox, AutosaveIntervalTextbox, AutosaveIntervalLabel,
             CorrectOnCopyCheckbox, ReverseScrollCheckbox);
 
 
@@ -473,7 +477,7 @@ namespace New_SSQE.NewGUI.Windows
         };
 
         public static readonly RadioCheckboxController PlaytestGameController = new(Settings.playtestGame, NavRhythia, NavNova, NavSSQEPlayer);
-        public static readonly ControlContainer PlayerNav = new(500, 80, 1220, 700, NavRhythia, NavNova, NavSSQEPlayer, RhythiaPathBox, NovaPathBox, FullscreenPlayerCheckbox);
+        public static readonly ControlContainer PlayerNav = new(320, 0, 1220, 700, NavRhythia, NavNova, NavSSQEPlayer, RhythiaPathBox, NovaPathBox, FullscreenPlayerCheckbox);
 
 
 
@@ -502,7 +506,7 @@ namespace New_SSQE.NewGUI.Windows
             CenterMode = CenterMode.None
         };
 
-        public static readonly ControlContainer AudioNav = new(500, 80, 1220, 700, MonoCheckbox, PolyphonyTextbox, PolyphonyLabel);
+        public static readonly ControlContainer AudioNav = new(320, 0, 1220, 700, MonoCheckbox, PolyphonyTextbox, PolyphonyLabel);
 
 
 
@@ -521,7 +525,18 @@ namespace New_SSQE.NewGUI.Windows
             Style = ControlStyle.Checkbox_Uncolored
         };
 
-        public static readonly ControlContainer OtherNav = new(500, 80, 1220, 700, SkipDownloadCheckbox, CheckForUpdatesCheckbox);
+        public static readonly ControlContainer OtherNav = new(320, 0, 1220, 700, SkipDownloadCheckbox, CheckForUpdatesCheckbox);
+
+
+
+        public static readonly GuiRadioPanelButton NavController = new(180, 80, 200, 550, 0,
+            (NavColors, ColorsNav),
+            (NavGraphics, GraphicsNav),
+            (NavMapping, MappingNav),
+            (NavPlayer, PlayerNav),
+            (NavAudio, AudioNav),
+            (NavOther, OtherNav)
+        );
 
 
 

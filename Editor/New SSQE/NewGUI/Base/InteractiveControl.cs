@@ -26,11 +26,11 @@ namespace New_SSQE.NewGUI.Base
         }
     }
 
-    internal class ValueChangedEventArgs : EventArgs
+    internal class ValueChangedEventArgs<T> : EventArgs
     {
-        public float Value;
+        public T Value;
 
-        public ValueChangedEventArgs(float value)
+        public ValueChangedEventArgs(T value)
         {
             Value = value;
         }
@@ -41,7 +41,6 @@ namespace New_SSQE.NewGUI.Base
         public event EventHandler<ClickEventArgs>? LeftClick;
         public event EventHandler<ClickEventArgs>? RightClick;
         public event EventHandler<TextEnteredEventArgs>? TextEntered;
-        public event EventHandler<ValueChangedEventArgs>? ValueChanged;
 
         public bool Hovering = false;
         public bool Dragging = false;
@@ -53,6 +52,17 @@ namespace New_SSQE.NewGUI.Base
         public bool ConsumeScroll = false;
 
         public InteractiveControl(float x, float y, float w, float h) : base(x, y, w, h) { }
+
+        public override void Reset()
+        {
+            base.Reset();
+            if (Hovering)
+                MouseLeave(-1, -1);
+
+            Dragging = false;
+            Focused = false;
+            RightDragging = false;
+        }
 
         public virtual void MouseEnter(float x, float y) => Hovering = true;
         public virtual void MouseLeave(float x, float y) => Hovering = false;
@@ -131,7 +141,6 @@ namespace New_SSQE.NewGUI.Base
         public virtual void TextInput(string str) { }
 
         protected void InvokeTextEntered(TextEnteredEventArgs e) => TextEntered?.Invoke(this, e);
-        protected void InvokeValueChanged(ValueChangedEventArgs e) => ValueChanged?.Invoke(this, e);
         protected void InvokeLeftClick(ClickEventArgs e) => LeftClick?.Invoke(this, e);
         protected void InvokeRightClick(ClickEventArgs e) => RightClick?.Invoke(this, e);
 
@@ -140,7 +149,6 @@ namespace New_SSQE.NewGUI.Base
             LeftClick = null;
             RightClick = null;
             TextEntered = null;
-            ValueChanged = null;
         }
 
         public virtual bool ShouldConsumeScroll() => ConsumeScroll && Hovering;

@@ -54,11 +54,20 @@ namespace New_SSQE.NewMaps
             {
                 if (FileName != null && File.Exists(FileName))
                 {
-                    Map old = Mapping.Current;
-                    Mapping.Current = this;
+                    bool isOpen = Mapping.Current == this;
+                    Map? old = null;
+
+                    if (!isOpen)
+                    {
+                        old = Mapping.Current;
+                        Mapping.Current = this;
+                    }
 
                     bool saved = File.ReadAllText(FileName) == TXT.Copy();
-                    Mapping.Current = old;
+
+                    if (!isOpen && old != null)
+                        Mapping.Current = old;
+
                     return saved;
                 }
 

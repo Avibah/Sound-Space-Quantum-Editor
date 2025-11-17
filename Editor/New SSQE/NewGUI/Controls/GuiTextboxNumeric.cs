@@ -1,4 +1,5 @@
-﻿using New_SSQE.Preferences;
+﻿using New_SSQE.NewGUI.Base;
+using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
@@ -6,6 +7,8 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiTextboxNumeric : GuiTextbox
     {
+        public EventHandler<ValueChangedEventArgs<float>>? ValueChanged;
+
         private Setting<float>? setting = null;
         private bool isFloat = false;
         private bool isPositive = false;
@@ -144,10 +147,10 @@ namespace New_SSQE.NewGUI.Controls
                     setting.Value = value;
 
                     if (prevSetting != setting.Value)
-                        InvokeValueChanged(new(value));
+                        ValueChanged?.Invoke(this, new(value));
                 }
                 else
-                    InvokeValueChanged(new(value));
+                    ValueChanged?.Invoke(this, new(value));
             }
             else
             {
@@ -157,6 +160,12 @@ namespace New_SSQE.NewGUI.Controls
 
             cursorPos = Math.Clamp(cursorPos, 0, Text.Length);
             Update();
+        }
+
+        public override void DisconnectAll()
+        {
+            base.DisconnectAll();
+            ValueChanged = null;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using New_SSQE.Preferences;
+using OpenTK.Mathematics;
 using System.Drawing;
 
 namespace New_SSQE.NewGUI.Base
@@ -13,6 +14,8 @@ namespace New_SSQE.NewGUI.Base
 
     internal abstract class Control
     {
+        public readonly Animator Animator = new();
+
         protected Shader shader = Shader.Default;
         protected Texture[] textures = [];
         public ControlStyle Style = new();
@@ -37,7 +40,17 @@ namespace New_SSQE.NewGUI.Base
         public float CornerRadius = 0.125f;
 
         public Vector2 RectOffset = Vector2.Zero;
-        public Gradient? Gradient = null;
+
+        private Gradient? gradient = null;
+        public Gradient? Gradient
+        {
+            get => gradient;
+            set
+            {
+                gradient = value;
+                shouldUpdate = true;
+            }
+        }
 
         public Control(RectangleF rect)
         {
@@ -57,10 +70,15 @@ namespace New_SSQE.NewGUI.Base
             vertexCount = vertices.Length / 6;
 
             GLState.BufferData(vbo, vertices);
+
+            if (gradient != null)
+                gradient.Visible = Settings.controlGradients.Value;
         }
 
         public virtual void PreRender(float mousex, float mousey, float frametime)
         {
+            shouldUpdate |= Animator.Process(frametime);
+
             if (shouldUpdate)
             {
                 Update();
@@ -70,7 +88,8 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void Render(float mousex, float mousey, float frametime)
         {
-            Gradient?.PreRender(mousex, mousey, frametime);
+            if (gradient?.Visible ?? false)
+                gradient?.PreRender(mousex, mousey, frametime);
 
             if (vertexCount > 0)
             {
@@ -81,8 +100,11 @@ namespace New_SSQE.NewGUI.Base
             if (textureIndex >= 0 && textureIndex < textures.Length)
                 textures[textureIndex].Render();
             
-            Gradient?.Render(mousex, mousey, frametime);
-            Gradient?.PostRender(mousex, mousey, frametime);
+            if (gradient?.Visible ?? false)
+            {
+                gradient?.Render(mousex, mousey, frametime);
+                gradient?.PostRender(mousex, mousey, frametime);
+            }
         }
 
         public virtual void PostRender(float mousex, float mousey, float frametime) { }
@@ -114,7 +136,7 @@ namespace New_SSQE.NewGUI.Base
             }
 
             SetRect(x + RectOffset.X * widthDiff, y + RectOffset.Y * heightDiff, w, h);
-            Gradient?.SetRect(rect);
+            gradient?.SetRect(rect);
         }
 
         public virtual void SetRect(RectangleF rect)
@@ -136,7 +158,7 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual RectangleF GetOrigin() => StartRect;
 
-        public virtual void Reset() { }
+        public virtual void Reset() => Animator.Stop();
 
         /// <summary>
         /// Returns extents of inner content relative to the control's origin (left, up, right, down)

@@ -41,6 +41,8 @@ namespace New_SSQE.NewGUI.Base
 
         public abstract void ConnectEvents();
 
+        protected Vector2 PrevMouse { get; private set; } = -Vector2.One;
+
         public virtual void Open()
         {
             if (!connected)
@@ -58,8 +60,6 @@ namespace New_SSQE.NewGUI.Base
             container.SetControls(controls);
         }
 
-        protected Vector2 prevMouse { get; private set; } = -Vector2.One;
-
         public virtual void Update()
         {
             container.Update();
@@ -67,9 +67,9 @@ namespace New_SSQE.NewGUI.Base
         
         public virtual void Render(float mousex, float mousey, float frametime)
         {
-            if ((mousex, mousey) != prevMouse)
+            if ((mousex, mousey) != PrevMouse)
                 container.MouseMove(mousex, mousey);
-            prevMouse = (mousex, mousey);
+            PrevMouse = (mousex, mousey);
 
             container.PreRender(mousex, mousey, frametime);
             container.Render(mousex, mousey, frametime);
@@ -85,29 +85,29 @@ namespace New_SSQE.NewGUI.Base
         {
             if (Windowing.ClickLocked)
                 return;
-            prevMouse = (x, y);
+            PrevMouse = (x, y);
 
             if (e.Button == MouseButton.Left)
-                container.MouseClickLeftGlobal(prevMouse.X, prevMouse.Y);
+                container.MouseClickLeftGlobal(PrevMouse.X, PrevMouse.Y);
             else if (e.Button == MouseButton.Right)
-                container.MouseClickRightGlobal(prevMouse.X, prevMouse.Y);
+                container.MouseClickRightGlobal(PrevMouse.X, PrevMouse.Y);
         }
 
         public virtual void MouseUp(float x, float y, MouseButtonEventArgs e)
         {
-            prevMouse = (x, y);
+            PrevMouse = (x, y);
 
             if (e.Button == MouseButton.Left)
-                container.MouseUpLeftGlobal(prevMouse.X, prevMouse.Y);
+                container.MouseUpLeftGlobal(PrevMouse.X, PrevMouse.Y);
             else if (e.Button == MouseButton.Right)
-                container.MouseUpRightGlobal(prevMouse.X, prevMouse.Y);
+                container.MouseUpRightGlobal(PrevMouse.X, PrevMouse.Y);
         }
 
         public virtual void MouseScroll(float x, float y, float delta)
         {
-            prevMouse = (x, y);
+            PrevMouse = (x, y);
 
-            container.MouseScrollGlobal(prevMouse.X, prevMouse.Y, delta);
+            container.MouseScrollGlobal(PrevMouse.X, PrevMouse.Y, delta);
         }
 
         public virtual void KeyDown(Keys key)

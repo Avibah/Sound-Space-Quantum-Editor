@@ -162,7 +162,7 @@ namespace New_SSQE.NewGUI.Windows
             ChangelogSlider.ValueChanged += (s, e) => AssembleChangelog();
         }
 
-        private void UpdateChangelogText(object? sender, ValueChangedEventArgs e)
+        private void UpdateChangelogText(object? sender, ValueChangedEventArgs<float> e)
         {
             SliderSetting setting = Settings.changelogPosition.Value;
             List<string> lines = [];

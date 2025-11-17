@@ -21,6 +21,7 @@ namespace New_SSQE.NewGUI.Controls
         {
             textures = [texture];
             Stretch = StretchMode.None;
+            Gradient = null;
         }
 
         public override float[] Draw()

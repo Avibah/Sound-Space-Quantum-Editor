@@ -6,8 +6,8 @@ namespace New_SSQE.NewGUI.Base
     internal class Gradient : Control
     {
         private float rotation = 0;
-        private Color startColor = Color.Transparent;
-        private Color endColor = Color.Transparent;
+        private Color startColor = Color.FromArgb(0, 0, 0, 0);
+        private Color endColor = Color.FromArgb(0, 0, 0, 0);
 
         public float Rotation
         {
@@ -88,7 +88,7 @@ namespace New_SSQE.NewGUI.Base
             Vector2 endL = offset + xy * xyProj + xyPerp * xyPerpProj;
             Vector2 endR = offset + xy * xyProj + xyPerp * -xyPerpProj;
 
-            return GLVerts.Quad2C(startL, startR, endL, endR, startColor, endColor);
+            return GLVerts.Quad2C(startR, endR, startL, endL, startColor, endColor);
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)

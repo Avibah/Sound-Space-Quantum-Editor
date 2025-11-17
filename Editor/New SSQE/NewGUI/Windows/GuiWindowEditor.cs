@@ -11,15 +11,13 @@ using New_SSQE.Objects;
 using New_SSQE.Preferences;
 using System.Diagnostics;
 using System.Drawing;
-using System.Security.Cryptography;
-using System.Text;
 using Un4seen.Bass;
 
 namespace New_SSQE.NewGUI.Windows
 {
     internal partial class GuiWindowEditor : GuiWindow
     {
-        public GuiWindowEditor() : base(BackgroundSquare, StandardMapNavs, SpecialMapNavs, ConstantMapNavs, CopyButton, BackButton, Tempo,
+        public GuiWindowEditor() : base(BackgroundSquare, StandardNavController, SpecialMapNavs, ConstantNavController, CopyButton, BackButton, Tempo,
             Timeline, MusicVolume, SfxVolume, PlayPause, ToastLabel, ZoomLabel, ZoomValueLabel, ClickModeLabel, TempoLabel,
             MusicVolumeLabel, MusicVolumeValueLabel, SfxVolumeLabel, SfxVolumeValueLabel, CurrentTimeLabel, CurrentMsLabel,
             MusicMute, SfxMute, TotalTimeLabel, NotesLabel, Grid, Track)
@@ -38,36 +36,14 @@ namespace New_SSQE.NewGUI.Windows
         {
             base.Close();
 
-            LNavController.Disconnect();
-            RNavController.Disconnect();
+            StandardNavController.Disconnect();
+            ConstantNavController.Disconnect();
             SpecialNavController.Disconnect();
         }
 
         public override void ConnectEvents()
         {
-            LNavController.SelectionChanged += (s, e) =>
-            {
-                bool options = OptionsNav.Visible;
-                bool timing = TimingNav.Visible;
-                bool patterns = PatternsNav.Visible;
-
-                OptionsNav.Visible = e.Active == LNavOptions;
-                TimingNav.Visible = e.Active == LNavTiming;
-                PatternsNav.Visible = e.Active == LNavPatterns;
-                PlayerNav.Visible = e.Active == LNavPlayer;
-
-                if (Settings.playtestGame.Value != "SSQE Player" && e.Active == LNavPlayer)
-                {
-                    if (options)
-                        LNavController.UpdateSelection(LNavOptions);
-                    else if (timing)
-                        LNavController.UpdateSelection(LNavTiming);
-                    else if (patterns)
-                        LNavController.UpdateSelection(LNavPatterns);
-                    else
-                        LNavController.ClearSelection();
-                }
-            };
+            StandardNavController.PanelButtonClickCallback = (e) => e == LNavPlayer && Settings.playtestGame.Value != "SSQE Player";
 
             LNavPlayer.LeftClick += (s, e) =>
             {
@@ -171,17 +147,11 @@ namespace New_SSQE.NewGUI.Windows
                 }
             };
 
-            RNavController.SelectionChanged += (s, e) =>
+            ConstantNavController.PanelButtonClickCallback = (e) =>
             {
-                SnappingNav.Visible = e.Active == RNavSnapping;
-                GraphicsNav.Visible = e.Active == RNavGraphics;
-                ExportNav.Visible = e.Active == RNavExport;
-
-                ConvertAudio.Visible = ExportNav.Visible && !PlatformUtils.IsLinux;
+                ConvertAudio.Visible = e == RNavExport && !PlatformUtils.IsLinux;
+                return false;
             };
-
-            LNavController.Initialize();
-            RNavController.Initialize();
 
             CopyButton.LeftClick += (s, e) =>
             {
@@ -403,7 +373,7 @@ namespace New_SSQE.NewGUI.Windows
 
             EditSpecial.LeftClick += (s, e) =>
             {
-                StandardMapNavs.Visible = false;
+                StandardNavController.Visible = false;
                 SpecialMapNavs.Visible = true;
 
                 Mapping.Current.RenderMode = ObjectRenderMode.Special;
@@ -411,7 +381,7 @@ namespace New_SSQE.NewGUI.Windows
 
             SpecialNavExit.LeftClick += (s, e) =>
             {
-                StandardMapNavs.Visible = true;
+                StandardNavController.Visible = true;
                 SpecialMapNavs.Visible = false;
 
                 Mapping.Current.RenderMode = ObjectRenderMode.Notes;

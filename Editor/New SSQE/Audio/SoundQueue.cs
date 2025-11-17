@@ -22,7 +22,11 @@ namespace New_SSQE.Audio
         private void OnEnded(int handle, int channel, int data, nint user)
         {
             Bass.BASS_ChannelSetPosition(channel, 0, BASSMode.BASS_POS_BYTE);
-            sounds.Enqueue(channel);
+            try
+            {
+                sounds.Enqueue(channel);
+            }
+            catch { }
         }
 
         private int GetNew()
