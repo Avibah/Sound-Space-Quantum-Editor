@@ -67,47 +67,47 @@ namespace New_SSQE.NewGUI.Base
         public virtual void MouseEnter(float x, float y) => Hovering = true;
         public virtual void MouseLeave(float x, float y) => Hovering = false;
 
-        public virtual void MouseClickLeft(float x, float y)
+        public virtual void MouseDownLeft(float x, float y)
         {
             if (PlayLeftClickSound)
                 SoundPlayer.Play(Settings.clickSound.Value);
 
             Focused = true;
             Dragging = true;
-            LeftClick?.Invoke(this, new ClickEventArgs(x, y));
             MouseMove(x, y);
 
             if (this is not ControlContainer)
                 Windowing.ButtonClicked = true;
         }
 
-        public virtual void MouseClickLeftGlobal(float x, float y)
+        public virtual void MouseDownLeftGlobal(float x, float y)
         {
             if (Hovering && !Windowing.ButtonClicked)
-                MouseClickLeft(x, y);
+                MouseDownLeft(x, y);
             else
                 Focused = false;
         }
 
-        public virtual void MouseClickRight(float x, float y)
+        public virtual void MouseDownRight(float x, float y)
         {
             if (PlayRightClickSound)
                 SoundPlayer.Play(Settings.clickSound.Value);
 
             RightDragging = true;
-            RightClick?.Invoke(this, new ClickEventArgs(x, y));
             Windowing.ButtonClicked = true;
         }
 
-        public virtual void MouseClickRightGlobal(float x, float y)
+        public virtual void MouseDownRightGlobal(float x, float y)
         {
             if (Hovering)
-                MouseClickRight(x, y);
+                MouseDownRight(x, y);
         }
 
         public virtual void MouseUpLeft(float x, float y)
         {
             Dragging = false;
+            if (Hovering)
+                LeftClick?.Invoke(this, new ClickEventArgs(x, y));
         }
 
         public virtual void MouseUpLeftGlobal(float x, float y)
@@ -119,6 +119,8 @@ namespace New_SSQE.NewGUI.Base
         public virtual void MouseUpRight(float x, float y)
         {
             RightDragging = false;
+            if (Hovering)
+                RightClick?.Invoke(this, new ClickEventArgs(x, y));
         }
 
         public virtual void MouseUpRightGlobal(float x, float y)

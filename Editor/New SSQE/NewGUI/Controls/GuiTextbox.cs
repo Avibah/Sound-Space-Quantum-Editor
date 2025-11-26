@@ -229,10 +229,10 @@ namespace New_SSQE.NewGUI.Controls
             return current;
         }
 
-        public override void MouseClickLeft(float x, float y)
+        public override void MouseDownLeft(float x, float y)
         {
             cursorTime = 0;
-            base.MouseClickLeft(x, y);
+            base.MouseDownLeft(x, y);
             if (Text.Length == 0)
                 return;
 

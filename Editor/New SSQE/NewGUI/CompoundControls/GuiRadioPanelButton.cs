@@ -8,6 +8,7 @@ namespace New_SSQE.NewGUI.CompoundControls
         // Should return TRUE if the clicked button should not update the selection
         public Predicate<GuiButton?>? PanelButtonClickCallback = null;
         public RadioButtonController Controller;
+        public GuiButton? Active => Controller.Active;
 
         private readonly Dictionary<GuiButton, ControlContainer> panels = [];
 

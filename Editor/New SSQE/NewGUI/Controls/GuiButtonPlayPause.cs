@@ -19,9 +19,9 @@ namespace New_SSQE.NewGUI.Controls
             textures[0].TileIndex = MusicPlayer.IsPlaying ? 1 : 0;
         }
 
-        public override void MouseClickLeft(float x, float y)
+        public override void MouseDownLeft(float x, float y)
         {
-            base.MouseClickLeft(x, y);
+            base.MouseDownLeft(x, y);
 
             SliderSetting currentTime = Settings.currentTime.Value;
 

@@ -1,4 +1,5 @@
 ﻿using New_SSQE.Audio;
+using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
@@ -41,7 +42,7 @@ namespace New_SSQE.NewGUI.Controls
 
             Style = ControlStyle.Slider_Uncolored;
             Animator.AddKey("HoverTime", 0.1f);
-            Animator.Reversed = true;
+            Animator.SetReversed(true);
         }
 
         public override float[] Draw()
@@ -78,24 +79,24 @@ namespace New_SSQE.NewGUI.Controls
         public override void MouseEnter(float x, float y)
         {
             base.MouseEnter(x, y);
-            Animator.Reversed = false;
+            Animator.SetReversed(false);
         }
 
         public override void MouseLeave(float x, float y)
         {
             base.MouseLeave(x, y);
             if (!Dragging)
-                Animator.Reversed = true;
+                Animator.SetReversed(true);
         }
 
         public override void MouseUpLeft(float x, float y)
         {
             base.MouseUpLeft(x, y);
             if (!Hovering)
-                Animator.Reversed = true;
+                Animator.SetReversed(true);
         }
 
-        public override void MouseClickRight(float x, float y)
+        public override void MouseDownRight(float x, float y)
         {
             if (canReset)
             {
@@ -104,7 +105,7 @@ namespace New_SSQE.NewGUI.Controls
                 Update();
             }
 
-            base.MouseClickRight(x, y);
+            base.MouseDownRight(x, y);
         }
 
         public override void MouseMove(float x, float y)

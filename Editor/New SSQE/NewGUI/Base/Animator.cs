@@ -4,45 +4,55 @@ namespace New_SSQE.NewGUI.Base
 {
     internal class Animator
     {
-        public bool Playing { get; private set; } = false;
-        public bool Reversed { get; set; } = false;
         private readonly Dictionary<string, AnimatedValue> _values = [];
 
         public void Play()
         {
-            Playing = true;
+            foreach (AnimatedValue value in _values.Values)
+                value.Playing = true;
         }
+        public void Play(string key) => _values[key].Playing = true;
 
         public void Pause()
         {
-            Playing = false;
+            foreach (AnimatedValue value in _values.Values)
+                value.Playing = false;
         }
+        public void Pause(string key) => _values[key].Playing = false;
 
         public void Reset()
         {
             foreach (AnimatedValue value in _values.Values)
                 value.CurrentTime = 0;
         }
+        public void Reset(string key) => _values[key].CurrentTime = 0;
 
         public void Stop()
         {
             Pause();
             Reset();
         }
+        public void Stop(string key)
+        {
+            Pause(key);
+            Reset(key);
+        }
+
+        public void SetReversed(bool reversed)
+        {
+            foreach (AnimatedValue value in _values.Values)
+                value.Reversed = reversed;
+        }
+        public void SetReversed(string key, bool reversed) => _values[key].Reversed = reversed;
 
         public bool Process(float frametime)
         {
-            if (!Playing)
-                return false;
-
             bool updated = false;
-            if (Reversed)
-                frametime *= -1;
 
             foreach (AnimatedValue value in _values.Values)
             {
                 float prevValue = value.Value;
-                value.CurrentTime += frametime;
+                value.Process(frametime);
 
                 updated |= prevValue != value.Value;
             }
@@ -50,7 +60,7 @@ namespace New_SSQE.NewGUI.Base
             return updated;
         }
 
-        public void AddKey(string key, float duration, EasingStyle style = EasingStyle.Linear, EasingDirection direction = EasingDirection.InOut)
+        public void AddKey(string key, float duration, EasingStyle style = EasingStyle.Exponential, EasingDirection direction = EasingDirection.Out)
         {
             AnimatedValue value = new()
             {

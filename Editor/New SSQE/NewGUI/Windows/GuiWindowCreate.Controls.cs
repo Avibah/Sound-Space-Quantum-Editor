@@ -30,8 +30,6 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 30,
             Style = ControlStyle.Checkbox_Uncolored
         };
-        public static readonly ControlContainer GameNavs = new(320, 415, 180, 250, NavSoundSpace, NavRhythia, NavNova);
-        public static readonly RadioCheckboxController NavController = new(Settings.createGame, NavSoundSpace, NavRhythia, NavNova);
 
         public static readonly GuiLabel AudioIDLabelSoundSpace = new(690, 370, 540, 50)
         {
@@ -94,6 +92,12 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 28
         };
         public static readonly ControlContainer NovaContainer = new(AudioPathNova, AudioPathLabelNova);
+
+        public static readonly GuiRadioPanelCheckbox GameNavs = new(320, 415, 180, 250, Settings.createGame,
+            (NavSoundSpace, SoundSpaceContainer),
+            (NavRhythia, RhythiaContainer),
+            (NavNova, NovaContainer)
+        );
 
         public static readonly GuiButton CreateButton = new(750, 705, 420, 50)
         {

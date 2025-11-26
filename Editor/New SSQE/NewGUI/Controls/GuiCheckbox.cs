@@ -1,4 +1,5 @@
-﻿using New_SSQE.NewGUI.Base;
+﻿using New_SSQE.Misc.Static;
+using New_SSQE.NewGUI.Base;
 using New_SSQE.Preferences;
 using System.Drawing;
 
@@ -30,7 +31,7 @@ namespace New_SSQE.NewGUI.Controls
             set
             {
                 toggle = value;
-                Animator.Reversed = !value;
+                Animator.SetReversed("CheckSize", !value);
 
                 if (setting != null)
                     setting.Value = value;
@@ -48,12 +49,20 @@ namespace New_SSQE.NewGUI.Controls
 
             CornerRadius = 0.5f;
             Animator.AddKey("CheckSize", 0.125f);
+            Animator.AddKey("HoverTime", 0.075f, EasingStyle.Linear);
+            Animator.SetReversed("HoverTime", true);
         }
 
         public override void Reset()
         {
             base.Reset();
             Animator.Play();
+
+            LeftClick += (s, e) =>
+            {
+                Toggle ^= true;
+                ValueChanged?.Invoke(this, new(Toggle));
+            };
         }
 
         public override float[] Draw()
@@ -74,21 +83,40 @@ namespace New_SSQE.NewGUI.Controls
             float[] fill = GLVerts.Squircle(squareRect, CornerDetail, CornerRadius, Style.Tertiary);
             float[] outline = GLVerts.SquircleOutline(squareRect, 2f, CornerDetail, CornerRadius, Style.Quaternary);
             float[] check = GLVerts.Squircle(checkRect, CornerDetail, CornerRadius, Style.Secondary);
+            float[] mask = GLVerts.Squircle(squareRect, CornerDetail, CornerRadius, Style.Quinary, Animator["HoverTime"] * 0.05f);
+            float[] clickMask = GLVerts.Squircle(squareRect, CornerDetail, CornerRadius, Style.Quinary, Dragging ? 0.04f : 0);
 
-            return [..fill, ..outline, ..check];
-        }
-
-        public override void MouseClickLeft(float x, float y)
-        {
-            Toggle ^= true;
-            ValueChanged?.Invoke(this, new(Toggle));
-            base.MouseClickLeft(x, y);
+            return [.. fill, .. outline, .. check, .. mask, .. clickMask];
         }
 
         public override void DisconnectAll()
         {
             base.DisconnectAll();
             ValueChanged = null;
+        }
+
+        public override void MouseEnter(float x, float y)
+        {
+            base.MouseEnter(x, y);
+            Animator.SetReversed("HoverTime", false);
+        }
+
+        public override void MouseLeave(float x, float y)
+        {
+            base.MouseLeave(x, y);
+            Animator.SetReversed("HoverTime", true);
+        }
+
+        public override void MouseDownLeft(float x, float y)
+        {
+            shouldUpdate = true;
+            base.MouseDownLeft(x, y);
+        }
+
+        public override void MouseUpLeft(float x, float y)
+        {
+            shouldUpdate = true;
+            base.MouseUpLeft(x, y);
         }
     }
 }

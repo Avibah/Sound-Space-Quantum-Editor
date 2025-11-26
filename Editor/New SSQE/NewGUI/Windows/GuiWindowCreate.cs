@@ -18,7 +18,7 @@ namespace New_SSQE.NewGUI.Windows
         {
             base.Close();
 
-            NavController.Disconnect();
+            GameNavs.Disconnect();
         }
 
         public override void ConnectEvents()
@@ -26,13 +26,13 @@ namespace New_SSQE.NewGUI.Windows
             CreateButton.LeftClick += (s, e) =>
             {
                 string path =
-                    NavController.Active == NavSoundSpace ? AudioPathSoundSpace.SelectedFile :
-                    NavController.Active == NavRhythia ? AudioPathRhythia.SelectedFile :
-                    NavController.Active == NavNova ? AudioPathNova.SelectedFile : "";
+                    GameNavs.Active == NavSoundSpace ? AudioPathSoundSpace.SelectedFile :
+                    GameNavs.Active == NavRhythia ? AudioPathRhythia.SelectedFile :
+                    GameNavs.Active == NavNova ? AudioPathNova.SelectedFile : "";
 
                 string id = FormatUtils.FixID(Path.GetFileNameWithoutExtension(path));
 
-                if (NavController.Active == NavSoundSpace && !string.IsNullOrWhiteSpace(AudioIDBoxSoundSpace.Text))
+                if (GameNavs.Active == NavSoundSpace && !string.IsNullOrWhiteSpace(AudioIDBoxSoundSpace.Text))
                 {
                     id = FormatUtils.FixID(AudioIDBoxSoundSpace.Text);
 
@@ -47,15 +47,6 @@ namespace New_SSQE.NewGUI.Windows
             };
 
             BackButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowMenu());
-
-            NavController.SelectionChanged += (s, e) =>
-            {
-                SoundSpaceContainer.Visible = e.Active == NavSoundSpace;
-                RhythiaContainer.Visible = e.Active == NavRhythia;
-                NovaContainer.Visible = e.Active == NavNova;
-            };
-
-            NavController.Initialize();
         }
     }
 }

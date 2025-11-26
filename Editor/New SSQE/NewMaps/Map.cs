@@ -8,7 +8,6 @@ using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
-using System.Drawing;
 
 namespace New_SSQE.NewMaps
 {
@@ -141,8 +140,8 @@ namespace New_SSQE.NewMaps
                             direction.Current = direction.Possible[(int)note.Direction];
 
                             GuiWindowEditor.NoteEnableEasing.Toggle = note.EnableEasing;
-                            GuiWindowEditor.NoteEasingStyle.Reset();
-                            GuiWindowEditor.NoteEasingDirection.Reset();
+                            GuiWindowEditor.NoteEasingStyle.Update();
+                            GuiWindowEditor.NoteEasingDirection.Update();
                         }
                         break;
                     case ObjectRenderMode.Special:

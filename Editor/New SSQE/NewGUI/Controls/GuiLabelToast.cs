@@ -1,4 +1,5 @@
-﻿using New_SSQE.Preferences;
+﻿using New_SSQE.Misc.Static;
+using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using System.Drawing;
 
@@ -11,7 +12,7 @@ namespace New_SSQE.NewGUI.Controls
 
         public GuiLabelToast(float x, float y, float w, float h) : base(x, y, w, h)
         {
-            Animator.AddKey("ToastTime", 2);
+            Animator.AddKey("ToastTime", 2, EasingStyle.Linear);
         }
 
         public void Show(string text, Color? color = null)

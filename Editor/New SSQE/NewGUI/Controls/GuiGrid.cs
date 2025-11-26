@@ -795,9 +795,9 @@ namespace New_SSQE.NewGUI.Controls
             }
         }
 
-        public override void MouseClickLeftGlobal(float x, float y)
+        public override void MouseDownLeftGlobal(float x, float y)
         {
-            base.MouseClickLeftGlobal(x, y);
+            base.MouseDownLeftGlobal(x, y);
 
             if ((hoveringXY == null && Settings.ClickMode == ClickMode.Both) || Settings.ClickMode == ClickMode.Place)
             {

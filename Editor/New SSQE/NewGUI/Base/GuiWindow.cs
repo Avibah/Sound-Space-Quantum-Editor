@@ -88,9 +88,9 @@ namespace New_SSQE.NewGUI.Base
             PrevMouse = (x, y);
 
             if (e.Button == MouseButton.Left)
-                container.MouseClickLeftGlobal(PrevMouse.X, PrevMouse.Y);
+                container.MouseDownLeftGlobal(PrevMouse.X, PrevMouse.Y);
             else if (e.Button == MouseButton.Right)
-                container.MouseClickRightGlobal(PrevMouse.X, PrevMouse.Y);
+                container.MouseDownRightGlobal(PrevMouse.X, PrevMouse.Y);
         }
 
         public virtual void MouseUp(float x, float y, MouseButtonEventArgs e)

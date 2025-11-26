@@ -201,8 +201,6 @@ namespace New_SSQE.NewGUI.Windows
                 GridSquirclePreview.Update();
             };
 
-            MonoCheckbox.ValueChanged += (s, e) => MusicPlayer.Reload();
-
             PlaytestGameController.Initialize();
 
             GradientCheckbox.ValueChanged += (s, e) => Update();

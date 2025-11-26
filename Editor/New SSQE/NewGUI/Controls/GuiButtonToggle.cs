@@ -14,11 +14,11 @@ namespace New_SSQE.NewGUI.Controls
             textures[0].TileIndex = setting.Value ? 1 : 0;
         }
 
-        public override void MouseClickLeft(float x, float y)
+        public override void MouseDownLeft(float x, float y)
         {
             setting.Value ^= true;
             textures[0].TileIndex = setting.Value ? 1 : 0;
-            base.MouseClickLeft(x, y);
+            base.MouseDownLeft(x, y);
         }
     }
 }

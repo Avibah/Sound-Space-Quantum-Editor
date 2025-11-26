@@ -6,7 +6,6 @@ using New_SSQE.Objects;
 using New_SSQE.Preferences;
 using System.IO.Compression;
 using System.Text.Json;
-using Un4seen.Bass;
 
 namespace New_SSQE.NewMaps.Parsing
 {
@@ -216,12 +215,9 @@ namespace New_SSQE.NewMaps.Parsing
             foreach (string file in Directory.GetFiles(temp))
                 File.Delete(file);
 
-            string extension = MusicPlayer.ctype switch
-            {
-                BASSChannelType.BASS_CTYPE_STREAM_MP3 => ".mp3",
-                BASSChannelType.BASS_CTYPE_STREAM_OGG => ".ogg",
-                _ => throw new FormatException($"AUDIO - not MP3/OGG ({MusicPlayer.ctype})"),
-            };
+            string extension = MusicPlayer.IsMP3 ? ".mp3" : MusicPlayer.IsOGG ? ".ogg" : "";
+            if (string.IsNullOrWhiteSpace(extension))
+                throw new FormatException($"AUDIO - not MP3/OGG");// ({MusicPlayer.Encoding})");
 
             bool hasCover = !string.IsNullOrWhiteSpace(Metadata["coverPath"]);
             bool hasIcon = !string.IsNullOrWhiteSpace(Metadata["iconPath"]);

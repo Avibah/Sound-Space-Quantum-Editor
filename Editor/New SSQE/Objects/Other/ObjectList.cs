@@ -173,6 +173,54 @@ namespace New_SSQE.Objects.Other
             }
         }
 
+        /* May improve performance when removing objects, unsure since something borked the undo performance somewhere else .-.
+        public void RemoveAll(List<T> items)
+        {
+            int curIndex = Count - 1;
+            int itemIndex = items.Count - 1;
+
+            List<int> indices = new(items.Count);
+
+            while (curIndex >= 0 && itemIndex >= 0)
+            {
+                int prevIndex = curIndex;
+
+                for (int i = curIndex; i >= 0; i--)
+                {
+                    if (this[i] == items[itemIndex])
+                    {
+                        indices.Add(i);
+                        curIndex--;
+                        itemIndex--;
+                        break;
+                    }
+                }
+
+                if (curIndex == prevIndex)
+                    itemIndex--;
+            }
+
+            indices = [.. indices.OrderBy(n => n)];
+            T[] remaining = new T[Count - indices.Count];
+            int remainingIndex = 0;
+            int checkIndex = 0;
+
+            for (curIndex = 0; curIndex < Count; curIndex++)
+            {
+                if (checkIndex < indices.Count && curIndex == indices[checkIndex])
+                {
+                    checkIndex++;
+                    continue;
+                }
+
+                remaining[remainingIndex++] = this[curIndex];
+            }
+
+            base.Clear();
+            AddRange(remaining);
+        }
+        */
+
 
 
         public void Modify_Replace(string label, List<T> oldObjects, List<T> newObjects)

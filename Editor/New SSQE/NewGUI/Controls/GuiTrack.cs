@@ -765,7 +765,7 @@ namespace New_SSQE.NewGUI.Controls
             }
         }
 
-        public override void MouseClickLeft(float x, float y)
+        public override void MouseDownLeft(float x, float y)
         {
             bool playCheck = false;
 
@@ -825,10 +825,10 @@ namespace New_SSQE.NewGUI.Controls
             if (shouldReplay)
                 MusicPlayer.Pause();
 
-            base.MouseClickLeft(x, y);
+            base.MouseDownLeft(x, y);
         }
 
-        public override void MouseClickLeftGlobal(float x, float y)
+        public override void MouseDownLeftGlobal(float x, float y)
         {
             if (hoveringObject is TimingPoint point)
             {
@@ -840,7 +840,7 @@ namespace New_SSQE.NewGUI.Controls
                 Mapping.Current.SelectedPoint = point;
             }
 
-            base.MouseClickLeftGlobal(x, y);
+            base.MouseDownLeftGlobal(x, y);
         }
 
         public override void MouseUpLeft(float x, float y)
@@ -919,9 +919,9 @@ namespace New_SSQE.NewGUI.Controls
             base.MouseUpLeftGlobal(x, y);
         }
 
-        public override void MouseClickRight(float x, float y)
+        public override void MouseDownRight(float x, float y)
         {
-            base.MouseClickRight(x, y);
+            base.MouseDownRight(x, y);
 
             float cursorPos = rect.Width * Settings.cursorPos.Value.Value / 100f;
             float currentMs = Settings.currentTime.Value.Value;
@@ -930,14 +930,14 @@ namespace New_SSQE.NewGUI.Controls
             selecting = true;
         }
 
-        public override void MouseClickRightGlobal(float x, float y)
+        public override void MouseDownRightGlobal(float x, float y)
         {
             Mapping.Current.SelectedPoint = null;
 
             if (!Hovering && (Windowing.Current?.GetHoveringInteractive() ?? null) is not GuiButtonList)
                 Mapping.Current.ClearSelected();
 
-            base.MouseClickRightGlobal(x, y);
+            base.MouseDownRightGlobal(x, y);
         }
 
         public override void MouseUpRight(float x, float y)

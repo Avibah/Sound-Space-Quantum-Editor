@@ -48,7 +48,7 @@ namespace New_SSQE.Audio
             {
                 int len = MusicPlayer.GetData(ref buffer);
 
-                if (len >= 0)
+                if (len > 0)
                 {
                     Level[] set = new Level[(int)(len / bpf / 2)];
                     int cur = 0;

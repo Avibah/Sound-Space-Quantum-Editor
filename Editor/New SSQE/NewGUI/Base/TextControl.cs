@@ -225,10 +225,12 @@ namespace New_SSQE.NewGUI.Base
         {
             Vector4 extents = base.GetExtents();
 
+            string curText = RenderedText;
+
             float tx = xOffset;
             float ty = yOffset;
-            float tw = FontRenderer.GetWidth(text, TextSize, font);
-            float th = FontRenderer.GetHeight(TextSize, font) * text.Split('\n').Length;
+            float tw = FontRenderer.GetWidth(curText, TextSize, font);
+            float th = FontRenderer.GetHeight(TextSize, font) * curText.Split('\n').Length;
 
             if (CenterMode.HasFlag(CenterMode.X))
             {

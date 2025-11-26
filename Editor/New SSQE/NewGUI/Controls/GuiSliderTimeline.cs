@@ -212,7 +212,7 @@ namespace New_SSQE.NewGUI.Controls
 
         private bool wasPlaying = false;
 
-        public override void MouseClickLeft(float x, float y)
+        public override void MouseDownLeft(float x, float y)
         {
             if (hoveringBookmark == null)
             {
@@ -220,10 +220,10 @@ namespace New_SSQE.NewGUI.Controls
                 MusicPlayer.Pause();
             }
             
-            base.MouseClickLeft(x, y);
+            base.MouseDownLeft(x, y);
         }
 
-        public override void MouseClickLeftGlobal(float x, float y)
+        public override void MouseDownLeftGlobal(float x, float y)
         {
             if (hoveringBookmark != null)
             {
@@ -231,7 +231,7 @@ namespace New_SSQE.NewGUI.Controls
                 Settings.currentTime.Value.Value = KeybindManager.ShiftHeld ? hoveringBookmark.EndMs : hoveringBookmark.Ms;
             }
 
-            base.MouseClickLeftGlobal(x, y);
+            base.MouseDownLeftGlobal(x, y);
         }
 
         public override void MouseUpLeft(float x, float y)

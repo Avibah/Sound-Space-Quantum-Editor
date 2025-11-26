@@ -347,8 +347,8 @@ namespace New_SSQE
                 TimingsWindow.Instance?.Close();
                 BookmarksWindow.Instance?.Close();
 
-                MusicPlayer.Dispose();
                 DiscordManager.Dispose();
+                SoundEngine.Dispose();
             }
         }
 

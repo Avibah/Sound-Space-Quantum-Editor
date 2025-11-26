@@ -1,8 +1,6 @@
 ﻿using New_SSQE.ExternalUtils;
 using New_SSQE.NewMaps;
 using New_SSQE.NewGUI.Windows;
-using New_SSQE.Preferences;
-using System.Drawing;
 
 namespace New_SSQE.EditHistory
 {

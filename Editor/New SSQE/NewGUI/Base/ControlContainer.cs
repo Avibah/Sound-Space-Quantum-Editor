@@ -144,35 +144,35 @@ namespace New_SSQE.NewGUI.Base
             }
         }
 
-        public override void MouseClickLeftGlobal(float x, float y)
+        public override void MouseDownLeftGlobal(float x, float y)
         {
             if (!Visible)
                 return;
 
-            base.MouseClickLeftGlobal(x, y);
+            base.MouseDownLeftGlobal(x, y);
 
             for (int i = interactives.Length - 1; i >= 0; i--)
             {
                 InteractiveControl control = interactives[i];
 
                 if (control.Visible)
-                    control.MouseClickLeftGlobal(x, y);
+                    control.MouseDownLeftGlobal(x, y);
             }
         }
 
-        public override void MouseClickRightGlobal(float x, float y)
+        public override void MouseDownRightGlobal(float x, float y)
         {
             if (!Visible)
                 return;
 
-            base.MouseClickRightGlobal(x, y);
+            base.MouseDownRightGlobal(x, y);
 
             for (int i = interactives.Length - 1; i >= 0; i--)
             {
                 InteractiveControl control = interactives[i];
 
                 if (control.Visible)
-                    control.MouseClickRightGlobal(x, y);
+                    control.MouseDownRightGlobal(x, y);
             }
         }
 
@@ -214,15 +214,13 @@ namespace New_SSQE.NewGUI.Base
 
             foreach (InteractiveControl control in interactives)
             {
-                if (!control.Visible)
-                    continue;
-
                 if (control.Hovering && !control.GetRect().Contains(x, y))
                     control.MouseLeave(x, y);
-                else if (canHover && !control.Hovering && control.GetRect().Contains(x, y))
+                else if (control.Visible && canHover && !control.Hovering && control.GetRect().Contains(x, y))
                     control.MouseEnter(x, y);
 
-                control.MouseMove(x, y);
+                if (control.Visible)
+                    control.MouseMove(x, y);
             }
         }
 

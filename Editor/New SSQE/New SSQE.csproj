@@ -33,6 +33,8 @@
     <PackageReference Include="Egorozh.ColorPicker.Avalonia.Dialog" Version="0.10.17" />
     <PackageReference Include="NativeFileDialogs.Net" Version="1.2.1" />
     <PackageReference Include="OpenTK" Version="5.0.0-pre.13" />
+    <PackageReference Include="SoundFlow" Version="1.3.0" />
+    <PackageReference Include="SoundFlow.Codecs.FFMpeg" Version="1.3.0.1" />
     <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
     <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
@@ -40,12 +42,6 @@
 
   <ItemGroup>
     <Content Include="dependencies\Icon.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Bass.Net">
-      <HintPath>dependencies\Bass.Net.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

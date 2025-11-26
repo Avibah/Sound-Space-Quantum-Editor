@@ -11,7 +11,6 @@ using New_SSQE.Objects;
 using New_SSQE.Preferences;
 using System.Diagnostics;
 using System.Drawing;
-using Un4seen.Bass;
 
 namespace New_SSQE.NewGUI.Windows
 {
@@ -112,7 +111,7 @@ namespace New_SSQE.NewGUI.Windows
                                 foreach (string file in Directory.GetFiles(temp))
                                     File.Delete(file);
 
-                                File.Copy(audio, Path.Combine(temp, $"audio.{(MusicPlayer.ctype == BASSChannelType.BASS_CTYPE_STREAM_MP3 ? "mp3" : "ogg")}"), true);
+                                File.Copy(audio, Path.Combine(temp, $"audio.{(MusicPlayer.IsMP3 ? "mp3" : "ogg")}"), true);
                                 NPK.WriteNCH(Path.Combine(temp, "chart.nch"));
                                 NPK.WriteNLR(Path.Combine(temp, "lyrics.nlr"));
 

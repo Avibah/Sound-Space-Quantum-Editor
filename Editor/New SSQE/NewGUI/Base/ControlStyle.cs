@@ -64,7 +64,7 @@ namespace New_SSQE.NewGUI.Base
         /// <summary>
         /// Quinary (5) color for GUI elements. Used in:
         /// <list type="bullet">
-        ///     <item>None</item>
+        ///     <item>GuiCheckbox - Hover mask</item>
         /// </list>
         /// </summary>
         public readonly Color Quinary => quinary ?? Settings.color5.Value;
@@ -140,7 +140,7 @@ namespace New_SSQE.NewGUI.Base
             null,
             Color.FromArgb(13, 13, 13),
             Color.FromArgb(52, 52, 52),
-            null
+            Color.FromArgb(255, 255, 255)
         );
 
         public static ControlStyle Checkbox_Uncolored = new(
@@ -148,7 +148,7 @@ namespace New_SSQE.NewGUI.Base
             Color.FromArgb(75, 75, 75),
             Color.FromArgb(13, 13, 13),
             Color.FromArgb(52, 52, 52),
-            null
+            Color.FromArgb(255, 255, 255)
         );
 
         public static ControlStyle Grid_Colored = new(

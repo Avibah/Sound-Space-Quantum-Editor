@@ -7,19 +7,6 @@ namespace New_SSQE.NewGUI.Controls
         private readonly Setting<ListSetting> setting;
         private string prefix = "";
 
-        public string Prefix
-        {
-            get => prefix;
-            set
-            {
-                if (value != prefix)
-                {
-                    prefix = value;
-                    shouldUpdate = true;
-                }
-            }
-        }
-
         public GuiButtonList(float x, float y, float w, float h, Setting<ListSetting> setting) : base(x, y, w, h)
         {
             this.setting = setting;
@@ -52,16 +39,16 @@ namespace New_SSQE.NewGUI.Controls
             Text = prefix + list.Current.ToString().ToUpper();
         }
 
-        public override void MouseClickLeft(float x, float y)
+        public override void MouseDownLeft(float x, float y)
         {
             UpdateSetting(true);
-            base.MouseClickLeft(x, y);
+            base.MouseDownLeft(x, y);
         }
 
-        public override void MouseClickRight(float x, float y)
+        public override void MouseDownRight(float x, float y)
         {
             UpdateSetting(false);
-            base.MouseClickRight(x, y);
+            base.MouseDownRight(x, y);
         }
     }
 }

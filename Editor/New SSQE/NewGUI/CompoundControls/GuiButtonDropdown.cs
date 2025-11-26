@@ -10,21 +10,6 @@ namespace New_SSQE.NewGUI.CompoundControls
         public readonly GuiButton[] Options;
         public readonly GuiScrollingList OptionList;
 
-        private string? prefix;
-        
-        public string? Prefix
-        {
-            get => prefix;
-            set
-            {
-                if (prefix != value)
-                {
-                    prefix = value;
-                    shouldUpdate = true;
-                }
-            }
-        }
-
         public new ControlStyle Style
         {
             get => MainButton.Style;
@@ -40,6 +25,18 @@ namespace New_SSQE.NewGUI.CompoundControls
         {
             get => MainButton.Text;
             set => MainButton.Text = value;
+        }
+
+        public new string Prefix
+        {
+            get => MainButton.Prefix;
+            set => MainButton.Prefix = value;
+        }
+
+        public new string Suffix
+        {
+            get => MainButton.Suffix;
+            set => MainButton.Suffix = value;
         }
 
         public new float TextSize
@@ -112,6 +109,12 @@ namespace New_SSQE.NewGUI.CompoundControls
             RenderOnTop = true;
         }
 
+        public override void Update()
+        {
+            Text = setting.Value.Current.ToUpper();
+            base.Update();
+        }
+
         public override void Reset()
         {
             base.Reset();
@@ -129,16 +132,14 @@ namespace New_SSQE.NewGUI.CompoundControls
                 {
                     OptionList.Visible = false;
                     setting.Value.Current = setting.Value.Possible[index];
-                    Text = (prefix ?? "") + setting.Value.Current.ToUpper();
+                    shouldUpdate = true;
                 };
             }
-
-            Text = (prefix ?? "") + setting.Value.Current.ToUpper();
         }
 
-        public override void MouseClickLeftGlobal(float x, float y)
+        public override void MouseDownLeftGlobal(float x, float y)
         {
-            base.MouseClickLeftGlobal(x, y);
+            base.MouseDownLeftGlobal(x, y);
 
             if (!MainButton.Hovering && !OptionList.Hovering)
                 OptionList.Visible = false;
