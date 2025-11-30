@@ -12,6 +12,7 @@ namespace New_SSQE.Audio
     {
         private static string lastFile = "";
         private static Player? lastPlayer;
+        private static TempoProvider? tempoProvider;
 
         private static void RunMP3Convert()
         {
@@ -75,9 +76,13 @@ namespace New_SSQE.Audio
 
             try
             {
-                Player player = SoundEngine.InitializeMusic(file);
+                Player player = SoundEngine.InitializeMusic(file, out string fileType);
                 player.PlaybackEnded += (s, e) => OnEnded();
                 lastPlayer = player;
+                tempoProvider = player.DataProvider as TempoProvider;
+
+                IsMP3 = fileType == "mp3";
+                IsOGG = fileType == "ogg";
             }
             catch (Exception ex)
             {
@@ -134,10 +139,10 @@ namespace New_SSQE.Audio
         {
             set
             {
-                if (lastPlayer != null)
-                    lastPlayer.PlaybackSpeed = value;
+                if (tempoProvider != null)
+                    tempoProvider.Tempo = value;
             }
-            get => lastPlayer?.PlaybackSpeed ?? 1;
+            get => tempoProvider?.Tempo ?? 1;
         }
 
         public static float Volume
@@ -166,24 +171,15 @@ namespace New_SSQE.Audio
             get => TimeSpan.FromSeconds(lastPlayer == null ? 0 : TotalTime.TotalSeconds * lastPlayer.DataProvider.Position / lastPlayer.DataProvider.Length + Settings.musicOffset.Value / 1000d);
         }
 
-        public static bool IsMP3 => true;
-        public static bool IsOGG => false;
+        public static bool IsMP3 { get; private set; } = false;
+        public static bool IsOGG { get; private set; } = false;
 
         public static float DetectBPM(long start, long end)
         {
             return 0;
         }
 
-        public static string[] SupportedExtensions =
-        [
-            ".mp3", ".ogg", ".wav", ".mp2",
-            ".mp1", ".aiff", ".m2a", ".mpa",
-            ".m1a", ".mpg", ".mpeg", ".aif",
-            ".mp3pro", ".bwf", ".mus", ".wma",
-            ".wmv", ".aac", ".adts", ".mp4",
-            ".m4a", ".m4b", ".m4p", ".egg",
-            ".flac", ".asset"
-        ];
-        public static string SupportedExtensionsString => string.Join(';', SupportedExtensions.Select((e) => '*' + e));
+        public static string[] SupportedExtensions => [.. SoundEngine.SupportedFormats.Concat(["egg", "asset"])];
+        public static string SupportedExtensionsString => string.Join(';', SupportedExtensions.Select((e) => "*." + e));
     }
 }

@@ -30,7 +30,7 @@ namespace New_SSQE.Audio
         {
             tags.TryGetValue(sound, out string? file);
             file ??= sound;
-
+            
             SoundEngine.PlaySound(file, sound == Settings.clickSound.Value ? 0.035f : Volume);
         }
     }

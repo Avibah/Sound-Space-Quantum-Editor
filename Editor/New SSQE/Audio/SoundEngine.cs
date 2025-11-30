@@ -9,6 +9,7 @@ using New_SSQE.Preferences;
 using SoundFlow.Utils;
 using SoundFlow.Interfaces;
 using SoundFlow.Backends.MiniAudio.Devices;
+using SoundFlow.Backends.MiniAudio.Enums;
 
 namespace New_SSQE.Audio
 {
@@ -24,6 +25,7 @@ namespace New_SSQE.Audio
         };
 
         private static readonly FFmpegCodecFactory ffmpegFactory = new();
+        public static IReadOnlyCollection<string> SupportedFormats => ffmpegFactory.SupportedFormatIds;
 
         private static readonly MiniAudioEngine engine = new();
         private static readonly AudioPlaybackDevice device;
@@ -39,28 +41,32 @@ namespace New_SSQE.Audio
             engine.UpdateAudioDevicesInfo();
             device = engine.InitializePlaybackDevice(null, format, new MiniAudioDeviceConfig()
             {
+                Wasapi = new() { Usage = WasapiUsage.ProAudio },
+                NoDisableDenormals = true,
                 PeriodSizeInMilliseconds = 1
             });
             device.Start();
         }
 
-        private static RawDataProvider GetResampledProvider(string filename)
+        private static float[] GetResampledData(string filename, out string fileType)
         {
             using FileStream stream = File.OpenRead(filename);
             stream.Seek(0, SeekOrigin.Begin);
             using AssetDataProvider provider = new(engine, stream);
 
+            fileType = provider.FormatInfo?.FormatName.ToLower() ?? "";
+
             float[] data = new float[provider.Length];
             provider.ReadBytes(data);
             float[] resampled = MathHelper.ResampleLinear(data, provider.FormatInfo?.ChannelCount ?? 2, provider.SampleRate, format.SampleRate);
 
-            return new RawDataProvider(resampled);
+            return resampled;
         }
 
         private static void EnqueueNewSound(string filename)
         {
             if (!providers.TryGetValue(filename, out ISoundDataProvider? provider))
-                provider = GetResampledProvider(filename);
+                provider = new RawDataProvider(GetResampledData(filename, out _));
 
             Queue<Player> queue = cache[filename];
             Player player = new(engine, format, provider);
@@ -98,14 +104,15 @@ namespace New_SSQE.Audio
                     EnqueueNewSound(filename);
 
                 Player player = queue.Dequeue();
-                player.Volume = volume;
                 player.Mute = Settings.muteSfx.Value;
+                if (player.Volume != volume)
+                    player.Volume = volume;
                 player.Play();
             }
             catch { }
         }
 
-        public static Player InitializeMusic(string filename)
+        public static Player InitializeMusic(string filename, out string fileType)
         {
             if (prevMusic != null)
             {
@@ -113,7 +120,7 @@ namespace New_SSQE.Audio
                 prevMusic = null;
             }
 
-            ISoundDataProvider provider = GetResampledProvider(filename);
+            ISoundDataProvider provider = new TempoProvider(GetResampledData(filename, out fileType), format);
             Player player = new(engine, format, provider);
 
             prevMusic = player;
