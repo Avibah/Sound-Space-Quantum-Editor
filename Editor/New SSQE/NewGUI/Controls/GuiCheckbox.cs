@@ -11,6 +11,7 @@ namespace New_SSQE.NewGUI.Controls
 
         private Setting<bool>? setting;
         private bool toggle;
+        private bool inverted;
 
         public Setting<bool>? Setting
         {
@@ -34,14 +35,30 @@ namespace New_SSQE.NewGUI.Controls
                 Animator.SetReversed("CheckSize", !value);
 
                 if (setting != null)
-                    setting.Value = value;
+                    setting.Value = value ^ inverted;
+            }
+        }
+
+        public bool Inverted
+        {
+            get => inverted;
+            set
+            {
+                if (inverted != value)
+                {
+                    inverted = value;
+                    shouldUpdate = true;
+
+                    if (setting != null)
+                        Toggle = setting.Value ^ inverted;
+                }
             }
         }
 
         public GuiCheckbox(float x, float y, float w, float h) : base(x, y, w, h)
         {
             if (setting != null)
-                Toggle = setting.Value;
+                Toggle = setting.Value ^ inverted;
 
             Style = ControlStyle.Checkbox_Colored;
             PlayRightClickSound = false;
@@ -67,7 +84,7 @@ namespace New_SSQE.NewGUI.Controls
 
         public override float[] Draw()
         {
-            Toggle = setting?.Value ?? Toggle;
+            Toggle = (setting?.Value ^ inverted) ?? Toggle;
 
             float width = Math.Min(rect.Width, rect.Height);
             float hGap = (rect.Height - width) / 2;
