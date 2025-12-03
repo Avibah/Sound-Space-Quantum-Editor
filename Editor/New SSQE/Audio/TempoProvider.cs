@@ -20,7 +20,6 @@ namespace New_SSQE.Audio
         public int Position => _position;
         public int Length => _samples.Length;
 
-        public float Tempo { get; set; } = 1;
         public bool CanSeek { get; private set; } = true;
         public bool IsDisposed { get; private set; } = false;
         public SoundFormatInfo? FormatInfo { get; private set; } = null;
@@ -28,7 +27,17 @@ namespace New_SSQE.Audio
         public event EventHandler<EventArgs>? EndOfStreamReached;
         public event EventHandler<PositionChangedEventArgs>? PositionChanged;
 
-        private SoundTouchProcessor _processor;
+        private readonly SoundTouchProcessor _processor;
+        private bool clearSamples = false;
+        public float Tempo
+        {
+            get => (float)_processor.Rate;
+            set
+            {
+                clearSamples = !_processor.IsEmpty;
+                _processor.Rate = value;
+            }
+        }
 
         public TempoProvider(float[] samples, AudioFormat format)
         {
@@ -44,8 +53,63 @@ namespace New_SSQE.Audio
             };
         }
 
+        private bool ClearSTBuffer()
+        {
+            try
+            {
+                if (_processor.IsEmpty)
+                    return true;
+
+                int channels = _format.Channels;
+
+                _processor.Flush();
+                while (_processor.AvailableSamples > 0)
+                    _processor.ReceiveSamples(new float[4096 * channels], 4096);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void FillSTSamples(int samplesNeeded)
+        {
+            if (clearSamples)
+            {
+                while (!ClearSTBuffer());
+                clearSamples = false;
+            }
+
+            int samplesPerFill = _sampleRate / 4;
+
+            int channels = _format.Channels;
+            int samplesLeft = _samples.Length - _position;
+            int offset = 0;
+
+            while (_processor.AvailableSamples < samplesNeeded / channels)
+            {
+                try
+                {
+                    int toFill = Math.Min(samplesLeft, samplesPerFill);
+                    float[] toPut = [.. _samples.AsSpan().Slice(_position + offset, toFill)];
+
+                    _processor.PutSamples(toPut, toFill / channels);
+                    if (toFill < samplesPerFill)
+                        _processor.Flush();
+
+                    samplesLeft -= samplesPerFill;
+                    offset += samplesPerFill;
+                }
+                catch { }
+            }
+        }
+
         public int ReadBytes(Span<float> buffer)
         {
+            if (IsDisposed)
+                return 0;
+
             int samplesLeft = _samples.Length - _position;
             if (samplesLeft <= 0)
             {
@@ -54,32 +118,24 @@ namespace New_SSQE.Audio
             }
 
             int toServe = Math.Min(samplesLeft, buffer.Length);
-            float[] source = [.. _samples.Take(new Range(_position, _position + toServe))];
+            int channels = _format.Channels;
 
-            if (Tempo == 1)
+            if (Math.Abs(Tempo - 1) < 0.001)
             {
-                source.CopyTo(buffer);
+                _samples.AsSpan().Slice(_position, toServe).CopyTo(buffer);
                 _position += toServe;
 
                 PositionChanged?.Invoke(this, new(_position));
                 return toServe;
             }
 
-            int toRead = Math.Min(toServe, (int)(toServe / Tempo));
-            toServe = (int)(toRead * Tempo);
-            float[] processed = new float[toRead];
+            FillSTSamples(toServe);
 
-            _processor.PutSamples(source, toServe / _format.Channels);
-            _processor.Flush();
+            float[] processed = new float[toServe];
+            _processor.ReceiveSamples(processed, toServe / channels);
 
-            int result = _processor.ReceiveSamples(processed, toRead / _format.Channels) * _format.Channels;
-            int received = result;
-            // Clear processor buffer
-            while (received > 0)
-                received = _processor.ReceiveSamples(new float[4096], 4096 / _format.Channels);
-
-            processed.AsSpan().CopyTo(buffer);
-            _position += result;
+            processed.CopyTo(buffer);
+            _position += (int)(toServe * Tempo);
 
             PositionChanged?.Invoke(this, new(_position));
             return toServe;
@@ -94,6 +150,8 @@ namespace New_SSQE.Audio
         {
             if (!IsDisposed)
                 IsDisposed = true;
+            EndOfStreamReached = null;
+            PositionChanged = null;
         }
     }
 }

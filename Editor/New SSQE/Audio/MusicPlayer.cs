@@ -150,7 +150,7 @@ namespace New_SSQE.Audio
             set
             {
                 if (lastPlayer != null)
-                    lastPlayer.Volume = value;
+                    lastPlayer.Volume = Math.Max(value, 0);
             }
             get => lastPlayer?.Volume ?? 1;
         }

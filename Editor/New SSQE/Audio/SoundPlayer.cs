@@ -23,6 +23,7 @@ namespace New_SSQE.Audio
 
                 if (!tags.TryAdd(tag, file))
                     tags[tag] = file;
+                SoundEngine.InitializeSound(file);
             }
         }
 

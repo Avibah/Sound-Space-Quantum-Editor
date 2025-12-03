@@ -42,7 +42,6 @@ namespace New_SSQE.Audio
             device = engine.InitializePlaybackDevice(null, format, new MiniAudioDeviceConfig()
             {
                 Wasapi = new() { Usage = WasapiUsage.ProAudio },
-                NoDisableDenormals = true,
                 PeriodSizeInMilliseconds = 1
             });
             device.Start();
@@ -81,7 +80,7 @@ namespace New_SSQE.Audio
             queue.Enqueue(player);
         }
 
-        private static void InitializeSound(string filename)
+        public static void InitializeSound(string filename)
         {
             if (!cache.TryAdd(filename, []))
                 cache[filename] = [];
