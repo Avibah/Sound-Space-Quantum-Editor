@@ -15,7 +15,7 @@ namespace New_SSQE.Misc.Dialogs
 
         public DialogResult ShowDialog()
         {
-            Windowing.LockClick();
+            Windowing.Disable();
 
             ColorPickerDialog dialog = new()
             {
@@ -46,7 +46,7 @@ namespace New_SSQE.Misc.Dialogs
 
             Color = Color.FromArgb(dialog.Color.A, dialog.Color.R, dialog.Color.G, dialog.Color.B);
 
-            Windowing.UnlockClick();
+            Windowing.Enable();
             return Result;
         }
     }

@@ -1,5 +1,6 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.Misc;
+using New_SSQE.NewGUI.Controls;
 using New_SSQE.NewGUI.Input;
 using New_SSQE.NewMaps;
 using New_SSQE.NewMaps.Parsing;
@@ -30,11 +31,30 @@ namespace New_SSQE.NewGUI.Base
 
         private readonly ControlContainer container;
 
+        private readonly GuiSquare shadow = new()
+        {
+            RenderOnTop = true,
+            Color = Color.FromArgb(63, 0, 0, 0),
+            Visible = false
+        };
+
         private bool connected = false;
+        private bool enabled = true;
+        
+        public bool Enabled
+        {
+            get => enabled;
+            private set
+            {
+                shadow.Visible = !value;
+                enabled = value;
+                MainWindow.Instance.ForceRender();
+            }
+        }
 
         public GuiWindow(float x, float y, float w, float h, params Control[] controls)
         {
-            container = new(x, y, w, h, controls);
+            container = new(x, y, w, h, [.. controls, shadow]);
             container.Reset();
         }
         public GuiWindow(params Control[] controls) : this(0, 0, MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y, controls) { }
@@ -55,9 +75,12 @@ namespace New_SSQE.NewGUI.Base
             container.DisconnectAll();
         }
 
+        public virtual void Enable() => Enabled = true;
+        public virtual void Disable() => Enabled = false;
+
         public virtual void SetControls(params Control[] controls)
         {
-            container.SetControls(controls);
+            container.SetControls([.. controls, shadow]);
         }
 
         public virtual void Update()
@@ -83,8 +106,9 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void MouseDown(float x, float y, MouseButtonEventArgs e)
         {
-            if (Windowing.ClickLocked)
+            if (!enabled)
                 return;
+
             PrevMouse = (x, y);
 
             if (e.Button == MouseButton.Left)
@@ -105,6 +129,9 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void MouseScroll(float x, float y, float delta)
         {
+            if (!enabled)
+                return;
+
             PrevMouse = (x, y);
 
             container.MouseScrollGlobal(PrevMouse.X, PrevMouse.Y, delta);
@@ -112,6 +139,9 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void KeyDown(Keys key)
         {
+            if (!enabled)
+                return;
+
             container.KeyDown(key);
             KeybindManager.Run(key);
         }
@@ -123,16 +153,25 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void KeybindUsed(string keybind)
         {
+            if (!enabled)
+                return;
+
             container.KeybindUsed(keybind);
         }
 
         public virtual void TextInput(string str)
         {
+            if (!enabled)
+                return;
+
             container.TextInput(str);
         }
 
         public virtual void FileDrop(string file)
         {
+            if (!enabled)
+                return;
+
             bool loaded = true;
             Map? prev = Mapping.Current;
 
@@ -154,10 +193,10 @@ namespace New_SSQE.NewGUI.Base
             }
         }
 
-        public virtual bool TextboxFocused() => container.TextboxFocused();
-        public virtual bool HoveringInteractive(InteractiveControl? exclude = null) => container.HoveringInteractive(exclude);
-        public virtual InteractiveControl? GetHoveringInteractive(InteractiveControl? exclude = null) => container.GetHoveringInteractive(exclude);
-        public virtual bool ShouldConsumeScroll() => container.ShouldConsumeScroll();
+        public virtual bool TextboxFocused() => enabled && container.TextboxFocused();
+        public virtual bool HoveringInteractive(InteractiveControl? exclude = null) => enabled && container.HoveringInteractive(exclude);
+        public virtual InteractiveControl? GetHoveringInteractive(InteractiveControl? exclude = null) => enabled ? container.GetHoveringInteractive(exclude) : null;
+        public virtual bool ShouldConsumeScroll() => enabled && container.ShouldConsumeScroll();
 
         protected virtual void SetOffset(Vector2 offset)
         {

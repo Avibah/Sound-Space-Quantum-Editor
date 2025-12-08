@@ -21,6 +21,8 @@ namespace New_SSQE.NewGUI.Base
         private Vector2 startOff = Vector2.Zero;
         private bool dragging = false;
 
+        public bool Modal = false;
+
         public GuiWindowDialog(float x, float y, float w, float h, params Control[] controls) : base(x - 2, y - 18, w + 4, h + 20)
         {
             InnerContainer = new(0, 0, w, h, controls);

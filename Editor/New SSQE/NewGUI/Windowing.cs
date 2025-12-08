@@ -13,8 +13,7 @@ namespace New_SSQE.NewGUI
     internal static class Windowing
     {
         public static bool ButtonClicked = false;
-        public static bool ClickLocked = false;
-        private static bool shouldUnlock = false;
+        private static bool shouldEnable = false;
 
         private static readonly Stack<GuiWindow> windowStack = [];
         public static GuiWindow? Current => windowStack.FirstOrDefault(n => n is not GuiWindowDialog);
@@ -53,6 +52,12 @@ namespace New_SSQE.NewGUI
 
         public static void OpenDialog(GuiWindowDialog window)
         {
+            if (window.Modal)
+            {
+                foreach (GuiWindow item in windowStack)
+                    item.Disable();
+            }
+
             windowStack.Push(window);
             window.Open();
         }
@@ -67,6 +72,32 @@ namespace New_SSQE.NewGUI
             windowStack.Pop().Close();
             while (temp.Count > 0)
                 windowStack.Push(temp.Pop());
+
+            Enable();
+        }
+
+        public static void Enable()
+        {
+            shouldEnable = true;
+        }
+
+        private static void EnableInternal()
+        {
+            bool modal = false;
+
+            foreach (GuiWindow item in windowStack)
+            {
+                if (item is GuiWindowDialog dialog && dialog.Modal)
+                    modal = true;
+                if (!modal && !item.Enabled)
+                    item.Enable();
+            }
+        }
+
+        public static void Disable()
+        {
+            foreach (GuiWindow item in windowStack)
+                item.Disable();
         }
 
         public static void Render(float mousex, float mousey, float frametime)
@@ -74,10 +105,10 @@ namespace New_SSQE.NewGUI
             foreach (GuiWindow window in windowStack.Reverse())
                 window.Render(mousex, mousey, frametime);
 
-            if (shouldUnlock)
+            if (shouldEnable)
             {
-                ClickLocked = false;
-                shouldUnlock = false;
+                EnableInternal();
+                shouldEnable = false;
             }
         }
 
@@ -206,8 +237,5 @@ namespace New_SSQE.NewGUI
             
             return false;
         }
-
-        public static void LockClick() => ClickLocked = true;
-        public static void UnlockClick() => shouldUnlock = true;
     }
 }

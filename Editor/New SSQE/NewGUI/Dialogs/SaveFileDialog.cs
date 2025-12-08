@@ -17,7 +17,7 @@ namespace New_SSQE.Misc.Dialogs
 
         public DialogResult Show()
         {
-            Windowing.LockClick();
+            Windowing.Disable();
 
             string[] filters = (Filter ?? "").Split('|');
             string name = filters[0];
@@ -39,7 +39,7 @@ namespace New_SSQE.Misc.Dialogs
                 GuiWindowEditor.ShowError("Failed to open dialog");
             }
 
-            Windowing.UnlockClick();
+            Windowing.Enable();
 
             if (!string.IsNullOrWhiteSpace(result))
             {
