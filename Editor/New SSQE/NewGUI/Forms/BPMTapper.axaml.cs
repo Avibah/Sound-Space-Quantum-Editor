@@ -3,7 +3,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using New_SSQE.ExternalUtils;
-using New_SSQE.Misc.Static;
+using New_SSQE.Misc;
 
 namespace New_SSQE.NewGUI
 {
@@ -34,7 +34,7 @@ namespace New_SSQE.NewGUI
             window.Show();
             window.Reset();
 
-            if (PlatformUtils.IsLinux)
+            if (Platforms.IsLinux)
             {
                 window.Topmost = true;
                 BackgroundWindow.YieldWindow(window);

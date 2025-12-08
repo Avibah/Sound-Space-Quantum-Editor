@@ -1,5 +1,5 @@
 ﻿using New_SSQE.ExternalUtils;
-using New_SSQE.Misc.Static;
+using New_SSQE.Misc;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.CompoundControls;
 using New_SSQE.NewGUI.Controls;
@@ -454,7 +454,7 @@ namespace New_SSQE.NewGUI.Windows
 
         public static readonly GuiPathBox RhythiaPathBox = new(300, 0, 750, 50)
         {
-            Filter = PlatformUtils.ExecutableFilter,
+            Filter = Platforms.ExecutableFilter,
             Folder = Settings.rhythiaFolderPath,
             Setting = Settings.rhythiaPath,
             Text = "RHYTHIA PATH",
@@ -462,7 +462,7 @@ namespace New_SSQE.NewGUI.Windows
         };
         public static readonly GuiPathBox NovaPathBox = new(300, 60, 750, 50)
         {
-            Filter = PlatformUtils.ExecutableFilter,
+            Filter = Platforms.ExecutableFilter,
             Folder = Settings.novaFolderPath,
             Setting = Settings.novaPath,
             Text = "NOVASTRA PATH",

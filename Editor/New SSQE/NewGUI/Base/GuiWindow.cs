@@ -1,5 +1,5 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.Misc.Static;
+using New_SSQE.Misc;
 using New_SSQE.NewGUI.Input;
 using New_SSQE.NewMaps;
 using New_SSQE.NewMaps.Parsing;

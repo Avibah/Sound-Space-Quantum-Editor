@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using New_SSQE.ExternalUtils;
+using New_SSQE.Misc;
 using New_SSQE.Misc.Dialogs;
-using New_SSQE.Misc.Static;
 using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
 using System.Diagnostics;
@@ -28,14 +28,14 @@ namespace New_SSQE
 
         private static void Start()
         {
-            PlatformUtils.CheckDependencies();
+            Platforms.CheckDependencies();
             BuildAvaloniaApp();
 
             Settings.Load();
             MainWindow.DebugVersion |= Settings.debugMode.Value;
             
             MainWindow window = new(Settings.msaa.Value ? 32 : 0);
-            ProgramArgs.Watch();
+            CmdArgs.Watch();
 
             using (window)
                 window.Run();
@@ -94,8 +94,8 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
 
             if (result == DialogResult.Yes)
             {
-                PlatformUtils.OpenLink(Links.NEW_GITHUB_ISSUE);
-                PlatformUtils.OpenDirectory();
+                Platforms.OpenLink(Links.NEW_GITHUB_ISSUE);
+                Platforms.OpenDirectory();
             }
 
             Environment.Exit(0);
@@ -122,7 +122,7 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
 
                             if (final[0] == "open" && !IsOtherWindowOpen())
                             {
-                                ProgramArgs.Parse(final);
+                                CmdArgs.Parse(final);
                                 break;
                             }
                             return;
@@ -144,7 +144,7 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
             {
                 try
                 {
-                    ProgramArgs.Start(args, IsOtherWindowOpen());
+                    CmdArgs.Start(args, IsOtherWindowOpen());
                 }
                 catch (Exception ae)
                 {
@@ -176,7 +176,7 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
                 RegisterCrash(e);
             }
 
-            ProgramArgs.Unwatch();
+            CmdArgs.Unwatch();
         }
     }
 }

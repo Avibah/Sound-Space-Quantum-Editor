@@ -5,9 +5,9 @@ using OpenTK.Mathematics;
 using System.Reflection;
 using System.Text.Json;
 using New_SSQE.Audio;
-using New_SSQE.Misc.Static;
 using New_SSQE.ExternalUtils;
 using New_SSQE.NewGUI.Base;
+using New_SSQE.Misc;
 
 namespace New_SSQE.Preferences
 {

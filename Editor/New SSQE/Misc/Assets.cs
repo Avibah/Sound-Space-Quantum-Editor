@@ -1,12 +1,12 @@
 ﻿using System.Reflection;
 using New_SSQE.ExternalUtils;
 
-namespace New_SSQE.Misc.Static
+namespace New_SSQE.Misc
 {
     internal class Assets
     {
         public static readonly string THIS = Path.GetDirectoryName(Environment.ProcessPath) ?? "";
-        public static readonly string FILE_NAME = PlatformUtils.GetExecutableName($"{Assembly.GetExecutingAssembly().GetName().Name ?? "Sound Space Quantum Editor"}");
+        public static readonly string FILE_NAME = Platforms.GetExecutableName($"{Assembly.GetExecutingAssembly().GetName().Name ?? "Sound Space Quantum Editor"}");
         public static readonly string EXE = Path.Combine(THIS, FILE_NAME);
 
         public static readonly string CACHED = Path.Combine(THIS, "cached");

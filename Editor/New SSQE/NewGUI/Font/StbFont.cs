@@ -1,4 +1,4 @@
-﻿using New_SSQE.Misc.Static;
+﻿using New_SSQE.Misc;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;

@@ -1,6 +1,6 @@
 ﻿using New_SSQE.ExternalUtils;
+using New_SSQE.Misc;
 using New_SSQE.Misc.Dialogs;
-using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Controls;
 using New_SSQE.NewGUI.Font;
@@ -40,7 +40,7 @@ namespace New_SSQE.NewGUI.Windows
 
                     Task.Run(() =>
                     {
-                        changelogCache = Networking.DownloadString(Links.CHANGELOG);
+                        changelogCache = Network.DownloadString(Links.CHANGELOG);
                         AssembleChangelog();
                     });
                 }
@@ -101,7 +101,7 @@ namespace New_SSQE.NewGUI.Windows
             ChangelogSlider.ValueChanged += UpdateChangelogText;
             UpdateChangelogText(null, new(Settings.changelogPosition.Value.Value));
 
-            FeedbackButton.LeftClick += (s, e) => PlatformUtils.OpenLink(Links.FEEDBACK_FORM);
+            FeedbackButton.LeftClick += (s, e) => Platforms.OpenLink(Links.FEEDBACK_FORM);
 
             CreateButton.LeftClick += (s, e) => Windowing.Open<GuiWindowCreate>();
             SettingsButton.LeftClick += (s, e) => Windowing.Open<GuiWindowSettings>();

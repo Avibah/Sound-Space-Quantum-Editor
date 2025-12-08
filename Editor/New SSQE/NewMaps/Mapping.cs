@@ -1,7 +1,7 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.ExternalUtils;
+using New_SSQE.Misc;
 using New_SSQE.Misc.Dialogs;
-using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI;
 using New_SSQE.NewGUI.Windows;
 using New_SSQE.NewMaps.Parsing;
@@ -115,7 +115,7 @@ namespace New_SSQE.NewMaps
                         return message == DialogResult.OK && ImportAudio(id);
                     }
                     else
-                        Networking.DownloadFile($"https://assetdelivery.roblox.com/v1/asset/?id={id}", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Roblox);
+                        Network.DownloadFile($"https://assetdelivery.roblox.com/v1/asset/?id={id}", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Roblox);
                 }
 
                 return MusicPlayer.Load(Path.Combine(Assets.CACHED, $"{id}.asset"));
@@ -395,7 +395,7 @@ namespace New_SSQE.NewMaps
                     try
                     {
                         while (true)
-                            data = Networking.DownloadString(data);
+                            data = Network.DownloadString(data);
                     }
                     catch { }
 

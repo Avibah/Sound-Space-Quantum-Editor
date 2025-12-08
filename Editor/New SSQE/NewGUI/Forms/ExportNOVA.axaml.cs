@@ -2,8 +2,8 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using New_SSQE.ExternalUtils;
+using New_SSQE.Misc;
 using New_SSQE.Misc.Dialogs;
-using New_SSQE.Misc.Static;
 using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Preferences;
 using OpenFileDialog = New_SSQE.Misc.Dialogs.OpenFileDialog;
@@ -40,7 +40,7 @@ namespace New_SSQE.NewGUI
 
             window.Show();
 
-            if (PlatformUtils.IsLinux)
+            if (Platforms.IsLinux)
             {
                 window.Topmost = true;
                 BackgroundWindow.YieldWindow(window);

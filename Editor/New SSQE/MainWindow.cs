@@ -9,16 +9,17 @@ using SkiaSharp;
 using OpenTK.Windowing.Common.Input;
 using System.Runtime.InteropServices;
 using System.IO.Compression;
-using Assets = New_SSQE.Misc.Static.Assets;
+using Assets = New_SSQE.Misc.Assets;
 using New_SSQE.Audio;
 using New_SSQE.Preferences;
 using New_SSQE.Misc.Dialogs;
-using New_SSQE.Misc.Static;
 using New_SSQE.ExternalUtils;
 using New_SSQE.NewMaps;
 using New_SSQE.NewGUI;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Windows;
+using New_SSQE.Services;
+using New_SSQE.Misc;
 
 namespace New_SSQE
 {
@@ -85,7 +86,7 @@ namespace New_SSQE
             Flags = DebugVersion ? ContextFlags.Debug : 0,
             //TransparentFramebuffer = true,
 
-            APIVersion = PlatformUtils.RequestedAPI
+            APIVersion = Platforms.RequestedAPI
         })
         {
             MSAA = samples > 0;
@@ -110,13 +111,13 @@ namespace New_SSQE
 
             if (string.IsNullOrWhiteSpace(version) || new Version(major, minor) < APIVersion)
                 throw new PlatformNotSupportedException($"Unsupported OpenGL version (Minimum: {APIVersion})");
-            if (!PlatformUtils.ValidateOpenGL())
+            if (!Platforms.ValidateOpenGL())
                 throw new PlatformNotSupportedException("OpenGL extension check failed");
 
             Instance = this;
             DefaultWindow = new BackgroundWindow();
 
-            DiscordManager.Init();
+            Discord.Init();
             Settings.Init();
 
             CheckForUpdates();
@@ -161,7 +162,7 @@ namespace New_SSQE
 
             
 
-            if (PlatformUtils.IsLinux) // because all the other events for this are a key behind on linux (???)
+            if (Platforms.IsLinux) // because all the other events for this are a key behind on linux (???)
             {
                 KeyboardState keyboard = KeyboardState;
 
@@ -207,7 +208,7 @@ namespace New_SSQE
 
             SwapBuffers();
             GCHandler.Process(args.Time);
-            DiscordManager.Process(args.Time);
+            Discord.Process(args.Time);
         }
 
         public void ForceRender() => OnRenderFrame(new FrameEventArgs());
@@ -324,7 +325,7 @@ namespace New_SSQE
                 TimingsWindow.Instance?.Close();
                 BookmarksWindow.Instance?.Close();
 
-                DiscordManager.Dispose();
+                Discord.Dispose();
                 SoundEngine.Dispose();
             }
         }
@@ -366,7 +367,7 @@ namespace New_SSQE
             void Download(string file)
             {
                 Logging.Log($"Attempting to download file '{file}'");
-                Networking.DownloadFile(Links.ALL[$"{file} Zip"], Path.Combine(Assets.THIS, $"{file}.zip"));
+                Network.DownloadFile(Links.ALL[$"{file} Zip"], Path.Combine(Assets.THIS, $"{file}.zip"));
                 ExtractFile(Path.Combine(Assets.THIS, $"{file}.zip"));
             }
 
@@ -374,10 +375,10 @@ namespace New_SSQE
             {
                 Logging.Log($"Searching for file '{file}'");
 
-                if (PlatformUtils.ExecutableExists(file))
+                if (Platforms.ExecutableExists(file))
                 {
-                    string current = PlatformUtils.IsLinux ? setting.Value : PlatformUtils.GetExecutableVersionInfo(file).FileVersion ?? "";
-                    string version = Networking.DownloadString(Links.ALL[$"{file} Version"]).Trim();
+                    string current = Platforms.IsLinux ? setting.Value : Platforms.GetExecutableVersionInfo(file).FileVersion ?? "";
+                    string version = Network.DownloadString(Links.ALL[$"{file} Version"]).Trim();
 
                     if (string.IsNullOrWhiteSpace(current) || Version.Parse(current) < Version.Parse(version))
                     {
@@ -398,7 +399,7 @@ namespace New_SSQE
 
                     if (diag == DialogResult.Yes)
                     {
-                        string version = Networking.DownloadString(Links.ALL[$"{file} Version"]).Trim();
+                        string version = Network.DownloadString(Links.ALL[$"{file} Version"]).Trim();
                         
                         Download(file);
                         setting.Value = version;
@@ -411,9 +412,9 @@ namespace New_SSQE
                 Run("SSQE Player", "Map Player", Settings.ssqePlayerVersion);
                 Run("SSQE Updater", "Auto Updater", Settings.ssqeUpdaterVersion);
 
-                string redirect = Networking.GetRedirect(Links.EDITOR_REDIRECT);
+                string redirect = Network.GetRedirect(Links.EDITOR_REDIRECT);
 
-                if (PlatformUtils.ExecutableExists("SSQE Updater") && redirect != "")
+                if (Platforms.ExecutableExists("SSQE Updater") && redirect != "")
                 {
                     string version = redirect[(redirect.LastIndexOf('/') + 1)..];
 
@@ -425,7 +426,7 @@ namespace New_SSQE
                         if (diag == DialogResult.Yes)
                         {
                             Logging.Log("Attempting to run updater");
-                            PlatformUtils.RunExecutable("SSQE Updater", "");
+                            Platforms.RunExecutable("SSQE Updater", "");
                         }
                     }
                 }

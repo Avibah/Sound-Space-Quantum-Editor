@@ -1,4 +1,4 @@
-﻿using New_SSQE.Misc.Static;
+﻿using New_SSQE.Misc;
 using System.Globalization;
 
 namespace New_SSQE.NewMaps.Parsing

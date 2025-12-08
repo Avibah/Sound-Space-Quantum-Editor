@@ -1,13 +1,13 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.NewGUI;
-using New_SSQE.Misc.Static;
 using New_SSQE.Preferences;
 using System.Globalization;
 using New_SSQE.NewGUI.Windows;
+using New_SSQE.Misc;
 
 namespace New_SSQE.ExternalUtils
 {
-    internal class ProgramArgs
+    internal class CmdArgs
     {
         public static void Start(string[] args, bool writeFile)
         {
@@ -62,7 +62,7 @@ namespace New_SSQE.ExternalUtils
 
         public static void Watch()
         {
-            if (PlatformUtils.IsLinux)
+            if (Platforms.IsLinux)
                 return;
 
             watcher = new(Assets.TEMP)

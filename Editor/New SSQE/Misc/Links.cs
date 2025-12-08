@@ -1,6 +1,6 @@
 ﻿using New_SSQE.ExternalUtils;
 
-namespace New_SSQE.Misc.Static
+namespace New_SSQE.Misc
 {
     internal class Links
     {
@@ -20,10 +20,10 @@ namespace New_SSQE.Misc.Static
             {"SSQE Updater Zip", "https://raw.githubusercontent.com/Avibah/Sound-Space-Quantum-Editor/master/SSQE%20Updater-linux.zip" }
         };
 
-        public static readonly string SSQE_PLAYER_VERSION = (PlatformUtils.IsLinux ? linuxLinks : windowsLinks)["SSQE Player Version"];
-        public static readonly string SSQE_PLAYER_ZIP = (PlatformUtils.IsLinux ? linuxLinks : windowsLinks)["SSQE Player Zip"];
-        public static readonly string SSQE_UPDATER_VERSION = (PlatformUtils.IsLinux ? linuxLinks : windowsLinks)["SSQE Updater Version"];
-        public static readonly string SSQE_UPDATER_ZIP = (PlatformUtils.IsLinux ? linuxLinks : windowsLinks)["SSQE Updater Zip"];
+        public static readonly string SSQE_PLAYER_VERSION = (Platforms.IsLinux ? linuxLinks : windowsLinks)["SSQE Player Version"];
+        public static readonly string SSQE_PLAYER_ZIP = (Platforms.IsLinux ? linuxLinks : windowsLinks)["SSQE Player Zip"];
+        public static readonly string SSQE_UPDATER_VERSION = (Platforms.IsLinux ? linuxLinks : windowsLinks)["SSQE Updater Version"];
+        public static readonly string SSQE_UPDATER_ZIP = (Platforms.IsLinux ? linuxLinks : windowsLinks)["SSQE Updater Zip"];
 
         public static readonly string EDITOR_REDIRECT = "https://github.com/Avibah/Sound-Space-Quantum-Editor/releases/latest";
         public static readonly string CHANGELOG = "https://raw.githubusercontent.com/Avibah/Sound-Space-Quantum-Editor/master/changelog";

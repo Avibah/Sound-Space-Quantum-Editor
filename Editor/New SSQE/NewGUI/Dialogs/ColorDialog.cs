@@ -2,7 +2,6 @@
 using Egorozh.ColorPicker.Dialog;
 using Avalonia.Controls;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
-using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI;
 
 namespace New_SSQE.Misc.Dialogs

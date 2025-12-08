@@ -13,7 +13,7 @@ namespace New_SSQE.ExternalUtils
         VFX
     }
 
-    internal class DiscordManager
+    internal class Discord
     {
         private static DiscordRpcClient? client;
         private static bool enabled = true;

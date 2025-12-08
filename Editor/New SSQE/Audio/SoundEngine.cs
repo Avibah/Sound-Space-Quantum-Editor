@@ -17,7 +17,7 @@ namespace New_SSQE.Audio
     internal class SoundEngine
     {
         private const int INITIAL_CACHE_SIZE = 8;
-        public const float VOLUME_MULT = 2f;
+        public const float VOLUME_MULT = 2;
         public const int SAMPLE_RATE = 44100;
 
         private static readonly AudioFormat format = new()

@@ -127,7 +127,7 @@ namespace New_SSQE.NewGUI.Windows
                 }
             };
 
-            OpenDirectoryButton.LeftClick += (s, e) => PlatformUtils.OpenDirectory();
+            OpenDirectoryButton.LeftClick += (s, e) => Platforms.OpenDirectory();
             KeybindsButton.LeftClick += (s, e) => Windowing.Open<GuiWindowKeybinds>();
 
             static void OpenDialog(Setting<Color> setting)

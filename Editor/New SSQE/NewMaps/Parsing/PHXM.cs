@@ -2,8 +2,8 @@
 using System.IO.Compression;
 using System.Text.Json;
 using System.Text;
-using New_SSQE.Misc.Static;
 using New_SSQE.Objects;
+using New_SSQE.Misc;
 
 namespace New_SSQE.NewMaps.Parsing
 {

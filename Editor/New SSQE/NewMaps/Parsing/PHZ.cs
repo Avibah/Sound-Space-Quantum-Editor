@@ -1,5 +1,5 @@
 ﻿using New_SSQE.ExternalUtils;
-using New_SSQE.Misc.Static;
+using New_SSQE.Misc;
 using System.Text.Json;
 
 namespace New_SSQE.NewMaps.Parsing
@@ -69,7 +69,7 @@ namespace New_SSQE.NewMaps.Parsing
             try
             {
                 if (!File.Exists(Path.Combine(Assets.CACHED, $"{id}.asset")))
-                    Networking.DownloadFile($"https://pulsus.cc/play/client/s/{id}.mp3", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Pulsus);
+                    Network.DownloadFile($"https://pulsus.cc/play/client/s/{id}.mp3", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Pulsus);
             }
             catch (Exception ex)
             {

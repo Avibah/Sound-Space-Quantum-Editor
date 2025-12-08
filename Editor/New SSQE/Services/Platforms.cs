@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using New_SSQE.Misc.Static;
+using New_SSQE.Misc;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace New_SSQE.ExternalUtils
 {
-    internal class PlatformUtils
+    internal class Platforms
     {
         public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 

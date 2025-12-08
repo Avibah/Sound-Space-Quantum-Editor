@@ -1,5 +1,6 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.ExternalUtils;
+using New_SSQE.Misc;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
@@ -23,7 +24,7 @@ namespace New_SSQE.NewGUI.Windows
         {
             BackgroundSquare.Color = Color.FromArgb((int)Settings.editorBGOpacity.Value, 30, 30, 30);
             
-            LNavPlayer.Visible = PlatformUtils.ExecutableExists("SSQE Player") || Settings.playtestGame.Value != "SSQE Player";
+            LNavPlayer.Visible = Platforms.ExecutableExists("SSQE Player") || Settings.playtestGame.Value != "SSQE Player";
 
             BeatSnapDivisor.Update();
             QuantumSnapDivisor.Update();
@@ -230,12 +231,12 @@ namespace New_SSQE.NewGUI.Windows
                 if (MusicPlayer.IsPlaying)
                     MusicPlayer.Pause();
 
-                if (!playerRunning && PlatformUtils.ExecutableExists("SSQE Player"))
+                if (!playerRunning && Platforms.ExecutableExists("SSQE Player"))
                 {
                     Settings.Save();
                     TXT.Write(Path.Combine(Assets.TEMP, "tempmap.txt"));
 
-                    Process? process = PlatformUtils.RunExecutable("SSQE Player", $"{fromStart} false {KeybindManager.AltHeld}");
+                    Process? process = Platforms.RunExecutable("SSQE Player", $"{fromStart} false {KeybindManager.AltHeld}");
                     playerRunning = process != null;
 
                     if (process != null)

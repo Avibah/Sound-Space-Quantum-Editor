@@ -23,11 +23,11 @@ namespace New_SSQE.NewGUI
         {
             if (window is GuiWindowEditor)
             {
-                DiscordManager.SetActivity(DiscordStatus.Editor);
+                Discord.SetActivity(DiscordStatus.Editor);
                 Mapping.StartAutosaving();
             }
             else if (window is GuiWindowMenu)
-                DiscordManager.SetActivity(DiscordStatus.Menu);
+                Discord.SetActivity(DiscordStatus.Menu);
 
             if (Current is GuiWindowEditor)
                 MusicPlayer.Reset();

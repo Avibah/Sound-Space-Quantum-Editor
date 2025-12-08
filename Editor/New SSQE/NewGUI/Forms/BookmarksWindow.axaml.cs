@@ -3,12 +3,12 @@ using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using New_SSQE.ExternalUtils;
 using New_SSQE.NewMaps;
-using New_SSQE.Misc.Static;
 using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
 using System.Collections;
 using System.Collections.ObjectModel;
 using New_SSQE.Objects.Managers;
+using New_SSQE.Misc;
 
 namespace New_SSQE.NewGUI
 {
@@ -36,7 +36,7 @@ namespace New_SSQE.NewGUI
 
             window.Show();
 
-            if (PlatformUtils.IsLinux)
+            if (Platforms.IsLinux)
             {
                 window.Topmost = true;
                 BackgroundWindow.YieldWindow(window);

@@ -9,7 +9,7 @@ namespace New_SSQE.ExternalUtils
         Pulsus
     }
 
-    internal class Networking
+    internal class Network
     {
         private static readonly HttpClient client = new();
         private static readonly HttpClient impatientClient = new()

@@ -1,4 +1,4 @@
-﻿using New_SSQE.Misc.Static;
+﻿using New_SSQE.Misc;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.CompoundControls;
 using New_SSQE.NewGUI.Controls;

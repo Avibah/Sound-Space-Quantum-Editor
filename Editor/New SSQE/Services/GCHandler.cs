@@ -1,6 +1,6 @@
 ﻿using New_SSQE.ExternalUtils;
 
-namespace New_SSQE.Misc.Static
+namespace New_SSQE.Services
 {
     internal class GCHandler
     {

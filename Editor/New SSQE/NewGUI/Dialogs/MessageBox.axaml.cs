@@ -1,8 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Interactivity;
-using New_SSQE.Misc.Static;
 using New_SSQE.Misc.Dialogs;
+using New_SSQE.Misc;
 
 namespace New_SSQE
 {
