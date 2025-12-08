@@ -51,7 +51,7 @@ namespace New_SSQE.NewGUI.Windows
 
         public override void ConnectEvents()
         {
-            BackButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowSettings());
+            BackButton.LeftClick += (s, e) => Windowing.Open<GuiWindowSettings>();
 
             void ResetKeybind(Setting<Keybind> setting, Keybind keybind, GuiTextboxKeybind control)
             {

@@ -57,10 +57,8 @@ namespace New_SSQE.NewGUI.Windows
             Settings.changelogPosition.Value.Value = 0;
         }
 
-        public override void Resize(ResizeEventArgs e)
+        private void FixButtonsChangelog()
         {
-            base.Resize(e);
-
             AutosavedButton.Visible = Settings.autosavedFile.Value != "";
             LastMapButton.Visible = File.Exists(Settings.lastFile.Value);
 
@@ -70,6 +68,18 @@ namespace New_SSQE.NewGUI.Windows
 
             Settings.changelogPosition.Value.Value = 0;
             AssembleChangelog();
+        }
+
+        public override void Open()
+        {
+            base.Open();
+            FixButtonsChangelog();
+        }
+
+        public override void Resize(ResizeEventArgs e)
+        {
+            base.Resize(e);
+            FixButtonsChangelog();
         }
 
         public override void Render(float mousex, float mousey, float frametime)
@@ -93,8 +103,8 @@ namespace New_SSQE.NewGUI.Windows
 
             FeedbackButton.LeftClick += (s, e) => PlatformUtils.OpenLink(Links.FEEDBACK_FORM);
 
-            CreateButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowCreate());
-            SettingsButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowSettings());
+            CreateButton.LeftClick += (s, e) => Windowing.Open<GuiWindowCreate>();
+            SettingsButton.LeftClick += (s, e) => Windowing.Open<GuiWindowSettings>();
 
             LoadButton.LeftClick += (s, e) =>
             {

@@ -718,11 +718,13 @@ namespace New_SSQE.NewGUI.Windows
             Text = "REPLACE",
             TextSize = 27
         };
+        /*
         public static readonly GuiButton ConvertAudio = new(275, 350, 210, 40)
         {
             Text = "CONVERT TO MP3",
             TextSize = 27
         };
+        */
 
         public static readonly GuiLabel ReplaceIDLabel = new(275, 190, 210, 40)
         {
@@ -737,7 +739,7 @@ namespace New_SSQE.NewGUI.Windows
             CenterMode = CenterMode.None
         };
 
-        public static readonly ControlContainer ExportNav = new(1365, 190, 545, 756, SaveButton, SaveAsButton, ExportSwitch, ExportButton, ReplaceIDBox, ReplaceID, ConvertAudio,
+        public static readonly ControlContainer ExportNav = new(1365, 190, 545, 756, SaveButton, SaveAsButton, ExportSwitch, ExportButton, ReplaceIDBox, ReplaceID, /*ConvertAudio,*/
             ReplaceIDLabel, SRLabel);
         public static readonly GuiRadioPanelButton ConstantNavController = new(0,
             (RNavSnapping, SnappingNav),

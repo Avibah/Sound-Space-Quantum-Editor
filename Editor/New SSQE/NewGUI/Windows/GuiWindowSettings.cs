@@ -102,7 +102,7 @@ namespace New_SSQE.NewGUI.Windows
             BackButton.LeftClick += (s, e) =>
             {
                 Settings.Save();
-                Windowing.SwitchWindow(new GuiWindowMenu());
+                Windowing.Open<GuiWindowMenu>();
             };
 
             ResetButton.LeftClick += (s, e) =>
@@ -128,7 +128,7 @@ namespace New_SSQE.NewGUI.Windows
             };
 
             OpenDirectoryButton.LeftClick += (s, e) => PlatformUtils.OpenDirectory();
-            KeybindsButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowKeybinds());
+            KeybindsButton.LeftClick += (s, e) => Windowing.Open<GuiWindowKeybinds>();
 
             static void OpenDialog(Setting<Color> setting)
             {

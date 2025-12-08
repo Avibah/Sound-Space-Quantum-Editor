@@ -4,6 +4,7 @@ using New_SSQE.Misc.Static;
 using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
 using SoundFlow.Enums;
+using SoundTouch;
 using Player = SoundFlow.Components.SoundPlayer;
 
 namespace New_SSQE.Audio
@@ -14,17 +15,15 @@ namespace New_SSQE.Audio
         private static Player? lastPlayer;
         private static TempoProvider? tempoProvider;
 
+        public static float MusicOffset => Settings.musicOffset.Value - 28;
+
+        /*
         private static void RunMP3Convert()
         {
-            if (!File.Exists(Path.Combine(Assets.THIS, "lame.exe")))
-            {
-                MessageBox.Show("MP3 encoder not present from latest release", MBoxIcon.Warning, MBoxButtons.OK);
-                return;
-            }
-
             try
             {
                 Pause();
+                SoundEngine.EncodeMusic(Path.Combine(Assets.TEMP, "tempaudio.mp3"), "mp3");
             }
             catch (Exception ex)
             {
@@ -38,9 +37,6 @@ namespace New_SSQE.Audio
 
         public static void ConvertToMP3()
         {
-            if (PlatformUtils.IsLinux)
-                return;
-
             if (IsMP3)
             {
                 DialogResult result = MessageBox.Show("This asset is already an MP3. Do you want to convert it anyway?\n\nThis may take a while.", MBoxIcon.Info, MBoxButtons.Yes_No);
@@ -56,6 +52,7 @@ namespace New_SSQE.Audio
 
             RunMP3Convert();
         }
+        */
 
         public static bool Load(string file)
         {
@@ -63,6 +60,10 @@ namespace New_SSQE.Audio
                 return true;
             if (lastFile != file)
                 lastFile = file;
+
+            SoundEngine.SetMono(Settings.monoAudio.Value);
+            tempoProvider?.Dispose();
+            lastPlayer?.Dispose();
 
             bool Error(Exception ex)
             {
@@ -81,8 +82,13 @@ namespace New_SSQE.Audio
                 lastPlayer = player;
                 tempoProvider = player.DataProvider as TempoProvider;
 
-                IsMP3 = fileType == "mp3";
-                IsOGG = fileType == "ogg";
+                IsMP3 = fileType.StartsWith("mp3");
+                IsOGG = fileType.StartsWith("ogg");
+
+                if (tempoProvider != null)
+                    Waveform.Load(tempoProvider);
+                else
+                    Waveform.Reset();
             }
             catch (Exception ex)
             {
@@ -98,7 +104,7 @@ namespace New_SSQE.Audio
         {
             Pause();
             CurrentTime = TotalTime;
-            Settings.currentTime.Value.Value = (float)(CurrentTime.TotalMilliseconds + (0.03 + Settings.musicOffset.Value / 1000d) * (1 + (Mapping.Current.Tempo - 1) * 1.5));
+            Settings.currentTime.Value.Value = (float)(CurrentTime.TotalMilliseconds - MusicOffset);
         }
 
         public static void Play()
@@ -120,19 +126,13 @@ namespace New_SSQE.Audio
 
         public static int GetData(ref short[] buffer)
         {
-            buffer = new short[4];
-            return 0;
+            float[] data = new float[buffer.Length];
+            int numBytes = tempoProvider?.ReadBytes(data) ?? 0;
 
-            /*
-            byte[] data = new byte[buffer.Length * 2];
-            int numBytes = reader?.Read(data, 0, data.Length) ?? 0;
-
-            int index = 0;
-            for (int i = 0; i < numBytes; i += 2)
-                buffer[index++] = (short)(data[i] + data[i + 1]);
+            for (int i = 0; i < data.Length; i++)
+                buffer[i] = (short)(data[i] * short.MaxValue);
 
             return numBytes;
-            */
         }
 
         public static float Tempo
@@ -150,9 +150,9 @@ namespace New_SSQE.Audio
             set
             {
                 if (lastPlayer != null)
-                    lastPlayer.Volume = Math.Max(value, 0);
+                    lastPlayer.Volume = Math.Max(value * SoundEngine.VOLUME_MULT, 0);
             }
-            get => lastPlayer?.Volume ?? 1;
+            get => (lastPlayer?.Volume / SoundEngine.VOLUME_MULT) ?? 1;
         }
 
         public static void Reset()
@@ -167,8 +167,8 @@ namespace New_SSQE.Audio
         
         public static TimeSpan CurrentTime
         {
-            set => lastPlayer?.Seek(value - TimeSpan.FromMilliseconds(Settings.musicOffset.Value));
-            get => TimeSpan.FromSeconds(lastPlayer == null ? 0 : TotalTime.TotalSeconds * lastPlayer.DataProvider.Position / lastPlayer.DataProvider.Length + Settings.musicOffset.Value / 1000d);
+            set => lastPlayer?.Seek(value - TimeSpan.FromMilliseconds(MusicOffset));
+            get => TimeSpan.FromSeconds(lastPlayer == null ? 0 : TotalTime.TotalSeconds * lastPlayer.DataProvider.Position / lastPlayer.DataProvider.Length + MusicOffset / 1000d);
         }
 
         public static bool IsMP3 { get; private set; } = false;
@@ -176,7 +176,47 @@ namespace New_SSQE.Audio
 
         public static float DetectBPM(long start, long end)
         {
-            return 0;
+            if (tempoProvider == null)
+                return 0;
+            float tempo = Tempo;
+
+            int channels = tempoProvider.Format.Channels;
+            int sampleRate = tempoProvider.Format.SampleRate;
+
+            int startOffset = (int)(start / 1000d * sampleRate);
+            startOffset = startOffset / 2 * 2;
+            int endOffset = (int)(end / 1000d * sampleRate);
+            endOffset = endOffset / 2 * 2;
+
+            float bpm = 0;
+
+            for (int i = 0; i < 5; i++)
+            {
+                Tempo = 1 / (float)Math.Pow(2, i);
+
+                tempoProvider.Seek(startOffset);
+                BpmDetect detector = new(channels, sampleRate);
+
+                float[] buffer = new float[4096];
+
+                while (tempoProvider.Position < endOffset)
+                {
+                    int samplesRead = tempoProvider.ReadBytes(buffer);
+                    detector.InputSamples(buffer, samplesRead / channels);
+
+                    if (samplesRead == 0)
+                        break;
+                }
+
+                bpm = detector.GetBpm();
+                if (bpm > 0)
+                    break;
+
+                Logging.Log($"BPM detect pass {i} failed");
+            }
+
+            Tempo = tempo;
+            return bpm;
         }
 
         public static string[] SupportedExtensions => [.. SoundEngine.SupportedFormats.Concat(["egg", "asset"])];

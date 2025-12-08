@@ -229,7 +229,7 @@ namespace New_SSQE.NewMaps
             SaveCache();
             old.OpenSettings();
 
-            Windowing.SwitchWindow(new GuiWindowEditor());
+            Windowing.Open<GuiWindowEditor>();
             return Windowing.Current is GuiWindowEditor && _current.SoundID != "-1";
         }
 
@@ -249,7 +249,7 @@ namespace New_SSQE.NewMaps
 
             Cache.Remove(_current);
             SaveCache();
-            Windowing.SwitchWindow(new GuiWindowMenu());
+            Windowing.Open<GuiWindowMenu>();
 
             return true;
         }
@@ -267,7 +267,7 @@ namespace New_SSQE.NewMaps
             foreach (Map map in Cache.ToArray())
             {
                 Current = map;
-                Windowing.SwitchWindow(new GuiWindowEditor());
+                Windowing.Open<GuiWindowEditor>();
                 MainWindow.Instance.ForceRender();
 
                 quit &= Close();

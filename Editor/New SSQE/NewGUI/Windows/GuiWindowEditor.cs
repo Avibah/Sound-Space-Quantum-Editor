@@ -146,12 +146,6 @@ namespace New_SSQE.NewGUI.Windows
                 }
             };
 
-            ConstantNavController.PanelButtonClickCallback = (e) =>
-            {
-                ConvertAudio.Visible = e == RNavExport && !PlatformUtils.IsLinux;
-                return false;
-            };
-
             CopyButton.LeftClick += (s, e) =>
             {
                 try
@@ -170,7 +164,7 @@ namespace New_SSQE.NewGUI.Windows
                 }
             };
 
-            BackButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowMenu());
+            BackButton.LeftClick += (s, e) => Windowing.Open<GuiWindowMenu>();
 
             OpenTimings.LeftClick += (s, e) => TimingsWindow.ShowWindow();
             OpenTimings.BindKeybind("openTimings");
@@ -241,13 +235,18 @@ namespace New_SSQE.NewGUI.Windows
                     Settings.Save();
                     TXT.Write(Path.Combine(Assets.TEMP, "tempmap.txt"));
 
-                    Process process = PlatformUtils.RunExecutable("SSQE Player", $"{fromStart} false {KeybindManager.AltHeld}");
+                    Process? process = PlatformUtils.RunExecutable("SSQE Player", $"{fromStart} false {KeybindManager.AltHeld}");
                     playerRunning = process != null;
 
                     if (process != null)
                     {
                         process.EnableRaisingEvents = true;
                         process.Exited += delegate { playerRunning = false; };
+                    }
+                    else
+                    {
+                        Logging.Log("Failed to start player");
+                        ShowInfo("FAILED TO START PLAYER");
                     }
                 }
             }
@@ -473,7 +472,7 @@ namespace New_SSQE.NewGUI.Windows
 
             MusicMute.LeftClick += (s, e) => MusicPlayer.Volume = Settings.masterVolume.Value.Value;
 
-            ConvertAudio.LeftClick += (s, e) => MusicPlayer.ConvertToMP3();
+            //ConvertAudio.LeftClick += (s, e) => MusicPlayer.ConvertToMP3();
         }
 
         public override void Render(float mousex, float mousey, float frametime)

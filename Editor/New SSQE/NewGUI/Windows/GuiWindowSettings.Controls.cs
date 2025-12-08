@@ -256,7 +256,7 @@ namespace New_SSQE.NewGUI.Windows
             Text = "5",
             TextSize = 30,
             Style = ControlStyle.Textbox_Uncolored,
-            Bounds = (1, 250)
+            Bounds = (1, 100)
         };
         public static readonly GuiLabel WaveformDetailLabel = new(0, 120, 200, 26)
         {

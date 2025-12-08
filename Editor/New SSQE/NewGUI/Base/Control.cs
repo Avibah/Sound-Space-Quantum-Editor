@@ -33,13 +33,23 @@ namespace New_SSQE.NewGUI.Base
         protected int vbo;
         protected int vertexCount;
 
-        public bool Visible = true;
         public bool RenderOnTop = false;
         public StretchMode Stretch = StretchMode.XY;
         public int CornerDetail = 8;
         public float CornerRadius = 0.125f;
 
         public Vector2 RectOffset = Vector2.Zero;
+
+        private bool visible = true;
+        public bool Visible
+        {
+            get => visible;
+            set
+            {
+                visible = value;
+                shouldUpdate = true;
+            }
+        }
 
         private Gradient? gradient = null;
         public Gradient? Gradient
@@ -141,6 +151,7 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void SetRect(RectangleF rect)
         {
+            Gradient?.SetRect(rect);
             this.rect = rect;
             shouldUpdate = true;
         }

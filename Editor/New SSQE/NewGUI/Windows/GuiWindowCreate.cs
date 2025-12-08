@@ -46,7 +46,7 @@ namespace New_SSQE.NewGUI.Windows
                 }
             };
 
-            BackButton.LeftClick += (s, e) => Windowing.SwitchWindow(new GuiWindowMenu());
+            BackButton.LeftClick += (s, e) => Windowing.Open<GuiWindowMenu>();
         }
     }
 }

@@ -8,7 +8,7 @@ namespace New_SSQE.Audio
 {
     internal class Waveform
     {
-        private static float[] WaveModel = Array.Empty<float>();
+        private static float[] WaveModel = [];
         private static int waveLength = 0;
         private static int vao;
         private static int vbo;
@@ -17,15 +17,15 @@ namespace New_SSQE.Audio
         private static double resolution = 0.0d;
         private static bool classic = false;
 
-        public static long Offset = -15;
+        public static long Offset => (long)MusicPlayer.MusicOffset - 15;
 
         private struct Level
         {
-            public short left;
-            public short right;
+            public float left;
+            public float right;
         }
 
-        private static Level ParseBuffer(short[] data, int start, int end)
+        private static Level ParseBuffer(float[] data, int start, int end)
         {
             int index = Math.Min(end, data.Length - 1);
 
@@ -36,81 +36,80 @@ namespace New_SSQE.Audio
             };
         }
 
-        public static void Init(int bps)
+        public static void Load(TempoProvider provider)
         {
+            provider.Seek(0);
             resolution = 1 / (double)Settings.waveformDetail.Value / 100;
-
-            double bpf = bps * resolution;
-            short[] buffer = new short[1024 * 1024];
-            Level[] data = [];
+            
+            int sampleRate = provider.FormatInfo?.SampleRate ?? SoundEngine.SAMPLE_RATE;
+            double samplesPerFrame = sampleRate * resolution;
+            float[] buffer = new float[4096];
+            List<Level> data = [];
 
             while (true)
             {
-                int len = MusicPlayer.GetData(ref buffer);
-
-                if (len > 0)
-                {
-                    Level[] set = new Level[(int)(len / bpf / 2)];
-                    int cur = 0;
-
-                    for (double i = 0; i < len; i += bpf)
-                    {
-                        int index = (int)(i / 2) * 2;
-                        if (index >= 0 && cur < set.Length)
-                            set[cur] = ParseBuffer(buffer, index, index + (int)bpf);
-                        cur++;
-                    }
-
-                    data = data.Concat(set).ToArray();
-                }
-                else
+                int len = provider.ReadBytesRaw(buffer);
+                if (len <= 0)
                     break;
+
+                Level[] frame = new Level[(int)(len / samplesPerFrame / 2)];
+                int cur = 0;
+
+                for (double i = 0; i < len; i += samplesPerFrame)
+                {
+                    int index = (int)(i / 2) * 2;
+                    if (index >= 0 && cur < frame.Length)
+                        frame[cur] = ParseBuffer(buffer, index, index + (int)samplesPerFrame);
+                    cur++;
+                }
+
+                data.AddRange(frame);
             }
 
-            int offset = (int)Math.Abs(Offset / 1000d / resolution / 2);
+            int offset = (int)Math.Abs(Offset / 1000d / resolution);
             Level[] blank = new Level[offset];
 
             if (Offset > 0)
-                data = blank.Concat(data[..^offset]).ToArray();
+                data = [.. blank.Concat(data[..^offset])];
             else
-                data = data[offset..].Concat(blank).ToArray();
+                data = [.. data[offset..].Concat(blank)];
 
             classic = Settings.classicWaveform.Value;
-            WaveModel = new float[data.Length * (classic ? 2 : 4)];
+            WaveModel = new float[data.Count * (classic ? 2 : 4)];
 
-            int maxPeak = 0;
+            float maxPeak = 0;
 
-            for (int i = 0; i < data.Length; i++)
+            for (int i = 0; i < data.Count; i++)
             {
-                int absL = Math.Abs((int)data[i].left);
-                int absR = Math.Abs((int)data[i].right);
+                float l = Math.Abs(data[i].left);
+                float r = Math.Abs(data[i].right);
 
-                maxPeak = Math.Max(maxPeak, Math.Max(absL, absR));
+                maxPeak = Math.Max(maxPeak, Math.Max(l, r));
             }
 
             bool aboveZero = maxPeak > 0;
 
-            for (int i = 0; i < data.Length; i++)
+            for (int i = 0; i < data.Count; i++)
             {
-                float pos = i / (float)data.Length;
+                float pos = i / (float)data.Count;
 
-                float left = (float)data[i].left / (aboveZero ? maxPeak : 1);
-                float right = (float)data[i].right / (aboveZero ? maxPeak : 1);
+                float l = data[i].left / (aboveZero ? maxPeak : 1);
+                float r = data[i].right / (aboveZero ? maxPeak : 1);
 
                 if (classic)
                 {
-                    float absL = Math.Abs(left);
-                    float absR = Math.Abs(right);
+                    float absL = Math.Abs(l);
+                    float absR = Math.Abs(r);
 
                     WaveModel[i * 2 + 0] = pos;
-                    WaveModel[i * 2 + 1] = 1 - Math.Max(absL, absR) * 2f;
+                    WaveModel[i * 2 + 1] = 1 - Math.Max(absL, absR) * 2;
                 }
                 else
                 {
                     WaveModel[i * 4 + 0] = pos;
-                    WaveModel[i * 4 + 1] = left;
+                    WaveModel[i * 4 + 1] = l;
                     WaveModel[i * 4 + 2] = pos;
-                    WaveModel[i * 4 + 3] = right;
+                    WaveModel[i * 4 + 3] = r;
                 }
             }
 

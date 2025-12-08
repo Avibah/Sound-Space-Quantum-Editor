@@ -125,7 +125,7 @@ namespace New_SSQE
             Mapping.LoadCache();
 
             OnMouseWheel(new MouseWheelEventArgs());
-            Windowing.SwitchWindow(new GuiWindowMenu());
+            Windowing.Open<GuiWindowMenu>();
 
             if (!string.IsNullOrWhiteSpace(InitialFile))
                 Mapping.Load(InitialFile);
@@ -151,9 +151,6 @@ namespace New_SSQE
 
         private double frameTime;
         private const double updateFrequency = 1 / 10.0;
-
-        private double gcTime;
-        private bool gcEnabled = true;
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
@@ -209,27 +206,7 @@ namespace New_SSQE
             }
 
             SwapBuffers();
-
-            // apparently the garbage collector doesnt want to deal with everything on its own .-.
-            gcTime += args.Time;
-
-            if (gcTime >= 2 && gcEnabled)
-            {
-                double start = GC.GetTotalPauseDuration().TotalMilliseconds;
-
-                GC.Collect();
-                gcTime = 0;
-
-                double duration = GC.GetTotalPauseDuration().TotalMilliseconds - start;
-
-                if (duration > 50)
-                {
-                    // something is causing the gc to have a noticeable lag spike when it runs, so maybe now its doing more harm than good
-                    Logging.Log($"GC took {duration}ms to process! Disabling forced garbage collection to improve performance");
-                    gcEnabled = false;
-                }
-            }
-
+            GCHandler.Process(args.Time);
             DiscordManager.Process(args.Time);
         }
 
@@ -328,7 +305,7 @@ namespace New_SSQE
             if (forceClose)
                 Close();
             else
-                Windowing.SwitchWindow(new GuiWindowMenu());
+                Windowing.Open<GuiWindowMenu>();
         }
 
         protected override void OnClosing(CancelEventArgs e)

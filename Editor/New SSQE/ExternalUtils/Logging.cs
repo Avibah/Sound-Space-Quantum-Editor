@@ -39,6 +39,8 @@ namespace New_SSQE.ExternalUtils
             }
         }
 
+        public static void Log(double log, LogSeverity severity = LogSeverity.INFO, Exception? ex = null) => Log(log.ToString(), severity, ex);
+
         public static string GetLogs()
         {
             string[] temp = new string[logs.Count];

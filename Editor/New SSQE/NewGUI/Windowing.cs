@@ -19,7 +19,7 @@ namespace New_SSQE.NewGUI
         private static readonly Stack<GuiWindow> windowStack = [];
         public static GuiWindow? Current => windowStack.FirstOrDefault(n => n is not GuiWindowDialog);
 
-        public static void SwitchWindow(GuiWindow window)
+        public static void Open(GuiWindow window)
         {
             if (window is GuiWindowEditor)
             {
@@ -48,12 +48,15 @@ namespace New_SSQE.NewGUI
 
             Settings.Save();
         }
+        public static void Open<T>() where T : GuiWindow, new() => Open(new T());
+
 
         public static void OpenDialog(GuiWindowDialog window)
         {
             windowStack.Push(window);
             window.Open();
         }
+        public static void OpenDialog<T>() where T : GuiWindowDialog, new() => OpenDialog(new T());
 
         public static void Close(GuiWindow window)
         {

@@ -12,8 +12,8 @@ namespace New_SSQE.ExternalUtils
         public static readonly string Extension = IsLinux ? "" : ".exe";
         public static readonly string ExecutableFilter = IsLinux ? "Executable Files|*.*" : "Executable Files (*.exe)|*.exe";
 
-        private static readonly string[] dependencies_Windows = ["bass", "bass_fx", "bassenc", "bassflac"];
-        private static readonly string[] dependencies_Linux = ["bass", "bass_fx", "bassflac"];
+        private static readonly string[] dependencies_Windows = [];
+        private static readonly string[] dependencies_Linux = [];
 
         public static void OpenDirectory(string directory)
         {
@@ -24,9 +24,21 @@ namespace New_SSQE.ExternalUtils
         }
         public static void OpenDirectory() => OpenDirectory(Assets.THIS);
 
-        public static Process RunExecutable(string path, string exe, string args) => Process.Start(Path.Combine(path, GetExecutableName(exe)), args);
-        public static Process RunExecutable(string path, string exe, params string[] args) => RunExecutable(path, exe, string.Join(" ", args));
-        public static Process RunExecutable(string exe, string args) => RunExecutable(Assets.THIS, exe, args);
+        public static Process? RunExecutable(string path, string exe, string args)
+        {
+            try
+            {
+                return Process.Start(Path.Combine(path, GetExecutableName(exe)), args);
+            }
+            catch (Exception ex)
+            {
+                Logging.Log($"Failed to run executable: {path} | {exe} | {args}", LogSeverity.ERROR, ex);
+            }
+
+            return null;
+        }
+        public static Process? RunExecutable(string path, string exe, params string[] args) => RunExecutable(path, exe, string.Join(" ", args));
+        public static Process? RunExecutable(string exe, string args) => RunExecutable(Assets.THIS, exe, args);
 
         public static bool ExecutableExists(string path, string exe) => File.Exists(Path.Combine(path, GetExecutableName(exe)));
         public static bool ExecutableExists(string exe) => ExecutableExists(Assets.THIS, exe);
