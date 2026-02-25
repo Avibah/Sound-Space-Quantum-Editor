@@ -207,19 +207,23 @@ namespace New_SSQE.NewMaps.Parsing
                 paths.Add(fieldName, value);
             }
 
+            string audioSource = "";
+
             foreach (KeyValuePair<string, string> entry in paths)
             {
                 if (!File.Exists(entry.Value))
                     continue;
 
-                string dest = Assets.CachedAt(Path.GetFileName(entry.Value));
-                if (dest == entry.Value)
+                string source = Path.IsPathFullyQualified(entry.Value) ? entry.Value : Path.GetFullPath(entry.Value, Path.GetDirectoryName(path) ?? "");
+                string dest = Assets.CachedAt(Path.GetFileName(source));
+                if (dest == source)
                     continue;
 
                 switch (entry.Key)
                 {
                     case "audio":
-                        break;
+                        audioSource = source;
+                        continue;
                     case "cover":
                         Settings.useCover.Value = true;
                         Settings.cover.Value = dest;
@@ -232,7 +236,7 @@ namespace New_SSQE.NewMaps.Parsing
                         continue;
                 }
 
-                File.Copy(entry.Value, dest, true);
+                File.Copy(source, dest, true);
             }
 
             // Metadata field block
@@ -332,6 +336,8 @@ namespace New_SSQE.NewMaps.Parsing
                         break;
                     case "mapId" when entry.Value is string id:
                         Mapping.Current.SoundID = id;
+                        if (!string.IsNullOrWhiteSpace(audioSource))
+                            File.Copy(audioSource, Assets.CachedAt($"{id}.asset"), true);
                         break;
                 }
             }
