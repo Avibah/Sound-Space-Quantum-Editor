@@ -207,12 +207,32 @@ namespace New_SSQE.NewMaps.Parsing
                 paths.Add(fieldName, value);
             }
 
-            foreach (string field in paths.Keys)
+            foreach (KeyValuePair<string, string> entry in paths)
             {
-                switch (field)
-                {
+                if (!File.Exists(entry.Value))
+                    continue;
 
+                string dest = Assets.CachedAt(Path.GetFileName(entry.Value));
+                if (dest == entry.Value)
+                    continue;
+
+                switch (entry.Key)
+                {
+                    case "audio":
+                        break;
+                    case "cover":
+                        Settings.useCover.Value = true;
+                        Settings.cover.Value = dest;
+                        break;
+                    case "video":
+                        Settings.useVideo.Value = true;
+                        Settings.video.Value = dest;
+                        break;
+                    default:
+                        continue;
                 }
+
+                File.Copy(entry.Value, dest, true);
             }
 
             // Metadata field block
@@ -279,7 +299,8 @@ namespace New_SSQE.NewMaps.Parsing
                             if (link.Value is not string value)
                                 continue;
 
-                            // TODO: store song links in settings
+                            if (!Mapping.Current.SongLinks.TryAdd(key, value))
+                                Mapping.Current.SongLinks[key] = value;
                         }
 
                         break;
@@ -291,7 +312,8 @@ namespace New_SSQE.NewMaps.Parsing
                             if (link.Value is not string value)
                                 continue;
 
-                            // TODO: store artist links in settings
+                            if (!Mapping.Current.ArtistLinks.TryAdd(key, value))
+                                Mapping.Current.ArtistLinks[key] = value;
                         }
 
                         break;
@@ -303,7 +325,8 @@ namespace New_SSQE.NewMaps.Parsing
                             if (id.Value is not long value)
                                 continue;
 
-                            // TODO: store mapper ids in settings
+                            if (!Mapping.Current.MapperIds.TryAdd(key, value))
+                                Mapping.Current.MapperIds[key] = value;
                         }
 
                         break;

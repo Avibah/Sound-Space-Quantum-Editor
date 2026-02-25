@@ -113,6 +113,15 @@ namespace New_SSQE.NewMaps.Parsing
 
                     switch (key)
                     {
+                        case "songLinks":
+                            Mapping.Current.SongLinks = value.Deserialize<Dictionary<string, string>>() ?? [];
+                            break;
+                        case "artistLinks":
+                            Mapping.Current.ArtistLinks = value.Deserialize<Dictionary<string, string>>() ?? [];
+                            break;
+                        case "mapperIds":
+                            Mapping.Current.MapperIds = value.Deserialize<Dictionary<string, long>>() ?? [];
+                            break;
                         case "timings":
                             List<JsonElement> timings = value.Deserialize<List<JsonElement>>() ?? [];
 
@@ -318,6 +327,10 @@ namespace New_SSQE.NewMaps.Parsing
 
             Dictionary<string, object> json = new()
             {
+                {"songLinks", Mapping.Current.SongLinks },
+                {"artistLinks", Mapping.Current.ArtistLinks },
+                {"mapperIds", Mapping.Current.MapperIds },
+
                 {"timings", timingfinal },
                 {"bookmarks", bookmarkfinal },
                 {"vfxObjects", vfxFinal },
