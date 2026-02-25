@@ -50,6 +50,7 @@ namespace New_SSQE.NewGUI.Dialogs
 
             BackgroundSquare.Color = Color.White;
             Modal = true;
+            Persistent = true;
 
             string[] buttonSplit = buttons.ToString().Split('_');
             int offset = 3 - buttonSplit.Length;

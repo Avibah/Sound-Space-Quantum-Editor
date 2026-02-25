@@ -32,7 +32,7 @@ namespace New_SSQE.NewMaps
 
     internal class Map
     {
-        public Dictionary<string, string> SongLinks = [];
+        public List<string> SongLinks = [];
         public Dictionary<string, string> ArtistLinks = [];
         public Dictionary<string, long> MapperIds = [];
 

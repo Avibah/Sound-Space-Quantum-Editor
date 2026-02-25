@@ -256,11 +256,14 @@ namespace New_SSQE.NewMaps
                     if (result == DialogResult.Yes)
                         Save();
 
-                    if (result != DialogResult.Cancel)
+                    if (result == DialogResult.Cancel)
                     {
-                        Cache.Remove(_current);
-                        SaveCache();
+                        Windowing.Open<GuiWindowMenu>();
+                        return;
                     }
+
+                    Cache.Remove(_current);
+                    SaveCache();
 
                     Windowing.Open<GuiWindowMenu>();
                     onClose?.Invoke();

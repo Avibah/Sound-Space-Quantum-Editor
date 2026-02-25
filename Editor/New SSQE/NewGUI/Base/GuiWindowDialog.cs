@@ -28,6 +28,7 @@ namespace New_SSQE.NewGUI.Base
         private bool dragging = false;
 
         public bool Modal = false;
+        public bool Persistent = false;
 
         public GuiWindowDialog(float x, float y, float w, float h, params Control[] controls) : base(x - 1, y - (TOPBAR_HEIGHT - 2) + 1, w + 2, h + TOPBAR_HEIGHT)
         {

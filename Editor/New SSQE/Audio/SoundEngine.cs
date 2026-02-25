@@ -29,8 +29,8 @@ namespace New_SSQE.Audio
 
         private static readonly FFmpegCodecFactory ffmpegFactory = new();
 
-        public static IReadOnlyCollection<string> SupportedExtensions => [.. ffmpegFactory.SupportedFormatIds.Concat(["egg", "asset"])];
-        public static string SupportedExtensionsString => string.Join(';', SupportedExtensions.Select((e) => "*." + e));
+        public static IReadOnlyCollection<string> SupportedExtensions => [.. ffmpegFactory.SupportedFormatIds.Concat(["egg", "asset"]).Select((e) => "." + e)];
+        public static string SupportedExtensionsString => string.Join(';', SupportedExtensions.Select((e) => "*" + e));
 
         private static readonly MiniAudioEngine engine;
         private static readonly AudioPlaybackDevice device;

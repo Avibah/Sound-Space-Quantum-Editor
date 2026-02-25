@@ -38,12 +38,22 @@ namespace New_SSQE.NewGUI
 
             FontRenderer.Unicode = Settings.language.Value != "english";
 
+            List<GuiWindowDialog> persistent = [];
+
             foreach (GuiWindow guiWindow in windowStack)
-                guiWindow.Close();
+            {
+                if (guiWindow is GuiWindowDialog dialog && dialog.Persistent)
+                    persistent.Add(dialog);
+                else
+                    guiWindow.Close();
+            }
 
             windowStack.Clear();
             windowStack.Push(window);
             window.Open();
+
+            foreach (GuiWindowDialog dialog in persistent)
+                OpenDialog(dialog);
 
             Settings.Save();
         }

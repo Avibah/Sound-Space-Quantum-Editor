@@ -10,6 +10,8 @@ namespace New_SSQE.NewMaps.Parsing
 {
     internal class QEM : IFormatParser
     {
+        private const int TOTAL_OBJ_BLOCKS = 18;
+
         public static bool Read(string path)
         {
             using FileStream data = new(path, FileMode.Open, FileAccess.Read);
@@ -161,7 +163,33 @@ namespace New_SSQE.NewMaps.Parsing
                     16 => ReadTypeDict(),
                     17 => ReadTypeDictLong(),
                     18 => ReadTuple(),
-                    _ => throw new InvalidDataException($"Unknown field type {type}")
+                    _ => throw new InvalidDataException($"Invalid field type {type}")
+                };
+            }
+
+            object[] GetDefaultData(int id)
+            {
+                return id switch
+                {
+                    0 => [0, 1, 1, false, 0, 0],
+                    1 => [0, 0, 4, 4],
+                    2 => [0, 0, 0, 0, 1],
+                    3 => [0, 0, 0, 0, 1],
+                    4 => [0, 0, 0, 0, 1],
+                    5 => [0, 0, 0, 0, 1],
+                    6 => [0, 0, 0, 0, 1],
+                    7 => [0, 0, 0, 0, 0, 0, 0, 0],
+                    8 => [0, 0, 0, 0, 0, 0, 0],
+                    9 => [0, 0, 0, 0, 0],
+                    10 => [0, 0, 0, 0, 1],
+                    11 => [0, 0, "", 0],
+                    12 => [0],
+                    13 => [0, 0],
+                    14 => [0, 0, 0],
+                    15 => [0, "", false, false],
+                    16 => [0, 0],
+                    17 => [0, 0, ""],
+                    _ => throw new InvalidDataException($"Invalid object ID {id}")
                 };
             }
 
@@ -270,10 +298,10 @@ namespace New_SSQE.NewMaps.Parsing
                         Settings.romanizedTitle.Value = title;
                         break;
                     case "artists" when entry.Value is object[] artists:
-                        Settings.songArtist.Value = string.Join(" & ", artists);
+                        Settings.songArtist.Value = string.Join('\n', artists);
                         break;
                     case "romanizedArtists" when entry.Value is object[] artists:
-                        Settings.romanizedArtist.Value = string.Join(" & ", artists);
+                        Settings.romanizedArtist.Value = string.Join('\n', artists);
                         break;
                     case "mappers" when entry.Value is object[] mappers:
                         Settings.mappers.Value = string.Join('\n', mappers);
@@ -295,16 +323,11 @@ namespace New_SSQE.NewMaps.Parsing
                     case "difficultyName" when entry.Value is string diff:
                         Settings.customDifficulty.Value = diff;
                         break;
-                    case "songLinks" when entry.Value is Dictionary<object, object> links:
-                        foreach (KeyValuePair<object, object> link in links)
+                    case "songLinks" when entry.Value is object[] links:
+                        foreach (object link in links)
                         {
-                            if (link.Key is not string key)
-                                continue;
-                            if (link.Value is not string value)
-                                continue;
-
-                            if (!Mapping.Current.SongLinks.TryAdd(key, value))
-                                Mapping.Current.SongLinks[key] = value;
+                            if (link is string str)
+                                Mapping.Current.SongLinks.Add(str);
                         }
 
                         break;
@@ -357,22 +380,8 @@ namespace New_SSQE.NewMaps.Parsing
                 // [1]: Object ID
                 int id = reader.ReadByte();
 
-                try
-                {
-                    MapObject parsed = ParseObj(id);
-                }
-                catch (InvalidDataException)
-                {
-                    continue;
-                }
-                catch { }
-
                 // [2]: Object name
                 string objName = ReadString();
-
-                // No known overrides for object name
-                if (objName.Length > 0)
-                    continue;
 
                 // [1]: Number of types
                 int numTypes = reader.ReadByte();
@@ -385,7 +394,7 @@ namespace New_SSQE.NewMaps.Parsing
                     types[j] = reader.ReadByte();
 
                 // [4]: Number of objects
-                long numObjects = reader.ReadInt64();
+                long numObjects = reader.ReadInt32();
 
                 // For number of objects:
                 for (int j = 0; j < numObjects; j++)
@@ -394,11 +403,18 @@ namespace New_SSQE.NewMaps.Parsing
                     double ms = reader.ReadDouble();
 
                     // [x]: Type data (variable)
-                    object[] objectData = new object[numTypes + 1];
+                    List<object> objectData = [.. GetDefaultData(id)];
                     objectData[0] = ms;
+
+                    while (objectData.Count < numTypes + 1)
+                        objectData.Add(0);
 
                     for (int k = 0; k < numTypes; k++)
                         objectData[k + 1] = ReadType(types[k]);
+
+                    // No known overrides for object name
+                    if (!string.IsNullOrWhiteSpace(objName))
+                        continue;
 
                     MapObject obj = ParseObj(id, objectData);
 
@@ -420,7 +436,365 @@ namespace New_SSQE.NewMaps.Parsing
 
         public static bool Write(string path)
         {
-            throw new NotImplementedException();
+            using FileStream file = new(path, FileMode.Create, FileAccess.Write);
+            using BinaryWriter writer = new(file);
+
+            void WriteString(string str)
+            {
+                writer.Write((short)str.Length);
+                writer.Write(Encoding.UTF8.GetBytes(str));
+            }
+
+            writer.Write(
+            [
+                0x49, 0x51, 0x45, 0x4d, // file type signature
+                0x00, 0x00, // QEM format version - 0
+            ]);
+
+            // path block
+            bool hasCover = Settings.useCover.Value && File.Exists(Settings.cover.Value);
+            bool hasVideo = Settings.useVideo.Value && File.Exists(Settings.video.Value);
+
+            int numPaths = 1 + (hasCover ? 1 : 0) + (hasVideo ? 1 : 0);
+            writer.Write((short)numPaths); // number of path block entries
+
+            // audio path
+            WriteString("audio");
+            WriteString(Assets.CachedAt($"{Mapping.Current.SoundID}.asset"));
+
+            // cover path
+            if (hasCover)
+            {
+                WriteString("cover");
+                WriteString(Settings.cover.Value);
+            }
+
+            // video path
+            if (hasVideo)
+            {
+                WriteString("video");
+                WriteString(Settings.video.Value);
+            }
+
+            // metadata block
+            writer.Write((short)12); // 12 metadata fields
+
+            // 1 - title
+            WriteString("title");
+            writer.Write((byte)0x0a); // data type 0x0a - string
+            WriteString(Settings.songTitle.Value);
+
+            // 2 - romanized title
+            WriteString("romanizedTitle");
+            writer.Write((byte)0x0a); // data type 0x0a - string
+            WriteString(Settings.romanizedTitle.Value);
+
+            // 3 - artists
+            string[] artists = Settings.songArtist.Value.Split('\n');
+
+            WriteString("artists");
+            writer.Write((byte)0x0e); // data type 0x0e - array
+            writer.Write((short)artists.Length);
+            writer.Write((byte)0x0a); // data type 0x0e[0x0a] - string array
+
+            foreach (string artist in artists)
+                WriteString(artist);
+
+            // 4 - romanized artists
+            string[] romanizedArtists = Settings.romanizedArtist.Value.Split('\n');
+
+            WriteString("romanizedArtists");
+            writer.Write((byte)0x0e); // data type 0x0e - array
+            writer.Write((short)romanizedArtists.Length);
+            writer.Write((byte)0x0a); // data type 0x0e[0x0a] - string array
+
+            foreach (string artist in romanizedArtists)
+                WriteString(artist);
+
+            // 5 - mappers
+            string[] mappers = Settings.mappers.Value.Split('\n');
+
+            WriteString("mappers");
+            writer.Write((byte)0x0e); // data type 0x0e - array
+            writer.Write((short)mappers.Length);
+            writer.Write((byte)0x0a); // data type 0x0e[0x0a] - string array
+
+            foreach (string mapper in mappers)
+                WriteString(mapper);
+
+            // 6 - difficulty
+            WriteString("difficulty");
+            writer.Write((byte)0x00); // data type 0x00 - byte
+            writer.Write(FormatUtils.Difficulties[Settings.difficulty.Value]);
+
+            // 7 - difficulty stars
+            WriteString("difficultyStars");
+            writer.Write((byte)0x07); // data type 0x00 - float
+            writer.Write(Settings.rating.Value);
+
+            // 8 - difficulty name
+            if (!string.IsNullOrWhiteSpace(Settings.customDifficulty.Value))
+            {
+                WriteString("difficultyName");
+                writer.Write((byte)0x0a); // data type 0x0a - string
+                WriteString(Settings.customDifficulty.Value);
+            }
+
+            // 9 - song links
+            WriteString("songLinks");
+            writer.Write((byte)0x0e); // data type 0x0e - array
+            writer.Write((short)Mapping.Current.SongLinks.Count);
+            writer.Write((byte)0x0a); // data type 0x0e[0x0a] - string array
+
+            foreach (string link in Mapping.Current.SongLinks)
+                WriteString(link);
+
+            // 10 - artist links
+            WriteString("artistLinks");
+            writer.Write((byte)0x10); // data type 0x10 - dictionary
+            writer.Write((short)Mapping.Current.ArtistLinks.Count);
+            writer.Write((byte)0x0a); // data type 0x10[0x0a] - (string) dictionary
+            writer.Write((byte)0x0a); // data type 0x10[0x0a,0x0a] - (string, string) dictionary
+
+            foreach (KeyValuePair<string, string> link in Mapping.Current.ArtistLinks)
+            {
+                if (!artists.Contains(link.Key))
+                    continue;
+
+                WriteString(link.Key);
+                WriteString(link.Value);
+            }
+
+            // 11 - mapper ids
+            WriteString("mapperIds");
+            writer.Write((byte)0x10); // data type 0x10 - dictionary
+            writer.Write((short)Mapping.Current.MapperIds.Count);
+            writer.Write((byte)0x0a); // data type 0x10[0x0a] - (string) dictionary
+            writer.Write((byte)0x05); // data type 0x10[0x0a,0x05] - (string, long) dictionary
+
+            foreach (KeyValuePair<string, long> id in Mapping.Current.MapperIds)
+            {
+                if (!mappers.Contains(id.Key))
+                    continue;
+
+                WriteString(id.Key);
+                writer.Write(id.Value);
+            }
+
+            // 12 - map id
+            string firstMapper = mappers.Length > 0 ? mappers[0] : "none";
+            string firstArtist = artists.Length > 0 ? artists[0] : "unknown";
+            string mapId = $"{firstMapper} - {firstArtist} - {Settings.songTitle.Value}";
+
+            WriteString("mapId");
+            WriteString(FormatUtils.FixID(mapId));
+
+            // object blocks
+            List<List<MapObject>> separated = [];
+
+            separated.Add([.. Mapping.Current.Notes]);
+            separated.Add([.. Mapping.Current.TimingPoints]);
+
+            foreach (MapObject obj in Mapping.Current.VfxObjects)
+            {
+                if (obj.ID < 0)
+                    continue;
+                while (separated.Count <= obj.ID)
+                    separated.Add([]);
+                separated[obj.ID].Add(obj);
+            }
+
+            foreach (MapObject obj in Mapping.Current.SpecialObjects)
+            {
+                if (obj.ID < 0)
+                    continue;
+                while (separated.Count <= obj.ID)
+                    separated.Add([]);
+                separated[obj.ID].Add(obj);
+            }
+
+            foreach (MapObject obj in Mapping.Current.Bookmarks)
+            {
+                if (obj.ID < 0)
+                    continue;
+                while (separated.Count <= obj.ID)
+                    separated.Add([]);
+                separated[obj.ID].Add(obj);
+            }
+
+            while (separated.Count < TOTAL_OBJ_BLOCKS)
+                separated.Add([]);
+            writer.Write((byte)TOTAL_OBJ_BLOCKS); // 18 object blocks
+
+            // note block
+            writer.Write((byte)0); // ID 0
+            WriteString("");
+            writer.Write((byte)5); // 5 types
+            writer.Write((byte)0x07); // data type 0x07 - float (x)
+            writer.Write((byte)0x07); // data type 0x07 - float (y)
+            writer.Write((byte)0x09); // data type 0x09 - boolean (tweened AR)
+            writer.Write((byte)0x00); // data type 0x00 - byte (easing style)
+            writer.Write((byte)0x00); // data type 0x00 - byte (easing direction)
+            writer.Write(separated[0].Count);
+
+            foreach (MapObject obj in separated[0])
+            {
+                Note note = (obj as Note)!;
+
+                writer.Write((double)note.Ms);
+                writer.Write(note.X);
+                writer.Write(note.Y);
+                writer.Write(note.EnableEasing);
+                writer.Write((byte)note.Style);
+                writer.Write((byte)note.Direction);
+            }
+
+            // timing point block
+            writer.Write((byte)1); // ID 1
+            WriteString("");
+            writer.Write((byte)3); // 3 types
+            writer.Write((byte)0x07); // data type 0x07 - float (bpm)
+            writer.Write((byte)0x00); // data type 0x00 - byte (time signature top)
+            writer.Write((byte)0x00); // data type 0x00 - byte (time signature bottom)
+            writer.Write(separated[1].Count);
+
+            foreach (MapObject obj in separated[1])
+            {
+                TimingPoint timingPoint = (obj as TimingPoint)!;
+
+                writer.Write((double)timingPoint.Ms);
+                writer.Write(timingPoint.BPM);
+                writer.Write((byte)timingPoint.TimeSignature.X);
+                writer.Write((byte)timingPoint.TimeSignature.Y);
+            }
+
+            // brightness block
+            /* Unreleased */
+
+            // contrast block
+            /* Unreleased */
+
+            // saturation block
+            /* Unreleased */
+
+            // blur block
+            /* Unreleased */
+
+            // fov block
+            /* Unreleased */
+
+            // tint block
+            /* Unreleased */
+
+            // position block
+            /* Unreleased */
+
+            // rotation block
+            /* Unreleased */
+
+            // ar factor block
+            /* Unreleased */
+
+            // text block
+            /* Unreleased */
+
+            // beat block
+            writer.Write((byte)12); // ID 12
+            WriteString("");
+            writer.Write((byte)0); // 0 types
+            writer.Write(separated[12].Count);
+
+            foreach (MapObject obj in separated[12])
+            {
+                Beat beat = (obj as Beat)!;
+
+                writer.Write((double)beat.Ms);
+            }
+
+            // glide block
+            writer.Write((byte)13); // ID 13
+            WriteString("");
+            writer.Write((byte)1); // 1 type
+            writer.Write((byte)0x00); // data type 0x00 - byte (glide direction)
+            writer.Write(separated[13].Count);
+
+            foreach (MapObject obj in separated[13])
+            {
+                Glide glide = (obj as Glide)!;
+
+                writer.Write((double)glide.Ms);
+                writer.Write((byte)glide.Direction);
+            }
+
+            // mine block
+            writer.Write((byte)14); // ID 14
+            WriteString("");
+            writer.Write((byte)2); // 2 types
+            writer.Write((byte)0x07); // data type 0x07 - float (x)
+            writer.Write((byte)0x07); // data type 0x07 - float (y)
+            writer.Write(separated[14].Count);
+
+            foreach (MapObject obj in separated[14])
+            {
+                Mine mine = (obj as Mine)!;
+
+                writer.Write((double)mine.Ms);
+                writer.Write(mine.X);
+                writer.Write(mine.Y);
+            }
+
+            // lyric block
+            writer.Write((byte)15); // ID 15
+            WriteString("");
+            writer.Write((byte)3); // 3 types
+            writer.Write((byte)0x0a); // data type 0x0a - string (text)
+            writer.Write((byte)0x09); // data type 0x09 - boolean (fades in)
+            writer.Write((byte)0x09); // data type 0x09 - boolean (fades out)
+            writer.Write(separated[15].Count);
+
+            foreach (MapObject obj in separated[15])
+            {
+                Lyric lyric = (obj as Lyric)!;
+
+                writer.Write((double)lyric.Ms);
+                WriteString(lyric.Text);
+                writer.Write(lyric.FadeIn);
+                writer.Write(lyric.FadeOut);
+            }
+
+            // fever block
+            writer.Write((byte)16); // ID 16
+            WriteString("");
+            writer.Write((byte)1); // 1 type
+            writer.Write((byte)0x08); // data type 0x08 - double (duration)
+            writer.Write(separated[16].Count);
+
+            foreach (MapObject obj in separated[16])
+            {
+                Fever fever = (obj as Fever)!;
+
+                writer.Write((double)fever.Ms);
+                writer.Write((double)fever.Duration);
+            }
+
+            // bookmark block
+            writer.Write((byte)17); // ID 17
+            WriteString("");
+            writer.Write((byte)2); // 2 types
+            writer.Write((byte)0x08); // data type 0x08 - double (duration)
+            writer.Write((byte)0x0a); // data type 0x0a - string (text)
+            writer.Write(separated[17].Count);
+
+            foreach (MapObject obj in separated[17])
+            {
+                Bookmark bookmark = (obj as Bookmark)!;
+
+                writer.Write((double)bookmark.Ms);
+                writer.Write((double)(bookmark.EndMs - bookmark.Ms));
+                WriteString(bookmark.Text);
+            }
+
+            return true;
         }
     }
 }

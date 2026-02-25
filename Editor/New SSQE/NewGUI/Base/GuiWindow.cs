@@ -2,6 +2,7 @@
 using New_SSQE.Misc;
 using New_SSQE.NewGUI.Controls;
 using New_SSQE.NewGUI.Input;
+using New_SSQE.NewGUI.Windows;
 using New_SSQE.NewMaps;
 using New_SSQE.NewMaps.Parsing;
 using OpenTK.Mathematics;
@@ -178,7 +179,7 @@ namespace New_SSQE.NewGUI.Base
                 return;
 
             bool loaded = true;
-            Map? prev = Mapping.Current;
+            Map prev = Mapping.Current;
 
             if (SoundEngine.SupportedExtensions.Contains(Path.GetExtension(file)))
             {
@@ -191,7 +192,7 @@ namespace New_SSQE.NewGUI.Base
             else if (Path.GetExtension(file) != ".ini")
                 loaded = Mapping.Load(file);
 
-            if (!loaded && prev != null)
+            if (!loaded && Windowing.Current is GuiWindowEditor)
             {
                 Mapping.Current = prev;
                 Mapping.Open();

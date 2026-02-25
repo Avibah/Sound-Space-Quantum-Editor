@@ -114,7 +114,7 @@ namespace New_SSQE.NewMaps.Parsing
                     switch (key)
                     {
                         case "songLinks":
-                            Mapping.Current.SongLinks = value.Deserialize<Dictionary<string, string>>() ?? [];
+                            Mapping.Current.SongLinks = value.Deserialize<List<string>>() ?? [];
                             break;
                         case "artistLinks":
                             Mapping.Current.ArtistLinks = value.Deserialize<Dictionary<string, string>>() ?? [];
