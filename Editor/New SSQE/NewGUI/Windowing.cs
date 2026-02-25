@@ -1,10 +1,10 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.ExternalUtils;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Font;
 using New_SSQE.NewGUI.Windows;
 using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
+using New_SSQE.Services;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
@@ -29,7 +29,7 @@ namespace New_SSQE.NewGUI
                 Discord.SetActivity(DiscordStatus.Menu);
 
             if (Current is GuiWindowEditor)
-                MusicPlayer.Reset();
+                MusicPlayer.Stop();
 
             ExportSSPM.Instance?.Close();
             BPMTapper.Instance?.Close();
@@ -66,10 +66,11 @@ namespace New_SSQE.NewGUI
         public static void Close(GuiWindow window)
         {
             Stack<GuiWindow> temp = [];
-            while (windowStack.Peek() != window)
+            while (windowStack.Count > 0 && windowStack.Peek() != window)
                 temp.Push(windowStack.Pop());
 
-            windowStack.Pop().Close();
+            if (windowStack.Count > 0)
+                windowStack.Pop().Close();
             while (temp.Count > 0)
                 windowStack.Push(temp.Pop());
 
@@ -87,10 +88,10 @@ namespace New_SSQE.NewGUI
 
             foreach (GuiWindow item in windowStack)
             {
-                if (item is GuiWindowDialog dialog && dialog.Modal)
-                    modal = true;
                 if (!modal && !item.Enabled)
                     item.Enable();
+                if (item is GuiWindowDialog dialog && dialog.Modal)
+                    modal = true;
             }
         }
 
@@ -107,8 +108,8 @@ namespace New_SSQE.NewGUI
 
             if (shouldEnable)
             {
-                EnableInternal();
                 shouldEnable = false;
+                EnableInternal();
             }
         }
 

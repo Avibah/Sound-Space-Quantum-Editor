@@ -39,7 +39,13 @@ namespace New_SSQE.NewGUI.Base
     internal abstract class InteractiveControl : TextControl
     {
         public event EventHandler<ClickEventArgs>? LeftClick;
+        public event EventHandler<ClickEventArgs>? LeftDown;
+        public event EventHandler<ClickEventArgs>? LeftUp;
+
         public event EventHandler<ClickEventArgs>? RightClick;
+        public event EventHandler<ClickEventArgs>? RightDown;
+        public event EventHandler<ClickEventArgs>? RightUp;
+
         public event EventHandler<TextEnteredEventArgs>? TextEntered;
 
         public bool Hovering = false;
@@ -78,6 +84,7 @@ namespace New_SSQE.NewGUI.Base
 
             if (this is not ControlContainer)
                 Windowing.ButtonClicked = true;
+            LeftDown?.Invoke(this, new(x, y));
         }
 
         public virtual void MouseDownLeftGlobal(float x, float y)
@@ -95,6 +102,7 @@ namespace New_SSQE.NewGUI.Base
 
             RightDragging = true;
             Windowing.ButtonClicked = true;
+            RightDown?.Invoke(this, new(x, y));
         }
 
         public virtual void MouseDownRightGlobal(float x, float y)
@@ -106,8 +114,9 @@ namespace New_SSQE.NewGUI.Base
         public virtual void MouseUpLeft(float x, float y)
         {
             Dragging = false;
+            LeftUp?.Invoke(this, new(x, y));
             if (Hovering)
-                LeftClick?.Invoke(this, new ClickEventArgs(x, y));
+                LeftClick?.Invoke(this, new(x, y));
         }
 
         public virtual void MouseUpLeftGlobal(float x, float y)
@@ -119,8 +128,9 @@ namespace New_SSQE.NewGUI.Base
         public virtual void MouseUpRight(float x, float y)
         {
             RightDragging = false;
+            RightUp?.Invoke(this, new(x, y));
             if (Hovering)
-                RightClick?.Invoke(this, new ClickEventArgs(x, y));
+                RightClick?.Invoke(this, new(x, y));
         }
 
         public virtual void MouseUpRightGlobal(float x, float y)
@@ -149,7 +159,13 @@ namespace New_SSQE.NewGUI.Base
         public virtual void DisconnectAll()
         {
             LeftClick = null;
+            LeftDown = null;
+            LeftUp = null;
+
             RightClick = null;
+            RightDown = null;
+            RightUp = null;
+
             TextEntered = null;
         }
 

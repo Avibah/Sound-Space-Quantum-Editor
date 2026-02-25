@@ -12,14 +12,13 @@ using System.IO.Compression;
 using Assets = New_SSQE.Misc.Assets;
 using New_SSQE.Audio;
 using New_SSQE.Preferences;
-using New_SSQE.Misc.Dialogs;
-using New_SSQE.ExternalUtils;
 using New_SSQE.NewMaps;
 using New_SSQE.NewGUI;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Windows;
 using New_SSQE.Services;
 using New_SSQE.Misc;
+using New_SSQE.NewGUI.Dialogs;
 
 namespace New_SSQE
 {
@@ -54,7 +53,7 @@ namespace New_SSQE
 
         private static WindowIcon GetWindowIcon()
         {
-            byte[] bytes = File.ReadAllBytes(Path.Combine(Assets.TEXTURES, "Icon.ico"));
+            byte[] bytes = File.ReadAllBytes(Assets.TexturesAt("Icon.ico"));
             SKBitmap bmp = SKBitmap.Decode(bytes, new SKImageInfo(256, 256, SKColorType.Rgba8888));
             OpenTK.Windowing.Common.Input.Image image = new(bmp.Width, bmp.Height, bmp.Bytes);
 
@@ -120,8 +119,8 @@ namespace New_SSQE
             Discord.Init();
             Settings.Init();
 
+            DetectCrash();
             CheckForUpdates();
-            MessageBox.Instance?.Close();
 
             Mapping.LoadCache();
 
@@ -159,8 +158,6 @@ namespace New_SSQE
                 RunClose();
             if (closed)
                 return;
-
-            
 
             if (Platforms.IsLinux) // because all the other events for this are a key behind on linux (???)
             {
@@ -305,8 +302,6 @@ namespace New_SSQE
 
             if (forceClose)
                 Close();
-            else
-                Windowing.Open<GuiWindowMenu>();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -342,7 +337,29 @@ namespace New_SSQE
 
 
 
-        public static void CheckForUpdates()
+        
+        private static void DetectCrash()
+        {
+            if (File.Exists(Assets.TempAt("crash.dat")))
+            {
+                File.Delete(Assets.TempAt("crash.dat"));
+
+                MessageDialog.Show(@"A crash was detected last time this application was open.
+A crash report was created at '*\crash-report.txt'
+
+Would you like to report this crash on GitHub?", MBoxIcon.Warning, MBoxButtons.Yes_No, (result) =>
+                {
+                    if (result == DialogResult.Yes)
+                    {
+                        Platforms.OpenLink(Links.NEW_GITHUB_ISSUE);
+                        Platforms.OpenDirectory();
+                    }
+                });
+            }
+        }
+
+
+        private static void CheckForUpdates()
         {
             if (!Settings.checkUpdates.Value)
                 return;
@@ -367,11 +384,11 @@ namespace New_SSQE
             void Download(string file)
             {
                 Logging.Log($"Attempting to download file '{file}'");
-                Network.DownloadFile(Links.ALL[$"{file} Zip"], Path.Combine(Assets.THIS, $"{file}.zip"));
-                ExtractFile(Path.Combine(Assets.THIS, $"{file}.zip"));
+                Network.DownloadFile(Links.ALL[$"{file} Zip"], Assets.ThisAt($"{file}.zip"));
+                ExtractFile(Assets.ThisAt($"{file}.zip"));
             }
 
-            void Run(string file, string tag, Setting<string> setting)
+            void Run(string file, string tag, Setting<string> setting, Action continueWith)
             {
                 Logging.Log($"Searching for file '{file}'");
 
@@ -384,57 +401,67 @@ namespace New_SSQE
                     {
                         Logging.Log($"Current and latest versions differ! Current: {current} | Latest: {version}");
 
-                        DialogResult diag = MessageBox.Show($"New {tag} version is available ({version}). Would you like to download the new version?", MBoxIcon.Info, MBoxButtons.Yes_No);
-
-                        if (diag == DialogResult.Yes)
+                        MessageDialog.Show($"New {tag} version is available ({version}). Would you like to download the new version?", MBoxIcon.Info, MBoxButtons.Yes_No, (result) =>
                         {
-                            Download(file);
-                            setting.Value = version;
-                        }
+                            if (result == DialogResult.Yes)
+                            {
+                                Download(file);
+                                setting.Value = version;
+                            }
+
+                            continueWith();
+                        });
                     }
                 }
                 else
                 {
-                    DialogResult diag = MessageBox.Show($"{tag} is not present in this directory. Would you like to download it?", MBoxIcon.Info, MBoxButtons.Yes_No);
-
-                    if (diag == DialogResult.Yes)
+                    MessageDialog.Show($"{tag} is not present in this directory. Would you like to download it?", MBoxIcon.Info, MBoxButtons.Yes_No, (result) =>
                     {
-                        string version = Network.DownloadString(Links.ALL[$"{file} Version"]).Trim();
-                        
-                        Download(file);
-                        setting.Value = version;
-                    }
+                        if (result == DialogResult.Yes)
+                        {
+                            string version = Network.DownloadString(Links.ALL[$"{file} Version"]).Trim();
+
+                            Download(file);
+                            setting.Value = version;
+                        }
+
+                        continueWith();
+                    });
                 }
             }
             
             try
             {
-                Run("SSQE Player", "Map Player", Settings.ssqePlayerVersion);
-                Run("SSQE Updater", "Auto Updater", Settings.ssqeUpdaterVersion);
-
-                string redirect = Network.GetRedirect(Links.EDITOR_REDIRECT);
-
-                if (Platforms.ExecutableExists("SSQE Updater") && redirect != "")
+                Run("SSQE Player", "Map Player", Settings.ssqePlayerVersion, () =>
                 {
-                    string version = redirect[(redirect.LastIndexOf('/') + 1)..];
-
-                    Logging.Log("Checking version of editor");
-                    if (Version.Parse(version) > Version.Parse(Program.Version))
+                    Run("SSQE Updater", "Auto Updater", Settings.ssqeUpdaterVersion, () =>
                     {
-                        DialogResult diag = MessageBox.Show($"New Editor version is available ({version}). Would you like to download the new version?", MBoxIcon.Info, MBoxButtons.Yes_No);
+                        string redirect = Network.GetRedirect(Links.EDITOR_REDIRECT);
 
-                        if (diag == DialogResult.Yes)
+                        if (Platforms.ExecutableExists("SSQE Updater") && redirect != "")
                         {
-                            Logging.Log("Attempting to run updater");
-                            Platforms.RunExecutable("SSQE Updater", "");
+                            string version = redirect[(redirect.LastIndexOf('/') + 1)..];
+
+                            Logging.Log("Checking version of editor");
+                            if (Version.Parse(version) > Version.Parse(Program.Version))
+                            {
+                                MessageDialog.Show($"New Editor version is available ({version}). Would you like to download the new version?", MBoxIcon.Info, MBoxButtons.Yes_No, (result) =>
+                                {
+                                    if (result == DialogResult.Yes)
+                                    {
+                                        Logging.Log("Attempting to run updater");
+                                        Platforms.RunExecutable("SSQE Updater", "");
+                                    }
+                                });
+                            }
                         }
-                    }
-                }
+                    });
+                });
             }
             catch (Exception ex)
             {
                 Logging.Log("Failed to check for updates", LogSeverity.ERROR, ex);
-                MessageBox.Show("Failed to check for updates", MBoxIcon.Warning, MBoxButtons.OK);
+                MessageDialog.Show("Failed to check for updates", MBoxIcon.Warning, MBoxButtons.OK);
             }
         }
     }

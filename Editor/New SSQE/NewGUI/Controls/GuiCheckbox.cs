@@ -64,10 +64,10 @@ namespace New_SSQE.NewGUI.Controls
             PlayRightClickSound = false;
             CenterMode = CenterMode.Y;
 
-            CornerRadius = 0.5f;
-            Animator.AddKey("CheckSize", 0.125f);
-            Animator.AddKey("HoverTime", 0.075f, EasingStyle.Linear);
-            Animator.SetReversed("HoverTime", true);
+            cornerRadius = 0.5f;
+
+            Animator.AddKey("CheckSize", 0.125f, 0.75f);
+            Animator.AddKey("HoverTime", 0.075f, 0.05f, EasingStyle.Linear).Reversed = true;
         }
 
         public override void Reset()
@@ -90,18 +90,18 @@ namespace New_SSQE.NewGUI.Controls
             float hGap = (rect.Height - width) / 2;
             RectangleF squareRect = new(rect.X, rect.Y + hGap, width, width);
 
-            float cWidth = width * 0.75f * Animator["CheckSize"];
+            float cWidth = width * Animator["CheckSize"];
             float cGap = (width - cWidth) / 2;
             RectangleF checkRect = new(rect.X + cGap, rect.Y + hGap + cGap, cWidth, cWidth);
 
             TextColor = Style.Primary;
             xOffset = width * 1.15f;
 
-            float[] fill = GLVerts.Squircle(squareRect, CornerDetail, CornerRadius, Style.Tertiary);
-            float[] outline = GLVerts.SquircleOutline(squareRect, 2f, CornerDetail, CornerRadius, Style.Quaternary);
-            float[] check = GLVerts.Squircle(checkRect, CornerDetail, CornerRadius, Style.Secondary);
-            float[] mask = GLVerts.Squircle(squareRect, CornerDetail, CornerRadius, Style.Quinary, Animator["HoverTime"] * 0.05f);
-            float[] clickMask = GLVerts.Squircle(squareRect, CornerDetail, CornerRadius, Style.Quinary, Dragging ? 0.04f : 0);
+            float[] fill = GLVerts.Squircle(squareRect, cornerDetail, cornerRadius, Style.Tertiary);
+            float[] outline = GLVerts.SquircleOutline(squareRect, lineThickness, cornerDetail, cornerRadius, Style.Quaternary);
+            float[] check = GLVerts.Squircle(checkRect, cornerDetail, cornerRadius, Style.Secondary);
+            float[] mask = GLVerts.Squircle(squareRect, cornerDetail, cornerRadius, Style.Quinary, Animator["HoverTime"]);
+            float[] clickMask = GLVerts.Squircle(squareRect, cornerDetail, cornerRadius, Style.Quinary, Dragging ? 0.04f : 0);
 
             return [.. fill, .. outline, .. check, .. mask, .. clickMask];
         }

@@ -1,5 +1,6 @@
 ﻿using New_SSQE.NewGUI.Base;
 using OpenTK.Mathematics;
+using System.Drawing;
 
 namespace New_SSQE.NewGUI.Controls
 {

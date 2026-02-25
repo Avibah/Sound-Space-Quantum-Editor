@@ -2,7 +2,7 @@
 using System.Globalization;
 using Avalonia.Media.Imaging;
 
-namespace New_SSQE.Misc.Dialogs
+namespace New_SSQE.NewGUI.Dialogs
 {
     public class PathToBitmap : IValueConverter
     {

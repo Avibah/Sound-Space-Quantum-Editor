@@ -1,4 +1,4 @@
-﻿namespace New_SSQE.Misc.Dialogs
+﻿namespace New_SSQE.NewGUI.Dialogs
 {
     // mimics old DialogResult from forms
     public enum DialogResult

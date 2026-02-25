@@ -60,17 +60,20 @@ namespace New_SSQE.NewGUI.Base
             return updated;
         }
 
-        public void AddKey(string key, float duration, EasingStyle style = EasingStyle.Exponential, EasingDirection direction = EasingDirection.Out)
+        public AnimatedValue AddKey(string key, float duration, float scale = 1, EasingStyle style = EasingStyle.Exponential, EasingDirection direction = EasingDirection.Out)
         {
             AnimatedValue value = new()
             {
                 Duration = duration,
                 Style = style,
-                Direction = direction
+                Direction = direction,
+                Scale = scale
             };
 
             if (!_values.TryAdd(key, value))
                 _values[key] = value;
+
+            return value;
         }
 
         public AnimatedValue Get(string key)

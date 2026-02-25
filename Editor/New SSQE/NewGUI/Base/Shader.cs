@@ -1,5 +1,4 @@
 ﻿using New_SSQE.NewGUI.Shaders;
-using OpenTK.Graphics;
 using OpenTK.Mathematics;
 using System.Drawing;
 
@@ -62,7 +61,7 @@ void main()
 
         private int program;
 
-        public Shader(string? vertex = null, string? fragment = null)
+        protected Shader(string? vertex = null, string? fragment = null)
         {
             this.vertex = vertex ?? defaultVertex;
             this.fragment = fragment ?? defaultFragment;

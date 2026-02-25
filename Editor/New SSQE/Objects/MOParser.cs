@@ -1,5 +1,5 @@
-﻿using New_SSQE.ExternalUtils;
-using New_SSQE.Misc.Static;
+﻿using New_SSQE.Misc.Static;
+using New_SSQE.Services;
 using System.Drawing;
 
 namespace New_SSQE.Objects

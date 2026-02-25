@@ -406,7 +406,7 @@ namespace New_SSQE.NewGUI.Windows
 
 
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"))
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Assets.ThisAt("background_menu.png"))
         {
             Color = Color.FromArgb(30, 30, 30)
         };

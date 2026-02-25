@@ -1,5 +1,5 @@
-﻿using New_SSQE.ExternalUtils;
-using New_SSQE.NewGUI.Base;
+﻿using New_SSQE.NewGUI.Base;
+using New_SSQE.Services;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Drawing;
@@ -400,6 +400,9 @@ namespace New_SSQE.NewGUI
             y = MainWindow.Instance.ClientSize.Y - y - h;
 
             Vector4i prev = scissors.Peek();
+            if (prev == Vector4i.Zero)
+                return;
+
             w -= Math.Max(0, prev.X - x);
             h -= Math.Max(0, prev.Y - y);
             x = Math.Clamp(x, prev.X, prev.X + prev.Z) + 0.5f;
@@ -421,6 +424,9 @@ namespace New_SSQE.NewGUI
         {
             if (scissors.Count > 0)
             {
+                if (scissors.Count == 1 && scissors.Peek() == Vector4i.Zero)
+                    return;
+
                 scissors.Pop();
                 Vector4i vec = scissors.Peek();
                 GL.Scissor(vec.X, vec.Y, vec.Z, vec.W);

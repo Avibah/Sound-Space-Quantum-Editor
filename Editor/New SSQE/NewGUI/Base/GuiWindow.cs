@@ -30,6 +30,7 @@ namespace New_SSQE.NewGUI.Base
          */
 
         private readonly ControlContainer container;
+        protected ControlContainer Container => container;
 
         private readonly GuiSquare shadow = new()
         {
@@ -55,7 +56,6 @@ namespace New_SSQE.NewGUI.Base
         public GuiWindow(float x, float y, float w, float h, params Control[] controls)
         {
             container = new(x, y, w, h, [.. controls, shadow]);
-            container.Reset();
         }
         public GuiWindow(params Control[] controls) : this(0, 0, MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y, controls) { }
 
@@ -66,7 +66,11 @@ namespace New_SSQE.NewGUI.Base
         public virtual void Open()
         {
             if (!connected)
+            {
+                container.Reset();
                 ConnectEvents();
+            }
+
             connected = true;
         }
 
@@ -90,6 +94,7 @@ namespace New_SSQE.NewGUI.Base
         
         public virtual void Render(float mousex, float mousey, float frametime)
         {
+            container.Hovering = container.Rect.Contains(mousex, mousey);
             if ((mousex, mousey) != PrevMouse)
                 container.MouseMove(mousex, mousey);
             PrevMouse = (mousex, mousey);
@@ -175,11 +180,11 @@ namespace New_SSQE.NewGUI.Base
             bool loaded = true;
             Map? prev = Mapping.Current;
 
-            if (MusicPlayer.SupportedExtensions.Contains(Path.GetExtension(file)))
+            if (SoundEngine.SupportedExtensions.Contains(Path.GetExtension(file)))
             {
                 string id = FormatUtils.FixID(Path.GetFileNameWithoutExtension(file));
-                if (file != Path.Combine(Assets.CACHED, $"{id}.asset"))
-                    File.Copy(file, Path.Combine(Assets.CACHED, $"{id}.asset"), true);
+                if (file != Assets.CachedAt($"{id}.asset"))
+                    File.Copy(file, Assets.CachedAt($"{id}.asset"), true);
 
                 loaded = Mapping.Load(id);
             }
@@ -204,7 +209,8 @@ namespace New_SSQE.NewGUI.Base
             container.Resize(MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y);
         }
 
-        protected virtual RectangleF GetOrigin() => container.GetOrigin();
-        protected virtual Vector2 GetOffset() => container.RectOffset;
+        protected virtual RectangleF Origin => container.Origin;
+        protected virtual Vector2 RectOffset => container.RectOffset;
+        protected virtual RectangleF Rect => container.Rect;
     }
 }

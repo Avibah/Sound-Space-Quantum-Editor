@@ -1,9 +1,8 @@
 ﻿using Avalonia;
-using New_SSQE.ExternalUtils;
 using New_SSQE.Misc;
-using New_SSQE.Misc.Dialogs;
 using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
+using New_SSQE.Services;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
@@ -85,19 +84,8 @@ If none of these work or aren't applicable, report the error through {Links.FEED
 {Logging.GetLogs()}
                 ";
 
-            File.WriteAllText(Path.Combine(Assets.THIS, "crash-report.txt"), text);
-
-            DialogResult result = MessageBox.Show(@"Fatal error encountered while running this application
-A crash report has been created at '*\crash-report.txt'
-
-Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes_No);
-
-            if (result == DialogResult.Yes)
-            {
-                Platforms.OpenLink(Links.NEW_GITHUB_ISSUE);
-                Platforms.OpenDirectory();
-            }
-
+            File.WriteAllText(Assets.ThisAt("crash-report.txt"), text);
+            File.WriteAllText(Assets.TempAt("crash.dat"), DateTime.Now.ToString());
             Environment.Exit(0);
         }
         
@@ -114,7 +102,7 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
                             return;
                         case not "registerProtocol" when args[0].StartsWith("ssqe://"):
                             string[] final = args[0].Replace("%20", " ").Replace("%5C", "\\").Split('/')[2..];
-                            string file = Path.Combine(Assets.TEMP, "tempargs.txt");
+                            string file = Assets.TempAt("tempargs.txt");
 
                             if (File.Exists(file))
                                 File.Delete(file);
@@ -169,7 +157,7 @@ Would you like to report this crash on GitHub?", MBoxIcon.Error, MBoxButtons.Yes
                 Start();
 
                 Logging.Log("[Normal application exit]");
-                File.WriteAllText(Path.Combine(Assets.THIS, "logs.txt"), Logging.GetLogs());
+                File.WriteAllText(Assets.ThisAt("logs.txt"), Logging.GetLogs());
             }
             catch (Exception e)
             {

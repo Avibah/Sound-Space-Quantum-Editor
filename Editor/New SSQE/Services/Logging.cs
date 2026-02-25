@@ -1,6 +1,6 @@
 ﻿using New_SSQE.Preferences;
 
-namespace New_SSQE.ExternalUtils
+namespace New_SSQE.Services
 {
     // for debugging purposes
 

@@ -3,16 +3,16 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using New_SSQE.Audio;
-using New_SSQE.ExternalUtils;
 using New_SSQE.NewMaps;
-using New_SSQE.Misc.Dialogs;
 using New_SSQE.Objects;
 using New_SSQE.Preferences;
 using System.Collections;
 using System.Collections.ObjectModel;
-using OpenFileDialog = New_SSQE.Misc.Dialogs.OpenFileDialog;
+using OpenFileDialog = New_SSQE.NewGUI.Dialogs.OpenFileDialog;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Misc;
+using New_SSQE.Services;
+using New_SSQE.NewGUI.Dialogs;
 
 namespace New_SSQE.NewGUI
 {
@@ -24,7 +24,7 @@ namespace New_SSQE.NewGUI
         public TimingsWindow()
         {
             Instance = this;
-            Icon = new(new Bitmap(Path.Combine(Assets.TEXTURES, "Empty.png")));
+            Icon = new(new Bitmap(Assets.TexturesAt("Empty.png")));
 
             InitializeComponent();
             PointList.Items = Dataset;
@@ -130,6 +130,8 @@ namespace New_SSQE.NewGUI
 
         private void OpenTapper_Click(object sender, RoutedEventArgs e)
         {
+            if (Platforms.IsLinux)
+                return;
             BPMTapper.ShowWindow();
         }
 
@@ -275,7 +277,7 @@ namespace New_SSQE.NewGUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to parse beatmap\n[ OSU : {ex.GetType().Name} ]", MBoxIcon.Warning, MBoxButtons.OK);
+                MessageDialog.Show($"Failed to parse beatmap\n[ OSU : {ex.GetType().Name} ]", MBoxIcon.Warning, MBoxButtons.OK);
                 Logging.Log($"Failed to parse beatmap - OSU", LogSeverity.WARN, ex);
             }
         }
@@ -440,7 +442,7 @@ namespace New_SSQE.NewGUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to parse beatmap\n[ ADOFAI : {ex.GetType().Name} ]", MBoxIcon.Warning, MBoxButtons.OK);
+                MessageDialog.Show($"Failed to parse beatmap\n[ ADOFAI : {ex.GetType().Name} ]", MBoxIcon.Warning, MBoxButtons.OK);
                 Logging.Log($"Failed to parse beatmap - ADOFAI", LogSeverity.WARN, ex);
             }
         }
@@ -506,7 +508,7 @@ namespace New_SSQE.NewGUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to parse beatmap\n[ CH : {ex.GetType().Name} ]", MBoxIcon.Warning, MBoxButtons.OK);
+                MessageDialog.Show($"Failed to parse beatmap\n[ CH : {ex.GetType().Name} ]", MBoxIcon.Warning, MBoxButtons.OK);
                 Logging.Log($"Failed to parse beatmap - CH", LogSeverity.WARN, ex);
             }
         }
@@ -522,7 +524,7 @@ namespace New_SSQE.NewGUI
                 {
                     if (!Settings.detectWarningShown.Value)
                     {
-                        MessageBox.Show("BPM detection results are rarely accurate! Make sure to test and adjust the result before using it in your map.\n\nThis may be used as a general baseline but not the final answer for this song's BPM.", MBoxIcon.Warning, MBoxButtons.OK);
+                        MessageDialog.Show("BPM detection results are rarely accurate! Make sure to test and adjust the result before using it in your map.\n\nThis may be used as a general baseline but not the final answer for this song's BPM.", MBoxIcon.Warning, MBoxButtons.OK);
                         Settings.detectWarningShown.Value = true;
                     }
 

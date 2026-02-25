@@ -1,8 +1,8 @@
-﻿using New_SSQE.ExternalUtils;
-using New_SSQE.NewGUI.Font;
+﻿using New_SSQE.NewGUI.Font;
 using New_SSQE.Preferences;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using New_SSQE.NewGUI.Base;
+using New_SSQE.Services;
 
 namespace New_SSQE.NewGUI.Controls
 {
@@ -43,8 +43,8 @@ namespace New_SSQE.NewGUI.Controls
             Text = setting?.Value ?? Text;
             TextColor = Style.Secondary;
 
-            float[] fill = GLVerts.Squircle(rect, CornerDetail, CornerRadius, Style.Primary);
-            float[] outline = GLVerts.SquircleOutline(rect, 2f, CornerDetail, CornerRadius, Style.Tertiary);
+            float[] fill = GLVerts.Squircle(rect, cornerDetail, cornerRadius, Style.Primary);
+            float[] outline = GLVerts.SquircleOutline(rect, lineThickness, cornerDetail, cornerRadius, Style.Tertiary);
             if (!cursorShowing)
                 return [..fill, ..outline];
 
@@ -77,7 +77,7 @@ namespace New_SSQE.NewGUI.Controls
             cursorShowing = Focused && (int)cursorTime % 2 == 0;
 
             if (cursorShowing != prevShowing)
-                Update();
+                shouldUpdate = true;
 
             cursorTime += frametime * 2;
         }
@@ -243,7 +243,7 @@ namespace New_SSQE.NewGUI.Controls
 
             posX = Math.Clamp(posX, 0, textWidth);
             cursorPos = (int)Math.Floor(posX / letterWidth + 0.3f);
-            Update();
+            shouldUpdate = true;
         }
     }
 }

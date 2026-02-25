@@ -1,5 +1,4 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
@@ -41,8 +40,7 @@ namespace New_SSQE.NewGUI.Controls
             prevValue = setting.Value.Value;
 
             Style = ControlStyle.Slider_Uncolored;
-            Animator.AddKey("HoverTime", 0.1f);
-            Animator.SetReversed(true);
+            Animator.AddKey("HoverTime", 0.1f).Reversed = true;
         }
 
         public override float[] Draw()
@@ -57,7 +55,7 @@ namespace New_SSQE.NewGUI.Controls
                 : new(rect.X + rect.Width / 2 - 1.5f, rect.Y + rect.Width / 2, 3, rect.Height - rect.Width);
             Vector2 circlePos = (lineRect.X + lineRect.Width * (horizontal ? progress : 0.5f), lineRect.Y + lineRect.Height * (horizontal ? 0.5f : progress));
 
-            float[] line = GLVerts.Squircle(lineRect, CornerDetail, CornerRadius, Style.Secondary);
+            float[] line = GLVerts.Squircle(lineRect, cornerDetail, cornerRadius, Style.Secondary);
             float[] circle = GLVerts.Polygon(circlePos.X, circlePos.Y, 4, 16, 0, Style.Primary);
 
             float hoverTime = Animator["HoverTime"];

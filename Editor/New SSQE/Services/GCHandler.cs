@@ -1,6 +1,4 @@
-﻿using New_SSQE.ExternalUtils;
-
-namespace New_SSQE.Services
+﻿namespace New_SSQE.Services
 {
     internal class GCHandler
     {
@@ -25,14 +23,12 @@ namespace New_SSQE.Services
 
             try
             {
-                Logging.Log($"Ran GC: {_time}");
                 double start = GC.GetTotalPauseDuration().TotalSeconds;
                 GC.Collect();
                 double end = GC.GetTotalPauseDuration().TotalSeconds;
 
                 if (end - start > GC_TIMEOUT)
                 {
-                    Logging.Log("GC Timeout");
                     _lastStopped = _time;
                     _timeouts++;
                 }

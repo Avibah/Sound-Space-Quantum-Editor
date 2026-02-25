@@ -1,8 +1,8 @@
-﻿using New_SSQE.ExternalUtils;
-using New_SSQE.Misc;
-using New_SSQE.Misc.Dialogs;
+﻿using New_SSQE.Misc;
+using New_SSQE.NewGUI.Dialogs;
 using New_SSQE.Objects;
 using New_SSQE.Preferences;
+using New_SSQE.Services;
 using System.Text;
 
 namespace New_SSQE.NewMaps.Parsing
@@ -19,7 +19,7 @@ namespace New_SSQE.NewMaps.Parsing
 
             if (fileTypeSignature != "SS+m")
             {
-                MessageBox.Show("File type not recognized or supported\nCurrently supported: SSPM v1/v2", MBoxIcon.Warning, MBoxButtons.OK);
+                MessageDialog.Show("File type not recognized or supported\nCurrently supported: SSPM v1/v2", MBoxIcon.Warning, MBoxButtons.OK);
                 return false;
             }
 
@@ -74,8 +74,8 @@ namespace New_SSQE.NewMaps.Parsing
                     ulong coverLength = reader.ReadUInt64();
                     byte[] cover = reader.ReadBytes((int)coverLength);
 
-                    File.WriteAllBytes(Path.Combine(Assets.CACHED, $"{mapID}.png"), cover);
-                    Settings.cover.Value = Path.Combine(Assets.CACHED, $"{mapID}.png");
+                    File.WriteAllBytes(Assets.CachedAt($"{mapID}.png"), cover);
+                    Settings.cover.Value = Assets.CachedAt($"{mapID}.png");
                 }
 
                 // read audio
@@ -86,7 +86,7 @@ namespace New_SSQE.NewMaps.Parsing
                     ulong audioLength = reader.ReadUInt64();
                     byte[] audio = reader.ReadBytes((int)audioLength);
 
-                    File.WriteAllBytes(Path.Combine(Assets.CACHED, $"{mapID}.asset"), audio);
+                    File.WriteAllBytes(Assets.CachedAt($"{mapID}.asset"), audio);
                 }
 
                 // process notes
@@ -253,7 +253,7 @@ namespace New_SSQE.NewMaps.Parsing
                     reader.BaseStream.Seek((long)audioOffset, SeekOrigin.Begin);
 
                     byte[] audio = reader.ReadBytes((int)audioLength);
-                    File.WriteAllBytes(Path.Combine(Assets.CACHED, $"{mapID}.asset"), audio);
+                    File.WriteAllBytes(Assets.CachedAt($"{mapID}.asset"), audio);
                 }
 
                 Settings.useCover.Value = containsCover;
@@ -262,8 +262,8 @@ namespace New_SSQE.NewMaps.Parsing
                 if (containsCover)
                 {
                     byte[] cover = reader.ReadBytes((int)coverLength);
-                    File.WriteAllBytes(Path.Combine(Assets.CACHED, $"{mapID}.png"), cover);
-                    Settings.cover.Value = Path.Combine(Assets.CACHED, $"{mapID}.png");
+                    File.WriteAllBytes(Assets.CachedAt($"{mapID}.png"), cover);
+                    Settings.cover.Value = Assets.CachedAt($"{mapID}.png");
                 }
 
                 // read marker definitions
@@ -314,7 +314,7 @@ namespace New_SSQE.NewMaps.Parsing
             }
             else
             {
-                MessageBox.Show("File version not recognized or supported\nCurrently supported: SSPM v1/v2", MBoxIcon.Warning, MBoxButtons.OK);
+                MessageDialog.Show("File version not recognized or supported\nCurrently supported: SSPM v1/v2", MBoxIcon.Warning, MBoxButtons.OK);
                 return false;
             }
         }
@@ -347,7 +347,7 @@ namespace New_SSQE.NewMaps.Parsing
 
             writer.Write((uint)(notes.LastOrDefault()?.Ms ?? 0)); // last note ms - 4 byte uint
             writer.Write((uint)notes.Count); // note count - 4 byte uint
-            writer.Write((uint)notes.Count); // marker count, repeated from last since no other markers
+            writer.Write((uint)notes.Count + 1); // marker count, repeated from last since no other markers
 
             writer.Write(FormatUtils.Difficulties[Metadata["difficulty"]]); // difficulty - 1 byte uint
             writer.Write(new byte[2]); // rating? whatever that means
@@ -389,7 +389,7 @@ namespace New_SSQE.NewMaps.Parsing
 
             // audio
             long audioOffset = writer.BaseStream.Position;
-            writer.Write(File.ReadAllBytes(Path.Combine(Assets.CACHED, $"{Mapping.Current.SoundID}.asset"))); // audio in bytes
+            writer.Write(File.ReadAllBytes(Assets.CachedAt($"{Mapping.Current.SoundID}.asset"))); // audio in bytes
             long audioLength = writer.BaseStream.Position - audioOffset;
 
             // cover
@@ -400,7 +400,7 @@ namespace New_SSQE.NewMaps.Parsing
             {
                 coverOffset = writer.BaseStream.Position;
 
-                string coverPath = Metadata["coverPath"] == "Default" || !File.Exists(Metadata["coverPath"]) ? Path.Combine(Assets.TEXTURES, "Cover.png") : Metadata["coverPath"];
+                string coverPath = Metadata["coverPath"] == "Default" || !File.Exists(Metadata["coverPath"]) ? Assets.TexturesAt("Cover.png") : Metadata["coverPath"];
                 writer.Write(File.ReadAllBytes(coverPath)); // cover in bytes
 
                 coverLength = writer.BaseStream.Position - coverOffset;
@@ -408,9 +408,12 @@ namespace New_SSQE.NewMaps.Parsing
 
             // marker definitions
             long markerDefinitionsOffset = writer.BaseStream.Position;
-            writer.Write((byte)0x01); // one definition
+            writer.Write((byte)0x02); // one definition
             WriteString("ssp_note"); // "ssp_note" marker indicator
             writer.Write(new byte[] { 0x01, /* one value */ 0x07, /* data type 07 - note */ 0x00 /* end of definition */ });
+            WriteString("ssp_bpm"); // "ssp_beat" marker indicator
+            writer.Write(new byte[] { 0x01, /* one value */ 0x01, /* data type 01 - byte */ 0x00 /* end of definition */ });
+
             long markerDefinitionsLength = writer.BaseStream.Position - markerDefinitionsOffset;
 
             // markers
@@ -438,6 +441,8 @@ namespace New_SSQE.NewMaps.Parsing
                 }
             }
 
+            writer.Write(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x01, 0x01 }); // test data
+
             long markerLength = writer.BaseStream.Position - markerOffset;
 
             // pointers, going back to the 80 byte placeholder from earlier
@@ -456,7 +461,6 @@ namespace New_SSQE.NewMaps.Parsing
 
             // in case something goes wrong, the export can be traced back to the version it was made on
             writer.BaseStream.Seek(0, SeekOrigin.End);
-            WriteString($"\nSSQE Export - {Program.Version}");
 
             // the documentation for this stuff really isnt great, some examples would be nice
             // https://github.com/basils-garden/types/blob/main/sspm/v2.md
@@ -493,7 +497,7 @@ namespace New_SSQE.NewMaps.Parsing
                 catch (Exception ex)
                 {
                     Logging.Log("Failed to export", LogSeverity.WARN, ex);
-                    MessageBox.Show($"Failed to export SSPM:\n\n{ex.Message}", MBoxIcon.Warning, MBoxButtons.OK);
+                    MessageDialog.Show($"Failed to export SSPM:\n\n{ex.Message}", MBoxIcon.Warning, MBoxButtons.OK);
                     try
                     {
                         File.Delete(fileName);

@@ -1,5 +1,5 @@
-﻿using New_SSQE.ExternalUtils;
-using New_SSQE.Misc;
+﻿using New_SSQE.Misc;
+using New_SSQE.Services;
 using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 
@@ -16,7 +16,7 @@ namespace New_SSQE.NewGUI
 
             if (image == null)
             {
-                string file = Path.Combine(Assets.TEXTURES, $"{texture}.png");
+                string file = Assets.TexturesAt($"{texture}.png");
 
                 if (!File.Exists(file))
                 {

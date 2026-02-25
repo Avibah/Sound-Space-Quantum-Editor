@@ -3,6 +3,7 @@ using Egorozh.ColorPicker.Dialog;
 using Avalonia.Controls;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 using New_SSQE.NewGUI;
+using New_SSQE.NewGUI.Dialogs;
 
 namespace New_SSQE.Misc.Dialogs
 {
@@ -20,7 +21,7 @@ namespace New_SSQE.Misc.Dialogs
             ColorPickerDialog dialog = new()
             {
                 Color = Avalonia.Media.Color.FromArgb(Color.A, Color.R, Color.G, Color.B),
-                Icon = new(new Bitmap(Path.Combine(Assets.TEXTURES, "Empty.png"))),
+                Icon = new(new Bitmap(Assets.TexturesAt("Empty.png"))),
                 Topmost = true
             };
 

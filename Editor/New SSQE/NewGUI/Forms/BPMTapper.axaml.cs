@@ -2,8 +2,8 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
-using New_SSQE.ExternalUtils;
 using New_SSQE.Misc;
+using New_SSQE.Services;
 
 namespace New_SSQE.NewGUI
 {
@@ -20,7 +20,7 @@ namespace New_SSQE.NewGUI
         public BPMTapper()
         {
             Instance = this;
-            Icon = new(new Bitmap(Path.Combine(Assets.TEXTURES, "Empty.png")));
+            Icon = new(new Bitmap(Assets.TexturesAt("Empty.png")));
 
             InitializeComponent();
         }

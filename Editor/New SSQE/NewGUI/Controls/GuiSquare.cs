@@ -36,16 +36,16 @@ namespace New_SSQE.NewGUI.Controls
 
         public GuiSquare(float x, float y, float w, float h) : base(x, y, w, h)
         {
-            CornerRadius = 0;
+            cornerRadius = 0;
         }
         public GuiSquare() : this(0, 0, 1920, 1080) { }
 
         public override float[] Draw()
         {
             if (outline)
-                return GLVerts.SquircleOutline(rect, 2, CornerDetail, CornerRadius, color);
+                return GLVerts.SquircleOutline(rect, lineThickness, cornerDetail, cornerRadius, color);
             else
-                return GLVerts.Squircle(rect, CornerDetail, CornerRadius, color);
+                return GLVerts.Squircle(rect, cornerDetail, cornerRadius, color);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using New_SSQE.ExternalUtils;
-using New_SSQE.Preferences;
+﻿using New_SSQE.Preferences;
 using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Backends.MiniAudio.Devices;
@@ -19,6 +18,7 @@ namespace New_SSQE.Audio
         private const int INITIAL_CACHE_SIZE = 8;
         public const float VOLUME_MULT = 2;
         public const int SAMPLE_RATE = 44100;
+        public const int PERIOD_MILLISECONDS = 4;
 
         private static readonly AudioFormat format = new()
         {
@@ -28,7 +28,9 @@ namespace New_SSQE.Audio
         };
 
         private static readonly FFmpegCodecFactory ffmpegFactory = new();
-        public static IReadOnlyCollection<string> SupportedFormats => ffmpegFactory.SupportedFormatIds;
+
+        public static IReadOnlyCollection<string> SupportedExtensions => [.. ffmpegFactory.SupportedFormatIds.Concat(["egg", "asset"])];
+        public static string SupportedExtensionsString => string.Join(';', SupportedExtensions.Select((e) => "*." + e));
 
         private static readonly MiniAudioEngine engine;
         private static readonly AudioPlaybackDevice device;
@@ -42,31 +44,16 @@ namespace New_SSQE.Audio
         static SoundEngine()
         {
             engine = new();
-
             engine.RegisterCodecFactory(ffmpegFactory);
             engine.UpdateAudioDevicesInfo();
+
             device = engine.InitializePlaybackDevice(null, format, new MiniAudioDeviceConfig()
             {
                 Wasapi = new() { Usage = WasapiUsage.ProAudio },
-                PeriodSizeInMilliseconds = 4
+                PeriodSizeInMilliseconds = PERIOD_MILLISECONDS
             });
             device.Start();
         }
-
-        /*
-        public static void EncodeMusic(string outFile, string encoding)
-        {
-            if (prevMusic == null)
-                return;
-            if (prevMusic.DataProvider is not TempoProvider provider)
-                return;
-
-            MemoryStream output = new();
-            using ISoundEncoder encoder = engine.CreateEncoder(output, encoding, provider.Format);
-            
-            encoder.Encode(provider.Samples);
-        }
-        */
 
         private static float[] GetResampledData(string filename, out string fileType, bool sourceIsMusic)
         {
@@ -76,17 +63,41 @@ namespace New_SSQE.Audio
             ISoundDataProvider provider = sourceIsMusic ? new StreamDataProvider(engine, stream) : new AssetDataProvider(engine, stream);
             fileType = provider.FormatInfo?.FormatName.ToLower() ?? "";
 
-            float[] data = new float[provider.Length];
-            int offset = 0;
-
+            List<float> parsed = new(provider.Length);
             float[] buffer = new float[provider.SampleRate];
-            while (provider.ReadBytes(buffer) > 0)
+
+            int samples = 0;
+
+            while ((samples = provider.ReadBytes(buffer)) > 0)
             {
-                Array.Copy(buffer, 0, data, offset, Math.Min(data.Length - offset, buffer.Length));
-                offset += buffer.Length;
+                if (samples < buffer.Length)
+                {
+                    float[] sizedBuffer = new float[samples];
+                    Array.Copy(buffer, sizedBuffer, samples);
+                    parsed.AddRange(sizedBuffer);
+                }
+                else
+                    parsed.AddRange(buffer);
+            }
+
+            float[] data = [.. parsed];
+            parsed = [];
+
+            if ((provider.FormatInfo?.ChannelCount ?? 2) == 1)
+            {
+                float[] stereoData = new float[data.Length * 2];
+
+                for (int i = 0; i < data.Length; i++)
+                {
+                    stereoData[i * 2 + 0] = data[i];
+                    stereoData[i * 2 + 1] = data[i];
+                }
+
+                data = stereoData;
             }
             
             float[] resampled = MathHelper.ResampleLinear(data, provider.FormatInfo?.ChannelCount ?? 2, provider.SampleRate, format.SampleRate);
+            data = [];
 
             if (_mono)
             {

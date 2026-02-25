@@ -1,10 +1,6 @@
-﻿using New_SSQE.ExternalUtils;
-using New_SSQE.Misc.Dialogs;
-using New_SSQE.Misc.Static;
-using New_SSQE.NewMaps;
-using New_SSQE.Preferences;
+﻿using New_SSQE.Preferences;
+using New_SSQE.Services;
 using SoundFlow.Enums;
-using SoundTouch;
 using Player = SoundFlow.Components.SoundPlayer;
 
 namespace New_SSQE.Audio
@@ -17,63 +13,16 @@ namespace New_SSQE.Audio
 
         public static float MusicOffset => Settings.musicOffset.Value - 28;
 
-        /*
-        private static void RunMP3Convert()
-        {
-            try
-            {
-                Pause();
-                SoundEngine.EncodeMusic(Path.Combine(Assets.TEMP, "tempaudio.mp3"), "mp3");
-            }
-            catch (Exception ex)
-            {
-                Logging.Log($"Failed to encode file to mp3: {lastFile}", LogSeverity.WARN, ex);
-                MessageBox.Show($"Failed to convert file {lastFile}\n\nExternal playtesting may not be possible with this asset.", MBoxIcon.Warning, MBoxButtons.OK);
-            }
-
-            Load(lastFile);
-            Volume = Settings.masterVolume.Value.Value;
-        }
-
-        public static void ConvertToMP3()
-        {
-            if (IsMP3)
-            {
-                DialogResult result = MessageBox.Show("This asset is already an MP3. Do you want to convert it anyway?\n\nThis may take a while.", MBoxIcon.Info, MBoxButtons.Yes_No);
-                if (result != DialogResult.Yes)
-                    return;
-            }
-            else
-            {
-                DialogResult result = MessageBox.Show("Are you sure you want to convert this asset to MP3?\n\nThis may take a while.", MBoxIcon.Info, MBoxButtons.Yes_No);
-                if (result != DialogResult.Yes)
-                    return;
-            }
-
-            RunMP3Convert();
-        }
-        */
-
         public static bool Load(string file)
         {
             if (!File.Exists(file))
-                return true;
+                return false;
             if (lastFile != file)
                 lastFile = file;
 
             SoundEngine.SetMono(Settings.monoAudio.Value);
             tempoProvider?.Dispose();
             lastPlayer?.Dispose();
-
-            bool Error(Exception ex)
-            {
-                string id = Path.GetFileNameWithoutExtension(file);
-
-                Logging.Log($"Audio failed to load - {file}", LogSeverity.ERROR, ex);
-                DialogResult message = MessageBox.Show($"Audio file with id '{id}' is corrupt.\n\nWould you like to try importing a new file?", MBoxIcon.Warning, MBoxButtons.OK_Cancel);
-
-                return message == DialogResult.OK && Mapping.ImportAudio(id);
-            }
 
             try
             {
@@ -92,10 +41,11 @@ namespace New_SSQE.Audio
             }
             catch (Exception ex)
             {
-                return Error(ex);
+                Logging.Log($"Audio failed to load - {file}", LogSeverity.ERROR, ex);
+                return false;
             }
 
-            Reset();
+            Stop();
 
             return true;
         }
@@ -116,23 +66,7 @@ namespace New_SSQE.Audio
         public static void Pause()
         {
             Settings.currentTime.Value.Value = (float)CurrentTime.TotalMilliseconds;
-            Stop();
-        }
-
-        public static void Stop()
-        {
             lastPlayer?.Stop();
-        }
-
-        public static int GetData(ref short[] buffer)
-        {
-            float[] data = new float[buffer.Length];
-            int numBytes = tempoProvider?.ReadBytes(data) ?? 0;
-
-            for (int i = 0; i < data.Length; i++)
-                buffer[i] = (short)(data[i] * short.MaxValue);
-
-            return numBytes;
         }
 
         public static float Tempo
@@ -155,9 +89,9 @@ namespace New_SSQE.Audio
             get => (lastPlayer?.Volume / SoundEngine.VOLUME_MULT) ?? 1;
         }
 
-        public static void Reset()
+        public static void Stop()
         {
-            Stop();
+            lastPlayer?.Stop();
             CurrentTime = TimeSpan.Zero;
         }
 
@@ -178,48 +112,12 @@ namespace New_SSQE.Audio
         {
             if (tempoProvider == null)
                 return 0;
-            float tempo = Tempo;
 
-            int channels = tempoProvider.Format.Channels;
             int sampleRate = tempoProvider.Format.SampleRate;
-
             int startOffset = (int)(start / 1000d * sampleRate);
-            startOffset = startOffset / 2 * 2;
             int endOffset = (int)(end / 1000d * sampleRate);
-            endOffset = endOffset / 2 * 2;
 
-            float bpm = 0;
-
-            for (int i = 0; i < 5; i++)
-            {
-                Tempo = 1 / (float)Math.Pow(2, i);
-
-                tempoProvider.Seek(startOffset);
-                BpmDetect detector = new(channels, sampleRate);
-
-                float[] buffer = new float[4096];
-
-                while (tempoProvider.Position < endOffset)
-                {
-                    int samplesRead = tempoProvider.ReadBytes(buffer);
-                    detector.InputSamples(buffer, samplesRead / channels);
-
-                    if (samplesRead == 0)
-                        break;
-                }
-
-                bpm = detector.GetBpm();
-                if (bpm > 0)
-                    break;
-
-                Logging.Log($"BPM detect pass {i} failed");
-            }
-
-            Tempo = tempo;
-            return bpm;
+            return tempoProvider.GetBPM(startOffset, endOffset);
         }
-
-        public static string[] SupportedExtensions => [.. SoundEngine.SupportedFormats.Concat(["egg", "asset"])];
-        public static string SupportedExtensionsString => string.Join(';', SupportedExtensions.Select((e) => "*." + e));
     }
 }

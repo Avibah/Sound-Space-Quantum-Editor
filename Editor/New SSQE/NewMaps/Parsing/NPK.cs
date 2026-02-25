@@ -1,10 +1,10 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.ExternalUtils;
 using New_SSQE.Misc;
-using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
+using New_SSQE.NewGUI.Dialogs;
 using New_SSQE.Objects;
 using New_SSQE.Preferences;
+using New_SSQE.Services;
 using System.IO.Compression;
 using System.Text.Json;
 
@@ -26,7 +26,7 @@ namespace New_SSQE.NewMaps.Parsing
 
             if (formatVersion <= 0 || formatVersion > readers.Length || readers[formatVersion - 1] == null)
             {
-                MessageBox.Show($"Unsupported NPK version: {formatVersion}", MBoxIcon.Warning, MBoxButtons.OK);
+                MessageDialog.Show($"Unsupported NPK version: {formatVersion}", MBoxIcon.Warning, MBoxButtons.OK);
                 return false;
             }
 
@@ -211,7 +211,7 @@ namespace New_SSQE.NewMaps.Parsing
         {
             string id = Mapping.Current.SoundID;
 
-            string temp = Path.Combine(Assets.TEMP, "nova");
+            string temp = Assets.TempAt("nova");
             Directory.CreateDirectory(temp);
             foreach (string file in Directory.GetFiles(temp))
                 File.Delete(file);
@@ -228,7 +228,7 @@ namespace New_SSQE.NewMaps.Parsing
             if (hasIcon)
                 File.Copy(Metadata["iconPath"], Path.Combine(temp, $"profile{Path.GetExtension(Metadata["iconPath"])}"), true);
             
-            File.Copy(Path.Combine(Assets.CACHED, $"{id}.asset"), Path.Combine(temp, $"{id}{extension}"), true);
+            File.Copy(Assets.CachedAt($"{id}.asset"), Path.Combine(temp, $"{id}{extension}"), true);
 
             WriteNCH(Path.Combine(temp, "chart.nch"));
 
@@ -294,7 +294,7 @@ namespace New_SSQE.NewMaps.Parsing
                 catch (Exception ex)
                 {
                     Logging.Log("Failed to export", LogSeverity.WARN, ex);
-                    MessageBox.Show($"Failed to export NPK:\n\n{ex.Message}", MBoxIcon.Warning, MBoxButtons.OK);
+                    MessageDialog.Show($"Failed to export NPK:\n\n{ex.Message}", MBoxIcon.Warning, MBoxButtons.OK);
                 }
             }
 
@@ -415,14 +415,14 @@ namespace New_SSQE.NewMaps.Parsing
                     case ".ogg":
                     case ".wav":
                         id = filename;
-                        File.Copy(file, Path.Combine(Assets.CACHED, $"{filename}.asset"), true);
+                        File.Copy(file, Assets.CachedAt($"{filename}.asset"), true);
                         break;
                 }
             }
 
             if (!string.IsNullOrWhiteSpace(profile))
             {
-                string temp = Path.Combine(Assets.CACHED, $"{id}-profile{Path.GetExtension(profile)}");
+                string temp = Assets.CachedAt($"{id}-profile{Path.GetExtension(profile)}");
                 File.Copy(profile, temp, true);
                 Settings.novaIcon.Value = temp;
             }
@@ -431,7 +431,7 @@ namespace New_SSQE.NewMaps.Parsing
 
             if (!string.IsNullOrWhiteSpace(icon))
             {
-                string temp = Path.Combine(Assets.CACHED, $"{id}-icon{Path.GetExtension(icon)}");
+                string temp = Assets.CachedAt($"{id}-icon{Path.GetExtension(icon)}");
                 File.Copy(icon, temp, true);
                 Settings.novaCover.Value = temp;
                 Settings.cover.Value = temp;
@@ -595,21 +595,21 @@ namespace New_SSQE.NewMaps.Parsing
                     case ".ogg":
                     case ".wav":
                         id = filename;
-                        File.Copy(file, Path.Combine(Assets.CACHED, $"{filename}.asset"), true);
+                        File.Copy(file, Assets.CachedAt($"{filename}.asset"), true);
                         break;
                 }
             }
 
             if (!string.IsNullOrWhiteSpace(profile))
             {
-                string temp = Path.Combine(Assets.CACHED, $"{id}-profile{Path.GetExtension(profile)}");
+                string temp = Assets.CachedAt($"{id}-profile{Path.GetExtension(profile)}");
                 File.Copy(profile, temp, true);
                 Settings.novaIcon.Value = temp;
             }
 
             if (!string.IsNullOrWhiteSpace(icon))
             {
-                string temp = Path.Combine(Assets.CACHED, $"{id}-icon{Path.GetExtension(icon)}");
+                string temp = Assets.CachedAt($"{id}-icon{Path.GetExtension(icon)}");
                 File.Copy(icon, temp, true);
                 Settings.novaCover.Value = temp;
                 Settings.cover.Value = temp;

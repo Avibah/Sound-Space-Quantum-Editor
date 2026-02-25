@@ -1,10 +1,9 @@
 ﻿using NativeFileDialogs.Net;
-using New_SSQE.ExternalUtils;
-using New_SSQE.NewGUI;
 using New_SSQE.NewGUI.Windows;
 using New_SSQE.Preferences;
+using New_SSQE.Services;
 
-namespace New_SSQE.Misc.Dialogs
+namespace New_SSQE.NewGUI.Dialogs
 {
     internal class SaveFileDialog
     {
@@ -35,7 +34,7 @@ namespace New_SSQE.Misc.Dialogs
             }
             catch (Exception ex)
             {
-                Logging.Log($"Save NFD failed: {name} | {extensions}", LogSeverity.WARN, ex);
+                Logging.Log($"Save NFD failed: {name} | {extensions}", LogSeverity.ERROR, ex);
                 GuiWindowEditor.ShowError("Failed to open dialog");
             }
 
@@ -52,8 +51,11 @@ namespace New_SSQE.Misc.Dialogs
 
         public DialogResult Show(Setting<string> directory)
         {
-            if (directory.Value != "")
-                InitialDirectory = directory.Value;
+            if (directory.Value != "" && Directory.Exists(directory.Value))
+            {
+                string dir = Path.GetFullPath(directory.Value);
+                InitialDirectory = dir;
+            }
 
             DialogResult result = Show();
 

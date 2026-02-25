@@ -130,7 +130,23 @@ namespace New_SSQE.NewGUI.Base
         public static ControlStyle Button_Uncolored = new(
             Color.FromArgb(26, 26, 26),
             Color.FromArgb(52, 52, 52),
-            Color.FromArgb(255, 255, 255),
+            Color.White,
+            null,
+            null
+        );
+
+        public static ControlStyle Button_Light = new(
+            Color.FromArgb(245, 245, 245),
+            Color.FromArgb(55, 55, 55),
+            Color.FromArgb(0, 0, 0),
+            null,
+            null
+        );
+
+        public static ControlStyle Button_Close = new(
+            Color.FromArgb(76, 74, 72),
+            Color.FromArgb(76, 74, 72),
+            Color.Red,
             null,
             null
         );
@@ -140,27 +156,27 @@ namespace New_SSQE.NewGUI.Base
             null,
             Color.FromArgb(13, 13, 13),
             Color.FromArgb(52, 52, 52),
-            Color.FromArgb(255, 255, 255)
+            Color.White
         );
 
         public static ControlStyle Checkbox_Uncolored = new(
-            Color.FromArgb(255, 255, 255),
+            Color.White,
             Color.FromArgb(75, 75, 75),
             Color.FromArgb(13, 13, 13),
             Color.FromArgb(52, 52, 52),
-            Color.FromArgb(255, 255, 255)
+            Color.White
         );
 
         public static ControlStyle Grid_Colored = new(
             Color.FromArgb(39, 39, 39),
             Color.FromArgb(52, 52, 52),
             Color.FromArgb(13, 13, 13),
-            Color.FromArgb(255, 255, 255),
+            Color.White,
             null
         );
 
         public static ControlStyle Slider_Uncolored = new(
-            Color.FromArgb(255, 255, 255),
+            Color.White,
             Color.FromArgb(75, 75, 75),
             null,
             null,
@@ -177,7 +193,7 @@ namespace New_SSQE.NewGUI.Base
 
         public static ControlStyle Textbox_Uncolored = new(
             Color.FromArgb(26, 26, 26),
-            Color.FromArgb(255, 255, 255),
+            Color.White,
             Color.FromArgb(128, 128, 128),
             null,
             null

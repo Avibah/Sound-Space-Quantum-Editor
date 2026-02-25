@@ -23,7 +23,7 @@ namespace New_SSQE.NewGUI.Base
         private string prefix = "";
         private string suffix = "";
 
-        public string RenderedText => prefix + (textWrapped ? WrapText() : text) + suffix;
+        public string RenderedText => prefix + (textWrapped ? FontRenderer.WrapText(text, TextSize, font, rect.Width) : text) + suffix;
 
         private CenterMode centerMode = CenterMode.XY;
         private Vector4[] verts = [];
@@ -247,11 +247,6 @@ namespace New_SSQE.NewGUI.Base
             th += yOffset;
 
             return Vector4.ComponentMax(extents, (-tx, -ty, tw, th));
-        }
-
-        private string WrapText()
-        {
-            return text;
         }
     }
 }

@@ -214,9 +214,9 @@ namespace New_SSQE.NewGUI.Base
 
             foreach (InteractiveControl control in interactives)
             {
-                if (control.Hovering && !control.GetRect().Contains(x, y))
+                if (control.Hovering && !control.Rect.Contains(x, y))
                     control.MouseLeave(x, y);
-                else if (control.Visible && canHover && !control.Hovering && control.GetRect().Contains(x, y))
+                else if (control.Visible && canHover && !control.Hovering && control.Rect.Contains(x, y))
                     control.MouseEnter(x, y);
 
                 if (control.Visible)
@@ -374,7 +374,7 @@ namespace New_SSQE.NewGUI.Base
 
             foreach (Control control in controls)
             {
-                RectangleF origin = control.GetOrigin();
+                RectangleF origin = control.Rect;
                 Vector4 cExtents = control.GetExtents() + (-origin.X, -origin.Y, origin.X, origin.Y);
 
                 extents = Vector4.ComponentMax(extents, cExtents);

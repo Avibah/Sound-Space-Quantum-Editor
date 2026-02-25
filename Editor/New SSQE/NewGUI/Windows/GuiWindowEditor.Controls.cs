@@ -866,6 +866,6 @@ namespace New_SSQE.NewGUI.Windows
         };
         public static readonly GuiTrack Track = new(0, 0, 1920, 86);
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("editorbg", Path.Combine(Assets.THIS, "background_editor.png"));
+        public static readonly GuiSquareTextured BackgroundSquare = new("editorbg", Assets.ThisAt("background_editor.png"));
     }
 }

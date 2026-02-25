@@ -11,7 +11,7 @@ namespace New_SSQE.NewGUI.Font
     {
         static FontRenderer()
         {
-            StbFont.InitUnicode(Path.Combine(Assets.FONTS, "Unifont-P0.png"), TextureUnit.Texture12);
+            StbFont.InitUnicode(Assets.FontsAt("Unifont-P0.png"), TextureUnit.Texture12);
         }
 
         public static bool Unicode = false;
@@ -20,15 +20,15 @@ namespace New_SSQE.NewGUI.Font
         {
             {"main", TextureUnit.Texture15 },
             {"square", TextureUnit.Texture14 },
-            {"squareo", TextureUnit.Texture13 },
-            {"unicode", TextureUnit.Texture12 }
+            {"semibold", TextureUnit.Texture13 },
+            {"unicode", TextureUnit.Texture12 },
         };
 
         private static readonly Dictionary<string, StbFont> fonts = new()
         {
             {"main", new("main", fontUnits["main"]) },
             {"square", new("square", fontUnits["square"]) },
-            {"squareo", new("squareo", fontUnits["squareo"]) }
+            {"semibold", new("semibold", fontUnits["semibold"]) }
         };
 
         public static Vector4[] Print(float x, float y, string text, float textSize, string font)
@@ -37,6 +37,8 @@ namespace New_SSQE.NewGUI.Font
             => fonts[font].PrintInto(array, offset, x, y, text, textSize * Settings.fontScale.Value, Unicode);
         public static float GetWidth(string text, float textSize, string font)
             => fonts[font].Extent(text, textSize * Settings.fontScale.Value, Unicode);
+        public static float GetWidth(char text, float textSize, string font)
+            => GetWidth(text.ToString(), textSize, font);
         public static float GetHeight(float textSize, string font)
             => fonts[font].Baseline(textSize * Settings.fontScale.Value, Unicode);
 
@@ -92,6 +94,83 @@ namespace New_SSQE.NewGUI.Font
                 text = text[..^1];
 
             return text + end;
+        }
+
+        private static string WrapLine(string text, float textSize, string font, float width)
+        {
+            int charsPerLine = (int)(width / GetWidth('0', textSize, font));
+            List<string> lines = [];
+
+            while (text.Length > 0)
+            {
+                string sub = text[..Math.Min(text.Length, charsPerLine)];
+                float subWidth = GetWidth(sub, textSize, font);
+
+                while (subWidth > width)
+                {
+                    char lastChar = sub[^1];
+                    sub = sub[..^1];
+                    subWidth -= GetWidth(lastChar, textSize, font);
+                }
+
+                while (subWidth <= width && text.Length > sub.Length)
+                {
+                    char nextChar = text[sub.Length];
+                    subWidth += GetWidth(nextChar, textSize, font);
+                    sub += nextChar;
+                }
+
+                if (subWidth <= width)
+                {
+                    text = text[sub.Length..];
+                    lines.Add(sub);
+                    continue;
+                }
+
+                int cutoff = -1;
+
+                for (int i = sub.Length - 1; i >= 0; i--)
+                {
+                    if (char.IsWhiteSpace(sub[i]))
+                    {
+                        cutoff = i;
+                        break;
+                    }
+                }
+
+                if (cutoff < 0)
+                {
+                    if (subWidth > width)
+                        cutoff = sub.Length - 1;
+                    else
+                        cutoff = sub.Length;
+                }
+
+                if (sub.Length == 0 || cutoff <= 0)
+                {
+                    sub = text[..1];
+                    cutoff = 1;
+                }
+
+                string line = sub[..cutoff];
+                text = text[cutoff..];
+                lines.Add(line);
+            }
+
+            return string.Join('\n', lines);
+        }
+
+        public static string WrapText(string text, float textSize, string font, float width)
+        {
+            List<string> lines = [];
+
+            foreach (string line in text.Split('\n'))
+            {
+                string result = WrapLine(line, textSize, font, width);
+                lines.Add(result);
+            }
+
+            return string.Join('\n', lines);
         }
     }
 }

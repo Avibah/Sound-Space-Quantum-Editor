@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using New_SSQE.ExternalUtils;
+using New_SSQE.Services;
 
 namespace New_SSQE.Misc
 {
@@ -15,6 +15,17 @@ namespace New_SSQE.Misc
         public static readonly string TEMP = Path.Combine(THIS, "assets", "temp");
         public static readonly string TEXTURES = Path.Combine(THIS, "assets", "textures");
         public static readonly string HISTORY = Path.Combine(THIS, "history");
+
+        public static string ThisAt(string path) => Path.Combine(THIS, path);
+        public static string FileNameAt(string path) => Path.Combine(FILE_NAME, path);
+        public static string ExeAt(string path) => Path.Combine(EXE, path);
+
+        public static string CachedAt(string path) => Path.Combine(CACHED, path);
+        public static string FontsAt(string path) => Path.Combine(FONTS, path);
+        public static string SoundsAt(string path) => Path.Combine(SOUNDS, path);
+        public static string TempAt(string path) => Path.Combine(TEMP, path);
+        public static string TexturesAt(string path) => Path.Combine(TEXTURES, path);
+        public static string HistoryAt(string path) => Path.Combine(HISTORY, path);
 
         static Assets()
         {

@@ -1,12 +1,12 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
-using New_SSQE.ExternalUtils;
 using New_SSQE.Misc;
-using New_SSQE.Misc.Dialogs;
+using New_SSQE.NewGUI.Dialogs;
 using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Preferences;
-using OpenFileDialog = New_SSQE.Misc.Dialogs.OpenFileDialog;
+using New_SSQE.Services;
+using OpenFileDialog = New_SSQE.NewGUI.Dialogs.OpenFileDialog;
 
 namespace New_SSQE.NewGUI
 {
@@ -17,7 +17,7 @@ namespace New_SSQE.NewGUI
         public ExportNOVA()
         {
             Instance = this;
-            Icon = new(new Bitmap(Path.Combine(Assets.TEXTURES, "Empty.png")));
+            Icon = new(new Bitmap(Assets.TexturesAt("Empty.png")));
 
             InitializeComponent();
 

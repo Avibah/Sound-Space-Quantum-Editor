@@ -1,9 +1,9 @@
-﻿using New_SSQE.ExternalUtils;
-using New_SSQE.Misc;
+﻿using New_SSQE.Misc;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.CompoundControls;
 using New_SSQE.NewGUI.Controls;
 using New_SSQE.Preferences;
+using New_SSQE.Services;
 using System.Drawing;
 
 namespace New_SSQE.NewGUI.Windows
@@ -540,7 +540,7 @@ namespace New_SSQE.NewGUI.Windows
 
 
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"))
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Assets.ThisAt("background_menu.png"))
         {
             Color = Color.FromArgb(30, 30, 30)
         };

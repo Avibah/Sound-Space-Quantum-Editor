@@ -1,7 +1,7 @@
 ﻿using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Objects;
 
-namespace New_SSQE.ExternalUtils
+namespace New_SSQE.Services
 {
     internal class Clipboard
     {

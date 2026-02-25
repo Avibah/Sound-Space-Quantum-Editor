@@ -10,7 +10,7 @@ namespace New_SSQE.NewGUI.Windows
 {
     internal partial class GuiWindowCreate
     {
-        private static readonly string audioFilter = $"Audio Files ({MusicPlayer.SupportedExtensionsString})|{MusicPlayer.SupportedExtensionsString}";
+        private static readonly string audioFilter = $"Audio Files ({SoundEngine.SupportedExtensionsString})|{SoundEngine.SupportedExtensionsString}";
 
         public static readonly GuiCheckbox NavSoundSpace = new(0, 0, 50, 50)
         {
@@ -31,21 +31,21 @@ namespace New_SSQE.NewGUI.Windows
             Style = ControlStyle.Checkbox_Uncolored
         };
 
-        public static readonly GuiLabel AudioIDLabelSoundSpace = new(690, 370, 540, 50)
+        public static readonly GuiLabel AudioIDLabelSoundSpace = new(370, -45, 540, 50)
         {
             Text = "Roblox Audio ID",
             TextSize = 36
         };
-        public static readonly GuiTextbox AudioIDBoxSoundSpace = new(790, 420, 340, 50)
+        public static readonly GuiTextbox AudioIDBoxSoundSpace = new(470, 5, 340, 50)
         {
             TextSize = 36
         };
-        public static readonly GuiLabel AudioPathLabelSoundSpace = new(690, 470, 540, 50)
+        public static readonly GuiLabel AudioPathLabelSoundSpace = new(370, 55, 540, 50)
         {
             Text = "Import Audio",
             TextSize = 36
         };
-        public static readonly GuiPathBox AudioPathSoundSpace = new(690, 520, 540, 50)
+        public static readonly GuiPathBox AudioPathSoundSpace = new(370, 105, 540, 50)
         {
             Filter = audioFilter,
             Setting = Settings.audioPath,
@@ -54,19 +54,19 @@ namespace New_SSQE.NewGUI.Windows
         };
         public static readonly ControlContainer SoundSpaceContainer = new(AudioIDLabelSoundSpace, AudioIDBoxSoundSpace, AudioPathLabelSoundSpace, AudioPathSoundSpace);
 
-        public static readonly GuiLabel AudioPathLabelRhythia = new(690, 370, 540, 50)
+        public static readonly GuiLabel AudioPathLabelRhythia = new(370, -45, 540, 50)
         {
             Text = "Import Audio",
             TextSize = 36
         };
-        public static readonly GuiPathBox AudioPathRhythia = new(690, 420, 540, 50)
+        public static readonly GuiPathBox AudioPathRhythia = new(370, 5, 540, 50)
         {
             Filter = audioFilter,
             Setting = Settings.audioPath,
             Text = "CHOOSE",
             TextSize = 28
         };
-        public static readonly GuiLabel OnlineDisclaimerRhythia = new(690, 500, 540, 100)
+        public static readonly GuiLabel OnlineDisclaimerRhythia = new(370, 85, 540, 100)
         {
             Text = string.Join('\n',
                 "Rhythia Online is no longer supported for importing",
@@ -79,12 +79,12 @@ namespace New_SSQE.NewGUI.Windows
         };
         public static readonly ControlContainer RhythiaContainer = new(AudioPathLabelRhythia, AudioPathRhythia, OnlineDisclaimerRhythia);
 
-        public static readonly GuiLabel AudioPathLabelNova = new(690, 370, 540, 50)
+        public static readonly GuiLabel AudioPathLabelNova = new(370, -45, 540, 50)
         {
             Text = "Import Audio",
             TextSize = 36
         };
-        public static readonly GuiPathBox AudioPathNova = new(690, 420, 540, 50)
+        public static readonly GuiPathBox AudioPathNova = new(370, 5, 540, 50)
         {
             Filter = audioFilter,
             Setting = Settings.audioPath,
@@ -111,7 +111,7 @@ namespace New_SSQE.NewGUI.Windows
         };
         public static readonly ControlContainer Persistent = new(CreateButton, BackButton);
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"))
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Assets.ThisAt("background_menu.png"))
         {
             Color = Color.FromArgb(30, 30, 30)
         };

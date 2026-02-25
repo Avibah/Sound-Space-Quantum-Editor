@@ -1,6 +1,3 @@
-Place the 'assets' folder into your build directory,
-along with the DLL files from './windows' or './linux' for your target OS.
+Place the 'assets' folder into your build directory.
 
-(take the DLL files out of the folder when you do so)
-
-Bass.Net.dll and Icon.ico are required for compilation but are not required for publishing.
+Icon.ico is required for compilation but is not required for publishing.

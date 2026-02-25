@@ -7,8 +7,8 @@ namespace New_SSQE.NewMaps
     {
         private readonly string prefix;
 
-        private string NameTXT(int index) => Path.Combine(Assets.HISTORY, index == 0 ? $"{prefix}_latest.txt" : $"{prefix}_cache_{index}.txt");
-        private string NameINI(int index) => Path.Combine(Assets.HISTORY, index == 0 ? $"{prefix}_latest.ini" : $"{prefix}_cache_{index}.ini");
+        private string NameTXT(int index) => Assets.HistoryAt(index == 0 ? $"{prefix}_latest.txt" : $"{prefix}_cache_{index}.txt");
+        private string NameINI(int index) => Assets.HistoryAt(index == 0 ? $"{prefix}_latest.ini" : $"{prefix}_cache_{index}.ini");
 
         private int curExists = 0;
 

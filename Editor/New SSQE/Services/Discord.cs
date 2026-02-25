@@ -2,7 +2,7 @@
 using DiscordRPC.Logging;
 using New_SSQE.NewMaps;
 
-namespace New_SSQE.ExternalUtils
+namespace New_SSQE.Services
 {
     internal enum DiscordStatus
     {

@@ -1,15 +1,15 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.ExternalUtils;
 using New_SSQE.Misc;
-using New_SSQE.Misc.Dialogs;
 using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Controls;
+using New_SSQE.NewGUI.Dialogs;
 using New_SSQE.NewGUI.Input;
 using New_SSQE.NewMaps;
 using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Objects;
 using New_SSQE.Preferences;
+using New_SSQE.Services;
 using System.Diagnostics;
 using System.Drawing;
 
@@ -47,7 +47,7 @@ namespace New_SSQE.NewGUI.Windows
 
             LNavPlayer.LeftClick += (s, e) =>
             {
-                string audio = Path.Combine(Assets.CACHED, $"{Mapping.Current.SoundID}.asset");
+                string audio = Assets.CachedAt($"{Mapping.Current.SoundID}.asset");
 
                 switch (Settings.playtestGame.Value)
                 {
@@ -66,7 +66,7 @@ namespace New_SSQE.NewGUI.Windows
 
                                 Settings.Save();
 
-                                string txt = Path.Combine(Assets.TEMP, "tempmap.txt");
+                                string txt = Assets.TempAt("tempmap.txt");
 
                                 TXT.Write(txt);
 
@@ -107,7 +107,7 @@ namespace New_SSQE.NewGUI.Windows
 
                                 Settings.Save();
 
-                                string temp = Path.Combine(Assets.TEMP, "novaPlaytest");
+                                string temp = Assets.TempAt("novaPlaytest");
                                 Directory.CreateDirectory(temp);
                                 foreach (string file in Directory.GetFiles(temp))
                                     File.Delete(file);
@@ -234,7 +234,7 @@ namespace New_SSQE.NewGUI.Windows
                 if (!playerRunning && Platforms.ExecutableExists("SSQE Player"))
                 {
                     Settings.Save();
-                    TXT.Write(Path.Combine(Assets.TEMP, "tempmap.txt"));
+                    TXT.Write(Assets.TempAt("tempmap.txt"));
 
                     Process? process = Platforms.RunExecutable("SSQE Player", $"{fromStart} false {KeybindManager.AltHeld}");
                     playerRunning = process != null;
@@ -277,35 +277,40 @@ namespace New_SSQE.NewGUI.Windows
 
             ReplaceID.LeftClick += (s, e) =>
             {
-                try
+                if (!string.IsNullOrWhiteSpace(ReplaceIDBox.Text))
                 {
-                    if (!string.IsNullOrWhiteSpace(ReplaceIDBox.Text))
+                    MessageDialog.Show("Are you sure you want to replace this ID?\nIf an asset exists with this ID, it will be overwritten and this map will be saved.", MBoxIcon.Warning, MBoxButtons.Yes_No, (result) =>
                     {
-                        DialogResult result = MessageBox.Show("Are you sure you want to replace this ID?\nIf an asset exists with this ID, it will be overwritten and this map will be saved.", MBoxIcon.Warning, MBoxButtons.Yes_No);
                         if (result != DialogResult.Yes)
                             return;
 
-                        string id = ReplaceIDBox.Text;
-                        MusicPlayer.Reset();
+                        try
+                        {
+                            string id = ReplaceIDBox.Text;
+                            string dest = Assets.CachedAt($"{id}.asset");
+                            MusicPlayer.Stop();
 
-                        File.Move(Path.Combine(Assets.CACHED, $"{Mapping.Current.SoundID}.asset"), Path.Combine(Assets.CACHED, $"{id}.asset"));
-                        Mapping.Current.SoundID = id;
+                            File.Move(Assets.CachedAt($"{Mapping.Current.SoundID}.asset"), dest);
+                            Mapping.Current.SoundID = id;
 
-                        Mapping.LoadAudio(id);
-                        MusicPlayer.Volume = Settings.masterVolume.Value.Value;
+                            MusicPlayer.Load(dest);
+                            MusicPlayer.Volume = Settings.masterVolume.Value.Value;
 
-                        if (Mapping.Current.FileName != null)
-                            Mapping.Save();
-                        else
-                            Mapping.Autosave();
+                            if (Mapping.Current.FileName != null)
+                                Mapping.Save();
+                            else
+                                Mapping.Autosave();
 
-                        ShowInfo($"REPLACED AUDIO ID WITH {id}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log("Failed to replace audio ID", LogSeverity.WARN, ex);
-                    ShowInfo("FAILED TO REPLACE ID");
+                            ShowInfo($"REPLACED AUDIO ID WITH {id}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logging.Log("Failed to replace audio ID", LogSeverity.WARN, ex);
+                            ShowInfo("FAILED TO REPLACE ID");
+                        }
+                    });
+
+                    
                 }
             };
 
@@ -490,8 +495,8 @@ namespace New_SSQE.NewGUI.Windows
             TotalTimeLabel.Text = $"{(int)(currentTime.Max / 60000)}:{(int)(currentTime.Max % 60000 / 1000):0#}";
 
             float progress = currentTime.Value / currentTime.Max;
-            RectangleF timelineRect = Timeline.GetRect();
-            RectangleF currentMsRect = CurrentMsLabel.GetRect();
+            RectangleF timelineRect = Timeline.Rect;
+            RectangleF currentMsRect = CurrentMsLabel.Rect;
 
             CurrentMsLabel.SetRect(timelineRect.X + timelineRect.Height / 2 + (timelineRect.Width - timelineRect.Height) * progress - currentMsRect.Width / 2, currentMsRect.Y, currentMsRect.Width, currentMsRect.Height);
             CurrentMsLabel.Text = $"{(long)currentTime.Value:##,##0}ms";
@@ -516,7 +521,7 @@ namespace New_SSQE.NewGUI.Windows
                 float alpha = 1;
                 bool fadingIn = false;
 
-                Lyric[] lyrics = Mapping.Current.SpecialObjects.Where(n => n is Lyric).Cast<Lyric>().ToArray();
+                Lyric[] lyrics = [.. Mapping.Current.SpecialObjects.Where(n => n is Lyric).Cast<Lyric>()];
 
                 for (int i = 0; i < lyrics.Length; i++)
                 {
@@ -577,7 +582,7 @@ namespace New_SSQE.NewGUI.Windows
 
             if (feverVisible)
             {
-                Fever[] fevers = Mapping.Current.SpecialObjects.Where(n => n is Fever).Cast<Fever>().ToArray();
+                Fever[] fevers = [.. Mapping.Current.SpecialObjects.Where(n => n is Fever).Cast<Fever>()];
 
                 for (int i = 0; i < fevers.Length; i++)
                 {

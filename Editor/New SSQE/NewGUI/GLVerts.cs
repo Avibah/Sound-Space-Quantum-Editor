@@ -319,6 +319,9 @@ namespace New_SSQE.NewGUI
 
         public static float[] Squircle(float x, float y, float w, float h, int cornerDetail, float cornerRadius, float r, float g, float b, float a = 1)
         {
+            if (cornerDetail == 0 || cornerRadius == 0)
+                return Rect(x, y, w, h, r, g, b, a);
+
             float min = Math.Min(w, h);
             cornerRadius = Math.Min(cornerRadius * min, min / 2);
 
@@ -350,6 +353,9 @@ namespace New_SSQE.NewGUI
 
         public static float[] SquircleOutline(float x, float y, float w, float h, float lw, int cornerDetail, float cornerRadius, float r, float g, float b, float a = 1)
         {
+            if (cornerDetail == 0 || cornerRadius == 0)
+                return Outline(x, y, w, h, lw, r, g, b, a);
+
             float min = Math.Min(w, h);
             cornerRadius = Math.Min(cornerRadius * min, min / 2);
 

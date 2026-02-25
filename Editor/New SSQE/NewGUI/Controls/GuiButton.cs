@@ -6,6 +6,35 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiButton : InteractiveControl
     {
+        private float hoverIntensity = 0.05f;
+        private float clickIntensity = 0.04f;
+
+        public float HoverIntensity
+        {
+            get => hoverIntensity;
+            set
+            {
+                if (hoverIntensity != value)
+                {
+                    hoverIntensity = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
+        public float ClickIntensity
+        {
+            get => clickIntensity;
+            set
+            {
+                if (clickIntensity != value)
+                {
+                    clickIntensity = value;
+                    shouldUpdate = true;
+                }
+            }
+        }
+
         public GuiButton(float x, float y, float w, float h) : base(x, y, w, h)
         {
             Style = ControlStyle.Button_Uncolored;
@@ -18,16 +47,32 @@ namespace New_SSQE.NewGUI.Controls
                 EndColor = Color.FromArgb(11, 255, 255, 255)
             };
 
-            Animator.AddKey("HoverTime", 0.075f, EasingStyle.Linear);
-            Animator.SetReversed(true);
+            Animator.AddKey("HoverTime", 0.075f, 1, EasingStyle.Linear).Reversed = true;
         }
 
         public override float[] Draw()
         {
-            float[] fill = GLVerts.Squircle(rect, CornerDetail, CornerRadius, Style.Primary);
-            float[] outline = GLVerts.SquircleOutline(rect, 2f, CornerDetail, CornerRadius, Style.Secondary);
-            float[] mask = GLVerts.Squircle(rect, CornerDetail, CornerRadius, Style.Tertiary, Animator["HoverTime"] * 0.05f);
-            float[] clickMask = GLVerts.Squircle(rect, CornerDetail, CornerRadius, Style.Tertiary, Dragging ? 0.04f : 0);
+            Color hover = Style.Tertiary;
+            Color click = Style.Tertiary;
+            float hoverScale = hoverIntensity;
+            float clickScale = clickIntensity;
+
+            if (hoverScale < 0)
+            {
+                hover = Style.Primary;
+                hoverScale *= -1;
+            }
+
+            if (clickScale < 0)
+            {
+                click = Style.Primary;
+                clickScale *= -1;
+            }
+
+            float[] fill = GLVerts.Squircle(rect, cornerDetail, cornerRadius, Style.Primary);
+            float[] outline = GLVerts.SquircleOutline(rect, lineThickness, cornerDetail, cornerRadius, Style.Secondary);
+            float[] mask = GLVerts.Squircle(rect, cornerDetail, cornerRadius, hover, Animator["HoverTime"] * hoverScale);
+            float[] clickMask = GLVerts.Squircle(rect, cornerDetail, cornerRadius, click, Dragging ? clickScale : 0);
 
             return [.. fill, .. outline, .. mask, .. clickMask];
         }

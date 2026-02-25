@@ -1,11 +1,11 @@
 ﻿using NativeFileDialogs.Net;
-using New_SSQE.ExternalUtils;
 using New_SSQE.NewGUI;
 using New_SSQE.NewGUI.Windows;
 using New_SSQE.Preferences;
+using New_SSQE.Services;
 
 
-namespace New_SSQE.Misc.Dialogs
+namespace New_SSQE.NewGUI.Dialogs
 {
     internal class OpenFileDialog
     {
@@ -35,7 +35,7 @@ namespace New_SSQE.Misc.Dialogs
             }
             catch (Exception ex)
             {
-                Logging.Log($"Open NFD failed: {name} | {extensions}", LogSeverity.WARN, ex);
+                Logging.Log($"Open NFD failed: {name} | {extensions}", LogSeverity.ERROR, ex);
                 GuiWindowEditor.ShowError("Failed to open dialog");
             }
 

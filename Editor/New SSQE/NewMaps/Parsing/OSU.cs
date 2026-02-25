@@ -8,14 +8,15 @@ namespace New_SSQE.NewMaps.Parsing
         public static bool Read(string path)
         {
             string data = File.ReadAllText(path);
-            string id;
 
             string[] split = data.Split("\n");
 
             bool timing = false;
             bool hitObj = false;
 
-            List<string> notes = [];
+            string artist = "";
+            string title = "";
+            string audioPath = "";
 
             for (int i = 0; i < split.Length; i++)
             {
@@ -26,13 +27,20 @@ namespace New_SSQE.NewMaps.Parsing
                     string[] subsplit = line.Split(":");
                     string[] set = line.Split(",");
 
-                    if (!timing && !hitObj && subsplit.FirstOrDefault() == "AudioFilename")
+                    if (!timing && !hitObj)
                     {
-                        string idPath = subsplit[1].Trim();
-                        id = Path.GetFileNameWithoutExtension(idPath);
-                        Mapping.Current.SoundID = id;
-
-                        File.Copy(Path.Combine(Path.GetDirectoryName(path) ?? "", idPath), Path.Combine(Assets.CACHED, $"{id}.asset"), true);
+                        switch (subsplit.FirstOrDefault())
+                        {
+                            case "Artist":
+                                artist = subsplit[1].Trim();
+                                break;
+                            case "Title":
+                                title = subsplit[1].Trim();
+                                break;
+                            case "AudioFilename":
+                                audioPath = subsplit[1].Trim();
+                                break;
+                        }
                     }
 
                     if (timing && !string.IsNullOrWhiteSpace(line))
@@ -64,7 +72,7 @@ namespace New_SSQE.NewMaps.Parsing
                             y = 4 - y / 64;
 
                             if ((type & 1) != 0)
-                                notes.Add($",{Math.Round(x, 2).ToString(Program.Culture)}|{Math.Round(y, 2).ToString(Program.Culture)}|{(long)time}");
+                                Mapping.Current.Notes.Add(new(x, y, (long)time));
                         }
                     }
                 }
@@ -72,6 +80,14 @@ namespace New_SSQE.NewMaps.Parsing
 
                 timing = line != "[HitObjects]" && (timing || line == "[TimingPoints]");
                 hitObj = line != "[TimingPoints]" && (hitObj || line == "[HitObjects]");
+            }
+
+            if (!string.IsNullOrWhiteSpace(audioPath))
+            {
+                string id = FormatUtils.FixID($"{artist} - {title}");
+                Mapping.Current.SoundID = id;
+
+                File.Copy(Path.Combine(Path.GetDirectoryName(path) ?? "", audioPath), Assets.CachedAt($"{id}.asset"), true);
             }
 
             return true;

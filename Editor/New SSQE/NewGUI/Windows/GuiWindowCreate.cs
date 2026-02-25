@@ -7,7 +7,7 @@ namespace New_SSQE.NewGUI.Windows
 {
     internal partial class GuiWindowCreate : GuiWindow
     {
-        public GuiWindowCreate() : base(BackgroundSquare, Persistent, GameNavs, SoundSpaceContainer, RhythiaContainer, NovaContainer)
+        public GuiWindowCreate() : base(BackgroundSquare, Persistent, GameNavs)
         {
             AudioPathSoundSpace.SelectedFile = "";
             AudioPathRhythia.SelectedFile = "";
@@ -31,19 +31,13 @@ namespace New_SSQE.NewGUI.Windows
                     GameNavs.Active == NavNova ? AudioPathNova.SelectedFile : "";
 
                 string id = FormatUtils.FixID(Path.GetFileNameWithoutExtension(path));
-
                 if (GameNavs.Active == NavSoundSpace && !string.IsNullOrWhiteSpace(AudioIDBoxSoundSpace.Text))
-                {
                     id = FormatUtils.FixID(AudioIDBoxSoundSpace.Text);
 
-                    if (Mapping.LoadAudio(id))
-                        Mapping.Load(id);
-                }
-                else if (File.Exists(path))
-                {
-                    File.Copy(path, Path.Combine(Assets.CACHED, $"{id}.asset"), true);
-                    Mapping.Load(id);
-                }
+                if (File.Exists(path))
+                    File.Copy(path, Assets.CachedAt($"{id}.asset"), true);
+
+                Mapping.Load(id);
             };
 
             BackButton.LeftClick += (s, e) => Windowing.Open<GuiWindowMenu>();

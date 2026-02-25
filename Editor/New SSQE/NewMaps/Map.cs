@@ -1,6 +1,5 @@
 ﻿using New_SSQE.Audio;
 using New_SSQE.EditHistory;
-using New_SSQE.ExternalUtils;
 using New_SSQE.NewGUI;
 using New_SSQE.NewGUI.Windows;
 using New_SSQE.NewMaps.Parsing;
@@ -8,6 +7,7 @@ using New_SSQE.Objects;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
+using New_SSQE.Services;
 
 namespace New_SSQE.NewMaps
 {
@@ -189,11 +189,11 @@ namespace New_SSQE.NewMaps
             currentTime = Settings.currentTime.Value.Value;
             beatDivisor = Settings.beatDivisor.Value.Value;
 
-            urActions = UndoRedoManager.actions.ToArray();
+            urActions = [.. UndoRedoManager.actions];
             urActionIndex = UndoRedoManager._index;
 
             UndoRedoManager.Clear();
-            MusicPlayer.Reset();
+            MusicPlayer.Stop();
         }
 
         public void ClearSelected()

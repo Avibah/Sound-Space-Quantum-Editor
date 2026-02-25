@@ -539,7 +539,7 @@ namespace New_SSQE.NewGUI.Controls
             if (Settings.metronome.Value && MainWindow.Focused)
             {
                 float ms = currentTime - sfxOffset;
-                float beat = Timing.GetClosestBeat(ms);
+                float beat = Timing.GetClosestBeat(ms, null, true);
 
                 if (beat != lastPlayedTick && beat <= ms && beat > 0 && MusicPlayer.IsPlaying)
                 {

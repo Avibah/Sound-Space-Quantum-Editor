@@ -18,6 +18,8 @@ namespace New_SSQE.NewGUI.CompoundControls
             set => Slider.Style = value;
         }
 
+        public float ScrollScale = 1;
+
         private readonly Setting<SliderSetting> setting = new SliderSetting(0, 0, 1);
 
         public GuiScrollingList(float x, float y, float w, float h, params Control[] controls) : base(x, y, w + Math.Min(20, w / 10), h)
@@ -55,7 +57,7 @@ namespace New_SSQE.NewGUI.CompoundControls
                     Vector2 offset = (extents.X, extents.Y + curExtent - setting.Value.Value);
                     curExtent += extents.Y + extents.W;
 
-                    RectangleF origin = control.GetOrigin();
+                    RectangleF origin = control.Origin;
                     control.SetOrigin(offset.X, offset.Y, origin.Width, origin.Height);
                 }
 
@@ -81,12 +83,13 @@ namespace New_SSQE.NewGUI.CompoundControls
 
         public override void MouseScroll(float x, float y, float delta)
         {
-            setting.Value.Value = Math.Clamp(setting.Value.Value - 10 * delta, 0, setting.Value.Max);
-            Slider.Update();
+            setting.Value.Value = Math.Clamp(setting.Value.Value - 10 * delta * ScrollScale, 0, setting.Value.Max);
             InvokeResize();
 
             base.MouseScroll(x, y, delta);
         }
+
+        public void Refresh() => MouseScroll(0, 0, 0);
 
         public void AddControls(params Control[] controls)
         {

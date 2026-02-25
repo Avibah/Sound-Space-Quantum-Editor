@@ -1,5 +1,4 @@
 ﻿using New_SSQE.Misc;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SkiaSharp;
@@ -18,10 +17,6 @@ namespace New_SSQE.NewGUI.Font
         // Needs to be above 0 to ensure no ghost pixels appear while rendering
         // Recommended: 4
         private static readonly int CharSpacing = 4;
-        // Default spacing between each rendered character, adjusted for scale
-        // Equivalent to pixels when using OriginSize for font size
-        // Recommended: 4
-        private static readonly int CharPadding = 4;
 
         private readonly int[] Extents;
         private readonly int[] Bearings;
@@ -57,7 +52,7 @@ namespace New_SSQE.NewGUI.Font
 
             AtlasMetrics = new Vector4[CharRange];
 
-            fontInfo = StbTrueType.CreateFont(File.ReadAllBytes(Path.Combine(Assets.FONTS, $"{font}.ttf")), 0);
+            fontInfo = StbTrueType.CreateFont(File.ReadAllBytes(Assets.FontsAt($"{font}.ttf")), 0);
             scale = StbTrueType.stbtt_ScaleForPixelHeight(fontInfo, OriginSize);
 
             int ascent, descent, lineGap;
@@ -327,7 +322,7 @@ namespace New_SSQE.NewGUI.Font
                             c = (char)0;
 
                         currentX += Extents[c];
-                        currentX += CharPadding;
+                        currentX += OriginSize / 32f;
                     }
 
                     maxX = Math.Max(maxX, currentX);
@@ -402,7 +397,7 @@ namespace New_SSQE.NewGUI.Font
 
                         verts[i - vi + offset] = (cx, y, scale, c);
                         cx += Extents[c] * scale;
-                        cx -= (Bearings[c] - CharPadding) * scale;
+                        cx -= (Bearings[c] - OriginSize / 32f) * scale;
                     }
                 }
             }

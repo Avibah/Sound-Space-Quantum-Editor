@@ -1,6 +1,8 @@
-﻿using New_SSQE.Misc.Static;
+﻿using New_SSQE.Misc;
+using New_SSQE.Misc.Static;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Other;
+using New_SSQE.Preferences;
 using System.Drawing;
 using System.Text;
 
@@ -21,11 +23,6 @@ namespace New_SSQE.NewMaps.Parsing
             int version = reader.ReadInt16();
             if (version != 0)
                 throw new InvalidDataException("Unrecognized QEM version");
-
-            // [2]: Number of fields
-            int numFields = reader.ReadInt16();
-            // [1]: Number of object blocks
-            int numIDs = reader.ReadByte();
 
             // Int16 length byte array
             byte[] ReadBytes()
@@ -55,6 +52,91 @@ namespace New_SSQE.NewMaps.Parsing
                 return Encoding.ASCII.GetString(bytes);
             }
 
+            // Int16 length type array
+            object[] ReadTypeArray()
+            {
+                int length = reader.ReadInt16();
+                byte type = reader.ReadByte();
+
+                object[] typeData = new object[length];
+
+                for (int i = 0; i < length; i++)
+                    typeData[i] = ReadType(type);
+
+                return typeData;
+            }
+
+            // Int32 length type array
+            object[] ReadTypeArrayLong()
+            {
+                int length = reader.ReadInt32();
+                byte type = reader.ReadByte();
+
+                object[] typeData = new object[length];
+
+                for (int i = 0; i < length; i++)
+                    typeData[i] = ReadType(type);
+
+                return typeData;
+            }
+
+            // Int16 length type dict
+            Dictionary<object, object> ReadTypeDict()
+            {
+                int length = reader.ReadInt16();
+                byte keyType = reader.ReadByte();
+                byte valueType = reader.ReadByte();
+
+                Dictionary<object, object> typeData = [];
+
+                for (int i = 0; i < length; i++)
+                {
+                    object key = ReadType(keyType);
+                    object value = ReadType(valueType);
+
+                    if (!typeData.TryAdd(key, value))
+                        typeData[key] = value;
+                }
+
+                return typeData;
+            }
+
+            // Int32 length type dict
+            Dictionary<object, object> ReadTypeDictLong()
+            {
+                int length = reader.ReadInt32();
+                byte keyType = reader.ReadByte();
+                byte valueType = reader.ReadByte();
+
+                Dictionary<object, object> typeData = [];
+
+                for (int i = 0; i < length; i++)
+                {
+                    object key = ReadType(keyType);
+                    object value = ReadType(valueType);
+
+                    if (!typeData.TryAdd(key, value))
+                        typeData[key] = value;
+                }
+
+                return typeData;
+            }
+
+            // Int8 length tuple
+            object[] ReadTuple()
+            {
+                int length = reader.ReadByte();
+                object[] data = new object[length];
+
+                for (int i = 0; i < length; i++)
+                {
+                    byte type = reader.ReadByte();
+                    data[i] = ReadType(type);
+                }
+
+                return data;
+            }
+
             // Generic field type
             object ReadType(byte type)
             {
@@ -76,36 +158,11 @@ namespace New_SSQE.NewMaps.Parsing
                     13 => ReadBytesLong(),
                     14 => ReadTypeArray(),
                     15 => ReadTypeArrayLong(),
+                    16 => ReadTypeDict(),
+                    17 => ReadTypeDictLong(),
+                    18 => ReadTuple(),
                     _ => throw new InvalidDataException($"Unknown field type {type}")
                 };
-            }
-            
-            // UInt8 length type array
-            object[] ReadTypeArray()
-            {
-                int length = reader.ReadInt16();
-                byte type = reader.ReadByte();
-
-                object[] typeData = new object[length];
-
-                for (int i = 0; i < length; i++)
-                    typeData[i] = ReadType(type);
-
-                return typeData;
-            }
-
-            // UInt16 length type array
-            object[] ReadTypeArrayLong()
-            {
-                int length = reader.ReadInt32();
-                byte type = reader.ReadByte();
-
-                object[] typeData = new object[length];
-
-                for (int i = 0; i < length; i++)
-                    typeData[i] = ReadType(type);
-
-                return typeData;
             }
 
             MapObject ParseObj(int id, params object[] data)
@@ -133,9 +190,36 @@ namespace New_SSQE.NewMaps.Parsing
                 };
             }
 
+            // Path field block
+            Dictionary<string, string> paths = [];
+
+            // [2]: Number of paths
+            int numPaths = reader.ReadInt16();
+
+            for (int i = 0; i < numPaths; i++)
+            {
+                // [2]: Field name
+                string fieldName = ReadString();
+                // [2]: Field value
+                string value = ReadString();
+
+                paths.Add(fieldName, value);
+            }
+
+            foreach (string field in paths.Keys)
+            {
+                switch (field)
+                {
+
+                }
+            }
+
+            // Metadata field block
             Dictionary<string, object> metadata = [];
 
-            // Field block:
+            // [2]: Number of fields
+            int numFields = reader.ReadInt16();
+
             for (int i = 0; i < numFields; i++)
             {
                 // [2]: Field name
@@ -146,22 +230,96 @@ namespace New_SSQE.NewMaps.Parsing
                 // Field value
                 object value = ReadType(type);
 
-                metadata.Add(fieldName, value);
+                if (!metadata.TryAdd(fieldName, value))
+                    metadata[fieldName] = value;
             }
 
-            foreach (string field in metadata.Keys)
+            foreach (KeyValuePair<string, object> entry in metadata)
             {
-                switch (field)
+                switch (entry.Key)
                 {
+                    case "title" when entry.Value is string title:
+                        Settings.songTitle.Value = title;
+                        break;
+                    case "romanizedTitle" when entry.Value is string title:
+                        Settings.romanizedTitle.Value = title;
+                        break;
+                    case "artists" when entry.Value is object[] artists:
+                        Settings.songArtist.Value = string.Join(" & ", artists);
+                        break;
+                    case "romanizedArtists" when entry.Value is object[] artists:
+                        Settings.romanizedArtist.Value = string.Join(" & ", artists);
+                        break;
+                    case "mappers" when entry.Value is object[] mappers:
+                        Settings.mappers.Value = string.Join('\n', mappers);
+                        break;
+                    case "difficulty" when entry.Value is byte diff:
+                        string difficulty = "N/A";
+                        
+                        foreach (KeyValuePair<string, byte> diffEntry in FormatUtils.Difficulties)
+                        {
+                            if (diffEntry.Value == diff)
+                                difficulty = diffEntry.Key;
+                        }
 
+                        Settings.difficulty.Value = difficulty;
+                        break;
+                    case "difficultyStars" when entry.Value is float diff:
+                        Settings.rating.Value = diff;
+                        break;
+                    case "difficultyName" when entry.Value is string diff:
+                        Settings.customDifficulty.Value = diff;
+                        break;
+                    case "songLinks" when entry.Value is Dictionary<object, object> links:
+                        foreach (KeyValuePair<object, object> link in links)
+                        {
+                            if (link.Key is not string key)
+                                continue;
+                            if (link.Value is not string value)
+                                continue;
+
+                            // TODO: store song links in settings
+                        }
+
+                        break;
+                    case "artistLinks" when entry.Value is Dictionary<object, object> links:
+                        foreach (KeyValuePair<object, object> link in links)
+                        {
+                            if (link.Key is not string key)
+                                continue;
+                            if (link.Value is not string value)
+                                continue;
+
+                            // TODO: store artist links in settings
+                        }
+
+                        break;
+                    case "mapperIds" when entry.Value is Dictionary<object, object> ids:
+                        foreach (KeyValuePair<object, object> id in ids)
+                        {
+                            if (id.Key is not string key)
+                                continue;
+                            if (id.Value is not long value)
+                                continue;
+
+                            // TODO: store mapper ids in settings
+                        }
+
+                        break;
+                    case "mapId" when entry.Value is string id:
+                        Mapping.Current.SoundID = id;
+                        break;
                 }
             }
 
+            // Object block
             ObjectList<Note> notes = Mapping.Current.Notes;
             ObjectList<MapObject> vfxObjects = Mapping.Current.VfxObjects;
             ObjectList<MapObject> specialObjects = Mapping.Current.SpecialObjects;
 
-            // Object block:
+            // [1]: Number of object blocks
+            int numIDs = reader.ReadByte();
+
             for (int i = 0; i < numIDs; i++)
             {
                 // [1]: Object ID
@@ -210,7 +368,7 @@ namespace New_SSQE.NewMaps.Parsing
                     for (int k = 0; k < numTypes; k++)
                         objectData[k + 1] = ReadType(types[k]);
 
-                    MapObject obj = ParseObj(id, objectData); // make parser for objs with default data for each id
+                    MapObject obj = ParseObj(id, objectData);
 
                     if (id == 0)
                         notes.Add((Note)obj);
@@ -221,7 +379,7 @@ namespace New_SSQE.NewMaps.Parsing
                 }
             }
 
-            throw new NotImplementedException();
+            return true;
         }
 
         public static bool Write(string path)

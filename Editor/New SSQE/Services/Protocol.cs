@@ -3,7 +3,7 @@ using New_SSQE.Misc;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace New_SSQE.ExternalUtils
+namespace New_SSQE.Services
 {
     internal static class Protocol
     {

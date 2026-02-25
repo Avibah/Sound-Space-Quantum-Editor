@@ -1,6 +1,6 @@
-﻿using New_SSQE.Misc.Dialogs;
-using New_SSQE.NewGUI.Base;
+﻿using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Controls;
+using New_SSQE.NewGUI.Dialogs;
 using New_SSQE.NewGUI.Font;
 using New_SSQE.Preferences;
 
@@ -113,7 +113,7 @@ namespace New_SSQE.NewGUI.CompoundControls
 
             PathButton.LeftClick += (s, e) => ChooseFile();
             SelectedFile = setting?.Value ?? "";
-            numChars = (int)(PathLabel.GetRect().Width / FontRenderer.GetWidth("0", TextSize, Font)) / 2;
+            numChars = (int)(PathLabel.Rect.Width / FontRenderer.GetWidth("0", TextSize, Font)) / 2;
         }
 
         private void UpdateFile()

@@ -1,12 +1,12 @@
-﻿using New_SSQE.ExternalUtils;
-using New_SSQE.Misc;
-using New_SSQE.Misc.Dialogs;
+﻿using New_SSQE.Misc;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Controls;
+using New_SSQE.NewGUI.Dialogs;
 using New_SSQE.NewGUI.Font;
 using New_SSQE.NewMaps;
 using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Preferences;
+using New_SSQE.Services;
 using OpenTK.Windowing.Common;
 using System.Drawing;
 
@@ -15,7 +15,6 @@ namespace New_SSQE.NewGUI.Windows
     internal partial class GuiWindowMenu : GuiWindow
     {
         private static string changelogCache = "";
-        private static List<string> changelogLines = [];
 
         private static int mapIndex = 0;
         private static readonly List<string> mapNames =
@@ -30,7 +29,7 @@ namespace New_SSQE.NewGUI.Windows
         public GuiWindowMenu() : base(BackgroundSquare, ChangelogBackdrop1, ChangelogBackdrop2, MapSelectBackdrop,
             CreateButton, LoadButton, ImportButton, SettingsButton, AutosavedButton, LastMapButton, NavLeft, NavRight, FeedbackButton,
             MapSelect0, MapSelect1, MapSelect2, MapSelect3, MapSelect4, MapClose0, MapClose1, MapClose2, MapClose3, MapClose4,
-            ChangelogSlider, ChangelogLabel, SoundSpaceLabel, QuantumEditorLabel, Changelog)
+            ChangelogPanel, ChangelogLabel, SoundSpaceLabel, QuantumEditorLabel)
         {
             try
             {
@@ -53,20 +52,17 @@ namespace New_SSQE.NewGUI.Windows
 
             AssembleChangelog();
             AssembleMapList();
-
-            Settings.changelogPosition.Value.Value = 0;
         }
 
-        private void FixButtonsChangelog()
+        private static void FixButtonsChangelog()
         {
             AutosavedButton.Visible = Settings.autosavedFile.Value != "";
             LastMapButton.Visible = File.Exists(Settings.lastFile.Value);
 
-            RectangleF rect = LastMapButton.GetRect();
-            LastMapButton.SetRect(rect.X, AutosavedButton.Visible ? rect.Y : AutosavedButton.GetRect().Y, rect.Width, rect.Height);
+            RectangleF rect = LastMapButton.Rect;
+            LastMapButton.SetRect(rect.X, AutosavedButton.Visible ? rect.Y : AutosavedButton.Rect.Y, rect.Width, rect.Height);
             LastMapButton.Update();
 
-            Settings.changelogPosition.Value.Value = 0;
             AssembleChangelog();
         }
 
@@ -98,9 +94,6 @@ namespace New_SSQE.NewGUI.Windows
 
         public override void ConnectEvents()
         {
-            ChangelogSlider.ValueChanged += UpdateChangelogText;
-            UpdateChangelogText(null, new(Settings.changelogPosition.Value.Value));
-
             FeedbackButton.LeftClick += (s, e) => Platforms.OpenLink(Links.FEEDBACK_FORM);
 
             CreateButton.LeftClick += (s, e) => Windowing.Open<GuiWindowCreate>();
@@ -126,7 +119,7 @@ namespace New_SSQE.NewGUI.Windows
                     Mapping.Load(clipboard);
             };
 
-            string autosaveINI = Path.Combine(Assets.TEMP, "tempautosave.ini");
+            string autosaveINI = Assets.TempAt("tempautosave.ini");
 
             AutosavedButton.LeftClick += (s, e) =>
             {
@@ -168,58 +161,12 @@ namespace New_SSQE.NewGUI.Windows
             MapClose2.LeftClick += (s, e) => Close(2);
             MapClose3.LeftClick += (s, e) => Close(3);
             MapClose4.LeftClick += (s, e) => Close(4);
-
-            ChangelogSlider.ValueChanged += (s, e) => AssembleChangelog();
         }
 
-        private void UpdateChangelogText(object? sender, ValueChangedEventArgs<float> e)
+        private static void AssembleChangelog()
         {
-            SliderSetting setting = Settings.changelogPosition.Value;
-            List<string> lines = [];
-
-            for (int i = 0; i < changelogLines.Count; i++)
-            {
-                if (i >= setting.Value && i < setting.Value + Changelog.GetRect().Height / Changelog.TextSize / Settings.fontScale.Value / (FontRenderer.Unicode ? StbFont.UnicodeMult : 1) - 1)
-                    lines.Add(changelogLines[i]);
-            }
-
-            Changelog.Text = string.Join('\n', lines);
-        }
-
-        private void AssembleChangelog()
-        {
-            float width = Changelog.GetRect().Width;
-            float height = Changelog.GetRect().Height;
-
-            List<string> lines = [];
-
-            foreach (string line in changelogCache.Split('\n'))
-            {
-                string newLine = line;
-
-                while (FontRenderer.GetWidth(newLine, Changelog.TextSize, "main") > width && newLine.Contains(' '))
-                {
-                    int index = newLine.LastIndexOf(' ');
-
-                    if (FontRenderer.GetWidth(newLine[..index], Changelog.TextSize, "main") <= width)
-                        newLine = newLine.Remove(index, 1).Insert(index, "\n");
-                    else
-                        newLine = newLine.Remove(index, 1).Insert(index, "\\");
-                }
-
-                newLine = newLine.Replace('\\', ' ');
-
-                foreach (string subLine in newLine.Split('\n'))
-                    lines.Add(subLine);
-            }
-
-            SliderSetting setting = Settings.changelogPosition.Value;
-
-            setting.Max = lines.Count - (int)(height / Changelog.TextSize / Settings.fontScale.Value);
-            ChangelogSlider.Visible = setting.Max > 0;
-
-            changelogLines = lines;
-            UpdateChangelogText(null, new(Settings.changelogPosition.Value.Value));
+            Changelog.Text = changelogCache;
+            ChangelogPanel.Refresh();
         }
 
         private static void AssembleMapList()
@@ -239,7 +186,7 @@ namespace New_SSQE.NewGUI.Windows
                     Map map = Mapping.Cache[i + mapIndex];
                     string fileId = (!map.IsSaved ? "[!] " : "") + map.FileID;
 
-                    select.Text = FontRenderer.TrimText(fileId, select.TextSize, select.Font, (int)select.GetRect().Width - 10);
+                    select.Text = FontRenderer.TrimText(fileId, select.TextSize, select.Font, (int)select.Rect.Width - 10);
                     mapNames[i] = select.Text;
                 }
             }
@@ -265,14 +212,6 @@ namespace New_SSQE.NewGUI.Windows
 
             if (hovering)
                 ScrollMapList(delta > 0);
-            else
-            {
-                int pos = (int)(Settings.changelogPosition.Value.Value + (delta < 0 ? 1 : -1));
-                Settings.changelogPosition.Value.Value = Math.Clamp(pos, 0, Settings.changelogPosition.Value.Max);
-
-                AssembleChangelog();
-                ChangelogSlider.Update();
-            }
         }
     }
 }

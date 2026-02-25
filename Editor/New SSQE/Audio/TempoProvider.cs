@@ -1,26 +1,29 @@
-﻿using SoundFlow.Enums;
+﻿using New_SSQE.Services;
+using SoundFlow.Enums;
 using SoundFlow.Interfaces;
 using SoundFlow.Metadata.Models;
 using SoundFlow.Structs;
 using SoundTouch;
+using System.Diagnostics;
 
 namespace New_SSQE.Audio
 {
     internal class TempoProvider : ISoundDataProvider
     {
+        private readonly Stopwatch stopwatch = Stopwatch.StartNew();
+
         private readonly float[] _samples;
         private readonly int _sampleRate;
         private readonly SampleFormat _sampleFormat;
         private readonly AudioFormat _format;
         private int _position = 0;
         private double _playbackPosition = 0;
+        private TimeSpan _lastRender = TimeSpan.Zero;
 
         public int SampleRate => _sampleRate;
         public SampleFormat SampleFormat => _sampleFormat;
         public AudioFormat Format => _format;
-        public int Position => (int)_playbackPosition;
         public int Length => _samples.Length;
-        //public float[] Samples => [.. _samples];
 
         public bool CanSeek { get; private set; } = true;
         public bool IsDisposed { get; private set; } = false;
@@ -43,6 +46,17 @@ namespace New_SSQE.Audio
                     _processor.Rate = value;
                     Seek(Position);
                 }
+            }
+        }
+
+        public int Position
+        {
+            get
+            {
+                double samplesPerFrame = _sampleRate / 1000d * SoundEngine.PERIOD_MILLISECONDS * Tempo * Format.Channels;
+                double timeDiff = Math.Min((stopwatch.Elapsed - _lastRender).TotalMilliseconds / SoundEngine.PERIOD_MILLISECONDS, 1);
+
+                return (int)(_playbackPosition + timeDiff * samplesPerFrame);
             }
         }
 
@@ -106,6 +120,7 @@ namespace New_SSQE.Audio
             _processor.ReceiveSamples(buffer, toServe / channels);
 
             _playbackPosition += toServe * Tempo;
+            _lastRender = stopwatch.Elapsed;
             PositionChanged?.Invoke(this, new(Position));
             return toServe;
         }
@@ -128,6 +143,7 @@ namespace New_SSQE.Audio
 
             _position += toServe;
             _playbackPosition = _position;
+            _lastRender = stopwatch.Elapsed;
             PositionChanged?.Invoke(this, new(Position));
             return toServe;
         }
@@ -137,6 +153,45 @@ namespace New_SSQE.Audio
             _processor.Clear();
             _position = Math.Clamp(sampleOffset, 0, _samples.Length);
             _playbackPosition = _position;
+            _lastRender = stopwatch.Elapsed;
+        }
+
+        public float GetBPM(int startOffset, int endOffset)
+        {
+            int channels = Format.Channels;
+            startOffset = startOffset / channels * channels;
+            endOffset = endOffset / channels * channels;
+
+            float tempo = Tempo;
+            float bpm = 0;
+
+            for (int i = 0; i < 5; i++)
+            {
+                Tempo = 1 / (float)Math.Pow(2, i);
+
+                Seek(startOffset);
+                BpmDetect detector = new(channels, Format.SampleRate);
+
+                float[] buffer = new float[4096];
+
+                while (_playbackPosition < endOffset)
+                {
+                    int samplesRead = ReadBytes(buffer);
+                    detector.InputSamples(buffer, samplesRead / channels);
+
+                    if (samplesRead == 0)
+                        break;
+                }
+
+                bpm = detector.GetBpm();
+                if (bpm > 0)
+                    break;
+
+                Logging.Log($"BPM detect pass {i} failed");
+            }
+
+            Tempo = tempo;
+            return bpm;
         }
 
         public void Dispose()

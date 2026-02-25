@@ -12,7 +12,7 @@ namespace New_SSQE.NewGUI.Controls
 
         public GuiLabelToast(float x, float y, float w, float h) : base(x, y, w, h)
         {
-            Animator.AddKey("ToastTime", 2, EasingStyle.Linear);
+            Animator.AddKey("ToastTime", 2, 2, EasingStyle.Linear);
         }
 
         public void Show(string text, Color? color = null)
@@ -33,7 +33,7 @@ namespace New_SSQE.NewGUI.Controls
 
         public override float[] Draw()
         {
-            float toastTime = Animator["ToastTime"] * 2;
+            float toastTime = Animator["ToastTime"];
             float offset = 1;
 
             if (toastTime <= 0.5f)

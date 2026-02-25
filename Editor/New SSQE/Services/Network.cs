@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace New_SSQE.ExternalUtils
+namespace New_SSQE.Services
 {
     internal enum FileSource
     {

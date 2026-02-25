@@ -35,8 +35,39 @@ namespace New_SSQE.NewGUI.Base
 
         public bool RenderOnTop = false;
         public StretchMode Stretch = StretchMode.XY;
-        public int CornerDetail = 8;
-        public float CornerRadius = 0.125f;
+        protected int cornerDetail = 8;
+        protected float cornerRadius = 0.125f;
+        protected float lineThickness = 2f;
+
+        public int CornerDetail
+        {
+            get => cornerDetail;
+            set
+            {
+                cornerDetail = value;
+                shouldUpdate = true;
+            }
+        }
+
+        public float CornerRadius
+        {
+            get => cornerRadius;
+            set
+            {
+                cornerRadius = value;
+                shouldUpdate = true;
+            }
+        }
+
+        public float LineThickness
+        {
+            get => lineThickness;
+            set
+            {
+                lineThickness = value;
+                shouldUpdate = true;
+            }
+        }
 
         public Vector2 RectOffset = Vector2.Zero;
 
@@ -161,13 +192,13 @@ namespace New_SSQE.NewGUI.Base
         public virtual void SetOrigin(RectangleF rect)
         {
             StartRect = rect;
+            shouldUpdate = true;
         }
 
         public virtual void SetOrigin(float x, float y, float w, float h) => SetOrigin(new(x, y, w, h));
 
-        public virtual RectangleF GetRect() => rect;
-
-        public virtual RectangleF GetOrigin() => StartRect;
+        public virtual RectangleF Rect => rect;
+        public virtual RectangleF Origin => StartRect;
 
         public virtual void Reset() => Animator.Stop();
 

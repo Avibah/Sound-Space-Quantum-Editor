@@ -1,11 +1,11 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.ExternalUtils;
 using New_SSQE.Misc;
-using New_SSQE.Misc.Dialogs;
 using New_SSQE.NewGUI;
+using New_SSQE.NewGUI.Dialogs;
 using New_SSQE.NewGUI.Windows;
 using New_SSQE.NewMaps.Parsing;
 using New_SSQE.Preferences;
+using New_SSQE.Services;
 using System.IO.Compression;
 
 namespace New_SSQE.NewMaps
@@ -80,7 +80,7 @@ namespace New_SSQE.NewMaps
             DialogResult result = new OpenFileDialog()
             {
                 Title = "Select Audio File",
-                Filter = $"Audio Files ({MusicPlayer.SupportedExtensionsString})|{MusicPlayer.SupportedExtensionsString}"
+                Filter = $"Audio Files ({SoundEngine.SupportedExtensionsString})|{SoundEngine.SupportedExtensionsString}"
             }.Show(Settings.audioPath, out string fileName);
 
             if (result == DialogResult.OK)
@@ -90,43 +90,10 @@ namespace New_SSQE.NewMaps
                 id = FormatUtils.FixID(id);
                 _current.SoundID = id;
 
-                if (fileName != Path.Combine(Assets.CACHED, $"{id}.asset"))
-                    File.Copy(fileName, Path.Combine(Assets.CACHED, $"{id}.asset"), true);
+                if (fileName != Assets.CachedAt($"{id}.asset"))
+                    File.Copy(fileName, Assets.CachedAt($"{id}.asset"), true);
 
-                return MusicPlayer.Load(Path.Combine(Assets.CACHED, $"{id}.asset"));
-            }
-
-            return false;
-        }
-
-        public static bool LoadAudio(string id)
-        {
-            if (id == "-1")
-                return false;
-
-            try
-            {
-                if (!File.Exists(Path.Combine(Assets.CACHED, $"{id}.asset")))
-                {
-                    if (Settings.skipDownload.Value)
-                    {
-                        DialogResult message = MessageBox.Show($"No asset with id '{id}' is present in cache.\n\nWould you like to import a file with this id?", MBoxIcon.Warning, MBoxButtons.OK_Cancel);
-
-                        return message == DialogResult.OK && ImportAudio(id);
-                    }
-                    else
-                        Network.DownloadFile($"https://assetdelivery.roblox.com/v1/asset/?id={id}", Path.Combine(Assets.CACHED, $"{id}.asset"), FileSource.Roblox);
-                }
-
-                return MusicPlayer.Load(Path.Combine(Assets.CACHED, $"{id}.asset"));
-            }
-            catch (Exception e)
-            {
-                Logging.Log("Failed to load audio", LogSeverity.WARN, e);
-                DialogResult message = MessageBox.Show($"Failed to download asset with id '{id}':\n\n{e.Message}\n\nWould you like to import a file with this id instead?", MBoxIcon.Error, MBoxButtons.OK_Cancel);
-
-                if (message == DialogResult.OK)
-                    return ImportAudio(id);
+                return MusicPlayer.Load(Assets.CachedAt($"{id}.asset"));
             }
 
             return false;
@@ -134,8 +101,8 @@ namespace New_SSQE.NewMaps
 
 
 
-        private static readonly string cacheFile = Path.Combine(Assets.TEMP, "cache.txt");
-        private static readonly string tempCacheTXT = Path.Combine(Assets.TEMP, "tempcache.txt");
+        private static readonly string cacheFile = Assets.TempAt("cache.txt");
+        private static readonly string tempCacheTXT = Assets.TempAt("tempcache.txt");
         private static readonly string tempCacheINI = Path.ChangeExtension(tempCacheTXT, ".ini");
 
         public static void LoadCache()
@@ -217,41 +184,96 @@ namespace New_SSQE.NewMaps
 
         public static bool Open()
         {
-            if (!LoadAudio(_current.SoundID))
+            string id = _current.SoundID;
+            if (id == "-1" || string.IsNullOrWhiteSpace(id))
                 return false;
 
-            MusicPlayer.Volume = Settings.masterVolume.Value.Value;
-            Settings.currentTime.Value.Max = (float)MusicPlayer.TotalTime.TotalMilliseconds;
-            Settings.currentTime.Value.Step = (float)MusicPlayer.TotalTime.TotalMilliseconds / 2000f;
-
-            CacheCurrent();
-            Map old = _current;
-            SaveCache();
-            old.OpenSettings();
-
-            Windowing.Open<GuiWindowEditor>();
-            return Windowing.Current is GuiWindowEditor && _current.SoundID != "-1";
-        }
-
-        public static bool Close()
-        {
-            _current.CloseSettings();
-            
-            if (!_current.IsSaved)
+            static bool FinishLoad()
             {
-                DialogResult result = MessageBox.Show($"{_current.FileID} ({_current.SoundID})\n\nWould you like to save before closing?", MBoxIcon.Warning, MBoxButtons.Yes_No_Cancel);
+                MusicPlayer.Volume = Settings.masterVolume.Value.Value;
+                Settings.currentTime.Value.Max = (float)MusicPlayer.TotalTime.TotalMilliseconds;
+                Settings.currentTime.Value.Step = (float)MusicPlayer.TotalTime.TotalMilliseconds / 2000f;
 
-                if (result == DialogResult.Cancel)
-                    return false;
-                if (result == DialogResult.Yes)
-                    Save();
+                CacheCurrent();
+                Map old = _current;
+                SaveCache();
+                old.OpenSettings();
+
+                Windowing.Open<GuiWindowEditor>();
+                return Windowing.Current is GuiWindowEditor && _current.SoundID != "-1";
             }
 
-            Cache.Remove(_current);
-            SaveCache();
-            Windowing.Open<GuiWindowMenu>();
+            try
+            {
+                if (!File.Exists(Assets.CachedAt($"{id}.asset")))
+                {
+                    if (Settings.skipDownload.Value)
+                    {
+                        MessageDialog.Show($"No audio found for ID '{id}'.\n\nWould you like to import an audio file for this ID?", MBoxIcon.Warning, MBoxButtons.OK_Cancel, (result) =>
+                        {
+                            if (result == DialogResult.OK)
+                            {
+                                if (ImportAudio(id))
+                                    FinishLoad();
+                            }
+                        });
+                    }
+                    else
+                        Network.DownloadFile($"https://assetdelivery.roblox.com/v1/asset/?id={id}", Assets.CachedAt($"{id}.asset"), FileSource.Roblox);
+                }
+                else
+                {
+                    bool loaded = MusicPlayer.Load(Assets.CachedAt($"{id}.asset"));
+                    return loaded && FinishLoad();
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.Log("Failed to load audio", LogSeverity.WARN, e);
+
+                MessageDialog.Show($"Failed to load audio with ID '{id}':\n\n{e.Message}\n\nWould you like to import a new file?", MBoxIcon.Error, MBoxButtons.OK_Cancel, (result) =>
+                {
+                    if (result == DialogResult.OK)
+                    {
+                        if (ImportAudio(id))
+                            FinishLoad();
+                    }
+                });
+            }
 
             return true;
+        }
+
+        public static bool Close(Action? onClose = null)
+        {
+            _current.CloseSettings();
+            bool saved = _current.IsSaved;
+
+            if (!saved)
+            {
+                MessageDialog.Show($"{_current.FileID} ({_current.SoundID})\n\nWould you like to save before closing?", MBoxIcon.Warning, MBoxButtons.Yes_No_Cancel, (result) =>
+                {
+                    if (result == DialogResult.Yes)
+                        Save();
+
+                    if (result != DialogResult.Cancel)
+                    {
+                        Cache.Remove(_current);
+                        SaveCache();
+                    }
+
+                    Windowing.Open<GuiWindowMenu>();
+                    onClose?.Invoke();
+                });
+            }
+            else
+            {
+                Windowing.Open<GuiWindowMenu>();
+                Cache.Remove(_current);
+                SaveCache();
+            }
+
+            return saved;
         }
 
         public static bool Close(Map map)
@@ -270,8 +292,7 @@ namespace New_SSQE.NewMaps
                 Windowing.Open<GuiWindowEditor>();
                 MainWindow.Instance.ForceRender();
 
-                quit &= Close();
-
+                quit &= Close(MainWindow.Instance.Close);
                 if (!quit)
                     break;
             }
@@ -339,7 +360,7 @@ namespace New_SSQE.NewMaps
         private static string Unzip(string path)
         {
             string extension = Path.GetExtension(path);
-            string directory = Path.Combine(Assets.TEMP, extension);
+            string directory = Assets.TempAt(extension);
 
             if (Directory.Exists(directory))
                 Directory.Delete(directory, true);
@@ -425,10 +446,7 @@ namespace New_SSQE.NewMaps
                 Current = new();
 
                 if (!Parse(data))
-                {
-                    MessageBox.Show("Failed to load map data\n\nExit and check '*\\logs.txt' for more info", MBoxIcon.Warning, MBoxButtons.OK);
-                    return false;
-                }
+                    throw new FormatException("Failed to parse data");
 
                 if (File.Exists(data) && Path.GetExtension(data) == ".txt")
                     _current.FileName = data;
@@ -437,7 +455,7 @@ namespace New_SSQE.NewMaps
             catch (Exception ex)
             {
                 Logging.Log("Failed to load map data", LogSeverity.WARN, ex);
-                MessageBox.Show($"Failed to load map data: {ex.Message}\n\nExit and check '*\\logs.txt' for more info", MBoxIcon.Warning, MBoxButtons.OK);
+                MessageDialog.Show($"Failed to load map data: {ex.Message}\n\nExit and check '*\\logs.txt' for more info", MBoxIcon.Warning, MBoxButtons.OK);
                 return false;
             }
         }

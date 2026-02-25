@@ -51,14 +51,16 @@ namespace New_SSQE.NewMaps
 
 
 
-        public static long GetClosestBeat(float currentMs, TimingPoint? draggingPoint = null)
+        public static long GetClosestBeat(float currentMs, TimingPoint? draggingPoint = null, bool ignoreDivisor = false)
         {
             long closestMs = -1;
             TimingPoint point = GetCurrentBpm(currentMs, draggingPoint);
 
             if (point.BPM > 0)
             {
-                float interval = 60000f / point.BPM / (Settings.beatDivisor.Value.Value + 1f);
+                float interval = 60000f / point.BPM;
+                if (!ignoreDivisor)
+                    interval /= (Settings.beatDivisor.Value.Value + 1f);
                 float offset = point.Ms % interval;
 
                 closestMs = (long)Math.Round((long)Math.Round((currentMs - offset) / interval) * interval + offset);

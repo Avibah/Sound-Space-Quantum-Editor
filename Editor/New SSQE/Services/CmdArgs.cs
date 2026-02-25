@@ -5,7 +5,7 @@ using System.Globalization;
 using New_SSQE.NewGUI.Windows;
 using New_SSQE.Misc;
 
-namespace New_SSQE.ExternalUtils
+namespace New_SSQE.Services
 {
     internal class CmdArgs
     {
@@ -13,7 +13,7 @@ namespace New_SSQE.ExternalUtils
         {
             if (writeFile)
             {
-                string file = Path.Combine(Assets.TEMP, "tempargs.txt");
+                string file = Assets.TempAt("tempargs.txt");
 
                 if (File.Exists(file))
                     File.Delete(file);

@@ -1,7 +1,7 @@
 ﻿using New_SSQE.Misc;
 using New_SSQE.NewGUI.Base;
+using New_SSQE.NewGUI.CompoundControls;
 using New_SSQE.NewGUI.Controls;
-using New_SSQE.Preferences;
 using System.Drawing;
 
 namespace New_SSQE.NewGUI.Windows
@@ -30,7 +30,9 @@ namespace New_SSQE.NewGUI.Windows
         };
         public static readonly GuiLabel Changelog = new(60, 230, 890, 715)
         {
+            TextWrapped = true,
             TextSize = 20,
+            Font = "semibold",
             CenterMode = CenterMode.None
         };
         public static readonly GuiButton FeedbackButton = new(35, 140, 100, 40)
@@ -71,8 +73,9 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 54
         };
 
-        public static readonly GuiSlider ChangelogSlider = new(950, 230, 20, 720, Settings.changelogPosition)
+        public static readonly GuiScrollingList ChangelogPanel = new(60, 230, 890, 715, Changelog)
         {
+            ScrollScale = 2,
             Style = ControlStyle.Slider_Uncolored
         };
         public static readonly GuiSquare ChangelogBackdrop1 = new(35, 180, 950, 790)
@@ -146,7 +149,7 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 26
         };
 
-        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Path.Combine(Assets.THIS, "background_menu.png"))
+        public static readonly GuiSquareTextured BackgroundSquare = new("menubg", Assets.ThisAt("background_menu.png"))
         {
             Color = Color.FromArgb(30, 30, 30)
         };

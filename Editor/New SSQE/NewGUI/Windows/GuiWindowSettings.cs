@@ -1,9 +1,10 @@
 ﻿using New_SSQE.Audio;
-using New_SSQE.ExternalUtils;
 using New_SSQE.Misc.Dialogs;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Controls;
+using New_SSQE.NewGUI.Dialogs;
 using New_SSQE.Preferences;
+using New_SSQE.Services;
 using System.Drawing;
 
 namespace New_SSQE.NewGUI.Windows
@@ -27,7 +28,7 @@ namespace New_SSQE.NewGUI.Windows
             List<Color> colors = Settings.noteColors.Value;
             GuiSquare[] squares = new GuiSquare[colors.Count];
 
-            RectangleF rect = NoteColorSquares.GetOrigin();
+            RectangleF rect = NoteColorSquares.Origin;
             float colorWidth = rect.Width / colors.Count;
 
             for (int i = 0; i < colors.Count; i++)
@@ -63,7 +64,7 @@ namespace New_SSQE.NewGUI.Windows
             if (NoteColorSquares.Hovering)
             {
                 List<Color> colors = Settings.noteColors.Value;
-                RectangleF rect = NoteColorSquares.GetRect();
+                RectangleF rect = NoteColorSquares.Rect;
 
                 float colorWidth = rect.Width / colors.Count;
                 float x = (mousex - rect.X) / colorWidth;

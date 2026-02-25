@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using New_SSQE.Misc;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace New_SSQE.ExternalUtils
+namespace New_SSQE.Services
 {
     internal class Platforms
     {

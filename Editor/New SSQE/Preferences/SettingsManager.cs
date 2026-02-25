@@ -5,16 +5,16 @@ using OpenTK.Mathematics;
 using System.Reflection;
 using System.Text.Json;
 using New_SSQE.Audio;
-using New_SSQE.ExternalUtils;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.Misc;
+using New_SSQE.Services;
 
 namespace New_SSQE.Preferences
 {
     internal abstract class SettingBase
     {
-        public Type Type;
-        public string Name;
+        public required Type Type;
+        public string Name = "";
 
         public SettingBase()
         {
@@ -50,7 +50,7 @@ namespace New_SSQE.Preferences
     internal partial class Settings
     {
         public static EventHandler? toInitialize;
-        public static readonly List<SettingBase> settings = new();
+        public static readonly List<SettingBase> settings = [];
 
         private static readonly List<Keys> numpadKeys = [Keys.KeyPad7, Keys.KeyPad8, Keys.KeyPad9, Keys.KeyPad4, Keys.KeyPad5, Keys.KeyPad6, Keys.KeyPad1, Keys.KeyPad2, Keys.KeyPad3];
         private static readonly List<Keys> patternKeys = [Keys.D0, Keys.D1, Keys.D2, Keys.D3, Keys.D4, Keys.D5, Keys.D6, Keys.D7, Keys.D8, Keys.D9];
@@ -151,7 +151,7 @@ namespace New_SSQE.Preferences
             try
             {
                 Reset();
-                Dictionary<string, JsonElement> result = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(Path.Combine(Assets.THIS, "settings.txt"))) ?? [];
+                Dictionary<string, JsonElement> result = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(File.ReadAllText(Assets.ThisAt("settings.txt"))) ?? [];
 
                 foreach (SettingBase setting in settings)
                 {
@@ -289,7 +289,7 @@ namespace New_SSQE.Preferences
                         finaljson.Add(name, setting.GetValue());
                 }
 
-                File.WriteAllText(Path.Combine(Assets.THIS, "settings.txt"), JsonSerializer.Serialize(finaljson));
+                File.WriteAllText(Assets.ThisAt("settings.txt"), JsonSerializer.Serialize(finaljson));
             }
             catch (Exception ex)
             {
@@ -342,7 +342,7 @@ namespace New_SSQE.Preferences
                 if (ctrl || alt || shift)
                     return keys;
 
-                List<Keys> keyCloned = new(MainWindow.Instance.KeyMapping.Keys);
+                List<Keys> keyCloned = [.. MainWindow.Instance.KeyMapping.Keys];
 
                 foreach (Keys gridKey in keyCloned)
                 {

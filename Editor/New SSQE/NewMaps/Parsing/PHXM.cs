@@ -1,5 +1,4 @@
 ﻿using New_SSQE.Preferences;
-using System.IO.Compression;
 using System.Text.Json;
 using System.Text;
 using New_SSQE.Objects;
@@ -65,11 +64,11 @@ namespace New_SSQE.NewMaps.Parsing
             Mapping.Current.SoundID = audioId;
 
             if (hasAudio)
-                File.Copy(Path.Combine(path, $"audio.{audioExt}"), Path.Combine(Assets.CACHED, $"{audioId}.asset"), true);
+                File.Copy(Path.Combine(path, $"audio.{audioExt}"), Assets.CachedAt($"{audioId}.asset"), true);
 
             if (Settings.useCover.Value)
             {
-                string cover = Path.Combine(Assets.CACHED, $"{audioId}-cover.png");
+                string cover = Assets.CachedAt($"{audioId}-cover.png");
                 File.Copy(Path.Combine(path, "cover.png"), cover, true);
 
                 Settings.cover.Value = cover;
@@ -78,7 +77,7 @@ namespace New_SSQE.NewMaps.Parsing
 
             if (Settings.useVideo.Value)
             {
-                string video = Path.Combine(Assets.CACHED, $"{audioId}-video.mp4");
+                string video = Assets.CachedAt($"{audioId}-video.mp4");
                 File.Copy(Path.Combine(path, "video.mp4"), video, true);
 
                 Settings.video.Value = video;
@@ -90,8 +89,6 @@ namespace New_SSQE.NewMaps.Parsing
 
             int types = reader.ReadInt32();
             int noteCount = reader.ReadInt32();
-
-            FormatUtils.ResetEncode();
 
             for (int i = 0; i < noteCount; i++)
             {
@@ -112,7 +109,7 @@ namespace New_SSQE.NewMaps.Parsing
                     y = reader.ReadByte();
                 }
 
-                Mapping.Current.Notes.Add(new(x, y, FormatUtils.EncodeTimestamp(ms)));
+                Mapping.Current.Notes.Add(new(x, y, ms));
             }
 
             string ReadString()
