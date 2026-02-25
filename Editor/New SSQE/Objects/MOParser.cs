@@ -159,6 +159,12 @@ namespace New_SSQE.Objects
 
                         obj = new Fever(ms, duration);
                         break;
+                    case 17:
+                        long endMs = long.Parse(data[++index]);
+                        string bookmark = data[++index];
+
+                        obj = new Bookmark(bookmark, ms, endMs);
+                        break;
                     default:
                         obj = new(id ?? -1, ms);
                         break;

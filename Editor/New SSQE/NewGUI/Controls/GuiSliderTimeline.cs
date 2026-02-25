@@ -5,7 +5,6 @@ using New_SSQE.NewGUI.Input;
 using New_SSQE.NewGUI.Windows;
 using New_SSQE.NewMaps;
 using New_SSQE.Objects;
-using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using System.Drawing;

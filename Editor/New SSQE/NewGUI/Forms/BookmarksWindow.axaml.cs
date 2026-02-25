@@ -2,13 +2,13 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using New_SSQE.NewMaps;
-using New_SSQE.Objects.Other;
 using New_SSQE.Preferences;
 using System.Collections;
 using System.Collections.ObjectModel;
 using New_SSQE.Objects.Managers;
 using New_SSQE.Misc;
 using New_SSQE.Services;
+using New_SSQE.Objects;
 
 namespace New_SSQE.NewGUI
 {

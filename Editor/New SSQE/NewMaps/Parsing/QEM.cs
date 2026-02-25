@@ -186,6 +186,7 @@ namespace New_SSQE.NewMaps.Parsing
                     14 => new Mine((float)data[0], (float)data[1], (long)data[2]),
                     15 => new Lyric((long)data[0], (string)data[1], (bool)data[2], (bool)data[3]),
                     16 => new Fever((long)data[0], (long)data[1]),
+                    17 => new Bookmark((string)data[2], (long)data[0], (long)data[1] + (long)data[0]),
                     _ => throw new InvalidDataException($"Invalid object ID {id}")
                 };
             }
@@ -316,6 +317,8 @@ namespace New_SSQE.NewMaps.Parsing
             ObjectList<Note> notes = Mapping.Current.Notes;
             ObjectList<MapObject> vfxObjects = Mapping.Current.VfxObjects;
             ObjectList<MapObject> specialObjects = Mapping.Current.SpecialObjects;
+            List<TimingPoint> timingPoints = Mapping.Current.TimingPoints;
+            List<Bookmark> bookmarks = Mapping.Current.Bookmarks;
 
             // [1]: Number of object blocks
             int numIDs = reader.ReadByte();
@@ -372,6 +375,10 @@ namespace New_SSQE.NewMaps.Parsing
 
                     if (id == 0)
                         notes.Add((Note)obj);
+                    else if (id == 1)
+                        timingPoints.Add((TimingPoint)obj);
+                    else if (id == 17)
+                        bookmarks.Add((Bookmark)obj);
                     else if (FormatUtils.VfxLookup[id])
                         vfxObjects.Add(obj);
                     else
