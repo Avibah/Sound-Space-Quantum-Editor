@@ -21,7 +21,7 @@ namespace New_SSQE.NewMaps.Parsing
             foreach (string file in Directory.GetFiles(temp))
             {
                 if (Path.GetExtension(file) == ".qem")
-                    return QEM.Read(file);
+                    QEM.Read(file);
             }
 
             return true;

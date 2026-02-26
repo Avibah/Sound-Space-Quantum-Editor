@@ -423,18 +423,22 @@ namespace New_SSQE.NewMaps.Parsing
                     if (id >= TOTAL_OBJ_BLOCKS)
                         continue;
 
-                    MapObject obj = ParseObj(id, [.. objectData]);
+                    try
+                    {
+                        MapObject obj = ParseObj(id, [.. objectData]);
 
-                    if (id == 0)
-                        notes.Add((Note)obj);
-                    else if (id == 1)
-                        timingPoints.Add((TimingPoint)obj);
-                    else if (id == 17)
-                        bookmarks.Add((Bookmark)obj);
-                    else if (FormatUtils.VfxLookup[id])
-                        vfxObjects.Add(obj);
-                    else
-                        specialObjects.Add(obj);
+                        if (id == 0)
+                            notes.Add((Note)obj);
+                        else if (id == 1)
+                            timingPoints.Add((TimingPoint)obj);
+                        else if (id == 17)
+                            bookmarks.Add((Bookmark)obj);
+                        else if (FormatUtils.VfxLookup[id])
+                            vfxObjects.Add(obj);
+                        else
+                            specialObjects.Add(obj);
+                    }
+                    catch { }
                 }
             }
 
