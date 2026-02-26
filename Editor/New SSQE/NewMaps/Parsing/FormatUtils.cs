@@ -15,7 +15,7 @@ namespace New_SSQE.NewMaps.Parsing
                     >= '0' and <= '9' => id[i],
                     >= 'a' and <= 'z' => id[i],
                     >= 'A' and <= 'Z' => char.ToLower(id[i]),
-                    ' ' or '-' => id[i],
+                    '-' => id[i],
                     _ => '_'
                 };
             }

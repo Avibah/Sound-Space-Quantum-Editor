@@ -411,7 +411,7 @@ namespace New_SSQE.NewMaps.Parsing
             writer.Write((byte)0x02); // one definition
             WriteString("ssp_note"); // "ssp_note" marker indicator
             writer.Write(new byte[] { 0x01, /* one value */ 0x07, /* data type 07 - note */ 0x00 /* end of definition */ });
-            WriteString("ssp_bpm"); // "ssp_beat" marker indicator
+            WriteString("ssp_bpm"); // "ssp_bpm" marker indicator
             writer.Write(new byte[] { 0x01, /* one value */ 0x01, /* data type 01 - byte */ 0x00 /* end of definition */ });
 
             long markerDefinitionsLength = writer.BaseStream.Position - markerDefinitionsOffset;

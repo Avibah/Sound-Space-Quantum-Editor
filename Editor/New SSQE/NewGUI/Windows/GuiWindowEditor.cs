@@ -327,6 +327,9 @@ namespace New_SSQE.NewGUI.Windows
                     case "Novastra (NPK)":
                         ExportNOVA.ShowWindow();
                         break;
+                    case "SSQE (QEMZ)":
+                        QEMZ.Export();
+                        break;
                 }
             };
 

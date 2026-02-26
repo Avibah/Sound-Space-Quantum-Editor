@@ -193,28 +193,33 @@ namespace New_SSQE.NewMaps.Parsing
                 };
             }
 
-            MapObject ParseObj(int id, params object[] data)
+            EasingStyle EasingStyle(object data) => (EasingStyle)(int)(byte)data;
+            EasingDirection EasingDirection(object data) => (EasingDirection)(int)(byte)data;
+            GlideDirection GlideDirection(object data) => (GlideDirection)(int)(byte)data;
+            long Timestamp(object data) => (long)(double)data;
+
+            MapObject ParseObj(int id, object[] data)
             {
                 return id switch
                 {
-                    0 => new Note((float)data[1], (float)data[2], (long)data[0], (bool)data[3], (EasingStyle)data[4], (EasingDirection)data[5]),
-                    1 => new TimingPoint((float)data[1], (long)data[0], ((float)data[2], (float)data[3])),
-                    2 => new Brightness((long)data[0], (long)data[1], (EasingStyle)data[2], (EasingDirection)data[3], (float)data[4]),
-                    3 => new Contrast((long)data[0], (long)data[1], (EasingStyle)data[2], (EasingDirection)data[3], (float)data[4]),
-                    4 => new Saturation((long)data[0], (long)data[1], (EasingStyle)data[2], (EasingDirection)data[3], (float)data[4]),
-                    5 => new Blur((long)data[0], (long)data[1], (EasingStyle)data[2], (EasingDirection)data[3], (float)data[4]),
-                    6 => new FOV((long)data[0], (long)data[1], (EasingStyle)data[2], (EasingDirection)data[3], (float)data[4]),
-                    7 => new Tint((long)data[0], (long)data[1], (EasingStyle)data[2], (EasingDirection)data[3], Color.FromArgb((byte)data[4], (byte)data[5], (byte)data[6], (byte)data[7])),
-                    8 => new Position((long)data[0], (long)data[1], (EasingStyle)data[2], (EasingDirection)data[3], ((float)data[4], (float)data[5], (float)data[6])),
-                    9 => new Rotation((long)data[0], (long)data[1], (EasingStyle)data[2], (EasingDirection)data[3], (float)data[4]),
-                    10 => new ARFactor((long)data[0], (long)data[1], (EasingStyle)data[2], (EasingDirection)data[3], (float)data[4]),
-                    11 => new Text((long)data[0], (long)data[1], (string)data[2], (int)data[3]),
-                    12 => new Beat((long)data[0]),
-                    13 => new Glide((long)data[0], (GlideDirection)data[1]),
-                    14 => new Mine((float)data[0], (float)data[1], (long)data[2]),
-                    15 => new Lyric((long)data[0], (string)data[1], (bool)data[2], (bool)data[3]),
-                    16 => new Fever((long)data[0], (long)data[1]),
-                    17 => new Bookmark((string)data[2], (long)data[0], (long)data[1] + (long)data[0]),
+                    0 => new Note((float)data[1], (float)data[2], Timestamp(data[0]), (bool)data[3], EasingStyle(data[4]), EasingDirection(data[5])),
+                    1 => new TimingPoint((float)data[1], Timestamp(data[0]), ((byte)data[2], (byte)data[3])),
+                    2 => new Brightness(Timestamp(data[0]), Timestamp(data[1]), EasingStyle(data[2]), EasingDirection(data[3]), (float)data[4]),
+                    3 => new Contrast(Timestamp(data[0]), Timestamp(data[1]), EasingStyle(data[2]), EasingDirection(data[3]), (float)data[4]),
+                    4 => new Saturation(Timestamp(data[0]), Timestamp(data[1]), EasingStyle(data[2]), EasingDirection(data[3]), (float)data[4]),
+                    5 => new Blur(Timestamp(data[0]), Timestamp(data[1]), EasingStyle(data[2]), EasingDirection(data[3]), (float)data[4]),
+                    6 => new FOV(Timestamp(data[0]), Timestamp(data[1]), EasingStyle(data[2]), EasingDirection(data[3]), (float)data[4]),
+                    7 => new Tint(Timestamp(data[0]), Timestamp(data[1]), EasingStyle(data[2]), EasingDirection(data[3]), Color.FromArgb((byte)data[4], (byte)data[5], (byte)data[6], (byte)data[7])),
+                    8 => new Position(Timestamp(data[0]), Timestamp(data[1]), EasingStyle(data[2]), EasingDirection(data[3]), ((float)data[4], (float)data[5], (float)data[6])),
+                    9 => new Rotation(Timestamp(data[0]), Timestamp(data[1]), EasingStyle(data[2]), EasingDirection(data[3]), (float)data[4]),
+                    10 => new ARFactor(Timestamp(data[0]), Timestamp(data[1]), EasingStyle(data[2]), EasingDirection(data[3]), (float)data[4]),
+                    11 => new Text(Timestamp(data[0]), Timestamp(data[1]), (string)data[2], (int)data[3]),
+                    12 => new Beat(Timestamp(data[0])),
+                    13 => new Glide(Timestamp(data[0]), GlideDirection(data[1])),
+                    14 => new Mine((float)data[1], (float)data[2], Timestamp(data[0])),
+                    15 => new Lyric(Timestamp(data[0]), (string)data[1], (bool)data[2], (bool)data[3]),
+                    16 => new Fever(Timestamp(data[0]), Timestamp(data[1])),
+                    17 => new Bookmark((string)data[2], Timestamp(data[0]), Timestamp((double)data[0] + (double)data[1])),
                     _ => throw new InvalidDataException($"Invalid object ID {id}")
                 };
             }
@@ -239,10 +244,10 @@ namespace New_SSQE.NewMaps.Parsing
 
             foreach (KeyValuePair<string, string> entry in paths)
             {
-                if (!File.Exists(entry.Value))
+                string source = Path.IsPathFullyQualified(entry.Value) ? entry.Value : Path.GetFullPath(entry.Value, Path.GetDirectoryName(path) ?? "");
+                if (!File.Exists(source))
                     continue;
 
-                string source = Path.IsPathFullyQualified(entry.Value) ? entry.Value : Path.GetFullPath(entry.Value, Path.GetDirectoryName(path) ?? "");
                 string dest = Assets.CachedAt(Path.GetFileName(source));
                 if (dest == source)
                     continue;
@@ -416,7 +421,7 @@ namespace New_SSQE.NewMaps.Parsing
                     if (!string.IsNullOrWhiteSpace(objName))
                         continue;
 
-                    MapObject obj = ParseObj(id, objectData);
+                    MapObject obj = ParseObj(id, [.. objectData]);
 
                     if (id == 0)
                         notes.Add((Note)obj);
@@ -460,7 +465,10 @@ namespace New_SSQE.NewMaps.Parsing
 
             // audio path
             WriteString("audio");
-            WriteString(Assets.CachedAt($"{Mapping.Current.SoundID}.asset"));
+            if (Settings.useRelativeAudio.Value)
+                WriteString("audio.asset");
+            else
+                WriteString(Assets.CachedAt($"{Mapping.Current.SoundID}.asset"));
 
             // cover path
             if (hasCover)
@@ -533,12 +541,9 @@ namespace New_SSQE.NewMaps.Parsing
             writer.Write(Settings.rating.Value);
 
             // 8 - difficulty name
-            if (!string.IsNullOrWhiteSpace(Settings.customDifficulty.Value))
-            {
-                WriteString("difficultyName");
-                writer.Write((byte)0x0a); // data type 0x0a - string
-                WriteString(Settings.customDifficulty.Value);
-            }
+            WriteString("difficultyName");
+            writer.Write((byte)0x0a); // data type 0x0a - string
+            WriteString(Settings.customDifficulty.Value);
 
             // 9 - song links
             WriteString("songLinks");
@@ -587,6 +592,7 @@ namespace New_SSQE.NewMaps.Parsing
             string mapId = $"{firstMapper} - {firstArtist} - {Settings.songTitle.Value}";
 
             WriteString("mapId");
+            writer.Write((byte)0x0a); // data type 0x0a - string
             WriteString(FormatUtils.FixID(mapId));
 
             // object blocks
@@ -669,33 +675,73 @@ namespace New_SSQE.NewMaps.Parsing
             }
 
             // brightness block
+            writer.Write((byte)2); // ID 2
+            WriteString("");
+            writer.Write((byte)0); // 0 types
+            writer.Write(0);
             /* Unreleased */
 
             // contrast block
+            writer.Write((byte)3); // ID 3
+            WriteString("");
+            writer.Write((byte)0); // 0 types
+            writer.Write(0);
             /* Unreleased */
 
             // saturation block
+            writer.Write((byte)4); // ID 4
+            WriteString("");
+            writer.Write((byte)0); // 0 types
+            writer.Write(0);
             /* Unreleased */
 
             // blur block
+            writer.Write((byte)5); // ID 5
+            WriteString("");
+            writer.Write((byte)0); // 0 types
+            writer.Write(0);
             /* Unreleased */
 
             // fov block
+            writer.Write((byte)6); // ID 6
+            WriteString("");
+            writer.Write((byte)0); // 0 types
+            writer.Write(0);
             /* Unreleased */
 
             // tint block
+            writer.Write((byte)7); // ID 7
+            WriteString("");
+            writer.Write((byte)0); // 0 types
+            writer.Write(0);
             /* Unreleased */
 
             // position block
+            writer.Write((byte)8); // ID 8
+            WriteString("");
+            writer.Write((byte)0); // 0 types
+            writer.Write(0);
             /* Unreleased */
 
             // rotation block
+            writer.Write((byte)9); // ID 9
+            WriteString("");
+            writer.Write((byte)0); // 0 types
+            writer.Write(0);
             /* Unreleased */
 
             // ar factor block
+            writer.Write((byte)10); // ID 10
+            WriteString("");
+            writer.Write((byte)0); // 0 types
+            writer.Write(0);
             /* Unreleased */
 
             // text block
+            writer.Write((byte)11); // ID 11
+            WriteString("");
+            writer.Write((byte)0); // 0 types
+            writer.Write(0);
             /* Unreleased */
 
             // beat block

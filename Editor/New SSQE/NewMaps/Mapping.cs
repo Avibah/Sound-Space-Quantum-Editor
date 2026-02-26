@@ -409,6 +409,7 @@ namespace New_SSQE.NewMaps
                         ".npk" or ".nch" => NPK.Read(data),
                         ".osu" => OSU.Read(data),
                         ".qem" => QEM.Read(data),
+                        ".qemz" => QEMZ.Read(data),
                         ".json" when PHZ.IsValid(data) => PHZ.Read(data),
 
                         _ => throw new NotSupportedException($"File extension not supported for loading: {extension}")
