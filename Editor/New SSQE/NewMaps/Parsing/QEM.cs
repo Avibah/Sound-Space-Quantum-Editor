@@ -189,7 +189,7 @@ namespace New_SSQE.NewMaps.Parsing
                     15 => [0, "", false, false],
                     16 => [0, 0],
                     17 => [0, 0, ""],
-                    _ => throw new InvalidDataException($"Invalid object ID {id}")
+                    _ => []
                 };
             }
 
@@ -419,6 +419,8 @@ namespace New_SSQE.NewMaps.Parsing
 
                     // No known overrides for object name
                     if (!string.IsNullOrWhiteSpace(objName))
+                        continue;
+                    if (id >= TOTAL_OBJ_BLOCKS)
                         continue;
 
                     MapObject obj = ParseObj(id, [.. objectData]);
