@@ -104,7 +104,7 @@ namespace New_SSQE.NewGUI.Windows
                 DialogResult result = new OpenFileDialog()
                 {
                     Title = "Select Map File",
-                    Filter = "Map Files (*.txt;*.sspm;*.osu;*.nch;*.npk;*.phxm;*.rhym;*.phz;*.json)|*.txt;*.sspm;*.osu;*.nch;*.npk;*.phxm;*.rhym;*.phz;*.json"
+                    Filter = "Map Files (*.txt;*.qem;*.qemz;*.sspm;*.osu;*.nch;*.npk;*.phxm;*.rhym;*.phz;*.json)|*.txt;*.qem;*.qemz;*.sspm;*.osu;*.nch;*.npk;*.phxm;*.rhym;*.phz;*.json"
                 }.Show(Settings.defaultPath, out string file);
 
                 if (result == DialogResult.OK)
