@@ -1,229 +1,102 @@
-﻿using Un4seen.Bass;
-using Un4seen.Bass.AddOn.Fx;
+﻿using SoundFlow.Enums;
+using Player = SoundFlow.Components.SoundPlayer;
 
 namespace SSQE_Player.Audio
 {
     internal class MusicPlayer
     {
-        private int streamFileID;
-        private int streamID;
-        private string lastFile;
+        private static string lastFile = "";
+        private static Player? lastPlayer;
+        private static TempoProvider? tempoProvider;
 
-        private float originVal;
+        public static float MusicOffset => Settings.musicOffset.Value - 28;
 
-        private readonly SYNCPROC Sync;
-
-        public MusicPlayer()
+        public static bool Load(string file)
         {
-            Init();
-            Sync = new SYNCPROC(OnEnded);
-        }
-
-        private void CheckDevice()
-        {
-            try
-            {
-                int device = Bass.BASS_ChannelGetDevice(streamID);
-                BASS_DEVICEINFO? info = Bass.BASS_GetDeviceInfo(device);
-
-                if (info != null && (!info.IsDefault || !info.IsEnabled))
-                {
-                    long pos = Bass.BASS_ChannelGetPosition(streamID, BASSMode.BASS_POS_BYTE);
-                    TimeSpan secs = TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, pos));
-
-                    BASSActive state = Bass.BASS_ChannelIsActive(streamID);
-                    float volume = 0.2f;
-
-                    Bass.BASS_ChannelGetAttribute(streamID, BASSAttribute.BASS_ATTRIB_VOL, ref volume);
-
-                    Reload();
-                    Load(lastFile);
-
-                    Volume = volume;
-                    CurrentTime = secs;
-
-                    switch (state)
-                    {
-                        case BASSActive.BASS_ACTIVE_PAUSED:
-                        case BASSActive.BASS_ACTIVE_STOPPED:
-                            Bass.BASS_ChannelPause(streamID);
-                            Bass.BASS_ChannelSetPosition(streamID, pos, BASSMode.BASS_POS_BYTE);
-                            break;
-                        case BASSActive.BASS_ACTIVE_STALLED:
-                        case BASSActive.BASS_ACTIVE_PLAYING:
-                            Bass.BASS_ChannelPlay(streamID, false);
-                            break;
-                    }
-                }
-            }
-            catch { }
-        }
-
-        public void Load(string file)
-        {
-            if (file == null || !File.Exists(file))
-                return;
+            if (!File.Exists(file))
+                return false;
             if (lastFile != file)
                 lastFile = file;
 
-            Bass.BASS_StreamFree(streamID);
-            Bass.BASS_StreamFree(streamFileID);
+            SoundEngine.SetMono(Settings.monoAudio.Value);
+            tempoProvider?.Dispose();
+            lastPlayer?.Dispose();
 
-            int stream = Bass.BASS_StreamCreateFile(file, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_STREAM_PRESCAN | BASSFlag.BASS_FX_FREESOURCE);
-            float tempo = Tempo;
+            try
+            {
+                Player player = SoundEngine.InitializeMusic(file, out string fileType);
+                player.PlaybackEnded += (s, e) => OnEnded();
+                lastPlayer = player;
+                tempoProvider = player.DataProvider as TempoProvider;
 
-            streamFileID = stream;
-            streamID = BassFx.BASS_FX_TempoCreate(streamFileID, BASSFlag.BASS_STREAM_PRESCAN);
+                IsMP3 = fileType.StartsWith("mp3");
+                IsOGG = fileType.StartsWith("ogg");
+            }
+            catch
+            {
+                return false;
+            }
 
-            Tempo = tempo;
+            Stop();
 
-            Bass.BASS_ChannelGetAttribute(streamID, BASSAttribute.BASS_ATTRIB_TEMPO_FREQ, ref originVal);
-            Bass.BASS_ChannelSetSync(streamID, BASSSync.BASS_SYNC_END, 0, Sync, IntPtr.Zero);
-
-            Reset();
+            return true;
         }
 
-        private void OnEnded(int handle, int channel, int data, IntPtr user)
+        private static void OnEnded()
         {
             Pause();
-            CurrentTime = TotalTime;
-            Settings.currentTime.Value.Value = (float)(CurrentTime.TotalMilliseconds + 0.03 * (1 + (MainWindow.Instance.Tempo - 1) * 1.5));
-
             MainWindow.Instance.Close();
         }
 
-        public void Play()
+        public static void Play()
         {
             CurrentTime = TimeSpan.FromMilliseconds(Settings.currentTime.Value.Value);
-            CheckDevice();
-
-            Bass.BASS_ChannelPlay(streamID, false);
+            lastPlayer?.Play();
         }
 
-        public void Pause()
+        public static void Pause()
         {
-            CheckDevice();
-
-            long pos = Bass.BASS_ChannelGetPosition(streamID, BASSMode.BASS_POS_BYTE);
-
-            Bass.BASS_ChannelPause(streamID);
-            Bass.BASS_ChannelSetPosition(streamID, pos, BASSMode.BASS_POS_BYTE);
             Settings.currentTime.Value.Value = (float)CurrentTime.TotalMilliseconds;
+            lastPlayer?.Stop();
         }
 
-        public void Stop()
-        {
-            CheckDevice();
-
-            Bass.BASS_ChannelStop(streamID);
-            Bass.BASS_ChannelSetPosition(streamID, 0, BASSMode.BASS_POS_BYTE);
-        }
-
-        public float Tempo
+        public static float Tempo
         {
             set
             {
-                CheckDevice();
-
-                Bass.BASS_ChannelSetAttribute(streamID, BASSAttribute.BASS_ATTRIB_TEMPO_FREQ, originVal * value);
+                if (tempoProvider != null)
+                    tempoProvider.Tempo = value;
             }
-            get
-            {
-                CheckDevice();
-
-                float val = 0;
-
-                Bass.BASS_ChannelGetAttribute(streamID, BASSAttribute.BASS_ATTRIB_TEMPO_FREQ, ref val);
-
-                return -(val + 95) / 100;
-            }
+            get => tempoProvider?.Tempo ?? 1;
         }
 
-        public float Volume
+        public static float Volume
         {
             set
             {
-                CheckDevice();
-                Bass.BASS_ChannelSetAttribute(streamID, BASSAttribute.BASS_ATTRIB_VOL, value);
+                if (lastPlayer != null)
+                    lastPlayer.Volume = Math.Max(value * SoundEngine.VOLUME_MULT, 0);
             }
-            get
-            {
-                CheckDevice();
-
-                float val = 1;
-
-                Bass.BASS_ChannelGetAttribute(streamID, BASSAttribute.BASS_ATTRIB_VOL, ref val);
-
-                return val;
-            }
+            get => (lastPlayer?.Volume / SoundEngine.VOLUME_MULT) ?? 1;
         }
 
-        public void Reset()
+        public static void Stop()
         {
-            Stop();
-
+            lastPlayer?.Stop();
             CurrentTime = TimeSpan.Zero;
         }
 
-        public bool IsPlaying
-        {
-            get
-            {
-                CheckDevice();
+        public static bool IsPlaying => lastPlayer?.State == PlaybackState.Playing;
 
-                return Bass.BASS_ChannelIsActive(streamID) == BASSActive.BASS_ACTIVE_PLAYING;
-            }
+        public static TimeSpan TotalTime => TimeSpan.FromSeconds(lastPlayer?.Duration ?? 0);
+        
+        public static TimeSpan CurrentTime
+        {
+            set => lastPlayer?.Seek(value - TimeSpan.FromMilliseconds(MusicOffset));
+            get => TimeSpan.FromSeconds(lastPlayer == null ? 0 : TotalTime.TotalSeconds * lastPlayer.DataProvider.Position / lastPlayer.DataProvider.Length + MusicOffset / 1000d);
         }
 
-        public TimeSpan TotalTime
-        {
-            get
-            {
-                CheckDevice();
-
-                long len = Bass.BASS_ChannelGetLength(streamID, BASSMode.BASS_POS_BYTE);
-
-                return TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, len) - 0.001);
-            }
-        }
-
-        public TimeSpan CurrentTime
-        {
-            set
-            {
-                CheckDevice();
-
-                long pos = Bass.BASS_ChannelSeconds2Bytes(streamID, value.TotalSeconds - 0.03 * (1 + (MainWindow.Instance.Tempo - 1) * 1.5));
-
-                Bass.BASS_ChannelSetPosition(streamID, Math.Max(pos, 0), BASSMode.BASS_POS_BYTE);
-            }
-            get
-            {
-                CheckDevice();
-
-                long pos = Bass.BASS_ChannelGetPosition(streamID, BASSMode.BASS_POS_BYTE);
-
-                return TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(streamID, pos) + 0.03 * (1 + (MainWindow.Instance.Tempo - 1) * 1.5));
-            }
-        }
-
-        private static void Init()
-        {
-            Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
-
-            Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_BUFFER, 250);
-            Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATEPERIOD, 5);
-        }
-
-        public static void Reload()
-        {
-            Dispose();
-            Init();
-        }
-
-        public static void Dispose()
-        {
-            Bass.BASS_Free();
-        }
+        public static bool IsMP3 { get; private set; } = false;
+        public static bool IsOGG { get; private set; } = false;
     }
 }

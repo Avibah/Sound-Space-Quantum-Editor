@@ -193,7 +193,7 @@ namespace SSQE_Player.GUI
             if (waitTimer <= 0 && !started)
             {
                 started = true;
-                main.MusicPlayer.Play();
+                MusicPlayer.Play();
             }
 
             float trackLength = SpawnZ / NoteSpeed * 1000f;
@@ -449,7 +449,7 @@ namespace SSQE_Player.GUI
             main.ReplayCursorIndex = 0;
             main.ReplaySkipIndex = 0;
 
-            main.MusicPlayer.Reset();
+            MusicPlayer.Stop();
             Settings.currentTime.Value.Value = main.StartTime;
         }
     }

@@ -5,7 +5,6 @@ using SSQE_Player.GUI;
 using System.Reflection;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.ComponentModel;
 using SSQE_Player.Models;
 using System.Drawing;
 using SSQE_Player.Types;
@@ -20,7 +19,6 @@ namespace SSQE_Player
         public static int AutoIndex = 0;
 
         public static MainWindow Instance;
-        public MusicPlayer MusicPlayer = new();
         public ModelManager ModelManager = new();
 
         public Note[] Notes = [];
@@ -345,11 +343,6 @@ namespace SSQE_Player
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
             CurrentWindow.Offset += (int)e.OffsetY;
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            MusicPlayer.Dispose();
         }
 
         protected override void OnFocusedChanged(FocusedChangedEventArgs e)

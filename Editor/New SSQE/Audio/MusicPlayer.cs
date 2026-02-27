@@ -1,4 +1,5 @@
-﻿using New_SSQE.Preferences;
+﻿using New_SSQE.NewGUI.Dialogs;
+using New_SSQE.Preferences;
 using New_SSQE.Services;
 using SoundFlow.Enums;
 using Player = SoundFlow.Components.SoundPlayer;
@@ -42,6 +43,7 @@ namespace New_SSQE.Audio
             catch (Exception ex)
             {
                 Logging.Log($"Audio failed to load - {file}", LogSeverity.ERROR, ex);
+                MessageDialog.Show($"Audio failed to load [{Path.GetFileName(file)}]\n\n{ex.Message}", MBoxIcon.Warning, MBoxButtons.OK);
                 return false;
             }
 

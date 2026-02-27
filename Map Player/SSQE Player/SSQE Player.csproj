@@ -15,6 +15,9 @@
     <PackageReference Include="OpenTK" Version="5.0.0-pre.8" />
     <PackageReference Include="SkiaSharp" Version="2.88.7" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.7" />
+    <PackageReference Include="SoundFlow" Version="1.4.0" />
+    <PackageReference Include="SoundFlow.Codecs.FFMpeg" Version="1.4.0" />
+    <PackageReference Include="SoundTouch.Net" Version="2.3.2" />
     <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
     <PackageReference Include="System.Json" Version="4.7.1" />
   </ItemGroup>

@@ -24,9 +24,11 @@ namespace SSQE_Player
         public static Setting<float> fov = 70f;
         public static Setting<float> noteScale = 1f;
         public static Setting<float> cursorScale = 1f;
+        public static Setting<float> musicOffset = 0;
 
         public static Setting<ListSetting> cameraMode = new ListSetting("half lock", "half lock", "full lock", "spin");
         public static Setting<string> hitSound = "hit";
+        public static Setting<string> clickSound = "click";
 
         public static Setting<bool> lockCursor = true;
         public static Setting<bool> fullscreenPlayer = true;
@@ -36,6 +38,9 @@ namespace SSQE_Player
         public static Setting<bool> limitPlayerFPS = false;
         public static Setting<bool> notePushback = false;
         public static Setting<bool> smoothAutoplay = true;
+        public static Setting<bool> monoAudio = false;
+        public static Setting<bool> muteSfx = false;
+        public static Setting<bool> muteMusic = false;
 
         public static Setting<SliderSetting> currentTime = new SliderSetting(0f, 0f, 0f);
         public static Setting<SliderSetting> tempo = new SliderSetting(0.9f, 1.4f, 0.05f);

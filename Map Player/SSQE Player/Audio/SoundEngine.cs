@@ -1,5 +1,4 @@
-﻿using New_SSQE.Preferences;
-using SoundFlow.Abstracts.Devices;
+﻿using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Backends.MiniAudio.Devices;
 using SoundFlow.Backends.MiniAudio.Enums;
@@ -9,10 +8,9 @@ using SoundFlow.Interfaces;
 using SoundFlow.Providers;
 using SoundFlow.Structs;
 using SoundFlow.Utils;
-using System.Resources;
 using Player = SoundFlow.Components.SoundPlayer;
 
-namespace New_SSQE.Audio
+namespace SSQE_Player.Audio
 {
     internal class SoundEngine
     {
