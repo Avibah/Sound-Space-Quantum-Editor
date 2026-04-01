@@ -60,7 +60,7 @@ namespace New_SSQE.NewGUI.Base
 
             BackgroundSquare = new(1, TOPBAR_HEIGHT - 1, w, h)
             {
-                Color = Color.FromArgb(76, 74, 72),
+                Color = Color.White,
                 Stretch = StretchMode.XY
             };
 

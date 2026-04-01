@@ -48,7 +48,6 @@ namespace New_SSQE.NewGUI.Dialogs
                 Font = "semibold"
             };
 
-            BackgroundSquare.Color = Color.White;
             Modal = true;
             Persistent = true;
 

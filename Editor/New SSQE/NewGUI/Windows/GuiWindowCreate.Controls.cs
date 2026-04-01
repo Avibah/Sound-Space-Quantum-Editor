@@ -38,7 +38,9 @@ namespace New_SSQE.NewGUI.Windows
         };
         public static readonly GuiTextbox AudioIDBoxSoundSpace = new(470, 5, 340, 50)
         {
-            TextSize = 36
+            TextSize = 36,
+            TextWrapped = true,
+            IsMultiLine = true
         };
         public static readonly GuiLabel AudioPathLabelSoundSpace = new(370, 55, 540, 50)
         {
@@ -52,7 +54,7 @@ namespace New_SSQE.NewGUI.Windows
             Text = "CHOOSE",
             TextSize = 28
         };
-        public static readonly ControlContainer SoundSpaceContainer = new(AudioIDLabelSoundSpace, AudioIDBoxSoundSpace, AudioPathLabelSoundSpace, AudioPathSoundSpace);
+        public static readonly ControlContainer SoundSpaceContainer = new(AudioPathLabelSoundSpace, AudioPathSoundSpace, AudioIDLabelSoundSpace, AudioIDBoxSoundSpace);
 
         public static readonly GuiLabel AudioPathLabelRhythia = new(370, -45, 540, 50)
         {

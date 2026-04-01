@@ -4,6 +4,7 @@ using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Controls;
 using New_SSQE.NewGUI.Dialogs;
+using New_SSQE.NewGUI.Forms;
 using New_SSQE.NewGUI.Input;
 using New_SSQE.NewMaps;
 using New_SSQE.NewMaps.Parsing;
@@ -316,13 +317,16 @@ namespace New_SSQE.NewGUI.Windows
 
             ExportButton.LeftClick += (s, e) =>
             {
-                //Windowing.OpenDialog(new GuiDialogExport());
+                //Windowing.OpenDialog<GuiDialogExport>();
                 //return;
 
                 switch (Settings.exportType.Value.Current)
                 {
                     case "Rhythia (SSPM)":
                         ExportSSPM.ShowWindow();
+                        break;
+                    case "Rhythia (PHXM)":
+                        ExportPHXM.ShowWindow();
                         break;
                     case "Novastra (NPK)":
                         ExportNOVA.ShowWindow();

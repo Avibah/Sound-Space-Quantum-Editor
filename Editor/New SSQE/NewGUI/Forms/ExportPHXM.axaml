@@ -1,0 +1,259 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="New_SSQE.NewGUI.ExportPHXM"
+        Width="344" Height="408" CanResize="False"
+        WindowStartupLocation="CenterScreen">
+
+  <StackPanel>
+    <!-- Main panel -->
+    <Panel Width="344" Height="408"
+           Background="#f1f1f1">
+      <Panel Width="320" Height="384">
+        <!-- Artist,Title,Difficulty,CDiff Panel -->
+        <Panel Width="320" Height="94"
+               VerticalAlignment="Top">
+
+          <!-- Artist,Title,Difficulty Panel -->
+          <Panel Width="320" Height="70"
+                 VerticalAlignment="Top">
+            <!-- Artist -->
+            <TextBox Width="236" Height="20" Name="ArtistBox"
+                 VerticalAlignment="Top"
+                 HorizontalAlignment="Right"
+                 MinHeight="20"></TextBox>
+
+            <Label Width="84" Height="20"
+                   VerticalAlignment="Top"
+                   HorizontalAlignment="Left"
+                   BorderThickness="0">Artist</Label>
+
+            <!-- Title -->
+            <TextBox Width="236" Height="20" Name="TitleBox"
+                     MinHeight="20"
+                     VerticalAlignment="Center"
+                     HorizontalAlignment="Right"></TextBox>
+
+            <Label Width="84" Height="20"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Left"
+                   BorderThickness="0">Title</Label>
+
+            <!-- Difficulty -->
+            <ComboBox Width="236" Height="20" Name="DifficultyBox"
+                      VerticalAlignment="Bottom"
+                      HorizontalAlignment="Right"
+                      SelectedIndex="0">
+              <ComboBoxItem>N/A</ComboBoxItem>
+              <ComboBoxItem>Easy</ComboBoxItem>
+              <ComboBoxItem>Medium</ComboBoxItem>
+              <ComboBoxItem>Hard</ComboBoxItem>
+              <ComboBoxItem>Logic</ComboBoxItem>
+              <ComboBoxItem>Tasukete</ComboBoxItem>
+            </ComboBox>
+
+            <Label Width="84" Height="20"
+                   VerticalAlignment="Bottom"
+                   HorizontalAlignment="Left"
+                   BorderThickness="0">Difficulty</Label>
+          </Panel>
+
+          <!-- Custom Difficulty -->
+          <TextBox Width="136" Height="20" Name="CustomDifficultyBox"
+                   MinHeight="20"
+                   VerticalAlignment="Bottom"
+                   HorizontalAlignment="Right"></TextBox>
+
+          <Label Width="184" Height="20"
+                 VerticalAlignment="Bottom"
+                 HorizontalAlignment="Left"
+                 BorderThickness="0">Custom Difficulty (Optional)</Label>
+        </Panel>
+
+        <!-- Other -->
+        <Panel Width="320" Height="285"
+               VerticalAlignment="Bottom">
+          <!-- Other -->
+          <Panel Width="320" Height="240"
+                 VerticalAlignment="Top">
+            <!-- Mapper,Cover Panel -->
+            <Panel Width="320" Height="190"
+                   VerticalAlignment="Top">
+
+              <!-- Mapper(s) -->
+              <TextBox Width="236" Height="130" Name="MapperBox"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Right"
+                        VerticalContentAlignment="Top"
+                        AcceptsReturn="True"></TextBox>
+
+              <Label Width="84" Height="60"
+                      VerticalAlignment="Top"
+                      HorizontalAlignment="Left"
+                      BorderThickness="0">
+                Mapper(s)
+
+(One per line)
+              </Label>
+
+              <!-- Cover,Video Panel -->
+              <Panel Width="320" Height="55"
+                      VerticalAlignment="Bottom">
+
+                <Panel Width="236" Height="25"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Right">
+
+                  <!-- Cover Path -->
+                  <TextBox Width="176" MinHeight="25" Height="25"
+                          IsReadOnly="True"
+                          Name="CoverPathBox"
+                          HorizontalAlignment="Left"
+                          Background="#dfdfdf"></TextBox>
+
+                  <!-- Select Cover Button -->
+                  <Button Width="55" Height="25"
+                          HorizontalAlignment="Right"
+                          Click="SelectCover_Click">Select</Button>
+                </Panel>
+
+                <Label Width="84" Height="25"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Left"
+                        BorderThickness="0">Cover Image</Label>
+
+                <Panel Width="236" Height="25"
+                        VerticalAlignment="Bottom"
+                        HorizontalAlignment="Right">
+
+                  <!-- Video Path -->
+                  <TextBox Width="176" MinHeight="25" Height="25"
+                          IsReadOnly="True"
+                          Name="VideoPathBox"
+                          VerticalAlignment="Bottom"
+                          HorizontalAlignment="Left"
+                          Background="#dfdfdf"></TextBox>
+
+                  <!-- Select Video Button -->
+                  <Button Width="55" Height="25"
+                          VerticalAlignment="Bottom"
+                          HorizontalAlignment="Right"
+                          Click="SelectVideo_Click">Select</Button>
+                </Panel>
+
+                <Label Width="84" Height="25"
+                        VerticalAlignment="Bottom"
+                        HorizontalAlignment="Left"
+                        BorderThickness="0">Video</Label>
+              </Panel>
+            </Panel>
+
+            <!-- Rating,Link,Platform Panel -->
+            <Panel Width="320" Height="45"
+                   VerticalAlignment="Bottom">
+
+              <!-- Artist Link -->
+              <TextBox Width="236" Height="20" Name="ArtistLinkBox"
+                     MinHeight="20"
+                     VerticalAlignment="Top"
+                     HorizontalAlignment="Right"></TextBox>
+
+              <Label Width="84" Height="20"
+                     VerticalAlignment="Top"
+                     HorizontalAlignment="Left"
+                     BorderThickness="0">Artist Link</Label>
+
+              <!-- Rating -->
+              <Panel Width="157" Height="20"
+                     VerticalAlignment="Bottom"
+                     HorizontalAlignment="Left">
+                <TextBox Width="102" Height="20" Name="RatingBox"
+                     MinHeight="20"
+                     VerticalAlignment="Center"
+                     HorizontalAlignment="Right"></TextBox>
+
+                <Label Width="50" Height="20"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"
+                       BorderThickness="0">Rating</Label>
+              </Panel>
+
+              <!-- Platform -->
+              <Panel Width="157" Height="20"
+                     VerticalAlignment="Bottom"
+                     HorizontalAlignment="Right">
+                <TextBox Width="102" Height="20" Name="PlatformBox"
+                     MinHeight="20"
+                     VerticalAlignment="Center"
+                     HorizontalAlignment="Right"></TextBox>
+
+                <Label Width="50" Height="20"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"
+                       BorderThickness="0">Platform</Label>
+              </Panel>
+            </Panel>
+          </Panel>
+          
+          <!-- Finish Button -->
+          <Button Width="320" Height="36"
+                  VerticalAlignment="Bottom"
+                  Click="FinishButton_Click">Finish</Button>
+        </Panel>
+      </Panel>
+    </Panel>
+
+    <StackPanel.Styles>
+      <!-- Button -->
+      <Style Selector="Button">
+        <Setter Property="Background" Value="#e5e5e5"/>
+        <Setter Property="BorderBrush" Value="Gray"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Width" Value="184"/>
+        <Setter Property="Padding" Value="0"/>
+      </Style>
+
+      <!-- Label -->
+      <Style Selector="Label">
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="Gray"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="Width" Value="184"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+      </Style>
+
+      <!-- TextBox -->
+      <Style Selector="TextBox">
+        <Setter Property="Opacity" Value="1"/>
+        <Setter Property="BorderBrush" Value="Gray"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+      </Style>
+
+      <!-- ComboBox -->
+      <Style Selector="ComboBox">
+        <Setter Property="CornerRadius" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="FontSize" Value="12"/>
+      </Style>
+
+      <!-- CheckBox -->
+      <Style Selector="CheckBox">
+        <Setter Property="FontSize" Value="12"/>
+      </Style>
+
+      <!-- Button hover -->
+      <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="BorderBrush" Value="Black"/>
+      </Style>
+    </StackPanel.Styles>
+  </StackPanel>
+</Window>

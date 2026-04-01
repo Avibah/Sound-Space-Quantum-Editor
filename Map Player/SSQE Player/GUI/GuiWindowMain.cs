@@ -12,12 +12,12 @@ namespace SSQE_Player.GUI
         private readonly GuiLabel AccuracyLabel = new(930, 10, 60, 24, "", 28, true, Settings.color1.Value);
         private readonly GuiLabel ComboLabel = new(930, 35, 60, 24, "", 28, true, Settings.color1.Value);
         private readonly GuiLabel MissesLabel = new(930, 60, 60, 24, "", 28, true, Settings.color2.Value);
-        private readonly GuiLabel InfoLabel = new(10, 10, 100, 50, "QUIT: Escape or R\nRESTART: Tab\nPAUSE: Space\n\nOFFSET: Scroll\nUNFOCUS: CTRL+U\nFOCUS: LMB", 28, false, Settings.color2.Value);
+        private readonly GuiLabel InfoLabel = new(10, 10, 100, 50, "QUIT: Escape or R\nRESTART: Tab\nPAUSE: Space\n\nOFFSET: Scroll\nUNFOCUS: CTRL+U\nFOCUS: LMB", 20, false, Settings.color2.Value);
         private readonly GuiLabel PausedLabel = new(930, 980, 60, 60, "PAUSED", 72, true, Color.FromArgb(0, 127, 255));
         private readonly GuiLabel HitWindowTempoLabel = new(10, 1050, 60, 40, "", 28, false, Settings.color2.Value);
-        private readonly GuiLabel OffsetLabel = new(930, 1020, 60, 40, "", 28, true, Settings.color2.Value);
+        private readonly GuiLabel OffsetLabel = new(0, 1010, 1920, 40, "", 28, true, Settings.color2.Value);
         private readonly GuiLabel FPSLabel = new(1800, 1050, 60, 40, "", 28, false, Settings.color2.Value);
-        private readonly GuiLabel TimeLabel = new(0, 1050, 1920, 40, "", 28, true, Settings.color2.Value);
+        private readonly GuiLabel TimeLabel = new(0, 1045, 1920, 40, "", 28, true, Settings.color2.Value);
 
         private Matrix4 noteScale = Matrix4.CreateScale(1);
 

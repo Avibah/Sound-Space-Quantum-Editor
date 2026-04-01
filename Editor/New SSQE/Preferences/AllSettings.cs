@@ -84,11 +84,12 @@ namespace New_SSQE.Preferences
         public static readonly Setting<string> rhythiaFolderPath = "";
         public static readonly Setting<string> novaPath = "";
         public static readonly Setting<string> novaFolderPath = "";
+        public static readonly Setting<string> phxmFolderPath = "";
         public static readonly Setting<string> replayPath = "";
         public static readonly Setting<string> playtestGame = "Rhythia";
         public static readonly Setting<ListSetting> cameraMode = new ListSetting(0, "half lock", "full lock", "spin");
         public static readonly Setting<ListSetting> modchartGame = new ListSetting(1, "Rhythia", "Novastra");
-        public static readonly Setting<ListSetting> exportType = new ListSetting(0, "Rhythia (SSPM)", "Novastra (NPK)", "SSQE (QEMZ)");
+        public static readonly Setting<ListSetting> exportType = new ListSetting(0, "Rhythia (SSPM)", "Rhythia (PHXM)", "Novastra (NPK)");
 
         public static readonly Setting<ListSetting> modchartStyle = new ListSetting(0, "Linear", "Sine", "Back", "Quad", "Quart", "Quint", "Bounce", "Elastic", "Exponential", "Circular", "Cubic");
         public static readonly Setting<ListSetting> modchartDirection = new ListSetting(0, "In", "Out");
@@ -176,6 +177,7 @@ namespace New_SSQE.Preferences
         public static readonly Setting<string> romanizedArtist = "";
         public static readonly Setting<string> romanizedTitle = "";
         public static readonly Setting<string> colorsetPath = "";
+        public static readonly Setting<string> phxmPlatform = "";
 
         public static readonly Setting<bool> debugMode = false;
         public static readonly Setting<bool> msaa = true;

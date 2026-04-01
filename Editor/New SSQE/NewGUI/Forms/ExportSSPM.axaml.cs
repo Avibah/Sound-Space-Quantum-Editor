@@ -46,19 +46,19 @@ namespace New_SSQE.NewGUI
         private string[] GetMappers()
         {
             if (MapperBox.Text == null)
-                return new string[] { "None" };
+                return ["None"];
 
             string[] mappers = MapperBox.Text.Split("\n");
             for (int i = 0; i < mappers.Length; i++)
                 mappers[i] = mappers[i].Replace("\r", "");
 
-            List<string> mappersList = new();
+            List<string> mappersList = [];
 
             foreach (string mapper in mappers)
                 if (!string.IsNullOrWhiteSpace(mapper))
                     mappersList.Add(mapper);
 
-            return mappersList.Count > 0 ? mappersList.ToArray() : new string[] { "None" };
+            return mappersList.Count > 0 ? [.. mappersList] : ["None"];
         }
 
         private string prevString = "";

@@ -23,6 +23,19 @@ namespace New_SSQE.NewMaps.Parsing
             return new(fix);
         }
 
+        public static string FixASCII(string str)
+        {
+            List<char> fix = [];
+
+            for (int i = 0; i < str.Length; i++)
+            {
+                if (str[i] >= (char)0x20 && str[i] <= (char)0x7E)
+                    fix.Add(str[i]);
+            }
+
+            return new([.. fix]);
+        }
+
         public static Dictionary<string, byte> Difficulties = new()
         {
             {"N/A", 0x00 },

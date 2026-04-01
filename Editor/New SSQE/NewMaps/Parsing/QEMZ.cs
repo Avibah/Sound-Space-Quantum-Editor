@@ -10,18 +10,17 @@ namespace New_SSQE.NewMaps.Parsing
     {
         public static bool Read(string path)
         {
-            string temp = Assets.TempAt("qemz");
-            if (!Directory.Exists(temp))
-                Directory.CreateDirectory(temp);
-            foreach (string file in Directory.GetFiles(temp))
-                File.Delete(file);
+            string[] files = Directory.GetFiles(path);
 
-            ZipFile.ExtractToDirectory(path, temp);
-
-            foreach (string file in Directory.GetFiles(temp))
+            for (int i = 0; i < files.Length; i++)
             {
-                if (Path.GetExtension(file) == ".qem")
-                    QEM.Read(file);
+                QEM.Read(files[i]);
+
+                if (i + 1 < files.Length)
+                {
+                    Mapping.CacheCurrent();
+                    Mapping.Current = new();
+                }
             }
 
             return true;

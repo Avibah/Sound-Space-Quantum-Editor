@@ -247,6 +247,12 @@ namespace New_SSQE.NewMaps.Parsing
                         case "songArtist":
                             Settings.songArtist.Value = value.GetString() ?? "";
                             break;
+                        case "romanizedTitle":
+                            Settings.romanizedTitle.Value = value.GetString() ?? "";
+                            break;
+                        case "romanizedArtist":
+                            Settings.romanizedArtist.Value = value.GetString() ?? "";
+                            break;
                         case "mapCreator":
                             Settings.mapCreator.Value = value.GetString() ?? "";
                             break;
@@ -264,6 +270,9 @@ namespace New_SSQE.NewMaps.Parsing
                             break;
                         case "novaIcon":
                             Settings.novaIcon.Value = value.GetString() ?? "";
+                            break;
+                        case "phxmPlatform":
+                            Settings.phxmPlatform.Value = value.GetString() ?? "";
                             break;
 
                         case "rating":
@@ -351,12 +360,15 @@ namespace New_SSQE.NewMaps.Parsing
                 {"songOffset", Settings.songOffset.Value },
                 {"songTitle", Settings.songTitle.Value },
                 {"songArtist", Settings.songArtist.Value },
+                {"romanizedTitle", Settings.romanizedTitle.Value },
+                {"romanizedArtist", Settings.romanizedArtist.Value },
                 {"mapCreator", Settings.mapCreator.Value },
                 {"mapCreatorPersonalLink", Settings.mapCreatorPersonalLink.Value },
                 {"previewStartTime", Settings.previewStartTime.Value },
                 {"previewDuration", Settings.previewDuration.Value },
                 {"novaCover", Settings.novaCover.Value },
                 {"novaIcon", Settings.novaIcon.Value },
+                {"phxmPlatform", Settings.phxmPlatform.Value },
 
                 {"rating", Settings.rating.Value },
                 {"useVideo", Settings.useVideo.Value },

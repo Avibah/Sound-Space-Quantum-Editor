@@ -22,8 +22,26 @@ namespace New_SSQE.NewGUI.Base
         private bool textWrapped = false;
         private string prefix = "";
         private string suffix = "";
+        private Vector2 textPadding = Vector2.Zero;
 
-        public string RenderedText => prefix + (textWrapped ? FontRenderer.WrapText(text, TextSize, font, rect.Width) : text) + suffix;
+        private int curLine = 0;
+        protected int CurLine
+        {
+            get => curLine;
+            set
+            {
+                if (value != curLine)
+                {
+                    curLine = value;
+                    Update();
+                }
+            }
+        }
+
+        protected int MaxLines => (int)(rect.Height / FontRenderer.GetHeight(textSize, font));
+        protected string WrappedText => FontRenderer.WrapText(text, TextSize, font, rect.Width);
+
+        public string RenderedText => prefix + (textWrapped ? FontRenderer.WrapText(text, TextSize, font, rect.Width, curLine, MaxLines) : text) + suffix;
 
         private CenterMode centerMode = CenterMode.XY;
         private Vector4[] verts = [];
@@ -38,6 +56,7 @@ namespace New_SSQE.NewGUI.Base
         private string? startFont = null;
         private float? startAlpha = null;
         private Color? startTextColor = null;
+        private Vector2? startTextPadding = null;
 
         public bool TextWrapped
         {
@@ -168,6 +187,21 @@ namespace New_SSQE.NewGUI.Base
             }
         }
 
+        public Vector2 TextPadding
+        {
+            get => textPadding;
+            set
+            {
+                if (value != textPadding)
+                {
+                    textPadding = value;
+                    shouldUpdate = true;
+                }
+
+                startTextPadding ??= value;
+            }
+        }
+
         public TextControl(float x, float y, float w, float h) : base(x, y, w, h) { }
 
         public override void Update()
@@ -184,11 +218,16 @@ namespace New_SSQE.NewGUI.Base
                 float width = FontRenderer.GetWidth(curText, TextSize, font);
                 textX = rect.X + rect.Width / 2 - width / 2 + xOffset;
             }
+            else
+                textX += textPadding.X;
+
             if (CenterMode.HasFlag(CenterMode.Y))
             {
                 float height = FontRenderer.GetHeight(TextSize, font) * curText.Split('\n').Length;
                 textY = rect.Y + rect.Height / 2 - height / 2 + yOffset;
             }
+            else
+                textY += textPadding.Y;
 
             verts = FontRenderer.Print(textX, textY, curText, TextSize, font);
         }
@@ -217,6 +256,7 @@ namespace New_SSQE.NewGUI.Base
             font = startFont ?? font;
             alpha = startAlpha ?? alpha;
             textColor = startTextColor ?? textColor;
+            textPadding = startTextPadding ?? textPadding;
 
             shouldUpdate = true;
         }
@@ -237,11 +277,16 @@ namespace New_SSQE.NewGUI.Base
                 tx += rect.Width / 2;
                 tw = tw / 2 + rect.Width / 2;
             }
+            else
+                tx += textPadding.X;
+
             if (CenterMode.HasFlag(CenterMode.Y))
             {
                 ty += rect.Height / 2;
                 th = th / 2 + rect.Height / 2;
             }
+            else
+                ty += textPadding.Y;
 
             tw += xOffset;
             th += yOffset;

@@ -12,7 +12,7 @@ namespace New_SSQE.NewMaps
 {
     internal class Mapping
     {
-        public static List<Map> Cache = [];
+        public static readonly List<Map> Cache = [];
         private static Map _current = new();
         public static Map Current
         {
@@ -396,9 +396,14 @@ namespace New_SSQE.NewMaps
                         extension = Path.GetExtension(data);
                     }
 
-                    if (extension == ".rhym")
-                        data = Unzip(data);
-                    if (extension == ".phxm")
+                    if (extension == ".zip")
+                    {
+                        string vmap = Unzip(data);
+                        data = Path.Combine(vmap, "meta.json");
+                        extension = Path.GetExtension(data);
+                    }
+
+                    if (extension == ".phxm" || extension == ".qemz")
                         data = Unzip(data);
 
                     return extension switch
@@ -411,6 +416,7 @@ namespace New_SSQE.NewMaps
                         ".qem" => QEM.Read(data),
                         ".qemz" => QEMZ.Read(data),
                         ".json" when PHZ.IsValid(data) => PHZ.Read(data),
+                        ".json" when VMAP.IsValid(data) => VMAP.Read(data),
 
                         _ => throw new NotSupportedException($"File extension not supported for loading: {extension}")
                     };

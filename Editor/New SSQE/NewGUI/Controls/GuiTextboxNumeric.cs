@@ -112,6 +112,8 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void TextInput(string str)
         {
+            if (IsReadOnly)
+                return;
             if (isPositive && str == "-")
                 return;
 

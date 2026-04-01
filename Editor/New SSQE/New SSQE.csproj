@@ -52,6 +52,9 @@
     <Compile Update="NewGUI\Forms\BPMTapper.axaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
+    <Compile Update="NewGUI\Forms\ExportPHXM.axaml.cs">
+      <DependentUpon>ExportPHXM.axaml</DependentUpon>
+    </Compile>
     <Compile Update="NewGUI\Forms\ExportNOVA.axaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>

@@ -290,13 +290,18 @@ namespace New_SSQE.NewMaps
         public void IncrementZoom(float increment)
         {
             float zoom = Zoom;
-            float step = zoom < 0.1f || (zoom == 0.1f && increment < 0) ? 0.01f : 0.1f;
+            float step = 0.1f;
+
+            if (zoom < 0.1f || (zoom == 0.1f && increment < 0))
+                step /= 10f;
+            if (zoom > 10f || (zoom == 10f && increment > 0))
+                step *= 2f;
 
             zoom = (float)Math.Round(zoom + increment * step, 2);
             if (zoom > 0.1f)
                 zoom = (float)Math.Round(zoom * 10) / 10;
 
-            Zoom = Math.Clamp(zoom, 0.01f, 10f);
+            Zoom = Math.Clamp(zoom, 0.01f, 20f);
         }
 
         public void CopyBookmarks()

@@ -3,12 +3,76 @@ using New_SSQE.Preferences;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.Services;
+using OpenTK.Mathematics;
 
 namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiTextbox : InteractiveControl
     {
         protected int cursorPos = 0;
+        protected int topLine = 0;
+
+        protected Vector2i RenderedCursor
+        {
+            get
+            {
+                int actualIndex = 0;
+                int line = 0;
+                int subLine = 0;
+                string rendered = WrappedText;
+
+                for (int i = 0; i < cursorPos; i++)
+                {
+                    if (i >= Text.Length)
+                    {
+                        subLine++;
+                        continue;
+                    }
+
+                    while (Text[i] != rendered[actualIndex])
+                    {
+                        actualIndex++;
+                        line++;
+                        subLine = 0;
+                    }
+
+                    if (Text[i] == '\n')
+                    {
+                        line++;
+                        subLine = 0;
+                    }
+                    else
+                        subLine++;
+
+                    actualIndex++;
+                }
+
+                return (subLine, line);
+            }
+        }
+
+        protected int GetCursorPos(Vector2i relativeCoords)
+        {
+            int line = 0;
+            int renderPos = 0;
+            int actualPos = 0;
+
+            string rendered = WrappedText;
+
+            while (line < relativeCoords.Y)
+            {
+                if (Text[actualPos] == rendered[renderPos])
+                    actualPos++;
+                if (rendered[renderPos] == '\n')
+                    line++;
+
+                renderPos++;
+            }
+
+            int inLine = relativeCoords.Y < WrappedText.Length ? Math.Min(WrappedText[relativeCoords.Y], relativeCoords.X) : 0;
+
+            return actualPos + inLine;
+        }
 
         private bool cursorShowing = false;
         private float cursorTime = 0;
@@ -31,6 +95,9 @@ namespace New_SSQE.NewGUI.Controls
             }
         }
 
+        public bool IsMultiLine = false;
+        public bool IsReadOnly = false;
+
         public GuiTextbox(float x, float y, float w, float h) : base(x, y, w, h)
         {
             Style = ControlStyle.Textbox_Colored;
@@ -46,27 +113,39 @@ namespace New_SSQE.NewGUI.Controls
             float[] fill = GLVerts.Squircle(rect, cornerDetail, cornerRadius, Style.Primary);
             float[] outline = GLVerts.SquircleOutline(rect, lineThickness, cornerDetail, cornerRadius, Style.Tertiary);
             if (!cursorShowing)
-                return [..fill, ..outline];
+                return [.. fill, .. outline];
 
+            Vector2i cursor = RenderedCursor;
+            string renderedText = WrappedText;
+            string[] lines = renderedText.Split('\n');
             string textBefore = "";
-            if (cursorPos >= 0)
-                textBefore = cursorPos >= Text.Length ? Text : Text[..cursorPos];
-            cursorPos = Math.Min(cursorPos, Text.Length);
+
+            if (cursor.Y <= lines.Length)
+                textBefore = lines[cursor.Y][..cursor.X];
+
+            cursorPos = Math.Clamp(cursorPos, 0, Text.Length);
 
             float textBeforeWidth = FontRenderer.GetWidth(textBefore, TextSize, Font);
-            float textX = textBeforeWidth;
-            float textY = 0;
-            float textW = FontRenderer.GetWidth(Text, TextSize, Font);
+            float textX = textBeforeWidth + rect.X;
+            float textY = rect.Y;
+            float textW = FontRenderer.GetWidth(renderedText, TextSize, Font);
             float textH = FontRenderer.GetHeight(TextSize, Font);
 
             if (CenterMode.HasFlag(CenterMode.X))
-                textX += rect.X + rect.Width / 2 - textW / 2;
+                textX += rect.Width / 2 - textW / 2;
+            else
+                textX += TextPadding.X;
+
             if (CenterMode.HasFlag(CenterMode.Y))
-                textY += rect.Y + rect.Height / 2 - textH / 2;
+                textY += rect.Height / 2 - textH * lines.Length / 2;
+            else
+                textY += TextPadding.Y;
 
-            float[] cursor = GLVerts.Line(textX, textY, textX, textY + textH, 2f, Style.Secondary);
+            textY += textH * (cursor.Y - CurLine);
 
-            return [..fill, ..outline, ..cursor];
+            float[] result = GLVerts.Line(textX, textY, textX, textY + textH, 2f, Style.Secondary);
+
+            return [.. fill, .. outline, .. result];
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)
@@ -100,7 +179,7 @@ namespace New_SSQE.NewGUI.Controls
                         Clipboard.SetText(Text);
                     break;
 
-                case Keys.V when ctrl:
+                case Keys.V when ctrl && !IsReadOnly:
                     string clipboard = Clipboard.GetText();
 
                     if (!string.IsNullOrWhiteSpace(clipboard))
@@ -111,7 +190,7 @@ namespace New_SSQE.NewGUI.Controls
 
                     break;
 
-                case Keys.X when ctrl:
+                case Keys.X when ctrl && !IsReadOnly:
                     if (!string.IsNullOrWhiteSpace(Text))
                         Clipboard.SetText(Text);
                     Text = "";
@@ -125,6 +204,10 @@ namespace New_SSQE.NewGUI.Controls
                     else
                         cursorPos--;
 
+                    Vector2i renderedL = RenderedCursor;
+                    if (renderedL.Y < CurLine)
+                        CurLine = renderedL.Y;
+
                     break;
 
                 case Keys.Right:
@@ -133,9 +216,44 @@ namespace New_SSQE.NewGUI.Controls
                     else
                         cursorPos++;
 
+                    Vector2i renderedR = RenderedCursor;
+                    if (renderedR.Y >= CurLine + MaxLines)
+                        CurLine = renderedR.Y - MaxLines;
+
                     break;
 
-                case Keys.Backspace:
+                case Keys.Up:
+                    Vector2i cursorU = RenderedCursor;
+                    
+                    if (cursorU.Y == 0)
+                        cursorPos = 0;
+                    else
+                    {
+                        Vector2i newPos = (cursorU.X, cursorU.Y - 1);
+                        if (newPos.Y < CurLine)
+                            CurLine = newPos.Y;
+                        cursorPos = GetCursorPos(newPos);
+                    }
+
+                    break;
+
+                case Keys.Down:
+                    Vector2i cursorD = RenderedCursor;
+                    string[] rendered = WrappedText.Split('\n');
+
+                    if (cursorD.Y == rendered.Length - 1)
+                        cursorPos = rendered[cursorD.Y].Length;
+                    else
+                    {
+                        Vector2i newPos = (cursorD.X, cursorD.Y + 1);
+                        if (newPos.Y >= CurLine + MaxLines)
+                            CurLine = newPos.Y - MaxLines;
+                        cursorPos = GetCursorPos(newPos);
+                    }
+
+                    break;
+
+                case Keys.Backspace when !IsReadOnly:
                     if (ctrl)
                     {
                         int index = Math.Max(IndexOf(Text, cursorPos - 1, false), 0);
@@ -152,7 +270,7 @@ namespace New_SSQE.NewGUI.Controls
 
                     break;
 
-                case Keys.Delete:
+                case Keys.Delete when !IsReadOnly:
                     if (ctrl)
                     {
                         int index = Math.Max(IndexOf(Text, cursorPos + 1, true), 0);
@@ -165,10 +283,16 @@ namespace New_SSQE.NewGUI.Controls
 
                     break;
 
-                case Keys.Enter:
-                case Keys.KeyPadEnter:
-                    Focused = false;
-                    InvokeTextEntered(new(Text));
+                case Keys.Enter when !IsReadOnly:
+                case Keys.KeyPadEnter when !IsReadOnly:
+                    if (IsMultiLine)
+                        TextInput("\n");
+                    else
+                    {
+                        Focused = false;
+                        InvokeTextEntered(new(Text));
+                    }
+
                     break;
 
                 case Keys.Escape:
@@ -181,7 +305,7 @@ namespace New_SSQE.NewGUI.Controls
 
         public override void TextInput(string str)
         {
-            if (!Focused)
+            if (!Focused || IsReadOnly)
                 return;
             base.TextInput(str);
 
@@ -211,7 +335,7 @@ namespace New_SSQE.NewGUI.Controls
             {
                 if (current + 1 < set.Length)
                 {
-                    int store = set.IndexOf(' ', current + 1);
+                    int store = Math.Max(set.IndexOf(' ', current + 1), set.IndexOf('\n', current + 1));
 
                     if (next && store < 0)
                         store = Text.Length;
@@ -244,6 +368,22 @@ namespace New_SSQE.NewGUI.Controls
             posX = Math.Clamp(posX, 0, textWidth);
             cursorPos = (int)Math.Floor(posX / letterWidth + 0.3f);
             shouldUpdate = true;
+        }
+
+        public override void MouseScroll(float x, float y, float delta)
+        {
+            base.MouseScroll(x, y, delta);
+
+            if (delta < 0)
+            {
+                if (CurLine > 0)
+                    CurLine--;
+            }
+            else
+            {
+                if (CurLine + MaxLines < WrappedText.Split('\n').Length - 1)
+                    CurLine++;
+            }
         }
     }
 }

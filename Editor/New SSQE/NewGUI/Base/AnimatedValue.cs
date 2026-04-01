@@ -8,6 +8,7 @@ namespace New_SSQE.NewGUI.Base
         public bool Reversed { get; set; } = false;
         public float Value { get; private set; } = 0;
         public float Scale { get; set; } = 1;
+        public float Speed { get; set; } = 1;
         public EasingStyle Style { get; set; } = EasingStyle.Exponential;
         public EasingDirection Direction { get; set; } = EasingDirection.Out;
 
@@ -49,7 +50,7 @@ namespace New_SSQE.NewGUI.Base
             else
                 frametime *= 1;
 
-            CurrentTime += frametime;
+            CurrentTime += frametime * Speed;
         }
     }
 }

@@ -61,7 +61,9 @@ namespace New_SSQE.NewGUI
 
             Settings.songOffset.Value = NPK.Metadata["songOffset"];
             Settings.songTitle.Value = NPK.Metadata["songTitle"];
+            Settings.romanizedTitle.Value = FormatUtils.FixASCII(Settings.songTitle.Value);
             Settings.songArtist.Value = NPK.Metadata["songArtist"];
+            Settings.romanizedArtist.Value = FormatUtils.FixASCII(Settings.songArtist.Value);
             Settings.mapCreator.Value = NPK.Metadata["mapCreator"];
             Settings.mapCreatorPersonalLink.Value = NPK.Metadata["mapCreatorPersonalLink"];
             Settings.previewStartTime.Value = NPK.Metadata["previewStartTime"];

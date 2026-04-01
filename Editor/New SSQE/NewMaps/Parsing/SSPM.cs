@@ -18,10 +18,7 @@ namespace New_SSQE.NewMaps.Parsing
             string fileTypeSignature = Encoding.ASCII.GetString(reader.ReadBytes(4));
 
             if (fileTypeSignature != "SS+m")
-            {
-                MessageDialog.Show("File type not recognized or supported\nCurrently supported: SSPM v1/v2", MBoxIcon.Warning, MBoxButtons.OK);
-                return false;
-            }
+                throw new FormatException($"Unknown file type: {fileTypeSignature} | Supported: SS+m V1/V2");
 
             ushort formatVersion = reader.ReadUInt16();
 
@@ -313,10 +310,7 @@ namespace New_SSQE.NewMaps.Parsing
                 return true;
             }
             else
-            {
-                MessageDialog.Show("File version not recognized or supported\nCurrently supported: SSPM v1/v2", MBoxIcon.Warning, MBoxButtons.OK);
-                return false;
-            }
+                throw new FormatException($"Unknown file version: {formatVersion} | Supported: SS+m V1/V2");
         }
 
         public static bool Write(string path)

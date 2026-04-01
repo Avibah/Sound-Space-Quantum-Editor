@@ -237,21 +237,6 @@ namespace New_SSQE.NewGUI.Input
 
                     break;
 
-                case "openTimings":
-                    TimingsWindow.ShowWindow();
-
-                    break;
-
-                case "openBookmarks":
-                    BookmarksWindow.ShowWindow();
-
-                    break;
-
-                case "drawBezier":
-                    Patterns.RunBezier();
-
-                    break;
-
                 case "anchorNode":
                     if (Mapping.Current.Notes.Selected.Count > 0)
                         Mapping.Current.Notes.Modify_Edit("ANCHOR NODE[S]", n => n.Anchored ^= true);

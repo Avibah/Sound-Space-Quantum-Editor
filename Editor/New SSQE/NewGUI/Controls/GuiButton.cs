@@ -47,7 +47,7 @@ namespace New_SSQE.NewGUI.Controls
                 EndColor = Color.FromArgb(11, 255, 255, 255)
             };
 
-            Animator.AddKey("HoverTime", 0.075f, 1, EasingStyle.Linear).Reversed = true;
+            Animator.AddKey("HoverTime", 0.05f, 1, EasingStyle.Linear).Reversed = true;
         }
 
         public override float[] Draw()
@@ -87,12 +87,14 @@ namespace New_SSQE.NewGUI.Controls
         {
             base.MouseEnter(x, y);
             Animator.SetReversed(false);
+            Animator.SetSpeed(1);
         }
 
         public override void MouseLeave(float x, float y)
         {
             base.MouseLeave(x, y);
             Animator.SetReversed(true);
+            Animator.SetSpeed(0.35f);
         }
 
         private string keybind = "";

@@ -310,7 +310,9 @@ namespace New_SSQE.NewMaps.Parsing
             string icon = "";
 
             Settings.songTitle.Value = "";
+            Settings.romanizedTitle.Value = "";
             Settings.songArtist.Value = "";
+            Settings.romanizedArtist.Value = "";
             Settings.mapCreator.Value = "";
             Settings.mapCreatorPersonalLink.Value = "";
             Settings.previewStartTime.Value = "";
@@ -335,9 +337,11 @@ namespace New_SSQE.NewMaps.Parsing
                                 {
                                     case "songTitle":
                                         Settings.songTitle.Value = value.GetString() ?? "";
+                                        Settings.romanizedTitle.Value = FormatUtils.FixASCII(Settings.songTitle.Value);
                                         break;
                                     case "songArtist":
                                         Settings.songArtist.Value = value.GetString() ?? "";
+                                        Settings.romanizedArtist.Value = FormatUtils.FixASCII(Settings.songArtist.Value);
                                         break;
                                     case "mapCreator":
                                         Settings.mapCreator.Value = value.GetString() ?? "";

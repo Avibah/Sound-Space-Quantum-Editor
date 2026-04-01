@@ -45,6 +45,21 @@ namespace New_SSQE.NewGUI.Base
         }
         public void SetReversed(string key, bool reversed) => _values[key].Reversed = reversed;
 
+        public void SetScale(float scale)
+        {
+            foreach (AnimatedValue value in _values.Values)
+                value.Scale = scale;
+        }
+        public void SetScale(string key, float scale) => _values[key].Scale = scale;
+
+        public void SetSpeed(float speed)
+        {
+            foreach (AnimatedValue value in _values.Values)
+                value.Speed = speed;
+        }
+        public void SetSpeed(string key, float speed) => _values[key].Speed = speed;
+
+
         public bool Process(float frametime)
         {
             bool updated = false;

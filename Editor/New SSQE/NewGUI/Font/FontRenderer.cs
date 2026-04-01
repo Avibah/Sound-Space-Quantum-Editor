@@ -160,7 +160,7 @@ namespace New_SSQE.NewGUI.Font
             return string.Join('\n', lines);
         }
 
-        public static string WrapText(string text, float textSize, string font, float width)
+        public static string WrapText(string text, float textSize, string font, float width, int curLine = 0, int maxLines = int.MaxValue)
         {
             List<string> lines = [];
 
@@ -169,6 +169,14 @@ namespace New_SSQE.NewGUI.Font
                 string result = WrapLine(line, textSize, font, width);
                 lines.Add(result);
             }
+
+            if (lines.Count > curLine)
+                lines = lines[curLine..];
+            else
+                lines = [];
+
+            if (lines.Count >= maxLines)
+                lines = lines[..maxLines];
 
             return string.Join('\n', lines);
         }
