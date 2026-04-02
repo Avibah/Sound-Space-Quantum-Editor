@@ -83,7 +83,7 @@ namespace New_SSQE
             NumberOfSamples = samples,
             Icon = GetWindowIcon(),
             Flags = DebugVersion ? ContextFlags.Debug : 0,
-            //TransparentFramebuffer = true,
+            //TransparentFramebuffer = true, // o.o
 
             APIVersion = Platforms.RequestedAPI
         })

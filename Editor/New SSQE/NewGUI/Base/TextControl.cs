@@ -41,7 +41,7 @@ namespace New_SSQE.NewGUI.Base
         protected int MaxLines => (int)(rect.Height / FontRenderer.GetHeight(textSize, font));
         protected string WrappedText => FontRenderer.WrapText(text, TextSize, font, rect.Width);
 
-        public string RenderedText => prefix + (textWrapped ? FontRenderer.WrapText(text, TextSize, font, rect.Width, curLine, MaxLines) : text) + suffix;
+        public string RenderedText => prefix + (textWrapped ? FontRenderer.WrapText(text, TextSize, font, rect.Width/*, curLine, MaxLines*/) : text) + suffix;
 
         private CenterMode centerMode = CenterMode.XY;
         private Vector4[] verts = [];

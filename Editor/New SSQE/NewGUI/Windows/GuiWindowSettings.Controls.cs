@@ -308,7 +308,7 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 34,
             Style = ControlStyle.Checkbox_Uncolored
         };
-        public static readonly GuiLabel RestartLabel = new(700, 50, 200, 26)
+        public static readonly GuiLabel RestartLabel = new(700, -35, 200, 26)
         {
             Text = "Requires restart!",
             TextSize = 30,

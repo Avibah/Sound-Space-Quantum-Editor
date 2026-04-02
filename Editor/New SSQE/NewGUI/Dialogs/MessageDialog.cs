@@ -62,7 +62,7 @@ namespace New_SSQE.NewGUI.Dialogs
                 options.Add(new(198 + 85 * (i + offset), 128, 74, 24)
                 {
                     Text = buttonSplit[i],
-                    TextSize = 18,
+                    TextSize = 16,
                     TextColor = Color.Black,
                     TextWrapped = true,
                     Style = ControlStyle.Button_Light,

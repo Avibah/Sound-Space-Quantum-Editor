@@ -75,7 +75,7 @@ namespace New_SSQE.NewGUI.Base
             return updated;
         }
 
-        public AnimatedValue AddKey(string key, float duration, float scale = 1, EasingStyle style = EasingStyle.Exponential, EasingDirection direction = EasingDirection.Out)
+        public AnimatedValue AddKey(string key, float duration, float scale, EasingStyle style = EasingStyle.Exponential, EasingDirection direction = EasingDirection.Out)
         {
             AnimatedValue value = new()
             {

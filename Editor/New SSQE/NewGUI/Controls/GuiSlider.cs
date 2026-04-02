@@ -40,7 +40,7 @@ namespace New_SSQE.NewGUI.Controls
             prevValue = setting.Value.Value;
 
             Style = ControlStyle.Slider_Uncolored;
-            Animator.AddKey("HoverTime", 0.1f).Reversed = true;
+            Animator.AddKey("HoverTime", 0.1f, 1).Reversed = true;
         }
 
         public override float[] Draw()

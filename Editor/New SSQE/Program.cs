@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Hardware.Info;
 using New_SSQE.Misc;
 using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
@@ -13,6 +14,8 @@ namespace New_SSQE
 {
     internal class Program
     {
+        public static bool IsOtherWindowOpen => Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1;
+
         public static readonly CultureInfo Culture;
         public static readonly JsonSerializerOptions JsonOptions;
         public static readonly string Version = $"{Assembly.GetExecutingAssembly().GetName().Version}";
@@ -45,10 +48,25 @@ namespace New_SSQE
                 .UsePlatformDetect()
                 .SetupWithoutStarting();
 
-        public static bool IsOtherWindowOpen()
+        private static void LogSystemInfo()
         {
-            Process[] processes = Process.GetProcessesByName("Sound Space Quantum Editor");
-            return processes.Length > 1;
+            try
+            {
+                HardwareInfo hwInfo = new();
+                hwInfo.RefreshOperatingSystem();
+                hwInfo.RefreshCPUList();
+                hwInfo.RefreshVideoControllerList();
+
+                Logging.Log($"Operating System: {hwInfo.OperatingSystem.Name} - {hwInfo.OperatingSystem.Version}");
+                foreach (var cpu in hwInfo.CpuList)
+                    Logging.Log($"CPU: {cpu.Name}");
+                foreach (var controller in hwInfo.VideoControllerList)
+                    Logging.Log($"Video: {controller.Name}");
+            }
+            catch
+            {
+                Logging.Log("Failed to fetch system information", LogSeverity.WARN);
+            }
         }
 
         private static void RegisterCrash(object e)
@@ -108,7 +126,7 @@ If none of these work or aren't applicable, report the error through {Links.FEED
                                 File.Delete(file);
                             File.WriteAllText(file, string.Join(' ', final));
 
-                            if (final[0] == "open" && !IsOtherWindowOpen())
+                            if (final[0] == "open" && !IsOtherWindowOpen)
                             {
                                 CmdArgs.Parse(final);
                                 break;
@@ -132,7 +150,7 @@ If none of these work or aren't applicable, report the error through {Links.FEED
             {
                 try
                 {
-                    CmdArgs.Start(args, IsOtherWindowOpen());
+                    CmdArgs.Start(args, IsOtherWindowOpen);
                 }
                 catch (Exception ae)
                 {
@@ -153,7 +171,7 @@ If none of these work or aren't applicable, report the error through {Links.FEED
                     Logging.Log("Unobserved task exception occurred", LogSeverity.ERROR, e.Exception);
                 };
 
-                Logging.Log($"Operating System: {RuntimeInformation.OSDescription}");
+                LogSystemInfo();
                 Start();
 
                 Logging.Log("[Normal application exit]");
