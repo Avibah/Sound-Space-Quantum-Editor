@@ -527,13 +527,16 @@ namespace New_SSQE.NewGUI.Controls
 
             if (toPlay != lastPlayedObject)
             {
-                lastPlayedObject = toPlay;
-                
-                if (toPlay != null && MusicPlayer.IsPlaying && MainWindow.Focused)
+                float pos = toPlay?.Ms ?? 0;
+                float dist = Math.Abs(pos - currentTime);
+
+                if (toPlay != null && MusicPlayer.IsPlaying && MainWindow.Focused && dist < 200)
                 {
                     for (int i = 0; i < Math.Min(Settings.maxPolyphony.Value, polyphony); i++)
                         SoundPlayer.Play("hit");
                 }
+
+                lastPlayedObject = toPlay;
             }
 
             if (Settings.metronome.Value && MainWindow.Focused)
