@@ -20,21 +20,22 @@ namespace New_SSQE.NewGUI.Dialogs
 
             string[] filters = (Filter ?? "").Split('|');
             string name = filters[0];
-            string extensions = filters[1].Replace("*.", "").Replace(';', ',');
+            string[] extensions = filters[1].Replace("*.", "").Split(';');
+            string extensionStr = string.Join(',', extensions);
 
             string? result = null;
 
             try
             {
                 NfdStatus status = Nfd.SaveDialog(out result, new Dictionary<string, string> {
-                    { name, extensions}
+                    { name, extensionStr }
                 }, InitialFileName ?? "", InitialDirectory);
 
                 Logging.Log($"Save NFD status: {status} | {result}");
             }
             catch (Exception ex)
             {
-                Logging.Log($"Save NFD failed: {name} | {extensions}", LogSeverity.ERROR, ex);
+                Logging.Log($"Save NFD failed: {name} | {extensionStr}", LogSeverity.ERROR, ex);
                 GuiWindowEditor.ShowError("Failed to open dialog");
             }
 
@@ -42,7 +43,10 @@ namespace New_SSQE.NewGUI.Dialogs
 
             if (!string.IsNullOrWhiteSpace(result))
             {
+                if (string.IsNullOrWhiteSpace(Path.GetExtension(result)))
+                    result += extensions.Length > 0 ? $".{extensions[0]}" : "";
                 FileName = result;
+
                 return DialogResult.OK;
             }
             else
