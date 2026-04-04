@@ -9,7 +9,6 @@ using SoundFlow.Interfaces;
 using SoundFlow.Providers;
 using SoundFlow.Structs;
 using SoundFlow.Utils;
-using System.Resources;
 using Player = SoundFlow.Components.SoundPlayer;
 
 namespace New_SSQE.Audio
@@ -46,6 +45,7 @@ namespace New_SSQE.Audio
         {
             engine = new();
             engine.RegisterCodecFactory(ffmpegFactory);
+            engine.SetCodecPriority(ffmpegFactory.FactoryId, -1);
             engine.UpdateAudioDevicesInfo();
 
             device = engine.InitializePlaybackDevice(null, format, new MiniAudioDeviceConfig()
@@ -96,7 +96,7 @@ namespace New_SSQE.Audio
 
                 data = stereoData;
             }
-            
+
             float[] resampled = MathHelper.ResampleLinear(data, provider.FormatInfo?.ChannelCount ?? 2, provider.SampleRate, format.SampleRate);
             data = [];
 
@@ -112,8 +112,7 @@ namespace New_SSQE.Audio
                     resampled[i + 1] = mid;
                 }
             }
-
-            // hacky check for corrupted imports until i figure out why they break
+            
             for (int i = 0; i < resampled.Length; i++)
             {
                 if (float.IsNaN(resampled[i]))
