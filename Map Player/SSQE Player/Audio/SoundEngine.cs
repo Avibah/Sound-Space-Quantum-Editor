@@ -112,7 +112,6 @@ namespace SSQE_Player.Audio
                 }
             }
 
-            // hacky check for corrupted imports until i figure out why they break
             for (int i = 0; i < resampled.Length; i++)
             {
                 if (float.IsNaN(resampled[i]))

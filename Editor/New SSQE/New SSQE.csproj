@@ -16,6 +16,9 @@
     <PublishAot>false</PublishAot>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="C:\Users\Owner\.nuget\packages\soundflow\1.4.0\contentFiles\any\net8.0\STATEMENT.md" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove=".gitignore" />
   </ItemGroup>
 

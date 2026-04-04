@@ -25,6 +25,7 @@ namespace SSQE_Player
         public static Setting<float> noteScale = 1f;
         public static Setting<float> cursorScale = 1f;
         public static Setting<float> musicOffset = 0;
+        public static Setting<float> maxPolyphony = 1;
 
         public static Setting<ListSetting> cameraMode = new ListSetting("half lock", "half lock", "full lock", "spin");
         public static Setting<string> hitSound = "hit";

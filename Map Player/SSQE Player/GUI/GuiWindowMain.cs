@@ -60,9 +60,7 @@ namespace SSQE_Player.GUI
 
         public int Offset;
 
-        private int prevPlayed = -1;
-        private int lastHit = -1;
-
+        private int frameHit = 0;
         private bool[] noteSet;
 
         public GuiWindowMain(int startIndex) : base(0, 0, MainWindow.Instance.Size.X, MainWindow.Instance.Size.Y)
@@ -123,6 +121,8 @@ namespace SSQE_Player.GUI
 
         public override void Render(float frametime)
         {
+            frameHit = 0;
+
             if (Resetting)
                 resetTimer += frametime;
             else
@@ -168,11 +168,8 @@ namespace SSQE_Player.GUI
                 time = 0;
             }
 
-            if (lastHit != prevPlayed)
-            {
+            for (int i = 0; i < Math.Min(frameHit, Settings.maxPolyphony.Value); i++)
                 SoundPlayer.Play(Settings.hitSound.Value);
-                prevPlayed = lastHit;
-            }
 
             base.Render(frametime);
         }
@@ -337,7 +334,7 @@ namespace SSQE_Player.GUI
         {
             health = MathHelper.Clamp(health + healthRegen, 0, maxHealth);
 
-            lastHit = index;
+            frameHit++;
 
             hits++;
             combo++;
