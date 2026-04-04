@@ -44,6 +44,7 @@ namespace SSQE_Player.Audio
         {
             engine = new();
             engine.RegisterCodecFactory(ffmpegFactory);
+            engine.SetCodecPriority(ffmpegFactory.FactoryId, -1);
             engine.UpdateAudioDevicesInfo();
 
             device = engine.InitializePlaybackDevice(null, format, new MiniAudioDeviceConfig()
