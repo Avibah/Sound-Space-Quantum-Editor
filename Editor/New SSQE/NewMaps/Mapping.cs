@@ -190,7 +190,6 @@ namespace New_SSQE.NewMaps
 
             static bool FinishLoad()
             {
-                MusicPlayer.Volume = Settings.masterVolume.Value.Value;
                 Settings.currentTime.Value.Max = (float)MusicPlayer.TotalTime.TotalMilliseconds;
                 Settings.currentTime.Value.Step = (float)MusicPlayer.TotalTime.TotalMilliseconds / 2000f;
 

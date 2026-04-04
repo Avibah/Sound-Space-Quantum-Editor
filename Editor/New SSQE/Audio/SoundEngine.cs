@@ -1,4 +1,5 @@
 ﻿using New_SSQE.Preferences;
+using New_SSQE.Services;
 using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Backends.MiniAudio.Devices;
@@ -201,6 +202,47 @@ namespace New_SSQE.Audio
 
             foreach (string sound in sounds)
                 InitializeSound(sound);
+        }
+
+        public static bool EncodeMusic(string filename)
+        {
+            try
+            {
+                if (prevMusic == null || prevMusic.DataProvider is not TempoProvider provider)
+                    return false;
+
+                using Stream stream = File.OpenWrite(filename);
+                ISoundEncoder? encoder = ffmpegFactory.CreateEncoder(stream, "mp3", format);
+                if (encoder == null)
+                    return false;
+
+                provider.Seek(0);
+
+                float[] buffer = new float[SAMPLE_RATE];
+                int samples = 0;
+
+                while ((samples = provider.ReadBytesRaw(buffer)) > 0)
+                {
+                    float[] data = buffer;
+
+                    if (samples < buffer.Length)
+                    {
+                        data = new float[samples];
+                        Array.Copy(buffer, data, samples);
+                    }
+
+                    encoder.Encode(data);
+                }
+
+                encoder.Dispose();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logging.Log("MP3 encoding failed", LogSeverity.ERROR, ex);
+            }
+
+            return false;
         }
 
         public static void Dispose()

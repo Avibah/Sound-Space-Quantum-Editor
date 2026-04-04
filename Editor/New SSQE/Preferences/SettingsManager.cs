@@ -228,7 +228,6 @@ namespace New_SSQE.Preferences
         {
             MainWindow.Instance.UpdateFPS(useVSync.Value ? VSyncMode.On : VSyncMode.Off, fpsLimit.Value.Value);
 
-            MusicPlayer.Volume = masterVolume.Value.Value;
             SoundPlayer.Volume = sfxVolume.Value.Value;
 
             RefreshKeyMapping();

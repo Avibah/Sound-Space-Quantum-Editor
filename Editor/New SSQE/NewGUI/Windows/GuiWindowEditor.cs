@@ -295,7 +295,6 @@ namespace New_SSQE.NewGUI.Windows
                             Mapping.Current.SoundID = id;
 
                             MusicPlayer.Load(dest);
-                            MusicPlayer.Volume = Settings.masterVolume.Value.Value;
 
                             if (Mapping.Current.FileName != null)
                                 Mapping.Save();
@@ -484,8 +483,7 @@ namespace New_SSQE.NewGUI.Windows
             };
 
             MusicMute.LeftClick += (s, e) => MusicPlayer.Volume = Settings.masterVolume.Value.Value;
-
-            //ConvertAudio.LeftClick += (s, e) => MusicPlayer.ConvertToMP3();
+            ConvertAudio.LeftClick += (s, e) => MusicPlayer.ConvertToMP3();
         }
 
         public override void Render(float mousex, float mousey, float frametime)
