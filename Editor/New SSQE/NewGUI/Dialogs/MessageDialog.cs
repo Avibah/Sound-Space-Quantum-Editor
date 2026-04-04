@@ -45,7 +45,7 @@ namespace New_SSQE.NewGUI.Dialogs
                 TextColor = Color.Black,
                 TextWrapped = true,
                 CenterMode = CenterMode.Y,
-                Font = "semibold"
+                Font = "semibold-s"
             };
 
             Modal = true;
@@ -62,14 +62,14 @@ namespace New_SSQE.NewGUI.Dialogs
                 options.Add(new(198 + 85 * (i + offset), 128, 74, 24)
                 {
                     Text = buttonSplit[i],
-                    TextSize = 16,
+                    TextSize = 18,
                     TextColor = Color.Black,
                     TextWrapped = true,
                     Style = ControlStyle.Button_Light,
                     CornerRadius = 0,
                     Gradient = null,
                     LineThickness = 0.5f,
-                    Font = "semibold"
+                    Font = "semibold-s"
                 });
 
                 results.Add(buttonSplit[i] switch

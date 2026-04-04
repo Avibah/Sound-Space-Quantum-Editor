@@ -22,13 +22,19 @@ namespace New_SSQE.NewGUI.Font
             {"square", TextureUnit.Texture14 },
             {"semibold", TextureUnit.Texture13 },
             {"unicode", TextureUnit.Texture12 },
+            {"main-s", TextureUnit.Texture11 },
+            {"square-s", TextureUnit.Texture10 },
+            {"semibold-s", TextureUnit.Texture9 }
         };
 
         private static readonly Dictionary<string, StbFont> fonts = new()
         {
             {"main", new("main", fontUnits["main"]) },
             {"square", new("square", fontUnits["square"]) },
-            {"semibold", new("semibold", fontUnits["semibold"]) }
+            {"semibold", new("semibold", fontUnits["semibold"]) },
+            {"main-s", new("main", fontUnits["main-s"], 24) },
+            {"square-s", new("square", fontUnits["square-s"], 24) },
+            {"semibold-s", new("semibold", fontUnits["semibold-s"], 24) }
         };
 
         public static Vector4[] Print(float x, float y, string text, float textSize, string font)

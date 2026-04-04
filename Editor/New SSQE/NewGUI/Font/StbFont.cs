@@ -10,14 +10,12 @@ namespace New_SSQE.NewGUI.Font
     {
         // Standard ASCII range: 128 (why was the old editor's range 400)
         public static readonly int CharRange = 128;
-        // Character size initially rendered to be scaled later
-        // Greater values are smoother but take more memory
-        private static readonly int OriginSize = 128;
         // Pixels between each character in rendered layout
         // Needs to be above 0 to ensure no ghost pixels appear while rendering
         // Recommended: 4
         private static readonly int CharSpacing = 4;
 
+        private readonly int OriginSize;
         private readonly int[] Extents;
         private readonly int[] Bearings;
         private readonly int[] YOffsets;
@@ -43,8 +41,10 @@ namespace New_SSQE.NewGUI.Font
         // Otherwise extract the handle via StbFont.Handle and manage switching elsewhere
         // TODO: bake the font instead of making a whole skbitmap thing for it, cache the metrics
         // for unicode, check test/archives for link
-        public unsafe StbFont(string font, TextureUnit unit = TextureUnit.Texture15)
+        public unsafe StbFont(string font, TextureUnit unit = TextureUnit.Texture15, int originSize = 128)
         {
+            OriginSize = originSize;
+
             YOffsets = new int[CharRange];
             Extents = new int[CharRange];
             Bearings = new int[CharRange];
