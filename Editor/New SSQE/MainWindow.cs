@@ -70,6 +70,7 @@ namespace New_SSQE
         private static readonly GLDebugProc DebugMessageDelegate = OnDebugMessage;
         
         public static int MaxSamples = 0;
+        public static int MaxNoteColors = 32;
 
         public static bool MSAA;
         public static string FileToLoad = "";
@@ -105,8 +106,11 @@ namespace New_SSQE
             GL.GetInteger(GetPName.MajorVersion, out major);
             GL.GetInteger(GetPName.MinorVersion, out minor);
             GL.GetInteger(GetPName.MaxFramebufferSamples, out MaxSamples);
+            GL.GetInteger(GetPName.MaxVertexUniformVectors, out MaxNoteColors);
+            MaxNoteColors /= 2;
 
             Logging.Log($"Max samples: {MaxSamples}");
+            Logging.Log($"Max note colors: {MaxNoteColors}");
 
             if (string.IsNullOrWhiteSpace(version) || new Version(major, minor) < APIVersion)
                 throw new PlatformNotSupportedException($"Unsupported OpenGL version (Minimum: {APIVersion})");

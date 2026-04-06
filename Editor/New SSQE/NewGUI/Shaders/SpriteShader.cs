@@ -4,7 +4,7 @@ namespace New_SSQE.NewGUI.Shaders
 {
     internal class SpriteShader : Shader
     {
-        private const string vertex = @"#version 330 core
+        private static new string Vertex => @$"#version 330 core
 layout (location = 0) in vec2 aPosition;
 layout (location = 1) in vec4 aTexCoord; // only using x/y but inputting vec4 for compatibility
 layout (location = 2) in vec4 aOffset; // x, y, s, a
@@ -15,10 +15,10 @@ out vec4 aColor;
 
 uniform vec2 SpriteSize;
 uniform mat4 Projection;
-uniform vec4 NoteColors[32];
+uniform vec4 NoteColors[{MainWindow.MaxNoteColors}];
 
 void main()
-{
+{"{"}
     int yOff = int(aExtra.x * SpriteSize.x + SpriteSize.y / 2.0f);
     int xOff = int(aExtra.x - yOff / SpriteSize.x + SpriteSize.x / 2.0f);
 
@@ -26,7 +26,7 @@ void main()
 
     texCoord = vec2((aTexCoord.x + xOff) * SpriteSize.x, (aTexCoord.y + yOff) * SpriteSize.y);
     aColor = vec4(NoteColors[int(aExtra.y)].xyz, aOffset.w);
-}";
+{"}"}";
 
         private const string fragment = @"#version 330 core
 out vec4 FragColor;
@@ -42,6 +42,12 @@ void main()
     FragColor = color * aColor;
 }";
 
-        public SpriteShader() : base(vertex, fragment) { }
+        public SpriteShader() : base(null, fragment, true) { }
+
+        public override void Compile()
+        {
+            base.Vertex = Vertex;
+            base.Compile();
+        }
     }
 }

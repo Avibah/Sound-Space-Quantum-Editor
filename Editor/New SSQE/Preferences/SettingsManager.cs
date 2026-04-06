@@ -95,10 +95,12 @@ namespace New_SSQE.Preferences
 
         public static void RefreshColors()
         {
-            Vector4[] noteColors = new Vector4[32];
+            Vector4[] noteColors = new Vector4[MainWindow.MaxNoteColors];
 
             for (int i = 0; i < Settings.noteColors.Value.Count; i++)
             {
+                if (i >= noteColors.Length)
+                    break;
                 Color color = Settings.noteColors.Value[i];
                 noteColors[i] = (color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
             }

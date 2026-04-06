@@ -151,7 +151,7 @@ namespace New_SSQE.NewGUI.Windows
             NoteColorPicker.LeftClick += (s, e) =>
             {
                 List<Color> noteColors = Settings.noteColors.Value;
-                if (noteColors.Count >= 32)
+                if (noteColors.Count >= MainWindow.MaxNoteColors)
                     return;
 
                 ColorDialog dialog = new() { Color = Color.White };

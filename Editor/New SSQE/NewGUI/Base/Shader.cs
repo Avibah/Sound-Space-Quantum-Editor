@@ -56,20 +56,36 @@ void main()
     FragColor = vertexColor;
 }";
 
-        private readonly string vertex;
-        private readonly string fragment;
+        protected string Vertex;
+        protected string Fragment;
 
         private int program;
+        private bool compiled;
 
-        protected Shader(string? vertex = null, string? fragment = null)
+        protected Shader(string? vertex = null, string? fragment = null, bool lazy = false)
         {
-            this.vertex = vertex ?? defaultVertex;
-            this.fragment = fragment ?? defaultFragment;
+            Vertex = vertex ?? defaultVertex;
+            Fragment = fragment ?? defaultFragment;
 
-            program = GLState.CompileShader(this.vertex, this.fragment);
+            if (!lazy)
+                Compile();
         }
 
-        public void Enable() => GLState.EnableProgram(program);
+        public virtual void Compile()
+        {
+            if (!compiled)
+                program = GLState.CompileShader(Vertex, Fragment);
+            compiled = true;
+        }
+
+        public void Invalidate() => compiled = false;
+
+        public void Enable()
+        {
+            if (!compiled)
+                Compile();
+            GLState.EnableProgram(program);
+        }
 
         public void SetViewport(float width, float height)
         {
@@ -78,20 +94,95 @@ void main()
             UniformMatrix4("Projection", projection);
         }
 
-        public void Uniform1(string uniform, float[] values) => GLState.Uniform1(program, uniform, values);
-        public void Uniform1(string uniform, float x) => GLState.Uniform1(program, uniform, x);
-        public void Uniform1i(string uniform, int[] values) => GLState.Uniform1i(program, uniform, values);
-        public void Uniform1i(string uniform, int x) => GLState.Uniform1i(program, uniform, x);
-        public void Uniform2(string uniform, Vector2[] values) => GLState.Uniform2(program, uniform, values);
-        public void Uniform2(string uniform, Vector2 value) => GLState.Uniform2(program, uniform, value);
-        public void Uniform2(string uniform, float x, float y) => GLState.Uniform2(program, uniform, x, y);
-        public void Uniform3(string uniform, Vector3[] values) => GLState.Uniform3(program, uniform, values);
-        public void Uniform3(string uniform, Vector3 value) => GLState.Uniform3(program, uniform, value);
-        public void Uniform3(string uniform, float x, float y, float z) => GLState.Uniform3(program, uniform, x, y, z);
-        public void Uniform3(string uniform, Color value) => GLState.Uniform3(program, uniform, value);
-        public void Uniform4(string uniform, Vector4[] values) => GLState.Uniform4(program, uniform, values);
-        public void Uniform4(string uniform, Vector4 value) => GLState.Uniform4(program, uniform, value);
-        public void Uniform4(string uniform, float x, float y, float z, float w) => GLState.Uniform4(program, uniform, x, y, z, w);
-        public void UniformMatrix4(string uniform, Matrix4 value) => GLState.UniformMatrix4(program, uniform, value);
+        public void Uniform1(string uniform, float[] values)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform1(program, uniform, values);
+        }
+        public void Uniform1(string uniform, float x)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform1(program, uniform, x);
+        }
+        public void Uniform1i(string uniform, int[] values)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform1i(program, uniform, values);
+        }
+        public void Uniform1i(string uniform, int x)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform1i(program, uniform, x);
+        }
+        public void Uniform2(string uniform, Vector2[] values)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform2(program, uniform, values);
+        }
+        public void Uniform2(string uniform, Vector2 value)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform2(program, uniform, value);
+        }
+        public void Uniform2(string uniform, float x, float y)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform2(program, uniform, x, y);
+        }
+        public void Uniform3(string uniform, Vector3[] values)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform3(program, uniform, values);
+        }
+        public void Uniform3(string uniform, Vector3 value)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform3(program, uniform, value);
+        }
+        public void Uniform3(string uniform, float x, float y, float z)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform3(program, uniform, x, y, z);
+        }
+        public void Uniform3(string uniform, Color value)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform3(program, uniform, value);
+        }
+        public void Uniform4(string uniform, Vector4[] values)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform4(program, uniform, values);
+        }
+        public void Uniform4(string uniform, Vector4 value)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform4(program, uniform, value);
+        }
+        public void Uniform4(string uniform, float x, float y, float z, float w)
+        {
+            if (!compiled)
+                Compile();
+            GLState.Uniform4(program, uniform, x, y, z, w);
+        }
+        public void UniformMatrix4(string uniform, Matrix4 value)
+        {
+            if (!compiled)
+                Compile();
+            GLState.UniformMatrix4(program, uniform, value);
+        }
     }
 }
