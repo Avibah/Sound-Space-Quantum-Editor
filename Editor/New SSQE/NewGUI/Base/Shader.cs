@@ -62,13 +62,10 @@ void main()
         private int program;
         private bool compiled;
 
-        protected Shader(string? vertex = null, string? fragment = null, bool lazy = false)
+        protected Shader(string? vertex = null, string? fragment = null)
         {
             Vertex = vertex ?? defaultVertex;
             Fragment = fragment ?? defaultFragment;
-
-            if (!lazy)
-                Compile();
         }
 
         public virtual void Compile()
@@ -96,92 +93,77 @@ void main()
 
         public void Uniform1(string uniform, float[] values)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform1(program, uniform, values);
         }
         public void Uniform1(string uniform, float x)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform1(program, uniform, x);
         }
         public void Uniform1i(string uniform, int[] values)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform1i(program, uniform, values);
         }
         public void Uniform1i(string uniform, int x)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform1i(program, uniform, x);
         }
         public void Uniform2(string uniform, Vector2[] values)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform2(program, uniform, values);
         }
         public void Uniform2(string uniform, Vector2 value)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform2(program, uniform, value);
         }
         public void Uniform2(string uniform, float x, float y)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform2(program, uniform, x, y);
         }
         public void Uniform3(string uniform, Vector3[] values)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform3(program, uniform, values);
         }
         public void Uniform3(string uniform, Vector3 value)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform3(program, uniform, value);
         }
         public void Uniform3(string uniform, float x, float y, float z)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform3(program, uniform, x, y, z);
         }
         public void Uniform3(string uniform, Color value)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform3(program, uniform, value);
         }
         public void Uniform4(string uniform, Vector4[] values)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform4(program, uniform, values);
         }
         public void Uniform4(string uniform, Vector4 value)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform4(program, uniform, value);
         }
         public void Uniform4(string uniform, float x, float y, float z, float w)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.Uniform4(program, uniform, x, y, z, w);
         }
         public void UniformMatrix4(string uniform, Matrix4 value)
         {
-            if (!compiled)
-                Compile();
+            Compile();
             GLState.UniformMatrix4(program, uniform, value);
         }
     }

@@ -42,7 +42,7 @@ void main()
     FragColor = color * aColor;
 }";
 
-        public SpriteShader() : base(null, fragment, true) { }
+        public SpriteShader() : base(null, fragment) { }
 
         public override void Compile()
         {

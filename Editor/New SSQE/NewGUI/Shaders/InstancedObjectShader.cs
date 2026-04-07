@@ -23,7 +23,7 @@ void main()
     vertexColor = vec4(NoteColors[c].xyz, NoteColors[c].w * aColor.w * a);
 {"}"}";
 
-        public InstancedObjectShader() : base(null, null, true) { }
+        public InstancedObjectShader() : base() { }
 
         public override void Compile()
         {

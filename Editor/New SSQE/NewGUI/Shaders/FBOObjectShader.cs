@@ -68,7 +68,7 @@ void main()
     vertexColor = vec4(color * Tint, 1.0f);
 {"}"}";
 
-        public FBOObjectShader() : base(null, null, true) { }
+        public FBOObjectShader() : base() { }
 
         public override void Compile()
         {
