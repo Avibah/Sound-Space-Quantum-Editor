@@ -32,6 +32,7 @@ namespace New_SSQE.NewGUI.Controls
 
         private MapObject? hoveringObject;
         private MapObject? hoveringDuration;
+        private Vector4i? hoveringText;
         private List<MapObject> draggingObjects = [];
         private MapObject? draggingDuration;
         private float dragMsStart;
@@ -157,6 +158,7 @@ namespace New_SSQE.NewGUI.Controls
             float? lastRenderedText = null;
             hoveringObject = null;
             hoveringDuration = null;
+            hoveringText = null;
 
             MapObject? toPlay = null;
             int polyphony = 0;
@@ -188,6 +190,17 @@ namespace New_SSQE.NewGUI.Controls
                 for (int i = low; i < high; i++)
                 {
                     Note note = notes[i];
+
+                    float x = cursorPos - currentPos + note.Ms * MS_TO_PX;
+                    if (!dragging && mousex > x && mousex < x + NoteSize && mousey > CellGap && mousey < CellGap + NoteSize)
+                        hoveringObject ??= note;
+                }
+
+                for (int i = low; i < high; i++)
+                {
+                    Note note = notes[i];
+                    bool isHovering = hoveringObject == note;
+
                     float x = cursorPos - currentPos + note.Ms * MS_TO_PX;
                     float a = note.Ms < currentTime - 1 ? 0.35f : 1f;
 
@@ -196,12 +209,9 @@ namespace New_SSQE.NewGUI.Controls
 
                     noteConstants[i - low] = (x, 0, 1, 2 * (i % colorCount) + a);
                     noteLocations[i - low] = (gridX, gridY, 1, 2 * (i % colorCount) + a);
-                    textLines[i - low] = (x, 0, 1, 2 * 4 + a);
+                    textLines[i - low] = (x, 0, 1, 2 * 4 + (hoveringObject == null || isHovering ? a : 0.35f));
 
-                    if (!dragging && mousex > x && mousex < x + NoteSize && mousey > CellGap && mousey < CellGap + NoteSize)
-                        hoveringObject ??= note;
-
-                    if (hoveringObject == note)
+                    if (isHovering)
                         noteHovers = (x, 0, 1, 2 * 5 + 1);
                     else if (note.Selected)
                     {
@@ -218,10 +228,12 @@ namespace New_SSQE.NewGUI.Controls
                             polyphony++;
                     }
 
-                    if (x - 8 > (lastRenderedText ?? float.MinValue))
+                    if (x - 8 > (lastRenderedText ?? float.MinValue) || isHovering)
                     {
                         string noteStr = $"Note {i + 1:##,###}";
                         string msStr = $"{note.Ms:##,##0}ms";
+                        if (isHovering)
+                            hoveringText = (color1Length, noteStr.Length, color2Length, msStr.Length);
 
                         color1Strings.Add((x + 3, noteStr));
                         color1Length += noteStr.Length;
@@ -271,6 +283,22 @@ namespace New_SSQE.NewGUI.Controls
                 for (i = 0; i < objects.Count; i++)
                 {
                     MapObject obj = objects[i];
+
+                    if (obj.Duration + obj.Ms < minMs)
+                        continue;
+                    if (obj.Ms > maxMs)
+                        break;
+                    if (shouldCheckID && obj.ID != (int)Mapping.Current.ObjectMode)
+                        continue;
+
+                    float x = cursorPos - currentPos + obj.Ms * MS_TO_PX;
+                    if (mousex > x && mousex < x + NoteSize && mousey > CellGap && mousey < CellGap + NoteSize)
+                        hoveringObject ??= obj;
+                }
+
+                for (i = 0; i < objects.Count; i++)
+                {
+                    MapObject obj = objects[i];
                     for (int j = indices.Count; j <= obj.ID; j++)
                         indices.Add(0);
                     indices[obj.ID]++;
@@ -283,6 +311,7 @@ namespace New_SSQE.NewGUI.Controls
                         continue;
 
                     first ??= i;
+                    bool isHovering = hoveringObject == obj || hoveringDuration == obj;
 
                     float x = cursorPos - currentPos + obj.Ms * MS_TO_PX;
                     float a = obj.Ms < currentTime - 1 ? 0.35f : 1f;
@@ -292,7 +321,7 @@ namespace New_SSQE.NewGUI.Controls
                     objConstants[i] = (x, 0, 1, 2 * c + a);
                     objIcons[i] = (x, 0, 1, a);
                     objIconsSecondary[i] = (obj.ID, c, 0);
-                    textLines[i] = (x, 0, 1, 2 * 4 + a);
+                    textLines[i] = (x, 0, 1, 2 * 4 + (hoveringObject == null || isHovering ? a : 0.35f));
 
                     if (obj.HasDuration)
                     {
@@ -311,10 +340,7 @@ namespace New_SSQE.NewGUI.Controls
                             objDurationSelects = (x + width, 0, 1, 2 * 6 + 1);
                     }
 
-                    if (mousex > x && mousex < x + NoteSize && mousey > CellGap && mousey < CellGap + NoteSize)
-                        hoveringObject ??= obj;
-
-                    if (hoveringObject == obj)
+                    if (isHovering)
                         objHovers = (x, 0, 1, 2 * 5 + 1);
                     else if (obj.Selected)
                     {
@@ -331,10 +357,12 @@ namespace New_SSQE.NewGUI.Controls
                             polyphony++;
                     }
 
-                    if (x - 8 > (lastRenderedText ?? float.MinValue))
+                    if (x - 8 > (lastRenderedText ?? float.MinValue) || isHovering)
                     {
                         string objStr = $"{obj.Name ?? "null"} {indices[obj.ID]:##,###}";
                         string msStr = $"{obj.Ms:##,##0}ms";
+                        if (isHovering)
+                            hoveringText = (color1Length, objStr.Length, color2Length, msStr.Length);
 
                         color1Strings.Add((x + 3, objStr));
                         color1Length += objStr.Length;
@@ -421,9 +449,7 @@ namespace New_SSQE.NewGUI.Controls
             Vector4[] bpmSubBeats = new Vector4[totalSubBeats];
 
             Vector4 bpmHovers = Vector4.Zero;
-            Vector3 bpmHoversSecondary = Vector3.Zero;
             Vector4 bpmSelects = Vector4.Zero;
-            Vector3 bpmSelectsSecondary = Vector3.Zero;
 
             int validPoints = 0;
 
@@ -572,7 +598,7 @@ namespace New_SSQE.NewGUI.Controls
                 noteVerts.AddRange(GLVerts.Outline(gridX, gridY, NoteSize * 0.2f, NoteSize * 0.2f, 1, 1f, 1f, 1f, 0.45f));
             }
 
-            noteConstant.UploadStaticData(noteVerts.ToArray());
+            noteConstant.UploadStaticData([.. noteVerts]);
             noteLocation.UploadStaticData(GLVerts.Rect(0, 0, NoteSize * 0.2f, NoteSize * 0.2f, 1f, 1f, 1f, 1f));
             noteHover.UploadStaticData(GLVerts.Outline(-4, CellGap - 4, NoteSize + 8, NoteSize + 8, 1, 1f, 1f, 1f, 1f));
             noteSelect.UploadStaticData(GLVerts.Outline(-4, CellGap - 4, NoteSize + 8, NoteSize + 8, 1, 1f, 1f, 1f, 1f));
@@ -581,7 +607,7 @@ namespace New_SSQE.NewGUI.Controls
             objVerts.AddRange(GLVerts.PolygonOutline(NoteSize / 2, NoteSize / 2 + CellGap, NoteSize / 2, 2, 20, 0, 1f, 1f, 1f, 1f));
             objVerts.AddRange(GLVerts.Polygon(NoteSize / 2, NoteSize / 2 + CellGap, NoteSize / 2, 20, 0, 1f, 1f, 1f, 1 / 20f));
 
-            objConstant.UploadStaticData(objVerts.ToArray());
+            objConstant.UploadStaticData([.. objVerts]);
             objIcon.UploadStaticData(GLVerts.Icon(NoteSize / 16, NoteSize / 16 + CellGap, NoteSize * 7 / 8f, NoteSize * 7 / 8f));
             objHover.UploadStaticData(GLVerts.PolygonOutline(NoteSize / 2, NoteSize / 2 + CellGap, NoteSize / 2 + 4, 1, 20, 0, 1f, 1f, 1f, 1f));
             objSelect.UploadStaticData(GLVerts.PolygonOutline(NoteSize / 2, NoteSize / 2 + CellGap, NoteSize / 2 + 4, 1, 20, 0, 1f, 1f, 1f, 1f));
@@ -610,7 +636,7 @@ namespace New_SSQE.NewGUI.Controls
             verts.AddRange(GLVerts.Rect(rect, Style.Tertiary, Settings.trackOpacity.Value / 255f));
             verts.AddRange(GLVerts.Outline(rect, 1, Style.Quaternary));
 
-            return verts.ToArray();
+            return [.. verts];
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)
@@ -691,11 +717,26 @@ namespace New_SSQE.NewGUI.Controls
 
             FontRenderer.SetActive(FONT);
 
+            float[] color1Alpha = new float[color1Data.Length];
+            float[] color2Alpha = new float[color2Data.Length];
+
+            if (hoveringText != null)
+            {
+                Array.Fill(color1Alpha, 0.8f);
+                Array.Fill(color2Alpha, 0.8f);
+                Vector4i metrics = hoveringText.Value;
+                
+                for (int i = metrics.X; i < metrics.X + metrics.Y; i++)
+                    color1Alpha[i] = 0;
+                for (int i = metrics.Z; i < metrics.Z + metrics.W; i++)
+                    color2Alpha[i] = 0;
+            }
+
             FontRenderer.SetColor(Style.Primary);
-            FontRenderer.RenderData(FONT, color1Data);
+            FontRenderer.RenderData(FONT, color1Data, color1Alpha);
 
             FontRenderer.SetColor(Style.Secondary);
-            FontRenderer.RenderData(FONT, color2Data);
+            FontRenderer.RenderData(FONT, color2Data, color2Alpha);
         }
 
         public override void MouseMove(float x, float y)
