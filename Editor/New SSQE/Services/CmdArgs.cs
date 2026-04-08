@@ -65,7 +65,7 @@ namespace New_SSQE.Services
             if (Platforms.IsLinux)
                 return;
 
-            watcher = new(Assets.Validate(Assets.TEMP))
+            watcher = new(Assets.TEMP)
             {
                 Filter = "tempargs.txt",
                 IncludeSubdirectories = false

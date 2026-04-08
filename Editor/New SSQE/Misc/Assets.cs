@@ -5,17 +5,18 @@ namespace New_SSQE.Misc
 {
     internal class Assets
     {
-        public static readonly string THIS = Path.GetDirectoryName(Environment.ProcessPath) ?? "";
-        public static readonly string FILE_NAME = Platforms.GetExecutableName($"{Assembly.GetExecutingAssembly().GetName().Name ?? "Sound Space Quantum Editor"}");
-        public static readonly string EXE = Path.Combine(THIS, FILE_NAME);
 
-        public static readonly string CACHED = Path.Combine(THIS, "cached");
-        public static readonly string FONTS = Path.Combine(THIS, "assets", "fonts");
-        public static readonly string SOUNDS = Path.Combine(THIS, "assets", "sounds");
-        public static readonly string TEMP = Path.Combine(THIS, "assets", "temp");
-        public static readonly string TEXTURES = Path.Combine(THIS, "assets", "textures");
-        public static readonly string HISTORY = Path.Combine(THIS, "history");
-        public static readonly string MAPS = Path.Combine(THIS, "maps");
+        private static readonly string _this = Path.GetDirectoryName(Environment.ProcessPath) ?? "";
+        private static readonly string _cached = Path.Combine(_this, "cached");
+        private static readonly string _fonts = Path.Combine(_this, "assets", "fonts");
+        private static readonly string _sounds = Path.Combine(_this, "assets", "sounds");
+        private static readonly string _temp = Path.Combine(_this, "assets", "temp");
+        private static readonly string _textures = Path.Combine(_this, "assets", "textures");
+        private static readonly string _history = Path.Combine(_this, "history");
+        private static readonly string _maps = Path.Combine(_this, "maps");
+
+        public static readonly string FILE_NAME = Platforms.GetExecutableName($"{Assembly.GetExecutingAssembly().GetName().Name ?? "Sound Space Quantum Editor"}");
+        public static readonly string EXE = Path.Combine(_this, FILE_NAME);
 
         public static string Validate(string directory)
         {
@@ -24,15 +25,22 @@ namespace New_SSQE.Misc
             return directory;
         }
 
-        public static string Get(string directory, params string[] path) => Path.Combine([Validate(directory), .. path]);
+        public static string THIS => Validate(_this);
+        public static string CACHED => Validate(_cached);
+        public static string FONTS => Validate(_fonts);
+        public static string SOUNDS => Validate(_sounds);
+        public static string TEMP => Validate(_temp);
+        public static string TEXTURES => Validate(_textures);
+        public static string HISTORY => Validate(_history);
+        public static string MAPS => Validate(_maps);
 
-        public static string ThisAt(params string[] path) => Get(THIS, path);
-        public static string CachedAt(params string[] path) => Get(CACHED, path);
-        public static string FontsAt(params string[] path) => Get(FONTS, path);
-        public static string SoundsAt(params string[] path) => Get(SOUNDS, path);
-        public static string TempAt(params string[] path) => Get(TEMP, path);
-        public static string TexturesAt(params string[] path) => Get(TEXTURES, path);
-        public static string HistoryAt(params string[] path) => Get(HISTORY, path);
-        public static string MapsAt(params string[] path) => Get(MAPS, path);
+        public static string ThisAt(params string[] path) => Path.Combine([THIS, .. path]);
+        public static string CachedAt(params string[] path) => Path.Combine([CACHED, .. path]);
+        public static string FontsAt(params string[] path) => Path.Combine([FONTS, .. path]);
+        public static string SoundsAt(params string[] path) => Path.Combine([SOUNDS, .. path]);
+        public static string TempAt(params string[] path) => Path.Combine([TEMP, .. path]);
+        public static string TexturesAt(params string[] path) => Path.Combine([TEXTURES, .. path]);
+        public static string HistoryAt(params string[] path) => Path.Combine([HISTORY, .. path]);
+        public static string MapsAt(params string[] path) => Path.Combine([MAPS, .. path]);
     }
 }
