@@ -76,7 +76,8 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiScrollingList ChangelogPanel = new(60, 230, 890, 715, Changelog)
         {
             ScrollScale = 2,
-            Style = ControlStyle.Slider_Uncolored
+            Style = ControlStyle.Slider_Uncolored,
+            CullDescendants = false
         };
         public static readonly GuiSquare ChangelogBackdrop1 = new(35, 180, 950, 790)
         {

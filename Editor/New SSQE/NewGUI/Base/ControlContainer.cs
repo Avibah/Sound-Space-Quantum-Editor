@@ -9,10 +9,15 @@ namespace New_SSQE.NewGUI.Base
     {
         private Control[] controls = [];
         private InteractiveControl[] interactives = [];
+        private List<Control> rendering = [];
 
-        public Control[] Children => [..controls];
+        public Control[] Children => [.. controls];
 
         public bool ClipDescendants = false;
+        /// <summary>
+        /// Only applies when ClipDescendants is enabled
+        /// </summary>
+        public bool CullDescendants = true;
 
         public ControlContainer(float x, float y, float w, float h, params Control[] controls) : base(x, y, w, h)
         {
@@ -70,11 +75,17 @@ namespace New_SSQE.NewGUI.Base
                 GLState.EnableScissor(rect);
 
             base.PreRender(mousex, mousey, frametime);
+            rendering = [];
 
             foreach (Control control in controls)
             {
                 if (control.Visible && !control.RenderOnTop)
+                {
+                    if (ClipDescendants && CullDescendants && !control.Rect.IntersectsWith(rect))
+                        continue;
                     control.PreRender(mousex, mousey, frametime);
+                    rendering.Add(control);
+                }
             }
 
             if (ClipDescendants)
@@ -90,11 +101,8 @@ namespace New_SSQE.NewGUI.Base
 
             base.Render(mousex, mousey, frametime);
 
-            foreach (Control control in controls)
-            {
-                if (control.Visible && !control.RenderOnTop)
-                    control.Render(mousex, mousey, frametime);
-            }
+            foreach (Control control in rendering)
+                control.Render(mousex, mousey, frametime);
 
             if (ClipDescendants)
                 GLState.DisableScissor();
@@ -104,23 +112,17 @@ namespace New_SSQE.NewGUI.Base
         {
             if (!Visible)
                 return;
-            bool scissor = ClipDescendants;
-            if (scissor)
+            if (ClipDescendants)
                 GLState.EnableScissor(rect);
 
             base.PostRender(mousex, mousey, frametime);
             List<Control> deferred = [];
 
             foreach (Control control in controls)
-            {
-                if (control.Visible)
-                {
-                    if (control.RenderOnTop)
-                        deferred.Add(control);
-                    else
-                        control.PostRender(mousex, mousey, frametime);
-                }
-            }
+                if (control.RenderOnTop && control.Visible)
+                    deferred.Add(control);
+            foreach (Control control in rendering)
+                control.PostRender(mousex, mousey, frametime);
 
             foreach (Control control in deferred)
             {
@@ -129,7 +131,7 @@ namespace New_SSQE.NewGUI.Base
                 control.PostRender(mousex, mousey, frametime);
             }
 
-            if (scissor)
+            if (ClipDescendants)
                 GLState.DisableScissor();
         }
 

@@ -18,6 +18,12 @@ namespace New_SSQE.NewGUI.CompoundControls
             set => Slider.Style = value;
         }
 
+        public new bool CullDescendants
+        {
+            get => Container.CullDescendants;
+            set => Container.CullDescendants = value;
+        }
+
         public float ScrollScale = 1;
 
         private readonly Setting<SliderSetting> setting = new SliderSetting(0, 0, 1);
@@ -61,7 +67,7 @@ namespace New_SSQE.NewGUI.CompoundControls
                     control.SetOrigin(offset.X, offset.Y, origin.Width, origin.Height);
                 }
 
-                setting.Value.Max = Math.Max(0, curExtent - StartRect.Height);
+                setting.Value.Max = Math.Max(0, curExtent - StartRect.Height * screenHeight / 1080);
             }
             
             if (Slider != null)
