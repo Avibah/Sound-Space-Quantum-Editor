@@ -102,9 +102,8 @@ namespace New_SSQE
             Logging.Log("Current OpenGL version: " + (GL.GetString(StringName.Version) ?? "N/A"));
 
             string version = GL.GetString(StringName.Version) ?? "";
-            int major = 0, minor = 0;
-            GL.GetInteger(GetPName.MajorVersion, out major);
-            GL.GetInteger(GetPName.MinorVersion, out minor);
+            GL.GetInteger(GetPName.MajorVersion, out int major);
+            GL.GetInteger(GetPName.MinorVersion, out int minor);
             GL.GetInteger(GetPName.MaxFramebufferSamples, out MaxSamples);
             GL.GetInteger(GetPName.MaxVertexUniformVectors, out MaxNoteColors);
             MaxNoteColors /= 2;

@@ -238,6 +238,9 @@ namespace SSQE_Player.GUI
             }
 
             main.ModelManager.Render(positions, colors, range, "note");
+
+            while (noteSet[MainWindow.AutoIndex] && MainWindow.Instance.Notes[MainWindow.AutoIndex].Ms + hitWindow * 2 < currentTime)
+                MissNote(MainWindow.AutoIndex++);
             while (!noteSet[MainWindow.AutoIndex])
                 MainWindow.AutoIndex++;
         }
