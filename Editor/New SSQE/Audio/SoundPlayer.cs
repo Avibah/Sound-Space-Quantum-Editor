@@ -11,7 +11,7 @@ namespace New_SSQE.Audio
 
         static SoundPlayer()
         {
-            string[] sounds = Directory.GetFiles(Assets.SOUNDS);
+            string[] sounds = Directory.GetFiles(Assets.Validate(Assets.SOUNDS));
 
             foreach (string file in sounds)
             {

@@ -15,26 +15,24 @@ namespace New_SSQE.Misc
         public static readonly string TEMP = Path.Combine(THIS, "assets", "temp");
         public static readonly string TEXTURES = Path.Combine(THIS, "assets", "textures");
         public static readonly string HISTORY = Path.Combine(THIS, "history");
+        public static readonly string MAPS = Path.Combine(THIS, "maps");
 
-        public static string ThisAt(string path) => Path.Combine(THIS, path);
-        public static string FileNameAt(string path) => Path.Combine(FILE_NAME, path);
-        public static string ExeAt(string path) => Path.Combine(EXE, path);
-
-        public static string CachedAt(string path) => Path.Combine(CACHED, path);
-        public static string FontsAt(string path) => Path.Combine(FONTS, path);
-        public static string SoundsAt(string path) => Path.Combine(SOUNDS, path);
-        public static string TempAt(string path) => Path.Combine(TEMP, path);
-        public static string TexturesAt(string path) => Path.Combine(TEXTURES, path);
-        public static string HistoryAt(string path) => Path.Combine(HISTORY, path);
-
-        static Assets()
+        public static string Validate(string directory)
         {
-            if (!Directory.Exists(CACHED))
-                Directory.CreateDirectory(CACHED);
-            if (!Directory.Exists(TEMP))
-                Directory.CreateDirectory(TEMP);
-            if (!Directory.Exists(HISTORY))
-                Directory.CreateDirectory(HISTORY);
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+            return directory;
         }
+
+        public static string Get(string directory, params string[] path) => Path.Combine([Validate(directory), .. path]);
+
+        public static string ThisAt(params string[] path) => Get(THIS, path);
+        public static string CachedAt(params string[] path) => Get(CACHED, path);
+        public static string FontsAt(params string[] path) => Get(FONTS, path);
+        public static string SoundsAt(params string[] path) => Get(SOUNDS, path);
+        public static string TempAt(params string[] path) => Get(TEMP, path);
+        public static string TexturesAt(params string[] path) => Get(TEXTURES, path);
+        public static string HistoryAt(params string[] path) => Get(HISTORY, path);
+        public static string MapsAt(params string[] path) => Get(MAPS, path);
     }
 }
