@@ -60,10 +60,10 @@ namespace New_SSQE.NewGUI.Controls
 
         private void UpdateObjectMetrics()
         {
-            objectSizes = new float[16];
+            objectSizes = new float[18];
             objectSizes[14] = CellSize * 0.6f;
 
-            objectGaps = new float[16];
+            objectGaps = new float[18];
             objectGaps[14] = (CellSize - objectSizes[14]) / 2f;
         }
 
@@ -160,18 +160,27 @@ namespace New_SSQE.NewGUI.Controls
         {
             bool quantum = Settings.enableQuantum.Value;
 
-            float increment = quantum ? (Settings.quantumSnapping.Value.Value + 3) / 3 : 1;
-            float x = (mousex - rect.X - rect.Width / 2) / rect.Width * 3 + 1 / increment;
-            float y = (mousey - rect.Y - rect.Height / 2) / rect.Height * 3 + 1 / increment;
+            if (quantum)
+            {
+                mousex -= CellSize * (Settings.quantumXOffset.Value.Value - 1);
+                mousey -= CellSize * (Settings.quantumYOffset.Value.Value - 1);
+            }
+
+            float increment = quantum ? 2 / (Settings.quantumSnapping.Value.Value + 2) : 1;
+            float x = (mousex - rect.X - CellSize / 2) / CellSize;
+            float y = (mousey - rect.Y - CellSize / 2) / CellSize;
 
             if (Settings.quantumGridSnap.Value || !quantum)
             {
-                x = (float)Math.Floor((x + 1 / increment / 2) * increment) / increment;
-                y = (float)Math.Floor((y + 1 / increment / 2) * increment) / increment;
+                x = (float)Math.Round(x / increment) * increment;
+                y = (float)Math.Round(y / increment) * increment;
             }
 
-            x = x - 1 / increment + 1;
-            y = y - 1 / increment + 1;
+            if (quantum)
+            {
+                x += Settings.quantumXOffset.Value.Value - 1;
+                y += Settings.quantumYOffset.Value.Value - 1;
+            }
 
             return (2 - x, 2 - y);
         }
@@ -367,7 +376,7 @@ namespace New_SSQE.NewGUI.Controls
                 List<Vector4> glideApproaches = [];
 
                 ObjectList<MapObject> objects = Mapping.Current.SpecialObjects;
-                (low, high) = objects.SearchRange(currentTime, maxMs);
+                (_, high) = objects.SearchRange(currentTime, maxMs);
 
                 List<int> indices = [];
 
@@ -433,16 +442,16 @@ namespace New_SSQE.NewGUI.Controls
                     }
                 }
 
-                beatConstant.UploadData(beatConstants.ToArray());
-                beatApproach.UploadData(beatApproaches.ToArray());
+                beatConstant.UploadData([.. beatConstants]);
+                beatApproach.UploadData([.. beatApproaches]);
 
-                mineConstant.UploadData(mineConstants.ToArray());
-                mineApproach.UploadData(mineApproaches.ToArray());
+                mineConstant.UploadData([.. mineConstants]);
+                mineApproach.UploadData([.. mineApproaches]);
                 mineHover.UploadData([mineHovers]);
-                mineSelect.UploadData(mineSelects.ToArray());
+                mineSelect.UploadData([.. mineSelects]);
 
-                glideConstant.UploadData(glideConstants.ToArray(), glideConstantsSecondary.ToArray());
-                glideApproach.UploadData(glideApproaches.ToArray());
+                glideConstant.UploadData([.. glideConstants], [.. glideConstantsSecondary]);
+                glideApproach.UploadData([.. glideApproaches]);
             }
 
             List<Vector4> notePreviews = [];
@@ -500,7 +509,7 @@ namespace New_SSQE.NewGUI.Controls
                 }
             }
 
-            notePreview.UploadData(notePreviews.ToArray());
+            notePreview.UploadData([.. notePreviews]);
         }
 
         public override float[] Draw()
@@ -512,7 +521,7 @@ namespace New_SSQE.NewGUI.Controls
             List<float> autoplayVerts = [];
             autoplayVerts.AddRange(GLVerts.Outline(0, 0, 1, 1, 0.075f, Style.Quaternary));
             autoplayVerts.AddRange(GLVerts.Rect(0, 0, 1, 1, Style.Quaternary, 0.25f));
-            autoplayCursor.UploadStaticData(autoplayVerts.ToArray());
+            autoplayCursor.UploadStaticData([.. autoplayVerts]);
 
             List<float> noteVerts = [];
 
@@ -527,7 +536,7 @@ namespace New_SSQE.NewGUI.Controls
                 noteVerts.AddRange(GLVerts.Rect(0, 0, NoteSize, NoteSize, 1f, 1f, 1f, 0.15f));
             }
             
-            noteConstant.UploadStaticData(noteVerts.ToArray());
+            noteConstant.UploadStaticData([.. noteVerts]);
 
             if (squircles)
             {
@@ -555,7 +564,7 @@ namespace New_SSQE.NewGUI.Controls
                 previewVerts.AddRange(GLVerts.Rect(0, 0, PreviewSize, PreviewSize, 1f, 1f, 1f, 0.125f));
             }
             
-            notePreview.UploadStaticData(previewVerts.ToArray());
+            notePreview.UploadStaticData([.. previewVerts]);
 
             beatConstant.UploadStaticData(GLVerts.Outline(-5, -5, rect.Width + 10, rect.Height + 10, 3, Settings.color5.Value));
             beatApproach.UploadStaticData(GLVerts.Outline(0, 0, 1, 1, 0.0075f, Settings.color5.Value));
@@ -565,7 +574,7 @@ namespace New_SSQE.NewGUI.Controls
             List<float> mineVerts = [];
             mineVerts.AddRange(GLVerts.PolygonOutline(mineSize / 2, mineSize / 2, mineSize / 2, 2, 4, 0, 1f, 1f, 1f, 1f));
             mineVerts.AddRange(GLVerts.Polygon(mineSize / 2, mineSize / 2, mineSize / 2, 4, 0, 1f, 1f, 1f, 0.15f));
-            mineConstant.UploadStaticData(mineVerts.ToArray());
+            mineConstant.UploadStaticData([.. mineVerts]);
 
             mineApproach.UploadStaticData(GLVerts.PolygonOutline(0.5f, 0.5f, 0.5f, 0.0125f, 4, 0, 1f, 1f, 1f, 1f));
             mineHover.UploadStaticData(GLVerts.PolygonOutline(mineSize / 2, mineSize / 2, mineSize / 2 + 4, 2, 4, 0, 1f, 1f, 1f, 0.25f));
@@ -576,7 +585,7 @@ namespace New_SSQE.NewGUI.Controls
             glideVerts.AddRange(GLVerts.Line(-rect.Width / 2 + 10, -rect.Height / 2 + 13, rect.Width / 2 - 10, -rect.Height / 2 + 13, 6, Settings.color5.Value));
             glideVerts.AddRange(GLVerts.PolygonOutline(0, -rect.Height / 5, rect.Width / 10, 8, 3, -30, Settings.color5.Value));
             glideVerts.AddRange(GLVerts.PolygonOutline(0, rect.Height / 5, rect.Width / 10, 8, 3, -30, Settings.color5.Value));
-            glideConstant.UploadStaticData(glideVerts.ToArray());
+            glideConstant.UploadStaticData([.. glideVerts]);
 
             glideApproach.UploadStaticData(GLVerts.Outline(0, 0, 1, 1, 0.0075f, Settings.color5.Value));
 
@@ -593,16 +602,24 @@ namespace New_SSQE.NewGUI.Controls
                 verts.AddRange(GLVerts.Line(rect.X, y, rect.Right, y, 1, Style.Tertiary));
             }
 
-            float divisor = Settings.quantumGridLines.Value ? Settings.quantumSnapping.Value.Value + 3 : 3;
-            float offset = Math.Round(divisor) % 2 == 0 ? 0.5f : 1f;
-
-            for (int i = (int)(2 * offset); i <= divisor; i++)
+            float increment = Settings.quantumGridLines.Value ? 2 / (Settings.quantumSnapping.Value.Value + 2) : 1;
+            float gap = (1 - increment) / 2;
+            float gapInc = (float)Math.Floor(gap / increment) * increment;
+            
+            for (float x = (Settings.quantumXOffset.Value.Value - 1) % increment - increment; x < 3; x += increment)
             {
-                float x = rect.X + rect.Width / divisor * (i - offset);
-                float y = rect.Y + rect.Height / divisor * (i - offset);
+                float pos = rect.X + (x - gapInc + gap) * CellSize;
+                if (pos < rect.X || pos > rect.Right)
+                    continue;
+                verts.AddRange(GLVerts.Line(pos, rect.Y, pos, rect.Bottom, 1, Style.Secondary));
+            }
 
-                verts.AddRange(GLVerts.Line(x, rect.Y, x, rect.Bottom, 1, Style.Secondary));
-                verts.AddRange(GLVerts.Line(rect.X, y, rect.Right, y, 1, Style.Secondary));
+            for (float y = (Settings.quantumYOffset.Value.Value - 1) % increment - increment; y < 3; y += increment)
+            {
+                float pos = rect.Y + (y - gapInc + gap) * CellSize;
+                if (pos < rect.Y || pos > rect.Bottom)
+                    continue;
+                verts.AddRange(GLVerts.Line(rect.X, pos, rect.Right, pos, 1, Style.Secondary));
             }
 
             List<Vector4> keyVerts = [];
@@ -637,9 +654,9 @@ namespace New_SSQE.NewGUI.Controls
                 }
             }
 
-            keybindVerts = keyVerts.ToArray();
+            keybindVerts = [.. keyVerts];
 
-            return verts.ToArray();
+            return [.. verts];
         }
 
         public override void PreRender(float mousex, float mousey, float frametime)
@@ -727,7 +744,7 @@ namespace New_SSQE.NewGUI.Controls
                 }
 
                 shader.Enable();
-                GLState.BufferData(bezierPreviewLineVBO, verts.ToArray());
+                GLState.BufferData(bezierPreviewLineVBO, [.. verts]);
                 GLState.DrawTriangles(bezierPreviewLineVAO, 0, verts.Count / 6);
             }
         }
@@ -820,7 +837,7 @@ namespace New_SSQE.NewGUI.Controls
             }
             else if (hoveringXY != null)
             {
-                List<XYMapObject> selected = new(Mapping.Current.SelectedObjects.Where(n => n is XYMapObject).Cast<XYMapObject>());
+                List<XYMapObject> selected = [.. Mapping.Current.SelectedObjects.Where(n => n is XYMapObject).Cast<XYMapObject>()];
 
                 if (MainWindow.Instance.ShiftHeld)
                 {
@@ -830,7 +847,7 @@ namespace New_SSQE.NewGUI.Controls
                     long min = Math.Min(first.Ms, last.Ms);
                     long max = Math.Max(first.Ms, last.Ms);
 
-                    selected = Mapping.Current.GetObjectsInRange(min, max).Cast<XYMapObject>().ToList();
+                    selected = [.. Mapping.Current.GetObjectsInRange(min, max).Cast<XYMapObject>()];
                     selected.Remove(first);
                     selected.Insert(0, first);
                 }
@@ -844,11 +861,11 @@ namespace New_SSQE.NewGUI.Controls
                 else if (selected.Count == 0 || !selected.Contains(hoveringXY))
                     selected = [hoveringXY];
 
-                Mapping.Current.SelectedObjects = new(selected);
+                Mapping.Current.SelectedObjects = [.. selected];
 
                 if (hoveringXY.Selected)
                 {
-                    draggingXY = [hoveringXY, ..selected];
+                    draggingXY = [hoveringXY, .. selected];
                     dragCellStart = (hoveringXY.X, hoveringXY.Y);
                 }
 

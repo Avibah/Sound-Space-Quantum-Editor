@@ -127,6 +127,8 @@ namespace New_SSQE.Preferences
         public static readonly Setting<SliderSetting> beatDivisor = new SliderSetting(3, 31, 0.5f);
         public static readonly Setting<SliderSetting> tempo = new SliderSetting(0.9f, 1.4f, 0.05f);
         public static readonly Setting<SliderSetting> quantumSnapping = new SliderSetting(0, 57, 1);
+        public static readonly Setting<SliderSetting> quantumXOffset = new SliderSetting(1, 2, 0.05f);
+        public static readonly Setting<SliderSetting> quantumYOffset = new SliderSetting(1, 2, 0.05f);
         public static readonly Setting<SliderSetting> changelogPosition = new SliderSetting(0, 0, 1);
 
         public static readonly Setting<Keybind> selectAll = new Keybind(Keys.A, true, false, false);

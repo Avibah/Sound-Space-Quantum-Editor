@@ -344,9 +344,17 @@ namespace New_SSQE.NewGUI.Windows
             PlayerApproachRate.ValueChanged += (s, e) => PlayerApproachRateChanged();
             PlayerApproachRateChanged();
 
-            void SnappingChanged() => SnappingLabel.Text = $"Snapping: 3/{Math.Round(Settings.quantumSnapping.Value.Value + 3)}";
+            void SnappingChanged() => SnappingLabel.Text = $"Quantum Divisor: {Math.Round(Settings.quantumSnapping.Value.Value + 3)}";
             QuantumSnapDivisor.ValueChanged += (s, e) => SnappingChanged();
             SnappingChanged();
+
+            void XOffsetChanged() => QuantumXLabel.Text = $"Quantum X Offset: {Math.Round(Settings.quantumXOffset.Value.Value - 1, 2)}";
+            QuantumXOffset.ValueChanged += (s, e) => XOffsetChanged();
+            XOffsetChanged();
+
+            void YOffsetChanged() => QuantumYLabel.Text = $"Quantum Y Offset: {Math.Round(Settings.quantumYOffset.Value.Value - 1, 2)}";
+            QuantumYOffset.ValueChanged += (s, e) => YOffsetChanged();
+            YOffsetChanged();
 
             void CursorPosChanged() => CursorPosLabel.Text = $"Cursor Position: {Math.Abs(Math.Round(Settings.cursorPos.Value.Value))}%";
             TrackCursorPos.ValueChanged += (s, e) => CursorPosChanged();

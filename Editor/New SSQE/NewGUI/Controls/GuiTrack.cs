@@ -470,7 +470,7 @@ namespace New_SSQE.NewGUI.Controls
 
                 bpmStarts[i] = (currentX, 0, 1, 2 * 8 + 1);
 
-                if (mousex > currentX && mousex < currentX + 72 && mousey > rect.Height && mousey < rect.Height + 52)
+                if (mousex > currentX && mousex < currentX + rect.Height && mousey > rect.Height && mousey < rect.Height * 2)
                     hoveringObject ??= point;
 
                 if (hoveringObject == point)
@@ -545,11 +545,11 @@ namespace New_SSQE.NewGUI.Controls
 
             color1Data = new Vector4[color1Length];
             RenderText(color1Strings, color1Data, true, 0, color1Strings.Count - validPoints);
-            RenderText(color1Strings, color1Data, true, color1Strings.Count - validPoints, validPoints, rect.Height / 4);
+            RenderText(color1Strings, color1Data, true, color1Strings.Count - validPoints, validPoints, rect.Height / 2);
 
             color2Data = new Vector4[color2Length];
             RenderText(color2Strings, color2Data, false, 0, color2Strings.Count - validPoints);
-            RenderText(color2Strings, color2Data, false, color2Strings.Count - validPoints, validPoints, rect.Height / 4);
+            RenderText(color2Strings, color2Data, false, color2Strings.Count - validPoints, validPoints, rect.Height / 2);
 
             if (toPlay != lastPlayedObject)
             {
@@ -622,13 +622,13 @@ namespace New_SSQE.NewGUI.Controls
 
             float beatTickGap = rect.Height - NoteSize - CellGap;
 
-            bpmStart.UploadStaticData(GLVerts.Line(0, 0, 0, rect.Height * 5 / 3, 1, 1f, 1f, 1f, 1f));
+            bpmStart.UploadStaticData(GLVerts.Line(0, 0, 0, rect.Height * 1.95f, 1, 1f, 1f, 1f, 1f));
             bpmBeat.UploadStaticData(GLVerts.Line(0, rect.Height, 0, rect.Height - beatTickGap, 1, 1f, 1f, 1f, 1f));
             bpmHalfBeat.UploadStaticData(GLVerts.Line(0, rect.Height - 3 * beatTickGap / 5, 0, rect.Height, 1, 1f, 1f, 1f, 1f));
             bpmSubBeat.UploadStaticData(GLVerts.Line(0, rect.Height - 3 * beatTickGap / 10, 0, rect.Height, 1, 1f, 1f, 1f, 1f));
 
-            bpmHover.UploadStaticData(GLVerts.Outline(-4, rect.Height, 80, 60, 1, 1f, 1f, 1f, 1f));
-            bpmSelect.UploadStaticData(GLVerts.Outline(-4, rect.Height, 80, 60, 1, 1f, 1f, 1f, 1f));
+            bpmHover.UploadStaticData(GLVerts.Outline(-4, rect.Height, rect.Height, rect.Height, 1, 1f, 1f, 1f, 1f));
+            bpmSelect.UploadStaticData(GLVerts.Outline(-4, rect.Height, rect.Height, rect.Height, 1, 1f, 1f, 1f, 1f));
 
             Shader.Sprite.Uniform2("SpriteSize", 1f / MainWindow.SpriteSize.X, 1f / MainWindow.SpriteSize.Y);
 
@@ -785,9 +785,7 @@ namespace New_SSQE.NewGUI.Controls
                 }
 
                 if (draggingDuration != null)
-                {
                     draggingDuration.Duration = (long)Math.Max(cursorMs - draggingDuration.Ms, 0);
-                }
                 else if (draggingObjects.Count > 0)
                 {
                     float offset = cursorMs - draggingObjects[0].DragStartMs;

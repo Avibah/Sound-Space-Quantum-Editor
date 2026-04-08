@@ -9,17 +9,17 @@ namespace New_SSQE.NewGUI.Windows
 {
     internal partial class GuiWindowEditor
     {
-        public static readonly GuiButton LNavOptions = new(10, 140, 175, 50)
+        public static readonly GuiButton LNavOptions = new(10, 172, 175, 50)
         {
             Text = "OPTIONS",
             TextSize = 31
         };
-        public static readonly GuiButton LNavTiming = new(195, 140, 175, 50)
+        public static readonly GuiButton LNavTiming = new(195, 172, 175, 50)
         {
             Text = "TIMING",
             TextSize = 31
         };
-        public static readonly GuiButton LNavPatterns = new(380, 140, 175, 50)
+        public static readonly GuiButton LNavPatterns = new(380, 172, 175, 50)
         {
             Text = "PATTERNS",
             TextSize = 31
@@ -30,17 +30,17 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 31
         };
 
-        public static readonly GuiButton RNavSnapping = new(1365, 140, 175, 50)
+        public static readonly GuiButton RNavSnapping = new(1365, 172, 175, 50)
         {
             Text = "SNAPPING",
             TextSize = 31
         };
-        public static readonly GuiButton RNavGraphics = new(1550, 140, 175, 50)
+        public static readonly GuiButton RNavGraphics = new(1550, 172, 175, 50)
         {
             Text = "GRAPHICS",
             TextSize = 31
         };
-        public static readonly GuiButton RNavExport = new(1735, 140, 175, 50)
+        public static readonly GuiButton RNavExport = new(1735, 172, 175, 50)
         {
             Text = "EXPORT",
             TextSize = 31
@@ -94,7 +94,7 @@ namespace New_SSQE.NewGUI.Windows
             Text = "Edit Extra Objects",
             TextSize = 26,
         };
-        public static readonly ControlContainer OptionsNav = new(10, 190, 545, 756, Numpad, SeparateClickTools, SwapClickMode, JumpOnPaste, PauseOnScroll, EditMapVFX, EditSpecial);
+        public static readonly ControlContainer OptionsNav = new(10, 222, 545, 756, Numpad, SeparateClickTools, SwapClickMode, JumpOnPaste, PauseOnScroll, EditMapVFX, EditSpecial);
 
         // Timing
         public static readonly GuiTextboxNumeric ExportOffset = new(0, 50, 130, 40)
@@ -169,7 +169,7 @@ namespace New_SSQE.NewGUI.Windows
             CenterMode = CenterMode.None
         };
 
-        public static readonly ControlContainer TimingNav = new(10, 190, 545, 756, ExportOffset, SfxOffset, MusicOffset, OpenTimings, ImportIni, Metronome,
+        public static readonly ControlContainer TimingNav = new(10, 222, 545, 756, ExportOffset, SfxOffset, MusicOffset, OpenTimings, ImportIni, Metronome,
             OpenBookmarks, CopyBookmarks, PasteBookmarks, ExportOffsetLabel, SfxOffsetLabel, MusicOffsetLabel);
 
         // Patterns
@@ -278,7 +278,7 @@ namespace New_SSQE.NewGUI.Windows
             CenterMode = CenterMode.None
         };
 
-        public static readonly ControlContainer PatternsNav = new(10, 190, 545, 756, HFlip, VFlip, RotateBox, RotateButton, ScaleBox, ScaleButton, ApplyOnPaste, ClampSR, PasteReversed,
+        public static readonly ControlContainer PatternsNav = new(10, 222, 545, 756, HFlip, VFlip, RotateBox, RotateButton, ScaleBox, ScaleButton, ApplyOnPaste, ClampSR, PasteReversed,
             StoreNodes, ClearNodes, CurveBezier, BezierBox, BezierButton, RotateLabel, ScaleLabel, DrawBezierLabel);
 
         // Player
@@ -434,7 +434,7 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 30
         };
 
-        public static readonly ControlContainer PlayerNav = new(10, 190, 545, 836, CameraMode, NoteScale, CursorScale, LockCursor, GridGuides, Sensitivity, Parallax, FieldOfView,
+        public static readonly ControlContainer PlayerNav = new(10, 222, 545, 836, CameraMode, NoteScale, CursorScale, LockCursor, GridGuides, Sensitivity, Parallax, FieldOfView,
             ApproachDistance, HitWindow, PlayerApproachRate, ApproachFade, FromStart, PlayMap, CameraModeLabel, NoteScaleLabel, CursorScaleLabel, SensitivityLabel,
             ParallaxLabel, FieldOfViewLabel, ApproachDistanceLabel, HitWindowLabel, PlayerApproachRateLabel);
 
@@ -483,20 +483,20 @@ namespace New_SSQE.NewGUI.Windows
             Text = "Fevers",
             TextSize = 26
         };
-        public static readonly GuiButton SpecialNavNotes = new(0, 700, 150, 30)
+        public static readonly GuiButton SpecialNavNotes = new(0, 668, 150, 30)
         {
             Text = "Modify Notes",
             TextSize = 26
         };
         public static readonly RadioButtonController SpecialNavController = new(null, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric, SpecialNavFever, SpecialNavNotes);
-        public static readonly ControlContainer SpecialNavNova = new(10, 200, 545, 756, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric, SpecialNavFever, SpecialNavNotes);
+        public static readonly ControlContainer SpecialNavNova = new(10, 232, 545, 756, SpecialNavBeat, SpecialNavMine, SpecialNavGlide, SpecialNavLyric, SpecialNavFever, SpecialNavNotes);
 
         public static readonly GuiButtonList GameSwitch = new(10, 946, 545, 50, Settings.modchartGame)
         {
             Prefix = "GAME: ",
             TextSize = 31
         };
-        public static readonly GuiButton SpecialNavExit = new(10, 140, 545, 50)
+        public static readonly GuiButton SpecialNavExit = new(10, 172, 545, 50)
         {
             Text = "CLOSE EXTRA OBJECTS",
             TextSize = 31
@@ -540,7 +540,7 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 20,
             CenterMode = CenterMode.None
         };
-        public static readonly ControlContainer LyricNav = new(175, 200, 370, 756, LyricBox, LyricFadeIn, LyricFadeOut, LyricCreate, LyricInfo)
+        public static readonly ControlContainer LyricNav = new(175, 232, 370, 756, LyricBox, LyricFadeIn, LyricFadeOut, LyricCreate, LyricInfo)
         {
             Visible = false
         };
@@ -565,7 +565,7 @@ namespace New_SSQE.NewGUI.Windows
             Text = "Apply Modifications",
             TextSize = 26
         };
-        public static readonly ControlContainer NoteNav = new(175, 200, 370, 756, NoteEnableEasing, NoteEasingDirection, NoteEasingStyle, NoteApplyModifiers)
+        public static readonly ControlContainer NoteNav = new(175, 232, 370, 756, NoteEnableEasing, NoteEasingDirection, NoteEasingStyle, NoteApplyModifiers)
         {
             Visible = false
         };
@@ -611,7 +611,15 @@ namespace New_SSQE.NewGUI.Windows
             Style = ControlStyle.None,
             ShiftIncrement = 0.5f
         };
-        public static readonly GuiSlider QuantumSnapDivisor = new(245, 250, 250, 32, Settings.quantumSnapping)
+        public static readonly GuiSlider QuantumSnapDivisor = new(245, 240, 250, 32, Settings.quantumSnapping)
+        {
+            Style = ControlStyle.None
+        };
+        public static readonly GuiSlider QuantumXOffset = new(245, 310, 250, 32, Settings.quantumXOffset)
+        {
+            Style = ControlStyle.None
+        };
+        public static readonly GuiSlider QuantumYOffset = new(245, 380, 250, 32, Settings.quantumYOffset)
         {
             Style = ControlStyle.None
         };
@@ -621,12 +629,24 @@ namespace New_SSQE.NewGUI.Windows
             ColorSetting = Settings.color1,
             TextSize = 30
         };
-        public static readonly GuiLabel SnappingLabel = new(245, 220, 250, 32)
+        public static readonly GuiLabel SnappingLabel = new(245, 210, 250, 32)
         {
             ColorSetting = Settings.color1,
             TextSize = 30
         };
-        public static readonly ControlContainer SnappingNav = new(1365, 190, 545, 756, Quantum, QuantumGridSnap, AutoAdvance, BeatSnapDivisor, QuantumSnapDivisor, BeatDivisorLabel, SnappingLabel);
+        public static readonly GuiLabel QuantumXLabel = new(245, 280, 250, 32)
+        {
+            ColorSetting = Settings.color1,
+            TextSize = 30
+        };
+        public static readonly GuiLabel QuantumYLabel = new(245, 350, 250, 32)
+        {
+            ColorSetting = Settings.color1,
+            TextSize = 30
+        };
+
+        public static readonly ControlContainer SnappingNav = new(1365, 222, 545, 756, Quantum, QuantumGridSnap, AutoAdvance,
+            BeatSnapDivisor, QuantumSnapDivisor, BeatDivisorLabel, SnappingLabel, QuantumXOffset, QuantumYOffset, QuantumXLabel, QuantumYLabel);
 
         // Graphics
         public static readonly GuiCheckbox Autoplay = new(245, 10, 30, 30)
@@ -685,7 +705,7 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 28
         };
 
-        public static readonly ControlContainer GraphicsNav = new(1365, 190, 545, 756, Autoplay, ApproachSquares, GridNumbers, GridLetters, QuantumGridLines, ApproachRate, TrackCursorPos,
+        public static readonly ControlContainer GraphicsNav = new(1365, 222, 545, 756, Autoplay, ApproachSquares, GridNumbers, GridLetters, QuantumGridLines, ApproachRate, TrackCursorPos,
             ApproachRateLabel, CursorPosLabel, SmoothAutoplay);
 
         // Export
@@ -737,7 +757,7 @@ namespace New_SSQE.NewGUI.Windows
             CenterMode = CenterMode.None
         };
 
-        public static readonly ControlContainer ExportNav = new(1365, 190, 545, 756, SaveButton, SaveAsButton, ExportSwitch, ExportButton, ReplaceIDBox, ReplaceID, ConvertAudio,
+        public static readonly ControlContainer ExportNav = new(1365, 222, 545, 756, SaveButton, SaveAsButton, ExportSwitch, ExportButton, ReplaceIDBox, ReplaceID, ConvertAudio,
             ReplaceIDLabel, SRLabel);
         public static readonly GuiRadioPanelButton ConstantNavController = new(0,
             (RNavSnapping, SnappingNav),
@@ -790,14 +810,14 @@ namespace New_SSQE.NewGUI.Windows
         {
             TextSize = 42
         };
-        public static readonly GuiLabel ZoomLabel = new(565, 140, 80, 30)
+        public static readonly GuiLabel ZoomLabel = new(565, 172, 80, 30)
         {
             ColorSetting = Settings.color1,
             Text = "Zoom:",
             TextSize = 32,
             CenterMode = CenterMode.None
         };
-        public static readonly GuiLabel ZoomValueLabel = new(640, 140, 80, 30)
+        public static readonly GuiLabel ZoomValueLabel = new(640, 172, 80, 30)
         {
             ColorSetting = Settings.color2,
             TextSize = 32,
