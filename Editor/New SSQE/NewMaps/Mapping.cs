@@ -68,6 +68,7 @@ namespace New_SSQE.NewMaps
                         Thread.Sleep((int)(Settings.autosaveInterval.Value * 60000f));
                         if (currentAutosave == time)
                             Autosave();
+                        Settings.Save(false);
                     }
                 });
             }
