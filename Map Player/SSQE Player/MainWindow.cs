@@ -77,8 +77,7 @@ namespace SSQE_Player
                     float fps = Settings.fpsLimit.Value.Value;
                     float max = Settings.fpsLimit.Value.Max;
 
-                    RenderFrequency = Math.Round(fps) == Math.Round(max) ? 0f : fps + 60f;
-                    UpdateFrequency = RenderFrequency;
+                    UpdateFrequency = Math.Round(fps) == Math.Round(max) ? 0f : fps + 60f;
                 }
             }
 
@@ -246,16 +245,12 @@ namespace SSQE_Player
         {
             if (e.Width > 0 && e.Height > 0)
             {
-                int w = Math.Max(e.Width, 1280);
-                int h = Math.Max(e.Height, 720);
-                Size = (w, h);
+                base.OnResize(new(e.Width, e.Height));
+                GL.Viewport(0, 0, e.Width, e.Height);
 
-                GL.Viewport(0, 0, w, h);
-                base.OnResize(new(w, h));
+                Shader.UploadOrtho(Shader.FontTexProgram, e.Width, e.Height);
 
-                Shader.UploadOrtho(Shader.FontTexProgram, w, h);
-
-                CurrentWindow?.OnResize(Size);
+                CurrentWindow?.OnResize(e.Size);
 
                 if (Instance == null)
                     return;

@@ -34,7 +34,7 @@ namespace SSQE_Player
             GL.Uniform4f(location, StbFont.CharRange, main.AtlasMetrics);
 
             location = GL.GetUniformLocation(Shader.FontTexProgram, "CharSize");
-            GL.Uniform2f(location, main.CharSize);
+            GL.Uniform2f(location, 1, ref main.CharSize);
         }
 
         public static void SetActive()
@@ -49,10 +49,10 @@ namespace SSQE_Player
         {
             alpha ??= new float[data.Length];
 
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, main.VbOs[0]);
-            GL.BufferData(BufferTargetARB.ArrayBuffer, data, BufferUsageARB.DynamicDraw);
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, main.VbOs[1]);
-            GL.BufferData(BufferTargetARB.ArrayBuffer, alpha, BufferUsageARB.DynamicDraw);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, main.VbOs[0]);
+            GL.BufferData(BufferTarget.ArrayBuffer, data.Length * 4 * sizeof(float), data, BufferUsage.DynamicDraw);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, main.VbOs[1]);
+            GL.BufferData(BufferTarget.ArrayBuffer, alpha.Length * sizeof(float), alpha, BufferUsage.DynamicDraw);
 
             GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, data.Length);
         }

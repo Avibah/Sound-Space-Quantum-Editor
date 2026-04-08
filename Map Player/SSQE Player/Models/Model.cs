@@ -7,11 +7,11 @@ namespace SSQE_Player.Models
     internal class Model
     {
         public readonly int vertexCount;
-        private readonly VertexArrayHandle VaO;
+        private readonly int VaO;
 
         public Vector3 Size;
 
-        public Model(float[] vertices, float scale, VertexArrayHandle vao)
+        public Model(float[] vertices, float scale, int vao)
         {
             VaO = vao;
 

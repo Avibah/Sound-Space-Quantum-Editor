@@ -8,9 +8,9 @@ namespace SSQE_Player.GUI
     {
         // Texture15: "main" font
         
-        public static ProgramHandle Program;
-        public static ProgramHandle ModelProgram;
-        public static ProgramHandle FontTexProgram;
+        public static int Program;
+        public static int ModelProgram;
+        public static int FontTexProgram;
 
         private static readonly string vertexShader = @"#version 330 core
 layout (location = 0) in vec3 position;
@@ -113,17 +113,17 @@ void main()
             uniforms.Add("ModelView", GL.GetUniformLocation(ModelProgram, "viewMatrix"));
         }
 
-        private static ProgramHandle CompileShader(string vertShader, string fragShader)
+        private static int CompileShader(string vertShader, string fragShader)
         {
-            ShaderHandle vs = GL.CreateShader(ShaderType.VertexShader);
+            int vs = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vs, vertShader);
             GL.CompileShader(vs);
 
-            ShaderHandle fs = GL.CreateShader(ShaderType.FragmentShader);
+            int fs = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fs, fragShader);
             GL.CompileShader(fs);
 
-            ProgramHandle program = GL.CreateProgram();
+            int program = GL.CreateProgram();
             GL.AttachShader(program, vs);
             GL.AttachShader(program, fs);
 
@@ -138,38 +138,38 @@ void main()
             return program;
         }
 
-        public static void UploadOrtho(ProgramHandle program, float w, float h)
+        public static void UploadOrtho(int program, float w, float h)
         {
             Matrix4 ortho = Matrix4.CreateOrthographicOffCenter(0.0f, w, h, 0.0f, 0.0f, 1.0f);
 
             GL.UseProgram(program);
             int location = GL.GetUniformLocation(program, "Projection");
-            GL.UniformMatrix4f(location, false, ortho);
+            GL.UniformMatrix4f(location, 1, false, ref ortho);
         }
 
         public static void SetTransform(Matrix4 transform)
         {
             GL.UseProgram(ModelProgram);
-            GL.UniformMatrix4f(uniforms["ModelTransformation"], false, transform);
+            GL.UniformMatrix4f(uniforms["ModelTransformation"], 1, false, ref transform);
         }
 
         public static void SetProjection(Matrix4 projection)
         {
             GL.UseProgram(ModelProgram);
-            GL.UniformMatrix4f(uniforms["ModelProjection"], false, projection);
+            GL.UniformMatrix4f(uniforms["ModelProjection"], 1, false, ref projection);
         }
 
         public static void SetView(Matrix4 view)
         {
             GL.UseProgram(ModelProgram);
-            GL.UniformMatrix4f(uniforms["ModelView"], false, view);
+            GL.UniformMatrix4f(uniforms["ModelView"], 1, false, ref view);
         }
 
         public static void SetProjView(Matrix4 projection, Matrix4 view)
         {
             GL.UseProgram(Program);
             Matrix4 projview = view * projection;
-            GL.UniformMatrix4f(uniforms["VertexProjection"], false, projview);
+            GL.UniformMatrix4f(uniforms["VertexProjection"], 1, false, ref projview);
         }
     }
 }

@@ -50,8 +50,8 @@ namespace SSQE_Player.GUI
         public int Pauses;
         public float PauseTime = float.MinValue;
 
-        private VertexArrayHandle VaO;
-        private BufferHandle VbO;
+        private int VaO;
+        private int VbO;
         private int vertexCount;
 
         private int frames;
@@ -107,16 +107,16 @@ namespace SSQE_Player.GUI
             GL.BindVertexArray(VaO);
 
             float[] vertices = Update();
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, VbO);
-            GL.BufferData(BufferTargetARB.ArrayBuffer, vertices, BufferUsageARB.StaticDraw);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VbO);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsage.StaticDraw);
 
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 7 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
             GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, 7 * sizeof(float), 3 * sizeof(float));
             GL.EnableVertexAttribArray(1);
 
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, BufferHandle.Zero);
-            GL.BindVertexArray(VertexArrayHandle.Zero);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindVertexArray(0);
         }
 
         public override void Render(float frametime)
@@ -141,8 +141,8 @@ namespace SSQE_Player.GUI
 
             GL.Disable(EnableCap.CullFace);
             float[] vertices = Update();
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, VbO);
-            GL.BufferData(BufferTargetARB.ArrayBuffer, vertices, BufferUsageARB.StaticDraw);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VbO);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsage.StaticDraw);
             GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
             GL.Enable(EnableCap.CullFace);
 
@@ -332,7 +332,7 @@ namespace SSQE_Player.GUI
 
         private void HitNote(int index)
         {
-            health = MathHelper.Clamp(health + healthRegen, 0, maxHealth);
+            health = Math.Clamp(health + healthRegen, 0, maxHealth);
 
             frameHit++;
 
@@ -344,7 +344,7 @@ namespace SSQE_Player.GUI
 
         private void MissNote(int index)
         {
-            health = MathHelper.Clamp(health - healthPenalty, 0, maxHealth);
+            health = Math.Clamp(health - healthPenalty, 0, maxHealth);
 
             if (health <= 0)
                 healthColor = Color.FromArgb(255, 100, 0);

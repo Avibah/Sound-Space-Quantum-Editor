@@ -1,11 +1,7 @@
-﻿using System;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SkiaSharp;
-using System.IO;
 using StbTrueTypeSharp;
-using System.Linq;
 
 namespace SSQE_Player
 {
@@ -29,14 +25,14 @@ namespace SSQE_Player
 
         public Vector2 CharSize;
         public Vector4[] AtlasMetrics;
-        public VertexArrayHandle VaO;
-        public BufferHandle[] VbOs;
-        public BufferHandle StaticVbO;
+        public int VaO;
+        public int[] VbOs;
+        public int StaticVbO;
 
         private readonly int _baseline;
-        private readonly TextureHandle _handle;
+        private readonly int _handle;
 
-        public TextureHandle Handle => _handle;
+        public int Handle => _handle;
 
         // Change unit to store multiple fonts without having to switch between handles while rendering
         // Otherwise extract the handle via StbFont.Handle and manage switching elsewhere
@@ -135,14 +131,14 @@ namespace SSQE_Player
             surface.Dispose();
 
             // Prep instance data in shader
-            VbOs = new BufferHandle[2];
+            VbOs = new int[2];
 
             VaO = GL.GenVertexArray();
             VbOs[0] = GL.GenBuffer();
             VbOs[1] = GL.GenBuffer();
             StaticVbO = GL.GenBuffer();
 
-            float[] data = new float[12] {
+            float[] data = [
                 0, 0,
                 CharSize.X, 0,
                 0, CharSize.Y,
@@ -150,28 +146,28 @@ namespace SSQE_Player
                 CharSize.X, CharSize.Y,
                 0, CharSize.Y,
                 CharSize.X, 0
-            };
+            ];
 
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, StaticVbO);
-            GL.BufferData(BufferTargetARB.ArrayBuffer, data, BufferUsageARB.StaticDraw);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, StaticVbO);
+            GL.BufferData(BufferTarget.ArrayBuffer, data.Length * sizeof(float), data, BufferUsage.StaticDraw);
 
             GL.BindVertexArray(VaO);
 
             GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 2 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
 
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, VbOs[0]);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VbOs[0]);
             GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
             GL.EnableVertexAttribArray(1);
             GL.VertexAttribDivisor(1, 1);
 
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, VbOs[1]);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VbOs[1]);
             GL.VertexAttribPointer(2, 1, VertexAttribPointerType.Float, false, 1 * sizeof(float), 0);
             GL.EnableVertexAttribArray(2);
             GL.VertexAttribDivisor(2, 1);
 
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, BufferHandle.Zero);
-            GL.BindVertexArray(VertexArrayHandle.Zero);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindVertexArray(0);
 
             // Load the texture into memory
             _handle = GL.GenTexture();

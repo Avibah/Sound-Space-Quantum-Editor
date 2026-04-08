@@ -46,8 +46,8 @@ namespace SSQE_Player.GUI
                 else
                     pos = (LockedPos.X, LockedPos.Y, 0);
 
-                float xf = MathHelper.Clamp(pos.X, -1.5f + cursorSize.X / 2f, 1.5f - cursorSize.X / 2f);
-                float yf = MathHelper.Clamp(pos.Y, -1.5f + cursorSize.Y / 2f, 1.5f - cursorSize.Y / 2f);
+                float xf = Math.Clamp(pos.X, -1.5f + cursorSize.X / 2f, 1.5f - cursorSize.X / 2f);
+                float yf = Math.Clamp(pos.Y, -1.5f + cursorSize.Y / 2f, 1.5f - cursorSize.Y / 2f);
 
                 MainWindow.Instance.CursorPos = (xf, yf, 0);
             }
@@ -56,15 +56,15 @@ namespace SSQE_Player.GUI
         public void SetReplay(Vector2 mouse)
         {
             if (camMode == "spin")
-                rotation = (MathHelper.Clamp(-mouse.Y / 4.6f, -rad88, rad88), MathHelper.Pi - mouse.X / 4.6f);
+                rotation = (Math.Clamp(-mouse.Y / 4.6f, -rad88, rad88), MathHelper.Pi - mouse.X / 4.6f);
             else
             {
                 LockedPos = mouse;
 
                 Vector3 cursorSize = MainWindow.CursorSize;
 
-                float xf = MathHelper.Clamp(LockedPos.X, -1.5f + cursorSize.X / 2f, 1.5f - cursorSize.X / 2f);
-                float yf = MathHelper.Clamp(LockedPos.Y, -1.5f + cursorSize.Y / 2f, 1.5f - cursorSize.Y / 2f);
+                float xf = Math.Clamp(LockedPos.X, -1.5f + cursorSize.X / 2f, 1.5f - cursorSize.X / 2f);
+                float yf = Math.Clamp(LockedPos.Y, -1.5f + cursorSize.Y / 2f, 1.5f - cursorSize.Y / 2f);
 
                 if (lockCursor)
                     LockedPos = (xf, yf);
@@ -79,15 +79,15 @@ namespace SSQE_Player.GUI
         public void SetMouse(Vector2 mouse)
         {
             if (camMode == "spin")
-                rotation = (MathHelper.Clamp(rotation.X + mouse.Y / 1000f * sensitivity, -rad88, rad88), rotation.Y + mouse.X / 1000f * sensitivity);
+                rotation = (Math.Clamp(rotation.X + mouse.Y / 1000f * sensitivity, -rad88, rad88), rotation.Y + mouse.X / 1000f * sensitivity);
             else
             {
                 LockedPos -= (mouse.X / 250f * sensitivity, mouse.Y / 250f * sensitivity);
 
                 Vector3 cursorSize = MainWindow.CursorSize;
 
-                float xf = MathHelper.Clamp(LockedPos.X, -1.5f + cursorSize.X / 2f, 1.5f - cursorSize.X / 2f);
-                float yf = MathHelper.Clamp(LockedPos.Y, -1.5f + cursorSize.Y / 2f, 1.5f - cursorSize.Y / 2f);
+                float xf = Math.Clamp(LockedPos.X, -1.5f + cursorSize.X / 2f, 1.5f - cursorSize.X / 2f);
+                float yf = Math.Clamp(LockedPos.Y, -1.5f + cursorSize.Y / 2f, 1.5f - cursorSize.Y / 2f);
 
                 if (lockCursor)
                     LockedPos = (xf, yf);
