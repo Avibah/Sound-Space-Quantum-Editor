@@ -60,15 +60,21 @@ namespace New_SSQE
             return new(image);
         }
 
-        private static void OnDebugMessage(DebugSource source, DebugType type, uint id, DebugSeverity severity, int length, IntPtr pMessage, IntPtr pUserParam)
+        private static readonly GLDebugProc DebugMessageDelegate = (source, type, id, severity, length, pMessage, pUserParam) =>
         {
             string message = Marshal.PtrToStringAnsi(pMessage, length);
 
             if (type == DebugType.DebugTypeError)
                 Logging.Log($"[{severity} source={source} type={type} id={id}] {message}", LogSeverity.WARN);
-        }
-        private static readonly GLDebugProc DebugMessageDelegate = OnDebugMessage;
-        
+        };
+
+        // because wayland is annoying and throws errors for random bs
+        private static readonly GLFWCallbacks.ErrorCallback GLFWErrorDelegate = (errorCode, description) =>
+        {
+            if (errorCode != OpenTK.Windowing.GraphicsLibraryFramework.ErrorCode.FeatureUnavailable)
+                Logging.Log($"[{errorCode}] {description}", LogSeverity.WARN);
+        };
+
         public static int MaxSamples = 0;
         public static int MaxNoteColors = 32;
 
@@ -82,13 +88,14 @@ namespace New_SSQE
             Title = $"Sound Space Quantum Editor {Program.Version}",
             WindowState = WindowState.Maximized,
             NumberOfSamples = samples,
-            Icon = GetWindowIcon(),
             Flags = DebugVersion ? ContextFlags.Debug : 0,
             //TransparentFramebuffer = true, // o.o
 
             APIVersion = Platforms.RequestedAPI
         })
         {
+            GLFW.SetErrorCallback(GLFWErrorDelegate);
+            Icon = GetWindowIcon();
             MSAA = samples > 0;
             
             // requires higher OpenGL version
