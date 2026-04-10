@@ -132,7 +132,7 @@ namespace New_SSQE.NewGUI
                 PixelFormat.Bgra, PixelType.UnsignedByte, pixels);
         }
 
-        public static int NewTexture(TextureUnit texUnit, bool smooth = false)
+        public static int NewTexture(TextureUnit texUnit, bool smooth = true)
         {
             int texture = GL.GenTexture();
             EnableTextureUnit(Shader.Texture, texUnit);
@@ -144,9 +144,9 @@ namespace New_SSQE.NewGUI
             return texture;
         }
 
-        public static int NewTexture(int width, int height, nint pixels, TextureUnit texUnit)
+        public static int NewTexture(int width, int height, nint pixels, TextureUnit texUnit, bool smooth = true)
         {
-            int texture = NewTexture(texUnit);
+            int texture = NewTexture(texUnit, smooth);
             LoadTexture(texture, width, height, pixels, texUnit);
 
             return texture;

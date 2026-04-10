@@ -9,7 +9,7 @@ namespace New_SSQE.NewGUI
     {
         private static readonly Dictionary<string, (int, SKBitmap)> textures = [];
 
-        public static int Generate(string texture, SKBitmap? image = null, bool smooth = false, TextureUnit texUnit = TextureUnit.Texture0)
+        public static int Generate(string texture, SKBitmap? image = null, bool smooth = true, TextureUnit texUnit = TextureUnit.Texture0)
         {
             if (textures.TryGetValue(texture, out (int, SKBitmap) value))
                 return value.Item1;

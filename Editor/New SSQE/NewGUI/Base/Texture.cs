@@ -52,7 +52,7 @@ namespace New_SSQE.NewGUI.Base
             Draw(color.A / 255f);
         }
 
-        public Texture(string texture, SKBitmap? img = null, bool smooth = false, TextureUnit unit = TextureUnit.Texture0)
+        public Texture(string texture, SKBitmap? img = null, bool smooth = true, TextureUnit unit = TextureUnit.Texture0)
         {
             this.texture = Texturing.Generate(texture, img, smooth, unit);
             texUnit = unit;
@@ -63,7 +63,7 @@ namespace New_SSQE.NewGUI.Base
                 Dispose();
         }
 
-        public Texture(string texture) : this(texture, null, false, TextureUnit.Texture0) { }
+        public Texture(string texture) : this(texture, null, true, TextureUnit.Texture0) { }
 
         public void Draw(RectangleF rect, float alpha = 1)
         {

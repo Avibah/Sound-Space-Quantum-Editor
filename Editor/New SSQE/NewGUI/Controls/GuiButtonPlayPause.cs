@@ -7,7 +7,7 @@ namespace New_SSQE.NewGUI.Controls
 {
     internal class GuiButtonPlayPause : GuiButtonTextured
     {
-        public GuiButtonPlayPause(float x, float y, float w, float h) : base(x, y, w, h, new("widgets", null, false, TextureUnit.Texture1))
+        public GuiButtonPlayPause(float x, float y, float w, float h) : base(x, y, w, h, new("widgets", null, true, TextureUnit.Texture1))
         {
             TileSize = (2, 2);
             Style = ControlStyle.Transparent;
