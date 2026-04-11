@@ -1,4 +1,9 @@
 ----------------------------------
+   -- P-2.1.6.1 - 4/11/2026 --
+
+- fixed crashing after reaching the last note in a map
+
+----------------------------------
     -- 2.3.4.0 - 4/10/2026 --
 
 - fully rewrote the audio engine, now powered by SoundFlow & SoundTouch instead of Bass.Net
