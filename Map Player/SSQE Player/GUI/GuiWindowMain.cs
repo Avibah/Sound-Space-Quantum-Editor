@@ -202,6 +202,8 @@ namespace SSQE_Player.GUI
 
             int low = main.BinarySearchFirst((long)minMs);
             int high = main.BinarySearchLast((long)maxMs);
+            while (noteSet[low] && low > 0)
+                low--;
             if (main.Notes.Length > 0 && main.Notes[high].Ms <= (long)maxMs && main.Notes[low].Ms >= (long)minMs)
                 high++;
             int range = high - low;
@@ -239,8 +241,6 @@ namespace SSQE_Player.GUI
 
             main.ModelManager.Render(positions, colors, range, "note");
 
-            while (noteSet[MainWindow.AutoIndex] && MainWindow.Instance.Notes[MainWindow.AutoIndex].Ms + hitWindow * 2 < currentTime)
-                MissNote(MainWindow.AutoIndex++);
             while (!noteSet[MainWindow.AutoIndex])
                 MainWindow.AutoIndex++;
         }
