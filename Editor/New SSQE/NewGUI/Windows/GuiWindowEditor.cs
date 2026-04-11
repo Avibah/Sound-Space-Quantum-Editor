@@ -263,6 +263,8 @@ namespace New_SSQE.NewGUI.Windows
             {
                 if (Mapping.Save())
                     ShowInfo("SAVED");
+                else
+                    ShowWarn("FAILED TO SAVE");
             };
             SaveButton.BindKeybind("save");
 
@@ -270,6 +272,8 @@ namespace New_SSQE.NewGUI.Windows
             {
                 if (Mapping.SaveAs())
                     ShowInfo("SAVED");
+                else
+                    ShowWarn("FAILED TO SAVE");
             };
             SaveAsButton.BindKeybind("saveAs");
 
