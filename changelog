@@ -1,4 +1,57 @@
 ----------------------------------
+    -- 2.3.4.0 - 4/10/2026 --
+
+- fully rewrote the audio engine, now powered by SoundFlow & SoundTouch instead of Bass.Net
+- integrated message boxes within the main window, fixing messages in fullscreen and several bugs on Linux
+
+- added support for Vulnus importing and PHXM exporting
+- mp3 encoding is now available on Linux
+- disabled the BPM tapper window on Linux due to instability
+
+- quantum snapping is now centered on the 4 corners of the grid instead of the middle for more consistent scaling
+- added X and Y offset sliders for quantum snapping
+
+- hovering over a note on the track now hides the numbers and times of other notes
+- metronome now ignores beat divisor
+- raised the maximum zoom to 2000%
+
+- note colors are now capped by your hardware instead of being limited to 32 colors
+- buttons now have a gradient effect applied to them (can be disabled in settings)
+- font sizes can now be decimals for smoother scaling
+
+- fixed crashing when trying to load more note colors than are supported
+- fixed size of rendered timing points
+- fixed timing point hitboxes not scaling with screen size
+- fixed files created on Linux not always having a file extension
+- fixed creating a Sound Space map with an audio file and an ID not automatically using the file
+- fixed osu importing not keeping notes
+- fixed phxm importing incorrectly parsing timestamps
+- fixed the 'Edit Last Map' button being incorrectly placed when reopening the menu
+- fixed left/right scrolling on trackpads not working
+- fixed clicks being one frame behind
+- fixed being unable to deselect a dragged timing point
+- fixed autosave pausing the current map
+- fixed note easing dropdowns sometimes not responding to clicks
+- fixed dropdown buttons sometimes locking the scroll wheel when closed
+- fixed invalid default directories causing file dialogs to fail to open
+- fixed the 'Draw Bezier' keybind applying twice when pressed
+- fixed the 'Open Bookmarks' and 'Open Timings' keybinds opening their respective panels twice when pressed
+- fixed zooming out causing hit sounds to play when too far from a note
+- fixed autosave failing to preserve unsaved maps after a crash
+- fixed crashes from various unsupported features under wayland
+
+   -- P-2.1.6.0 - 4/10/2026 --
+
+- new audio engine alongside editor
+- added hit sound polyphony support
+
+- made the info block a little smaller
+- added a label on the bottom with the current time in the song
+
+- fixed long frametime spikes causing notes to be skipped entirely
+- exiting fullscreen might be slightly less wonky
+
+----------------------------------
     -- 2.3.3.1 - 11/3/2025 --
 
 - added an option in 'Settings/Audio' for the max number of sounds that can play in one frame (Polyphony)
