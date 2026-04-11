@@ -202,7 +202,7 @@ namespace SSQE_Player.GUI
 
             int low = main.BinarySearchFirst((long)minMs);
             int high = main.BinarySearchLast((long)maxMs);
-            while (noteSet[low] && low > 0)
+            while (low > 0 && noteSet[low - 1])
                 low--;
             if (main.Notes.Length > 0 && main.Notes[high].Ms <= (long)maxMs && main.Notes[low].Ms >= (long)minMs)
                 high++;
