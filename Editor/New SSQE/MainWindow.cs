@@ -104,7 +104,9 @@ namespace New_SSQE
                 GL.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
                 GL.Enable(EnableCap.DebugOutput);
             }
-            
+
+            Logging.Log($"GLFW version: {GLFW.GetVersionString()}");
+            Logging.Log($"GLFW platform: {GLFW.GetPlatform()}");
             Logging.Log($"Required OpenGL version: {APIVersion}");
             Logging.Log("Current OpenGL version: " + (GL.GetString(StringName.Version) ?? "N/A"));
 

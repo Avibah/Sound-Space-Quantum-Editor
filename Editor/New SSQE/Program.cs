@@ -4,6 +4,7 @@ using New_SSQE.Misc;
 using New_SSQE.NewMaps;
 using New_SSQE.Preferences;
 using New_SSQE.Services;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
@@ -33,8 +34,10 @@ namespace New_SSQE
             BuildAvaloniaApp();
 
             Settings.Load();
+            if (Platforms.IsLinux && Settings._use_x11.Value)
+                GLFW.InitHint(InitHintPlatform.Platform, Platform.X11);
+
             MainWindow.DebugVersion |= Settings.debugMode.Value;
-            
             MainWindow window = new(Settings.msaa.Value ? 32 : 0);
             CmdArgs.Watch();
 

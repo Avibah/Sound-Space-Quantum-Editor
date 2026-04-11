@@ -5,6 +5,8 @@ namespace New_SSQE.Preferences
 {
     internal partial class Settings
     {
+        public static readonly Setting<bool> _use_x11 = false;
+
         public static readonly Setting<bool> waveform = true;
         public static readonly Setting<bool> classicWaveform = false;
         public static readonly Setting<bool> enableAutosave = true;
