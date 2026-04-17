@@ -36,6 +36,8 @@ namespace New_SSQE.NewMaps
         public Dictionary<string, string> ArtistLinks = [];
         public Dictionary<string, long> MapperIds = [];
 
+        // TODO: move settings here
+
         public ObjectList<Note> Notes = [];
         public ObjectList<MapObject> VfxObjects = [];
         public ObjectList<MapObject> SpecialObjects = [];
@@ -287,17 +289,17 @@ namespace New_SSQE.NewMaps
         }
 
 
-        public void IncrementZoom(float increment)
+        public void IncrementZoom(float delta)
         {
             float zoom = Zoom;
             float step = 0.1f;
 
-            if (zoom < 0.1f || (zoom == 0.1f && increment < 0))
+            if (zoom < 0.1f || (zoom == 0.1f && delta < 0))
                 step /= 10f;
-            if (zoom > 10f || (zoom == 10f && increment > 0))
+            if (zoom > 10f || (zoom == 10f && delta > 0))
                 step *= 2f;
 
-            zoom = (float)Math.Round(zoom + increment * step, 2);
+            zoom = (float)Math.Round(zoom + delta * step, 2);
             if (zoom > 0.1f)
                 zoom = (float)Math.Round(zoom * 10) / 10;
 

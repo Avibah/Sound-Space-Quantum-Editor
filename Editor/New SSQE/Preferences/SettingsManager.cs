@@ -340,6 +340,10 @@ namespace New_SSQE.Preferences
                         keys.Add(setting);
                 }
 
+                for (int i = 0; i < patternKeys.Count; i++)
+                    if (patternKeys[i] == key)
+                        keys.Add($"pattern{i}");
+
                 if (ctrl || alt || shift)
                     return keys;
 
@@ -352,10 +356,6 @@ namespace New_SSQE.Preferences
                     if (gridKey == key)
                         keys.Add($"gridKey{value.Item1}|{value.Item2}");
                 }
-
-                for (int i = 0; i < patternKeys.Count; i++)
-                    if (patternKeys[i] == key)
-                        keys.Add($"pattern{i}");
             }
             catch { }
 

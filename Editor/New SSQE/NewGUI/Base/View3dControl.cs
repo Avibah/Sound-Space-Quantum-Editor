@@ -5,6 +5,8 @@ namespace New_SSQE.NewGUI.Base
 {
     internal abstract class View3dControl : InteractiveControl
     {
+        // TODO: redo all this and add a modifiable camera
+
         private int fbo;
         private int msaa_fbo;
         private int rbo;

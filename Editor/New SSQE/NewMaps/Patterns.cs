@@ -1,10 +1,10 @@
-﻿using New_SSQE.Objects.Managers;
-using New_SSQE.Objects;
+﻿using New_SSQE.Objects;
 using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using System.Numerics;
-using System.Drawing;
 using New_SSQE.NewGUI.Windows;
+using SoundTouch;
+using New_SSQE.Services;
 
 namespace New_SSQE.NewMaps
 {
@@ -12,34 +12,28 @@ namespace New_SSQE.NewMaps
     {
         public static void StorePattern(int index)
         {
-            string pattern = "";
-            long minDist = 0;
+            List<Note> notes = Mapping.Current.Notes.Selected;
+            if (notes.Count == 0)
+                return;
 
-            for (int i = 0; i + 1 < Mapping.Current.Notes.Selected.Count; i++)
+            TimingPoint point = Timing.GetCurrentBpm(notes[0].Ms);
+            bool onPoint = point.BPM > 0;
+
+            float interval = onPoint ? 60000 / point.BPM / (Settings.beatDivisor.Value.Value + 1f) : 0;
+            string pattern = onPoint ? "1" : "0";
+            long offset = notes[0].Ms;
+
+            foreach (Note note in notes)
             {
-                long dist = Math.Abs(Mapping.Current.Notes.Selected[i].Ms - Mapping.Current.Notes.Selected[i + 1].Ms);
-
-                if (dist > 0)
-                    minDist = minDist > 0 ? Math.Min(minDist, dist) : dist;
-            }
-
-            foreach (Note note in Mapping.Current.Notes.Selected)
-            {
-                long offset = Mapping.Current.Notes.Selected[0].Ms;
-
                 string x = note.X.ToString(Program.Culture);
                 string y = note.Y.ToString(Program.Culture);
-                string time = (minDist > 0 ? Math.Round((double)(note.Ms - offset) / minDist) : 0).ToString();
+                string time = (onPoint ? (note.Ms - offset) / interval : note.Ms - offset).ToString(Program.Culture);
 
                 pattern += $",{x}|{y}|{time}";
             }
 
-            if (pattern.Length > 0)
-                pattern = pattern[1..];
-
-            GuiWindowEditor.ShowInfo($"BOUND PATTERN {index}");
-
             Settings.patterns.Value[index] = pattern;
+            GuiWindowEditor.ShowInfo($"BOUND PATTERN {index}");
         }
 
         public static void ClearPattern(int index)
@@ -50,26 +44,65 @@ namespace New_SSQE.NewMaps
 
         public static void RecallPattern(int index)
         {
-            string pattern = Settings.patterns.Value[index];
-
-            if (pattern == "")
-                return;
-
-            string[] patternSplit = pattern.Split(',');
-            List<Note> toAdd = [];
-
-            foreach (string note in patternSplit)
+            try
             {
-                string[] noteSplit = note.Split('|');
-                float x = float.Parse(noteSplit[0], Program.Culture);
-                float y = float.Parse(noteSplit[1], Program.Culture);
-                int time = int.Parse(noteSplit[2]);
-                long ms = Timing.GetClosestBeatScroll((long)Settings.currentTime.Value.Value, false, time);
+                string pattern = Settings.patterns.Value[index];
+                if (pattern == "")
+                    return;
 
-                toAdd.Add(new(x, y, ms));
+                float offset = Settings.currentTime.Value.Value;
+                TimingPoint point = Timing.GetCurrentBpm(offset);
+                bool onPoint = point.BPM > 0;
+
+                string[] patternSplit = pattern.Split(',');
+                bool quantized = patternSplit[0] == "1";
+                List<Note> toAdd = [];
+
+                for (int i = 1; i < patternSplit.Length; i++)
+                {
+                    string note = patternSplit[i];
+                    string[] noteSplit = note.Split('|');
+
+                    float x = float.Parse(noteSplit[0], Program.Culture);
+                    float y = float.Parse(noteSplit[1], Program.Culture);
+                    float time = float.Parse(noteSplit[2], Program.Culture);
+
+                    if (!quantized)
+                        toAdd.Add(new(x, y, (long)(time + offset)));
+                    else
+                    {
+                        float bpm = onPoint ? point.BPM : 60;
+                        float interval = 60000 / bpm / (Settings.beatDivisor.Value.Value + 1f);
+
+                        toAdd.Add(new(x, y, (long)(time * interval + offset)));
+                    }
+                }
+
+                if (toAdd.Count == 0)
+                    return;
+
+                if (!quantized && onPoint)
+                {
+                    float interval = 60000 / point.BPM / (Settings.beatDivisor.Value.Value + 1f);
+                    float minDist = float.MaxValue;
+
+                    for (int i = 1; i < toAdd.Count; i++)
+                    {
+                        float dist = Math.Min(minDist, toAdd[i].Ms - toAdd[i - 1].Ms);
+                        if (dist > 0)
+                            minDist = dist;
+                    }
+
+                    for (int i = 1; i < toAdd.Count; i++)
+                        toAdd[i].Ms = (long)((toAdd[i].Ms - offset) / minDist * interval + offset);
+                }
+
+                Mapping.Current.Notes.Modify_Add("ADD PATTERN", toAdd);
             }
-
-            Mapping.Current.Notes.Modify_Add("ADD PATTERN", toAdd);
+            catch (Exception ex)
+            {
+                Logging.Log("Failed to place pattern", LogSeverity.WARN, ex);
+            }
         }
 
 

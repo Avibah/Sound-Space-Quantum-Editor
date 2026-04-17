@@ -57,39 +57,38 @@ namespace New_SSQE.NewGUI.Windows
                         {
                             Logging.Log($"Invalid Rhythia path - {Settings.rhythiaPath.Value}", LogSeverity.WARN);
                             ShowInfo("INVALID RHYTHIA PATH [MENU > SETTINGS > PLAYER]");
+                            break;
                         }
-                        else
+
+                        try
                         {
-                            try
+                            if (MusicPlayer.IsPlaying)
+                                MusicPlayer.Pause();
+
+                            Settings.Save();
+
+                            string txt = Assets.TempAt("tempmap.txt");
+
+                            TXT.Write(txt);
+
+                            string audioPath = Path.GetFullPath(audio).Replace("\\", "/");
+                            string txtPath = Path.GetFullPath(txt).Replace("\\", "/");
+
+                            ProcessStartInfo info = new(Settings.rhythiaPath.Value)
                             {
-                                if (MusicPlayer.IsPlaying)
-                                    MusicPlayer.Pause();
-
-                                Settings.Save();
-
-                                string txt = Assets.TempAt("tempmap.txt");
-
-                                TXT.Write(txt);
-
-                                string audioPath = Path.GetFullPath(audio).Replace("\\", "/");
-                                string txtPath = Path.GetFullPath(txt).Replace("\\", "/");
-
-                                ProcessStartInfo info = new(Settings.rhythiaPath.Value)
+                                ArgumentList =
                                 {
-                                    ArgumentList =
-                                    {
-                                        $"--a={audioPath}",
-                                        $"--t={txtPath}"
-                                    }
-                                };
+                                    $"--a={audioPath}",
+                                    $"--t={txtPath}"
+                                }
+                            };
 
-                                Process.Start(info);
-                            }
-                            catch (Exception ex)
-                            {
-                                Logging.Log("Failed to start Rhythia", LogSeverity.WARN, ex);
-                                ShowInfo("FAILED TO START RHYTHIA");
-                            }
+                            Process.Start(info);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logging.Log("Failed to start Rhythia", LogSeverity.WARN, ex);
+                            ShowInfo("FAILED TO START RHYTHIA");
                         }
                         break;
 

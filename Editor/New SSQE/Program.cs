@@ -52,23 +52,26 @@ namespace New_SSQE
 
         private static void LogSystemInfo()
         {
-            try
+            Task.Run(() =>
             {
-                HardwareInfo hwInfo = new();
-                hwInfo.RefreshOperatingSystem();
-                hwInfo.RefreshCPUList();
-                hwInfo.RefreshVideoControllerList();
+                try
+                {
+                    HardwareInfo hwInfo = new();
+                    hwInfo.RefreshOperatingSystem();
+                    hwInfo.RefreshCPUList();
+                    hwInfo.RefreshVideoControllerList();
 
-                Logging.Log($"Operating System: {hwInfo.OperatingSystem.Name} - {hwInfo.OperatingSystem.Version}");
-                foreach (var cpu in hwInfo.CpuList)
-                    Logging.Log($"CPU: {cpu.Name}");
-                foreach (var controller in hwInfo.VideoControllerList)
-                    Logging.Log($"Video: {controller.Name}");
-            }
-            catch
-            {
-                Logging.Log("Failed to fetch system information", LogSeverity.WARN);
-            }
+                    Logging.Log($"Operating System: {hwInfo.OperatingSystem.Name} - {hwInfo.OperatingSystem.Version}");
+                    foreach (var cpu in hwInfo.CpuList)
+                        Logging.Log($"CPU: {cpu.Name}");
+                    foreach (var controller in hwInfo.VideoControllerList)
+                        Logging.Log($"Video: {controller.Name}");
+                }
+                catch
+                {
+                    Logging.Log("Failed to fetch system information", LogSeverity.WARN);
+                }
+            });
         }
 
         private static void RegisterCrash(object e)
