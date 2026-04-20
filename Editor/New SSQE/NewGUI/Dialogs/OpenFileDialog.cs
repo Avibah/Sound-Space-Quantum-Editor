@@ -35,8 +35,19 @@ namespace New_SSQE.NewGUI.Dialogs
             }
             catch (Exception ex)
             {
-                Logging.Log($"Open NFD failed: {name} | {extensions}", LogSeverity.ERROR, ex);
-                GuiWindowEditor.ShowError("Failed to open dialog");
+                try
+                {
+                    NfdStatus status = Nfd.OpenDialog(out result, new Dictionary<string, string> {
+                        { name, extensions}
+                    });
+
+                    Logging.Log($"Open NFD fallback status: {status} | {result}");
+                }
+                catch
+                {
+                    Logging.Log($"Open NFD failed: {name} | {extensions}", LogSeverity.ERROR, ex);
+                    GuiWindowEditor.ShowError("Failed to open dialog");
+                }
             }
 
             Windowing.Enable();
