@@ -34,9 +34,6 @@ namespace New_SSQE.NewGUI.Font
 
         public int Handle => _handle;
 
-        private readonly StbTrueType.stbtt_fontinfo fontInfo;
-        private readonly float scale;
-
         // Change unit to store multiple fonts without having to switch between handles while rendering
         // Otherwise extract the handle via StbFont.Handle and manage switching elsewhere
         // TODO: bake the font instead of making a whole skbitmap thing for it, cache the metrics
@@ -52,8 +49,8 @@ namespace New_SSQE.NewGUI.Font
 
             AtlasMetrics = new Vector4[CharRange];
 
-            fontInfo = StbTrueType.CreateFont(File.ReadAllBytes(Assets.FontsAt($"{font}.ttf")), 0);
-            scale = StbTrueType.stbtt_ScaleForPixelHeight(fontInfo, OriginSize);
+            StbTrueType.stbtt_fontinfo fontInfo = StbTrueType.CreateFont(File.ReadAllBytes(Assets.FontsAt($"{font}.ttf")), 0);
+            float scale = StbTrueType.stbtt_ScaleForPixelHeight(fontInfo, OriginSize);
 
             int ascent, descent, lineGap;
             StbTrueType.stbtt_GetFontVMetrics(fontInfo, &ascent, &descent, &lineGap);

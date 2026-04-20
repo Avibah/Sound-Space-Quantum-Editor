@@ -73,10 +73,10 @@ namespace SSQE_Player.Models
         public void Render(Vector3[] positions, Vector4[] colors, int count, string name)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, instancedHandles[name].Item1);
-            GL.BufferData(BufferTarget.ArrayBuffer, positions.Length * 3 * sizeof(float), positions, BufferUsage.DynamicDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, count * 3 * sizeof(float), positions, BufferUsage.DynamicDraw);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, instancedHandles[name].Item2);
-            GL.BufferData(BufferTarget.ArrayBuffer, colors.Length * 4 * sizeof(float), colors, BufferUsage.DynamicDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, count * 4 * sizeof(float), colors, BufferUsage.DynamicDraw);
 
             GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, models[name].vertexCount, count);
         }

@@ -341,7 +341,7 @@ namespace New_SSQE.NewMaps.Parsing
 
             writer.Write((uint)(notes.LastOrDefault()?.Ms ?? 0)); // last note ms - 4 byte uint
             writer.Write((uint)notes.Count); // note count - 4 byte uint
-            writer.Write((uint)notes.Count + 1); // marker count, repeated from last since no other markers
+            writer.Write((uint)notes.Count); // marker count, repeated from last since no other markers
 
             writer.Write(FormatUtils.Difficulties[Metadata["difficulty"]]); // difficulty - 1 byte uint
             writer.Write(new byte[2]); // rating? whatever that means
@@ -402,11 +402,9 @@ namespace New_SSQE.NewMaps.Parsing
 
             // marker definitions
             long markerDefinitionsOffset = writer.BaseStream.Position;
-            writer.Write((byte)0x02); // one definition
+            writer.Write((byte)0x01); // one definition
             WriteString("ssp_note"); // "ssp_note" marker indicator
             writer.Write(new byte[] { 0x01, /* one value */ 0x07, /* data type 07 - note */ 0x00 /* end of definition */ });
-            WriteString("ssp_bpm"); // "ssp_bpm" marker indicator
-            writer.Write(new byte[] { 0x01, /* one value */ 0x01, /* data type 01 - byte */ 0x00 /* end of definition */ });
 
             long markerDefinitionsLength = writer.BaseStream.Position - markerDefinitionsOffset;
 
@@ -434,8 +432,6 @@ namespace New_SSQE.NewMaps.Parsing
                     writer.Write((byte)(2 - note.Y)); // note y - 1 byte uint
                 }
             }
-
-            writer.Write(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x01, 0x01 }); // test data
 
             long markerLength = writer.BaseStream.Position - markerOffset;
 

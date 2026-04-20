@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.Vulkan;
 using OpenTK.Mathematics;
 using SSQE_Player.Audio;
 using SSQE_Player.Models;
@@ -62,6 +63,9 @@ namespace SSQE_Player.GUI
 
         private int frameHit = 0;
         private bool[] noteSet;
+
+        private Vector3[] positions = new Vector3[32];
+        private Vector4[] colors = new Vector4[32];
 
         public GuiWindowMain(int startIndex) : base(0, 0, MainWindow.Instance.Size.X, MainWindow.Instance.Size.Y)
         {
@@ -208,9 +212,13 @@ namespace SSQE_Player.GUI
                 high++;
             int range = high - low;
 
+            if (range > positions.Length)
+            {
+                positions = new Vector3[range + range / 2];
+                colors = new Vector4[range + range / 2];
+            }
+
             bool fade = Settings.approachFade.Value;
-            Vector3[] positions = new Vector3[range];
-            Vector4[] colors = new Vector4[range];
             Shader.SetTransform(noteScale);
 
             for (int i = low; i < high; i++)
