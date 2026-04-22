@@ -14,6 +14,13 @@ using Player = SoundFlow.Components.SoundPlayer;
 
 namespace New_SSQE.Audio
 {
+    /// <summary>
+    /// "Sound" in <see cref="InitializeSound(string)"/> and <see cref="PlaySound(string, float)"/> refers to a short audio clip to be played many times, possibly overlapping.
+    /// These do not support tempo changes.
+    /// <para></para>
+    /// "Music" in <see cref="InitializeMusic(string, out string)"/> and <see cref="EncodeMusic(Player, string)"/> refers to a long audio file that will be loaded once and not need to play over itself.
+    /// These support tempo changes and use <see cref="TempoProvider"/> as their <see cref="ISoundDataProvider"/> in each initialized <see cref="Player"/>.
+    /// </summary>
     internal class SoundEngine
     {
         /// <summary>
@@ -215,10 +222,10 @@ namespace New_SSQE.Audio
         }
 
         /// <summary>
-        /// Dispose a <see cref="Player"/> initialized via <see cref="InitializeMusic(string, out string)"/>
+        /// Dispose a <see cref="Player"/> and its provider, removing it from the active playback device
         /// </summary>
         /// <param name="player">The <see cref="Player"/> to dispose of</param>
-        public static void DisposeMusic(Player player)
+        public static void DisposePlayer(Player player)
         {
             device.MasterMixer.RemoveComponent(player);
 
@@ -244,6 +251,12 @@ namespace New_SSQE.Audio
             _mono = mono;
 
             string[] sounds = [.. cache.Keys];
+
+            foreach (Queue<Player> queue in cache.Values)
+            {
+                foreach (Player player in queue)
+                    DisposePlayer(player);
+            }
             cache.Clear();
 
             foreach (string sound in sounds)

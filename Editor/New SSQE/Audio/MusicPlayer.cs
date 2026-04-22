@@ -30,7 +30,7 @@ namespace New_SSQE.Audio
                 return false;
 
             if (lastPlayer != null)
-                SoundEngine.DisposeMusic(lastPlayer);
+                SoundEngine.DisposePlayer(lastPlayer);
             SoundEngine.SetMono(Settings.monoAudio.Value);
 
             try
