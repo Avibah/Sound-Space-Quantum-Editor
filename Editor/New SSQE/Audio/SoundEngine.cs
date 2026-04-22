@@ -212,6 +212,12 @@ namespace New_SSQE.Audio
             catch { }
         }
 
+        /// <summary>
+        /// Load a music file from <paramref name="filename"/> and return its <see cref="Player"/>
+        /// </summary>
+        /// <param name="filename">The file to load music from</param>
+        /// <param name="fileType">The audio format associated with this file, not the same as the file extension!</param>
+        /// <returns>A <see cref="Player"/> containing the loaded music with a <see cref="TempoProvider"/> as its <see cref="ISoundDataProvider"/></returns>
         public static Player InitializeMusic(string filename, out string fileType)
         {
             TempoProvider provider = new(GetResampledData(filename, true, out fileType), format);
