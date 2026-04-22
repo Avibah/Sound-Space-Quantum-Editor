@@ -16,9 +16,25 @@ namespace New_SSQE.Audio
 {
     internal class SoundEngine
     {
+        /// <summary>
+        /// Initial queue size for sounds initialized with <see cref="InitializeSound(string)"/>
+        /// <para></para>
+        /// More copies of these sounds will be cached as needed
+        /// </summary>
         private const int INITIAL_CACHE_SIZE = 8;
+        /// <summary>
+        /// Global volume multiplier for sounds
+        /// </summary>
         public const float VOLUME_MULT = 2;
+        /// <summary>
+        /// Sample rate that all loaded sounds will be resampled to
+        /// </summary>
         public const int SAMPLE_RATE = 44100;
+        /// <summary>
+        /// How often samples are read from the currently playing sound(s)
+        /// <para></para>
+        /// Time update frequency is 1 / PERIOD_MILLISECONDS Hz
+        /// </summary>
         public const int PERIOD_MILLISECONDS = 4;
 
         private static readonly AudioFormat format = new()
@@ -30,7 +46,13 @@ namespace New_SSQE.Audio
 
         private static readonly FFmpegCodecFactory ffmpegFactory = new();
 
+        /// <summary>
+        /// All supported file extensions in this engine, including periods
+        /// </summary>
         public static IReadOnlyCollection<string> SupportedExtensions => [.. ffmpegFactory.SupportedFormatIds.Concat(["egg", "asset"]).Select((e) => "." + e)];
+        /// <summary>
+        /// All supported file extensions in this engine, formatted as *.abc;*.def;...;*.xyz
+        /// </summary>
         public static string SupportedExtensionsString => string.Join(';', SupportedExtensions.Select((e) => "*" + e));
 
         private static readonly MiniAudioEngine engine;
@@ -39,7 +61,6 @@ namespace New_SSQE.Audio
         private static readonly Dictionary<string, Queue<Player>> cache = [];
         private static readonly Dictionary<string, ISoundDataProvider> providers = [];
 
-        private static Player? prevMusic;
         private static bool _mono = false;
         
         static SoundEngine()
@@ -57,7 +78,7 @@ namespace New_SSQE.Audio
             device.Start();
         }
 
-        private static float[] GetResampledData(string filename, out string fileType, bool sourceIsMusic)
+        private static float[] GetResampledData(string filename, bool sourceIsMusic, out string fileType)
         {
             byte[] bytes = File.ReadAllBytes(filename);
             using MemoryStream stream = new(bytes);
@@ -127,7 +148,7 @@ namespace New_SSQE.Audio
         private static void EnqueueNewSound(string filename)
         {
             if (!providers.TryGetValue(filename, out ISoundDataProvider? provider))
-                provider = new RawDataProvider(GetResampledData(filename, out _, false));
+                provider = new RawDataProvider(GetResampledData(filename, false, out _));
 
             Queue<Player> queue = cache[filename];
             Player player = new(engine, format, provider);
@@ -142,6 +163,10 @@ namespace New_SSQE.Audio
             queue.Enqueue(player);
         }
 
+        /// <summary>
+        /// Prepare an initial queue for a sound at <paramref name="filename"/>
+        /// </summary>
+        /// <param name="filename">The file to initialize as a repeatable sound</param>
         public static void InitializeSound(string filename)
         {
             if (!cache.TryAdd(filename, []))
@@ -151,7 +176,12 @@ namespace New_SSQE.Audio
                 EnqueueNewSound(filename);
         }
 
-        public static void PlaySound(string filename, float volume)
+        /// <summary>
+        /// Play the sound at <paramref name="filename"/>, initializing it if necessary
+        /// </summary>
+        /// <param name="filename">The file the sound is at, equivalent to </param>
+        /// <param name="volume">The volume to play this sound at</param>
+        public static void PlaySound(string filename, float volume = 1)
         {
             volume *= VOLUME_MULT;
 
@@ -177,20 +207,36 @@ namespace New_SSQE.Audio
 
         public static Player InitializeMusic(string filename, out string fileType)
         {
-            if (prevMusic != null)
-            {
-                device.MasterMixer.RemoveComponent(prevMusic);
-                prevMusic = null;
-            }
-
-            TempoProvider provider = new(GetResampledData(filename, out fileType, true), format);
+            TempoProvider provider = new(GetResampledData(filename, true, out fileType), format);
             Player player = new(engine, format, provider);
 
-            prevMusic = player;
             device.MasterMixer.AddComponent(player);
             return player;
         }
 
+        /// <summary>
+        /// Dispose a <see cref="Player"/> initialized via <see cref="InitializeMusic(string, out string)"/>
+        /// </summary>
+        /// <param name="player">The <see cref="Player"/> to dispose of</param>
+        public static void DisposeMusic(Player player)
+        {
+            device.MasterMixer.RemoveComponent(player);
+
+            player.DataProvider.Dispose();
+            player.Dispose();
+        }
+
+        /// <summary>
+        /// Whether sounds should play in Mono (single-channel)
+        /// </summary>
+        public static bool IsMono => _mono;
+
+        /// <summary>
+        /// Sets whether sounds should play in Mono (single-channel)
+        /// <para></para>
+        /// Note that this will re-initialize all loaded sounds, and it WILL NOT re-initialize music!
+        /// </summary>
+        /// <param name="mono">Whether sounds should play in Mono</param>
         public static void SetMono(bool mono)
         {
             if (mono == _mono)
@@ -204,11 +250,17 @@ namespace New_SSQE.Audio
                 InitializeSound(sound);
         }
 
-        public static bool EncodeMusic(string filename)
+        /// <summary>
+        /// Encode <paramref name="player"/> as an MP3 file to <paramref name="filename"/>
+        /// </summary>
+        /// <param name="player">The <see cref="Player"/> to encode to an MP3</param>
+        /// <param name="filename">The destination file for the encoded MP3</param>
+        /// <returns>Whether encoding succeeded</returns>
+        public static bool EncodeMusic(Player player, string filename)
         {
             try
             {
-                if (prevMusic == null || prevMusic.DataProvider is not TempoProvider provider)
+                if (player.DataProvider is not TempoProvider provider)
                     return false;
 
                 using Stream stream = File.OpenWrite(filename);
@@ -245,6 +297,9 @@ namespace New_SSQE.Audio
             return false;
         }
 
+        /// <summary>
+        /// Safely dispose resources for this engine and its playback device
+        /// </summary>
         public static void Dispose()
         {
             device.Stop();

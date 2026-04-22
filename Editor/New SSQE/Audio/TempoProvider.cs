@@ -4,21 +4,17 @@ using SoundFlow.Interfaces;
 using SoundFlow.Metadata.Models;
 using SoundFlow.Structs;
 using SoundTouch;
-using System.Diagnostics;
 
 namespace New_SSQE.Audio
 {
     internal class TempoProvider : ISoundDataProvider
     {
-        private readonly Stopwatch stopwatch = Stopwatch.StartNew();
-
         private readonly float[] _samples;
         private readonly int _sampleRate;
         private readonly SampleFormat _sampleFormat;
         private readonly AudioFormat _format;
         private int _position = 0;
         private double _playbackPosition = 0;
-        private TimeSpan _lastRender = TimeSpan.Zero;
 
         public int SampleRate => _sampleRate;
         public SampleFormat SampleFormat => _sampleFormat;
@@ -49,16 +45,7 @@ namespace New_SSQE.Audio
             }
         }
 
-        public int Position
-        {
-            get
-            {
-                double samplesPerFrame = _sampleRate / 1000d * SoundEngine.PERIOD_MILLISECONDS * Tempo * Format.Channels;
-                double timeDiff = Math.Min((stopwatch.Elapsed - _lastRender).TotalMilliseconds / SoundEngine.PERIOD_MILLISECONDS, 1);
-
-                return (int)(_playbackPosition + timeDiff * samplesPerFrame);
-            }
-        }
+        public int Position => (int)_playbackPosition;
 
         public TempoProvider(float[] samples, AudioFormat format)
         {
@@ -120,11 +107,15 @@ namespace New_SSQE.Audio
             _processor.ReceiveSamples(buffer, toServe / channels);
 
             _playbackPosition += toServe * Tempo;
-            _lastRender = stopwatch.Elapsed;
             PositionChanged?.Invoke(this, new(Position));
             return toServe;
         }
 
+        /// <summary>
+        /// Equivalent to <see cref="ReadBytes(Span{float})"/> without tempo scaling
+        /// </summary>
+        /// <param name="buffer">The buffer to write the bytes to</param>
+        /// <returns>The number of bytes read</returns>
         public int ReadBytesRaw(Span<float> buffer)
         {
             if (IsDisposed)
@@ -143,7 +134,6 @@ namespace New_SSQE.Audio
 
             _position += toServe;
             _playbackPosition = _position;
-            _lastRender = stopwatch.Elapsed;
             PositionChanged?.Invoke(this, new(Position));
             return toServe;
         }
@@ -153,14 +143,19 @@ namespace New_SSQE.Audio
             _processor.Clear();
             _position = Math.Clamp(sampleOffset, 0, _samples.Length);
             _playbackPosition = _position;
-            _lastRender = stopwatch.Elapsed;
         }
 
-        public float GetBPM(int startOffset, int endOffset)
+        /// <summary>
+        /// Attempts to detect the BPM of a given range of samples, returning 0 if detection failed
+        /// </summary>
+        /// <param name="startSamples">The start position of the range of samples to scan</param>
+        /// <param name="endSamples">The end position of the range of samples to scan</param>
+        /// <returns>The detected BPM, or 0 if detection failed</returns>
+        public float GetBPM(int startSamples, int endSamples)
         {
             int channels = Format.Channels;
-            startOffset = startOffset / channels * channels;
-            endOffset = endOffset / channels * channels;
+            startSamples = startSamples / channels * channels;
+            endSamples = endSamples / channels * channels;
 
             float tempo = Tempo;
             float bpm = 0;
@@ -169,12 +164,12 @@ namespace New_SSQE.Audio
             {
                 Tempo = 1 / (float)Math.Pow(2, i);
 
-                Seek(startOffset);
+                Seek(startSamples);
                 BpmDetect detector = new(channels, Format.SampleRate);
 
                 float[] buffer = new float[4096];
 
-                while (_playbackPosition < endOffset)
+                while (_playbackPosition < endSamples)
                 {
                     int samplesRead = ReadBytes(buffer);
                     detector.InputSamples(buffer, samplesRead / channels);
