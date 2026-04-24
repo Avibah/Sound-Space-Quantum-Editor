@@ -424,6 +424,8 @@ Would you like to report this crash on GitHub?", MBoxIcon.Warning, MBoxButtons.Y
                             continueWith();
                         });
                     }
+                    else
+                        continueWith();
                 }
                 else
                 {
