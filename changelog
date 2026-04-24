@@ -8,6 +8,16 @@ They do not allow you to delete your own beatmaps and they often refuse to remov
 If a reasonable effort is made to honor beatmap removal requests when appropriate and to make it easier for uploaders to remove or otherwise hide their works, this advisory will be removed.
 
 ----------------------------------
+    -- 2.3.4.1 - 4/23/2026 --
+
+- added a warning if a map fails to save
+- hopefully fixed file dialogs failing to open this time
+
+- fixed abnormally slow loading times
+- fixed patterns
+- fixed audio with a spoofed length failing to load properly
+
+----------------------------------
    -- P-2.1.6.1 - 4/11/2026 --
 
 - fixed crashing after reaching the last note in a map
