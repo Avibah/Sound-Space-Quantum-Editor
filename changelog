@@ -10,12 +10,16 @@ If a reasonable effort is made to honor beatmap removal requests when appropriat
 ----------------------------------
     -- 2.3.4.1 - 4/23/2026 --
 
+IF UPDATING FROM 2.3.4.0:
+  - a bug on this version broke update checks so youll need to update manually, either by running SSQEUpdater.exe or downloading/installing the new version from GitHub
+
 - added a warning if a map fails to save
 - hopefully fixed file dialogs failing to open this time
 
 - fixed abnormally slow loading times
 - fixed patterns
 - fixed audio with a spoofed length failing to load properly
+- fixed update check
 
 ----------------------------------
    -- P-2.1.6.1 - 4/11/2026 --
