@@ -74,7 +74,6 @@ namespace New_SSQE.Audio
         {
             engine = new();
             engine.RegisterCodecFactory(ffmpegFactory);
-            engine.SetCodecPriority(ffmpegFactory.FactoryId, -1);
             engine.UpdateAudioDevicesInfo();
 
             device = engine.InitializePlaybackDevice(null, format, new MiniAudioDeviceConfig()
@@ -85,8 +84,10 @@ namespace New_SSQE.Audio
             device.Start();
         }
 
-        private static float[] GetResampledData(string filename, bool sourceIsMusic, out string fileType)
+        private static float[] GetResampledData(string filename, bool sourceIsMusic, out string fileType, bool retrying = false)
         {
+            engine.SetCodecPriority(ffmpegFactory.FactoryId, retrying ? -1 : 100);
+
             byte[] bytes = File.ReadAllBytes(filename);
             using MemoryStream stream = new(bytes);
 
@@ -145,7 +146,13 @@ namespace New_SSQE.Audio
             for (int i = 0; i < resampled.Length; i++)
             {
                 if (float.IsNaN(resampled[i]))
-                    throw new InvalidDataException("Corrupted sample data");
+                {
+                    if (retrying)
+                        throw new InvalidDataException("Corrupted sample data");
+
+                    provider.Dispose();
+                    return GetResampledData(filename, sourceIsMusic, out fileType, true);
+                }
             }
 
             provider.Dispose();
