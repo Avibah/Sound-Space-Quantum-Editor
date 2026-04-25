@@ -4,7 +4,6 @@ using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Controls;
 using New_SSQE.NewGUI.Dialogs;
-using New_SSQE.NewGUI.Forms;
 using New_SSQE.NewGUI.Input;
 using New_SSQE.NewMaps;
 using New_SSQE.NewMaps.Parsing;
@@ -31,6 +30,17 @@ namespace New_SSQE.NewGUI.Windows
             QuantumSnapDivisor.Update();
             Timeline.Update();
             Tempo.Update();
+
+            if (Mapping.Current.RenderMode == ObjectRenderMode.Special)
+            {
+                StandardNavController.Visible = false;
+                SpecialMapNavs.Visible = true;
+            }
+            else
+            {
+                StandardNavController.Visible = true;
+                SpecialMapNavs.Visible = false;
+            }
         }
 
         public override void Close()
