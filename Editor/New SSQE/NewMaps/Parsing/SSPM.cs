@@ -419,6 +419,7 @@ namespace New_SSQE.NewMaps.Parsing
                 writer.Write((byte)0x00); // marker type 0 - first definition, ssp_note
 
                 bool quantum = Math.Round(note.X) != Math.Round(note.X, 2) || Math.Round(note.Y) != Math.Round(note.Y, 2); // whether the note is quantum
+                quantum |= note.X < 0 || note.X > 2 || note.Y < 0 || note.Y > 2;
                 writer.Write(quantum); // quantum identifier - 1 byte boolean
 
                 if (quantum)
