@@ -8,10 +8,19 @@ They do not allow you to delete your own beatmaps and they often refuse to remov
 If a reasonable effort is made to honor beatmap removal requests when appropriate and to make it easier for uploaders to remove or otherwise hide their works, this advisory will be removed.
 
 ----------------------------------
-    -- 2.3.4.1 - 4/23/2026 --
+    -- 2.3.4.2 - 5/2/2026 --
 
 IF UPDATING FROM 2.3.4.0:
   - a bug on this version broke update checks so youll need to update manually, either by running SSQEUpdater.exe or downloading/installing the new version from GitHub
+
+- dragging a note on the track now keeps the same text focus effect of hovering over that note
+
+- fixed the editor window not reflecting whether a map was having its extra objects edited when last opened
+- fixed some cases of notes not being considered quantum when exporting as SSPM
+- fixed CH timing conversion not working
+
+----------------------------------
+    -- 2.3.4.1 - 4/23/2026 --
 
 - added a warning if a map fails to save
 - hopefully fixed file dialogs failing to open this time
