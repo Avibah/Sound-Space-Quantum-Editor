@@ -228,6 +228,8 @@ namespace New_SSQE.NewGUI.Controls
                             polyphony++;
                     }
 
+                    isHovering |= dragging && note.Selected;
+
                     if (x - 8 > (lastRenderedText ?? float.MinValue) || isHovering)
                     {
                         string noteStr = $"Note {i + 1:##,###}";
@@ -356,6 +358,8 @@ namespace New_SSQE.NewGUI.Controls
                         if (obj.Ms > (lastPlayedObject?.Ms ?? -1))
                             polyphony++;
                     }
+
+                    isHovering |= dragging && obj.Selected;
 
                     if (x - 8 > (lastRenderedText ?? float.MinValue) || isHovering)
                     {
