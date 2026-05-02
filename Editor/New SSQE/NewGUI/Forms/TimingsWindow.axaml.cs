@@ -487,7 +487,7 @@ namespace New_SSQE.NewGUI
                     if (i > 0)
                     {
                         decimal difference = timeList[i] - timeList[i - 1];
-                        decimal bpm = timeList[i - 1];
+                        decimal bpm = bpmList[i - 1];
 
                         difference = Math.Round(1000m * (difference / (bpm * resolution / 60m)), 2);
                         difference += msList[i - 1];
