@@ -17,7 +17,7 @@ IF UPDATING FROM 2.3.4.0:
 
 - fixed the editor window not reflecting whether a map was having its extra objects edited when last opened
 - fixed some cases of notes not being considered quantum when exporting as SSPM
-- fixed CH timing conversion not working
+- fixed Clone Hero timing conversion not working
 
 ----------------------------------
     -- 2.3.4.1 - 4/23/2026 --
