@@ -345,9 +345,11 @@ namespace New_SSQE.NewGUI.Windows
 
                 switch (Settings.exportType.Value.Current)
                 {
+                    case "Nightly (SSPM)":
                     case "Rhythia (SSPM)":
                         ExportSSPM.ShowWindow();
                         break;
+                    case "Rewrite (PHXM)":
                     case "Rhythia (PHXM)":
                         ExportPHXM.ShowWindow();
                         break;
