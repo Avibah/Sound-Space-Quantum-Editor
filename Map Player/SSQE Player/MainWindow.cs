@@ -48,6 +48,8 @@ namespace SSQE_Player
             GLFW.SetInputMode(WindowPtr, RawMouseMotionAttribute.RawMouseMotion, true);
         }
 
+        private static readonly GLFWCallbacks.ErrorCallback GLFWErrorDelegate = (errorCode, description) => { };
+
         public MainWindow(bool fromStart, int samples) : base(GameWindowSettings.Default, new NativeWindowSettings()
         {
             Size = (1920, 1080),
@@ -56,6 +58,7 @@ namespace SSQE_Player
             WindowState = WindowState.Fullscreen
         }) 
         {
+            GLFW.SetErrorCallback(GLFWErrorDelegate);
             SwitchFullscreen();
 
             VSync = VSyncMode.Off;

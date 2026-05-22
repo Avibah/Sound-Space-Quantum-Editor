@@ -17,6 +17,8 @@ namespace SSQE_Player
 
     internal class Settings
     {
+        public static Setting<bool> _use_x11 = true;
+
         public static Setting<float> sensitivity = 1f;
         public static Setting<float> parallax = 1f;
         public static Setting<float> approachDistance = 1f;

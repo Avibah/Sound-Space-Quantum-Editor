@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace SSQE_Player
 {
@@ -9,6 +11,9 @@ namespace SSQE_Player
         {
             try
             {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && Settings._use_x11.Value)
+                    GLFW.InitHint(InitHintPlatform.Platform, Platform.X11);
+
                 // from start, is replay, is autoplay
                 string[] newArgs = ["true", "false", "true"];
                 for (int i = 0; i < Math.Min(args.Length, newArgs.Length); i++)
