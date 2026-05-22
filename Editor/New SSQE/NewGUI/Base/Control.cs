@@ -82,6 +82,17 @@ namespace New_SSQE.NewGUI.Base
             }
         }
 
+        private bool pixelAligned = false;
+        public bool PixelAligned
+        {
+            get => pixelAligned;
+            set
+            {
+                pixelAligned = value;
+                shouldUpdate = true;
+            }
+        }
+
         private Gradient? gradient = null;
         public Gradient? Gradient
         {
@@ -107,7 +118,22 @@ namespace New_SSQE.NewGUI.Base
 
         public virtual void Update()
         {
+            if (pixelAligned)
+            {
+                rect = new(
+                    (int)(rect.X + 0.5f),
+                    (int)(rect.Y + 0.5f),
+                    (int)Math.Max(1, rect.Width + 0.5f),
+                    (int)Math.Max(1, rect.Height + 0.5f)
+                );
+
+                lineThickness = (int)Math.Max(1, lineThickness + 0.5f);
+            }
+
             float[] vertices = Draw();
+            if (pixelAligned)
+                vertices = GLVerts.Align(vertices);
+
             vertexCount = vertices.Length / 6;
 
             GLState.BufferData(vbo, vertices);

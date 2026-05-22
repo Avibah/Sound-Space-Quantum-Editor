@@ -1,4 +1,5 @@
-﻿using New_SSQE.Audio;
+﻿using Avalonia.Markup.Xaml.Templates;
+using New_SSQE.Audio;
 using New_SSQE.Misc;
 using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
@@ -54,6 +55,14 @@ namespace New_SSQE.NewGUI.Windows
 
         public override void ConnectEvents()
         {
+            OldQuantumSnap.ValueChanged += (s, e) =>
+            {
+                QuantumXLabel.Visible = !e.Value;
+                QuantumXOffset.Visible = !e.Value;
+                QuantumYLabel.Visible = !e.Value;
+                QuantumYOffset.Visible = !e.Value;
+            };
+
             StandardNavController.PanelButtonClickCallback = (e) => e == LNavPlayer && Settings.playtestGame.Value != "SSQE Player";
 
             LNavPlayer.LeftClick += (s, e) =>
@@ -89,7 +98,9 @@ namespace New_SSQE.NewGUI.Windows
                                 ArgumentList =
                                 {
                                     $"--a={audioPath}",
-                                    $"--t={txtPath}"
+                                    $"--t={txtPath}",
+                                    $"--sp={Mapping.Current.Tempo}",
+                                    $"--sf={Math.Floor(Settings.currentTime.Value.Value)}"
                                 }
                             };
 

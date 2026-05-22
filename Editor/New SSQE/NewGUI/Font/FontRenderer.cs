@@ -37,16 +37,27 @@ namespace New_SSQE.NewGUI.Font
             {"semibold-s", new("semibold", fontUnits["semibold-s"], 24) }
         };
 
-        public static Vector4[] Print(float x, float y, string text, float textSize, string font)
-            => fonts[font].Print(x, y, text, textSize * Settings.fontScale.Value, Unicode);
-        public static void PrintInto(Vector4[] array, int offset, float x, float y, string text, float textSize, string font)
-            => fonts[font].PrintInto(array, offset, x, y, text, textSize * Settings.fontScale.Value, Unicode);
+        public static Vector4[] Print(float x, float y, string text, float textSize, string font, float alpha = 1)
+            => fonts[font].Print(x, y, text, textSize * Settings.fontScale.Value, alpha, Unicode);
+        public static void PrintInto(Vector4[] array, int offset, float x, float y, string text, float textSize, string font, float alpha = 1)
+            => fonts[font].PrintInto(array, offset, x, y, text, textSize * Settings.fontScale.Value, alpha, Unicode);
         public static float GetWidth(string text, float textSize, string font)
             => fonts[font].Extent(text, textSize * Settings.fontScale.Value, Unicode);
         public static float GetWidth(char text, float textSize, string font)
             => GetWidth(text.ToString(), textSize, font);
         public static float GetHeight(float textSize, string font)
             => fonts[font].Baseline(textSize * Settings.fontScale.Value, Unicode);
+
+        public static void SetAlpha(Vector4[] data, float alpha = 1, int startPos = 0, int endPos = int.MaxValue)
+        {
+            endPos = Math.Min(endPos, data.Length);
+
+            for (int i = startPos; i < endPos; i++)
+            {
+                float a = data[i].W % 2;
+                data[i] = new(data[i].Xyz, data[i].W - a + alpha);
+            }
+        }
 
         private static (string, bool) activeFont = ("", false);
         private static Shader Shader => Unicode ? Shader.Unicode : Shader.Font;
@@ -76,14 +87,11 @@ namespace New_SSQE.NewGUI.Font
         }
         public static void SetColor(int r, int g, int b, int a = 255) => SetColor(Color.FromArgb(r, g, b, a));
 
-        public static void RenderData(string font, Vector4[] data, float[]? alpha = null, int? count = null)
+        public static void RenderData(string font, Vector4[] data, int? count = null)
         {
             if (data.Length > 0)
             {
-                alpha ??= new float[data.Length];
-
-                GLState.BufferData(Unicode ? StbFont.UnicodeVBO_0 : fonts[font].VBO_0, data);
-                GLState.BufferData(Unicode ? StbFont.UnicodeVBO_1 : fonts[font].VBO_1, alpha);
+                GLState.BufferData(Unicode ? StbFont.UnicodeVBO : fonts[font].VBO, data);
                 GLState.DrawInstances(Unicode ? StbFont.UnicodeVAO : fonts[font].VAO, 0, 6, count ?? data.Length);
             }
         }

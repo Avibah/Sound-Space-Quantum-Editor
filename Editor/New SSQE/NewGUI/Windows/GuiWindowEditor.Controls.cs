@@ -83,18 +83,24 @@ namespace New_SSQE.NewGUI.Windows
             Text = "Pause on Seek",
             TextSize = 26
         };
-        public static readonly GuiButton EditMapVFX = new(0, 240, 200, 40)
+        public static readonly GuiCheckbox OldQuantumSnap = new(0, 220, 30, 30)
         {
-            Text = "Edit Map VFX",
-            TextSize = 26,
-            Visible = false
+            Setting = Settings.oldQuantumSnap,
+            Text = "Use Old Quantum Divisor",
+            TextSize = 26
         };
         public static readonly GuiButton EditSpecial = new(0, 290, 200, 40)
         {
             Text = "Edit Extra Objects",
             TextSize = 26,
         };
-        public static readonly ControlContainer OptionsNav = new(10, 222, 545, 756, Numpad, SeparateClickTools, SwapClickMode, JumpOnPaste, PauseOnScroll, EditMapVFX, EditSpecial);
+        public static readonly GuiButton EditMapVFX = new(0, 340, 200, 40)
+        {
+            Text = "Edit Map VFX",
+            TextSize = 26,
+            Visible = false
+        };
+        public static readonly ControlContainer OptionsNav = new(10, 222, 545, 756, Numpad, SeparateClickTools, SwapClickMode, JumpOnPaste, PauseOnScroll, OldQuantumSnap, EditSpecial, EditMapVFX);
 
         // Timing
         public static readonly GuiTextboxNumeric ExportOffset = new(0, 50, 130, 40)
@@ -131,17 +137,23 @@ namespace New_SSQE.NewGUI.Windows
             Text = "Metronome",
             TextSize = 26
         };
-        public static readonly GuiButton OpenBookmarks = new(0, 280, 210, 40)
+        public static readonly GuiCheckbox ScaleMetronome = new(0, 250, 30, 30)
+        {
+            Setting = Settings.scaleMetronome,
+            Text = "Scale Metronome With Divisor",
+            TextSize = 26
+        };
+        public static readonly GuiButton OpenBookmarks = new(0, 290, 210, 40)
         {
             Text = "EDIT BOOKMARKS",
             TextSize = 27
         };
-        public static readonly GuiButton CopyBookmarks = new(0, 330, 210, 40)
+        public static readonly GuiButton CopyBookmarks = new(0, 340, 210, 40)
         {
             Text = "COPY BOOKMARKS",
             TextSize = 27
         };
-        public static readonly GuiButton PasteBookmarks = new(0, 380, 210, 40)
+        public static readonly GuiButton PasteBookmarks = new(0, 390, 210, 40)
         {
             Text = "PASTE BOOKMARKS",
             TextSize = 27
@@ -169,7 +181,7 @@ namespace New_SSQE.NewGUI.Windows
             CenterMode = CenterMode.None
         };
 
-        public static readonly ControlContainer TimingNav = new(10, 222, 545, 756, ExportOffset, SfxOffset, MusicOffset, OpenTimings, ImportIni, Metronome,
+        public static readonly ControlContainer TimingNav = new(10, 222, 545, 756, ExportOffset, SfxOffset, MusicOffset, OpenTimings, ImportIni, Metronome, ScaleMetronome,
             OpenBookmarks, CopyBookmarks, PasteBookmarks, ExportOffsetLabel, SfxOffsetLabel, MusicOffsetLabel);
 
         // Patterns
@@ -225,23 +237,29 @@ namespace New_SSQE.NewGUI.Windows
             Text = "Paste Reversed",
             TextSize = 27
         };
-        public static readonly GuiButton StoreNodes = new(0, 390, 175, 40)
+        public static readonly GuiCheckbox MoveOnGridKey = new(0, 370, 30, 30)
+        {
+            Setting = Settings.moveOnGridKey,
+            Text = "Move Selected on Grid Key Pressed",
+            TextSize = 27
+        };
+        public static readonly GuiButton StoreNodes = new(0, 430, 175, 40)
         {
             Text = "STORE NODES",
             TextSize = 27
         };
-        public static readonly GuiButton ClearNodes = new(185, 390, 175, 40)
+        public static readonly GuiButton ClearNodes = new(185, 430, 175, 40)
         {
             Text = "CLEAR NODES",
             TextSize = 27
         };
-        public static readonly GuiCheckbox CurveBezier = new(0, 450, 30, 30)
+        public static readonly GuiCheckbox CurveBezier = new(0, 490, 30, 30)
         {
             Setting = Settings.curveBezier,
             Text = "Curve Bezier",
             TextSize = 27
         };
-        public static readonly GuiNumberBox BezierBox = new(0, 520, 100, 40)
+        public static readonly GuiNumberBox BezierBox = new(0, 560, 100, 40)
         {
             Increment = 1,
             Setting = Settings.bezierDivisor,
@@ -250,7 +268,7 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 27,
             Bounds = (1, float.MaxValue)
         };
-        public static readonly GuiButton BezierButton = new(110, 520, 100, 40)
+        public static readonly GuiButton BezierButton = new(110, 560, 100, 40)
         {
             Text = "DRAW",
             TextSize = 27
@@ -270,7 +288,7 @@ namespace New_SSQE.NewGUI.Windows
             TextSize = 30,
             CenterMode = CenterMode.None
         };
-        public static readonly GuiLabel DrawBezierLabel = new(0, 490, 100, 30)
+        public static readonly GuiLabel DrawBezierLabel = new(0, 530, 100, 30)
         {
             ColorSetting = Settings.color1,
             Text = "Draw Bezier with Divisor:",
@@ -278,7 +296,7 @@ namespace New_SSQE.NewGUI.Windows
             CenterMode = CenterMode.None
         };
 
-        public static readonly ControlContainer PatternsNav = new(10, 222, 545, 756, HFlip, VFlip, RotateBox, RotateButton, ScaleBox, ScaleButton, ApplyOnPaste, ClampSR, PasteReversed,
+        public static readonly ControlContainer PatternsNav = new(10, 222, 545, 756, HFlip, VFlip, RotateBox, RotateButton, ScaleBox, ScaleButton, ApplyOnPaste, ClampSR, PasteReversed, MoveOnGridKey,
             StoreNodes, ClearNodes, CurveBezier, BezierBox, BezierButton, RotateLabel, ScaleLabel, DrawBezierLabel);
 
         // Player
@@ -617,11 +635,13 @@ namespace New_SSQE.NewGUI.Windows
         };
         public static readonly GuiSlider QuantumXOffset = new(245, 310, 250, 32, Settings.quantumXOffset)
         {
-            Style = ControlStyle.None
+            Style = ControlStyle.None,
+            Visible = !Settings.oldQuantumSnap.Value
         };
         public static readonly GuiSlider QuantumYOffset = new(245, 380, 250, 32, Settings.quantumYOffset)
         {
-            Style = ControlStyle.None
+            Style = ControlStyle.None,
+            Visible = !Settings.oldQuantumSnap.Value
         };
 
         public static readonly GuiLabel BeatDivisorLabel = new(245, 140, 250, 32)
@@ -637,12 +657,14 @@ namespace New_SSQE.NewGUI.Windows
         public static readonly GuiLabel QuantumXLabel = new(245, 280, 250, 32)
         {
             ColorSetting = Settings.color1,
-            TextSize = 30
+            TextSize = 30,
+            Visible = !Settings.oldQuantumSnap.Value
         };
         public static readonly GuiLabel QuantumYLabel = new(245, 350, 250, 32)
         {
             ColorSetting = Settings.color1,
-            TextSize = 30
+            TextSize = 30,
+            Visible = !Settings.oldQuantumSnap.Value
         };
 
         public static readonly ControlContainer SnappingNav = new(1365, 222, 545, 756, Quantum, QuantumGridSnap, AutoAdvance,

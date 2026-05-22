@@ -2,6 +2,7 @@
 using New_SSQE.Misc.Static;
 using New_SSQE.NewGUI.Base;
 using New_SSQE.NewGUI.Font;
+using New_SSQE.NewGUI.Input;
 using New_SSQE.NewMaps;
 using New_SSQE.Objects;
 using New_SSQE.Objects.Other;
@@ -99,7 +100,6 @@ namespace New_SSQE.NewGUI.Controls
 
         private Vector4[] keybindVerts = [];
         private Vector4[] gridNumData = [];
-        private float[] gridNumAlphaData = [];
         private List<Vector2> bezierPositions = [];
 
         public static Vector2 CellBounds => Settings.enableQuantum.Value ? (-0.85f, 2.85f) : (0, 2);
@@ -156,6 +156,26 @@ namespace New_SSQE.NewGUI.Controls
             UpdateObjectMetrics();
         }
 
+        private Vector2 MouseToGridSpaceUnclampedOld(float mousex, float mousey)
+        {
+            bool quantum = Settings.enableQuantum.Value;
+
+            float increment = quantum ? (Settings.quantumSnapping.Value.Value + 3) / 3 : 1;
+            float x = (mousex - rect.X - rect.Width / 2) / rect.Width * 3 + 1 / increment;
+            float y = (mousey - rect.Y - rect.Height / 2) / rect.Height * 3 + 1 / increment;
+
+            if (Settings.quantumGridSnap.Value || !quantum)
+            {
+                x = (float)Math.Floor((x + 1 / increment / 2) * increment) / increment;
+                y = (float)Math.Floor((y + 1 / increment / 2) * increment) / increment;
+            }
+
+            x = x - 1 / increment + 1;
+            y = y - 1 / increment + 1;
+
+            return (2 - x, 2 - y);
+        }
+
         private Vector2 MouseToGridSpaceUnclamped(float mousex, float mousey)
         {
             bool quantum = Settings.enableQuantum.Value;
@@ -187,7 +207,9 @@ namespace New_SSQE.NewGUI.Controls
 
         private Vector2 MouseToGridSpace(float mousex, float mousey)
         {
-            Vector2 pos = MouseToGridSpaceUnclamped(mousex, mousey);
+            Vector2 pos = Settings.oldQuantumSnap.Value
+                ? MouseToGridSpaceUnclampedOld(mousex, mousey)
+                : MouseToGridSpaceUnclamped(mousex, mousey);
 
             float x = Math.Clamp(pos.X, CellBounds.X, CellBounds.Y);
             float y = Math.Clamp(pos.Y, CellBounds.X, CellBounds.Y);
@@ -263,7 +285,7 @@ namespace New_SSQE.NewGUI.Controls
                     float width = FontRenderer.GetWidth(numText, gridNumberSize, FONT);
                     float height = FontRenderer.GetHeight(gridNumberSize, FONT);
 
-                    gridNumStrings.Add(((x + NoteSize / 2 - width / 2, y + NoteSize / 2 - height / 2, 1 - progress), numText));
+                    gridNumStrings.Add(((x + NoteSize / 2 - width / 2, y + NoteSize / 2 - height / 2, progress), numText));
                     gridNumLength += numText.Length;
                 }
             }
@@ -274,18 +296,14 @@ namespace New_SSQE.NewGUI.Controls
             noteSelect.UploadData(noteSelects);
 
             gridNumData = new Vector4[gridNumLength];
-            gridNumAlphaData = new float[gridNumLength];
 
             int offset = 0;
 
             for (int i = 0; i < gridNumStrings.Count; i++)
             {
                 (Vector3, string) data = gridNumStrings[i];
-
-                FontRenderer.PrintInto(gridNumData, offset, data.Item1.X, data.Item1.Y, data.Item2, gridNumberSize, FONT);
-
-                for (int j = 0; j < data.Item2.Length; j++)
-                    gridNumAlphaData[offset++] = data.Item1.Z;
+                FontRenderer.PrintInto(gridNumData, offset, data.Item1.X, data.Item1.Y, data.Item2, gridNumberSize, FONT, data.Item1.Z);
+                offset += data.Item2.Length;
             }
 
             if (Settings.autoplay.Value)
@@ -602,26 +620,43 @@ namespace New_SSQE.NewGUI.Controls
                 verts.AddRange(GLVerts.Line(rect.X, y, rect.Right, y, 1, Style.Tertiary));
             }
 
-            float increment = Settings.quantumGridLines.Value ? 2 / (Settings.quantumSnapping.Value.Value + 2) : 1;
-            float gap = (1 - increment) / 2;
-            float gapInc = (float)Math.Floor(gap / increment) * increment;
+            if (Settings.oldQuantumSnap.Value)
+            {
+                float divisor = Settings.quantumGridLines.Value ? Settings.quantumSnapping.Value.Value + 3 : 3;
+                float offset = Math.Round(divisor) % 2 == 0 ? 0.5f : 1f;
+
+                for (int i = (int)(2 * offset); i <= divisor; i++)
+                {
+                    float x = rect.X + rect.Width / divisor * (i - offset);
+                    float y = rect.Y + rect.Height / divisor * (i - offset);
+
+                    verts.AddRange(GLVerts.Line(x, rect.Y, x, rect.Bottom, 1, Style.Secondary));
+                    verts.AddRange(GLVerts.Line(rect.X, y, rect.Right, y, 1, Style.Secondary));
+                }
+            }
+            else
+            {
+                float increment = Settings.quantumGridLines.Value ? 2 / (Settings.quantumSnapping.Value.Value + 2) : 1;
+                float gap = (1 - increment) / 2;
+                float gapInc = (float)Math.Floor(gap / increment) * increment;
+
+                for (float x = (Settings.quantumXOffset.Value.Value - 1) % increment - increment; x < 3; x += increment)
+                {
+                    float pos = rect.X + (x - gapInc + gap) * CellSize;
+                    if (pos < rect.X || pos > rect.Right)
+                        continue;
+                    verts.AddRange(GLVerts.Line(pos, rect.Y, pos, rect.Bottom, 1, Style.Secondary));
+                }
+
+                for (float y = (Settings.quantumYOffset.Value.Value - 1) % increment - increment; y < 3; y += increment)
+                {
+                    float pos = rect.Y + (y - gapInc + gap) * CellSize;
+                    if (pos < rect.Y || pos > rect.Bottom)
+                        continue;
+                    verts.AddRange(GLVerts.Line(rect.X, pos, rect.Right, pos, 1, Style.Secondary));
+                }
+            }
             
-            for (float x = (Settings.quantumXOffset.Value.Value - 1) % increment - increment; x < 3; x += increment)
-            {
-                float pos = rect.X + (x - gapInc + gap) * CellSize;
-                if (pos < rect.X || pos > rect.Right)
-                    continue;
-                verts.AddRange(GLVerts.Line(pos, rect.Y, pos, rect.Bottom, 1, Style.Secondary));
-            }
-
-            for (float y = (Settings.quantumYOffset.Value.Value - 1) % increment - increment; y < 3; y += increment)
-            {
-                float pos = rect.Y + (y - gapInc + gap) * CellSize;
-                if (pos < rect.Y || pos > rect.Bottom)
-                    continue;
-                verts.AddRange(GLVerts.Line(rect.X, pos, rect.Right, pos, 1, Style.Secondary));
-            }
-
             List<Vector4> keyVerts = [];
             int gridLetterSize = (int)(38 * TextScale);
 
@@ -728,7 +763,7 @@ namespace New_SSQE.NewGUI.Controls
             {
                 FontRenderer.SetActive(FONT);
                 FontRenderer.SetColor(Style.Quaternary);
-                FontRenderer.RenderData(FONT, gridNumData, gridNumAlphaData);
+                FontRenderer.RenderData(FONT, gridNumData);
             }
 
             if (bezierPositions.Count > 0)
@@ -947,8 +982,22 @@ namespace New_SSQE.NewGUI.Controls
 
             if (Mapping.Current.RenderMode == ObjectRenderMode.Notes || Mapping.Current.ObjectMode == IndividualObjectMode.Note)
             {
-                Note note = new(x, y, ms);
-                Mapping.Current.Notes.Modify_Add("ADD NOTE", note);
+                if (!Settings.moveOnGridKey.Value || Mapping.Current.Notes.Selected.Count == 0)
+                {
+                    Note note = new(x, y, ms);
+                    Mapping.Current.Notes.Modify_Add("ADD NOTE", note);
+
+                    if (Settings.moveOnGridKey.Value)
+                        Mapping.Current.Notes.ClearSelected();
+                }
+                else
+                {
+                    Mapping.Current.Notes.Modify_Edit("MOVE NOTE[S]", (n) =>
+                    {
+                        n.X = x;
+                        n.Y = y;
+                    });
+                }
             }
             else if (Mapping.Current.RenderMode == ObjectRenderMode.Special &&
                 objectLookup.TryGetValue(Mapping.Current.ObjectMode, out Dictionary<Vector2, MapObject>? subLookup) && subLookup != null)

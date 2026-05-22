@@ -132,6 +132,15 @@ namespace New_SSQE.NewGUI
                 PixelFormat.Bgra, PixelType.UnsignedByte, pixels);
         }
 
+        public static void LoadAlphaMap(int texture, int width, int height, nint pixels, TextureUnit texUnit)
+        {
+            EnableTextureUnit(Shader.Texture, texUnit);
+            EnableTexture(texture);
+
+            GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Red, width, height, 0,
+                PixelFormat.Bgra, PixelType.UnsignedByte, pixels);
+        }
+
         public static int NewTexture(TextureUnit texUnit, bool smooth = true)
         {
             int texture = GL.GenTexture();

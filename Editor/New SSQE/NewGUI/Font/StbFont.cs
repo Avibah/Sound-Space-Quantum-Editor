@@ -25,8 +25,7 @@ namespace New_SSQE.NewGUI.Font
         public Vector2 CharSize;
         public Vector4[] AtlasMetrics;
         public int VAO;
-        public int VBO_0;
-        public int VBO_1;
+        public int VBO;
         public int StaticVBO;
 
         private readonly int _baseline;
@@ -133,8 +132,7 @@ namespace New_SSQE.NewGUI.Font
             surface.Dispose();
 
             (VAO, StaticVBO) = GLState.NewVAO_VBO(2);
-            VBO_0 = GLState.ExtendInstancingVAO(VAO, 1, 4);
-            VBO_1 = GLState.ExtendInstancingVAO(VAO, 2, 1);
+            VBO = GLState.ExtendInstancingVAO(VAO, 1, 4);
 
             float[] charData =
             [
@@ -157,8 +155,7 @@ namespace New_SSQE.NewGUI.Font
         private static int[] UnicodeExtents;
 
         public static int UnicodeVAO;
-        public static int UnicodeVBO_0;
-        public static int UnicodeVBO_1;
+        public static int UnicodeVBO;
         public static int UnicodeStaticVBO;
 
         public static bool InitUnicode(string path, TextureUnit unit)
@@ -224,8 +221,7 @@ namespace New_SSQE.NewGUI.Font
             surface.Dispose();
 
             (UnicodeVAO, UnicodeStaticVBO) = GLState.NewVAO_VBO(2);
-            UnicodeVBO_0 = GLState.ExtendInstancingVAO(UnicodeVAO, 1, 4);
-            UnicodeVBO_1 = GLState.ExtendInstancingVAO(UnicodeVAO, 2, 1);
+            UnicodeVBO = GLState.ExtendInstancingVAO(UnicodeVAO, 1, 4);
 
             float[] charData =
             [
@@ -241,7 +237,7 @@ namespace New_SSQE.NewGUI.Font
             GLState.BufferData(UnicodeStaticVBO, charData);
 
             int handle = GLState.NewTexture(unit, true);
-            GLState.LoadTexture(handle, UnicodeBitmap.Width, UnicodeBitmap.Height, UnicodeBitmap.GetPixels(), unit);
+            GLState.LoadAlphaMap(handle, UnicodeBitmap.Width, UnicodeBitmap.Height, UnicodeBitmap.GetPixels(), unit);
 
             return true;
         }
@@ -329,17 +325,17 @@ namespace New_SSQE.NewGUI.Font
             }
         }
 
-        public Vector4[] Print(float x, float y, string text, float fontSize, bool unicode = false)
+        public Vector4[] Print(float x, float y, string text, float fontSize, float alpha, bool unicode = false)
         {
             Vector4[] verts = new Vector4[text.Replace("\n", "").Length];
-            PrintInto(verts, 0, x, y, text, fontSize, unicode);
+            PrintInto(verts, 0, x, y, text, fontSize, alpha, unicode);
 
             return verts;
         }
 
         // Prints one Vector4 per character into a given Vector4 array with the necessary data to be passed to a corresponding shader for rendering
         // Formatted as x/y/scale/char
-        public void PrintInto(Vector4[] verts, int offset, float x, float y, string text, float fontSize, bool unicode = false)
+        public void PrintInto(Vector4[] verts, int offset, float x, float y, string text, float fontSize, float alpha, bool unicode = false)
         {
             if (unicode)
             {
@@ -362,7 +358,7 @@ namespace New_SSQE.NewGUI.Font
                         if (c < 0 || c > UnicodeCharRange - 1)
                             c = (char)0;
 
-                        verts[i - vi + offset] = (cx, y, scale, c);
+                        verts[i - vi + offset] = (cx, y, scale, c * 2 + alpha);
                         cx += (UnicodeExtents[c] + 1) * scale / UnicodeWidth;
                     }
                 }
@@ -392,7 +388,7 @@ namespace New_SSQE.NewGUI.Font
                         if (cx > x)
                             cx += Bearings[c] * scale;
 
-                        verts[i - vi + offset] = (cx, y, scale, c);
+                        verts[i - vi + offset] = (cx, y, scale, c * 2 + alpha);
                         cx += Extents[c] * scale;
                         cx -= (Bearings[c] - OriginSize / 32f) * scale;
                     }

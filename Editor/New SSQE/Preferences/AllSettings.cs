@@ -5,7 +5,7 @@ namespace New_SSQE.Preferences
 {
     internal partial class Settings
     {
-        public static readonly Setting<bool> _use_x11 = false;
+        public static readonly Setting<bool> _use_x11 = true;
 
         public static readonly Setting<bool> waveform = true;
         public static readonly Setting<bool> classicWaveform = false;
@@ -47,6 +47,9 @@ namespace New_SSQE.Preferences
         public static readonly Setting<bool> smoothAutoplay = true;
         public static readonly Setting<bool> gridSquircles = true;
         public static readonly Setting<bool> controlGradients = true;
+        public static readonly Setting<bool> oldQuantumSnap = false;
+        public static readonly Setting<bool> scaleMetronome = false;
+        public static readonly Setting<bool> moveOnGridKey = false;
 
         public static readonly Setting<float> editorBGOpacity = 255;
         public static readonly Setting<float> gridOpacity = 255;
@@ -88,10 +91,10 @@ namespace New_SSQE.Preferences
         public static readonly Setting<string> novaFolderPath = "";
         public static readonly Setting<string> phxmFolderPath = "";
         public static readonly Setting<string> replayPath = "";
-        public static readonly Setting<string> playtestGame = "Rhythia";
+        public static readonly Setting<string> playtestGame = "Rhythia Nightly";
         public static readonly Setting<ListSetting> cameraMode = new ListSetting(0, "half lock", "full lock", "spin");
         public static readonly Setting<ListSetting> modchartGame = new ListSetting(1, "Rhythia", "Novastra");
-        public static readonly Setting<ListSetting> exportType = new ListSetting(0, "Rhythia (SSPM)", "Rhythia (PHXM)", "Novastra (NPK)");
+        public static readonly Setting<ListSetting> exportType = new ListSetting(0, "Nightly (SSPM)", "Rewrite (PHXM)", "Novastra (NPK)");
 
         public static readonly Setting<ListSetting> modchartStyle = new ListSetting(0, "Linear", "Sine", "Back", "Quad", "Quart", "Quint", "Bounce", "Elastic", "Exponential", "Circular", "Cubic");
         public static readonly Setting<ListSetting> modchartDirection = new ListSetting(0, "In", "Out");

@@ -6,8 +6,7 @@ namespace New_SSQE.NewGUI.Shaders
     {
         private const string vertex = @"#version 330 core
 layout (location = 0) in vec2 aPosition;
-layout (location = 1) in vec4 aCharLayout; // x/y/s/c
-layout (location = 2) in float aCharAlpha;
+layout (location = 1) in vec4 aCharLayout; // x/y/s/c&a
 
 out vec4 texColor;
 out vec2 texCoord;
@@ -20,7 +19,8 @@ uniform mat4 Projection;
                                                 
 void main()
 {
-    vec4 texLocation = TexLookup[int(aCharLayout.w)];
+    float a = mod(aCharLayout.w, 2.0f);
+    vec4 texLocation = TexLookup[int(aCharLayout.w - a) / 2];
 
     float x = aCharLayout.x + aPosition.x * aCharLayout.z;
     float y = aCharLayout.y + aPosition.y * aCharLayout.z;
@@ -29,7 +29,7 @@ void main()
 
     gl_Position = Projection * vec4(x, y, 0.0f, 1.0f);
 
-    texColor = vec4(TexColor.xyz, TexColor.w * (1.0f - aCharAlpha));
+    texColor = vec4(TexColor.xyz, TexColor.w * a);
     texCoord = vec2(tx, ty);
 }";
 
@@ -43,7 +43,7 @@ uniform sampler2D texture0;
                                                
 void main()
 {
-    FragColor = vec4(texColor.xyz, texture(texture0, texCoord).w * texColor.w);
+    FragColor = vec4(texColor.xyz, texture(texture0, texCoord).x * texColor.w);
 }";
 
         public FontShader() : base(vertex, fragment) { }

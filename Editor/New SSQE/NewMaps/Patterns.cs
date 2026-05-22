@@ -3,7 +3,6 @@ using New_SSQE.Preferences;
 using OpenTK.Mathematics;
 using System.Numerics;
 using New_SSQE.NewGUI.Windows;
-using SoundTouch;
 using New_SSQE.Services;
 
 namespace New_SSQE.NewMaps

@@ -1,9 +1,11 @@
-﻿namespace New_SSQE.Services
+﻿using New_SSQE.Audio;
+
+namespace New_SSQE.Services
 {
     internal class GCHandler
     {
-        private const double GC_TIME = 2;
-        private const double GC_TIMEOUT = 0.05;
+        private const double GC_TIME = 10;
+        private static double GC_TIMEOUT => SoundEngine.PERIOD_MILLISECONDS / 2;
 
         private static double _lastCollected = 0;
         private static double _lastStopped = 0;
@@ -12,6 +14,9 @@
 
         public static void Process(double frametime)
         {
+            if (MusicPlayer.IsPlaying)
+                return;
+
             _time += frametime;
 
             if (_time <= _lastStopped + GC_TIME * Math.Pow(2, _timeouts + 1))

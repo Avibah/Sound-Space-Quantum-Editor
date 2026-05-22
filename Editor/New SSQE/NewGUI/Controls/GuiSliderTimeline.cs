@@ -241,6 +241,17 @@ namespace New_SSQE.NewGUI.Controls
             base.MouseUpLeft(x, y);
         }
 
+        public override void MouseDownRightGlobal(float x, float y)
+        {
+            if (hoveringBookmark != null)
+            {
+                MusicPlayer.Pause();
+                Settings.currentTime.Value.Value = KeybindManager.ShiftHeld ? hoveringBookmark.Ms : hoveringBookmark.EndMs;
+            }
+
+            base.MouseDownRightGlobal(x, y);
+        }
+
         public override void Resize(float screenWidth, float screenHeight)
         {
             base.Resize(screenWidth, screenHeight);

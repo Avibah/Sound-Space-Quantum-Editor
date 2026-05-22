@@ -229,19 +229,16 @@ namespace New_SSQE.NewGUI.Base
             else
                 textY += textPadding.Y;
 
-            verts = FontRenderer.Print(textX, textY, curText, TextSize, font);
+            verts = FontRenderer.Print(textX, textY, curText, TextSize, font, alpha);
         }
 
         public override void PostRender(float mousex, float mousey, float frametime)
         {
             if (verts.Length != 0)
             {
-                float[] a = new float[verts.Length];
-                Array.Fill(a, 1 - alpha);
-
                 FontRenderer.SetActive(font);
                 FontRenderer.SetColor(textColor);
-                FontRenderer.RenderData(font, verts, a);
+                FontRenderer.RenderData(font, verts);
             }
 
             base.PostRender(mousex, mousey, frametime);

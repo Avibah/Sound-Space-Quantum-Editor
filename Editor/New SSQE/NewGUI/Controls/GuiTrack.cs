@@ -131,7 +131,7 @@ namespace New_SSQE.NewGUI.Controls
                     float x = text[i].Item1;
                     float y = primary ? rect.Height : rect.Height * 1.2f;
 
-                    FontRenderer.PrintInto(data, offset, x, y + yOffset, str, rect.Height / 4, "main");
+                    FontRenderer.PrintInto(data, offset, x, y + yOffset, str, rect.Height / 4, "main", hoveringText == null ? 1 : 0.2f);
                 }
 
                 offset += str.Length;
@@ -572,7 +572,7 @@ namespace New_SSQE.NewGUI.Controls
             if (Settings.metronome.Value && MainWindow.Focused)
             {
                 float ms = currentTime - sfxOffset;
-                float beat = Timing.GetClosestBeat(ms, null, true);
+                float beat = Timing.GetClosestBeat(ms, null, !Settings.scaleMetronome.Value);
 
                 if (beat != lastPlayedTick && beat <= ms && beat > 0 && MusicPlayer.IsPlaying)
                 {
@@ -721,26 +721,18 @@ namespace New_SSQE.NewGUI.Controls
 
             FontRenderer.SetActive(FONT);
 
-            float[] color1Alpha = new float[color1Data.Length];
-            float[] color2Alpha = new float[color2Data.Length];
-
             if (hoveringText != null)
             {
-                Array.Fill(color1Alpha, 0.8f);
-                Array.Fill(color2Alpha, 0.8f);
                 Vector4i metrics = hoveringText.Value;
-                
-                for (int i = metrics.X; i < metrics.X + metrics.Y; i++)
-                    color1Alpha[i] = 0;
-                for (int i = metrics.Z; i < metrics.Z + metrics.W; i++)
-                    color2Alpha[i] = 0;
+                FontRenderer.SetAlpha(color1Data, 1, metrics.X, metrics.X + metrics.Y);
+                FontRenderer.SetAlpha(color2Data, 1, metrics.Z, metrics.Z + metrics.W);
             }
 
             FontRenderer.SetColor(Style.Primary);
-            FontRenderer.RenderData(FONT, color1Data, color1Alpha);
+            FontRenderer.RenderData(FONT, color1Data);
 
             FontRenderer.SetColor(Style.Secondary);
-            FontRenderer.RenderData(FONT, color2Data, color2Alpha);
+            FontRenderer.RenderData(FONT, color2Data);
         }
 
         public override void MouseMove(float x, float y)

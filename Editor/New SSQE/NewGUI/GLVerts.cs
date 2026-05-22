@@ -5,6 +5,21 @@ namespace New_SSQE.NewGUI
 {
     internal class GLVerts
     {
+        public static float[] Align(float[] verts, int vertWidth = 6)
+        {
+            float[] aligned = new float[verts.Length];
+
+            for (int i = 0; i < verts.Length; i += vertWidth)
+            {
+                aligned[i + 0] = (int)(verts[i + 0] + 0.5f);
+                aligned[i + 1] = (int)(verts[i + 1] + 0.5f);
+                for (int j = 2; j < vertWidth; j++)
+                    aligned[i + j] = verts[i + j];
+            }
+
+            return aligned;
+        }
+
         public static float[] Quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float r, float g, float b, float a = 1)
         {
             return

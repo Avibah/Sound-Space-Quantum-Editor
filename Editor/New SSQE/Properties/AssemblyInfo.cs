@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Sound Space Studios")]
 [assembly: AssemblyProduct("Sound Space Quantum Editor")]
-[assembly: AssemblyCopyright("Copyright © 2026")]
+[assembly: AssemblyCopyright("Copyright © 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
 
 [assembly: Guid("9a405608-105f-473a-8f17-9d8c05f82b19")]
-[assembly: AssemblyVersion("2.3.4.2")]
-[assembly: AssemblyFileVersion("2.3.4.2")]
+[assembly: AssemblyVersion("2.3.5.0")]
+[assembly: AssemblyFileVersion("2.3.5.0")]

@@ -32,7 +32,10 @@ namespace New_SSQE.NewGUI.Base
 
         public GuiWindowDialog(float x, float y, float w, float h, params Control[] controls) : base(x - 1, y - (TOPBAR_HEIGHT - 2) + 1, w + 2, h + TOPBAR_HEIGHT)
         {
-            InnerContainer = new(1, TOPBAR_HEIGHT - 1, w, h, controls);
+            InnerContainer = new(1, TOPBAR_HEIGHT - 1, w, h, controls)
+            {
+                PixelAligned = true
+            };
 
             CloseButton = new(w - CLOSE_WIDTH + 1, 1, CLOSE_WIDTH, TOPBAR_HEIGHT - 2, new("DialogClose"))
             {

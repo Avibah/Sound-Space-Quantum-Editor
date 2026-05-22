@@ -150,76 +150,52 @@ namespace New_SSQE.Objects.Other
 
         public void RemoveAll(List<T> items)
         {
-            int curIndex = Count - 1;
-            int itemIndex = items.Count - 1;
+            if (items.Count == 0)
+                return;
 
-            while (curIndex >= 0 && itemIndex >= 0)
+            T[] set = [.. items.OrderBy(n => n.Ms)];
+            (int low, int high) = SearchRange(set[0].Ms, set.Last().Ms);
+
+            List<T> start = this[..low];
+            List<T> end = this[high..];
+
+            T[] replace = new T[high - low - items.Count];
+            int repIndex = 0;
+            int curIndex = 0;
+
+            while (low < high)
             {
-                int prevIndex = curIndex;
+                long cutoff = this[low].Ms;
+                bool found = false;
 
-                for (int i = curIndex; i >= 0; i--)
+                for (int i = curIndex; i < set.Length; i++)
                 {
-                    if (this[i] == items[itemIndex])
+                    if (set[i].Ms < cutoff)
                     {
-                        RemoveAt(i);
-                        curIndex--;
-                        itemIndex--;
-                        break;
+                        curIndex++;
+                        continue;
                     }
-                }
 
-                if (curIndex == prevIndex)
-                    itemIndex--;
-            }
-        }
-
-        /* May improve performance when removing objects, unsure since something borked the undo performance somewhere else .-.
-        public void RemoveAll(List<T> items)
-        {
-            int curIndex = Count - 1;
-            int itemIndex = items.Count - 1;
-
-            List<int> indices = new(items.Count);
-
-            while (curIndex >= 0 && itemIndex >= 0)
-            {
-                int prevIndex = curIndex;
-
-                for (int i = curIndex; i >= 0; i--)
-                {
-                    if (this[i] == items[itemIndex])
-                    {
-                        indices.Add(i);
-                        curIndex--;
-                        itemIndex--;
+                    if (set[i].Ms > cutoff)
                         break;
-                    }
+
+                    if (this[low] != set[i])
+                        continue;
+
+                    found = true;
+                    break;
                 }
 
-                if (curIndex == prevIndex)
-                    itemIndex--;
-            }
-
-            indices = [.. indices.OrderBy(n => n)];
-            T[] remaining = new T[Count - indices.Count];
-            int remainingIndex = 0;
-            int checkIndex = 0;
-
-            for (curIndex = 0; curIndex < Count; curIndex++)
-            {
-                if (checkIndex < indices.Count && curIndex == indices[checkIndex])
-                {
-                    checkIndex++;
-                    continue;
-                }
-
-                remaining[remainingIndex++] = this[curIndex];
+                if (!found)
+                    replace[repIndex++] = this[low];
+                low++;
             }
 
             base.Clear();
-            AddRange(remaining);
+            AddRange(start);
+            AddRange(replace);
+            AddRange(end);
         }
-        */
 
 
 

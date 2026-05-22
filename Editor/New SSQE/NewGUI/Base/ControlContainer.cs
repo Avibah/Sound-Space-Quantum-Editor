@@ -42,6 +42,9 @@ namespace New_SSQE.NewGUI.Base
 
             foreach (Control control in controls)
             {
+                if (PixelAligned)
+                    control.PixelAligned = true;
+
                 if (control is InteractiveControl interactive)
                 {
                     if (control.RenderOnTop)
