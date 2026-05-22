@@ -1,17 +1,29 @@
 
-NOTICE: You are advised against uploading SSPM exports to the Rhythia Online website unless you know what you are getting into.
-
-They do not allow you to delete your own beatmaps and they often refuse to remove them even after a valid GDPR data removal request. This is implied per their Privacy Policy.
-
-*This is unacceptable.* Your own hard work should belong to you and not be held captive by others, but this website has made it clear that they believe they own what you create.
-
-If a reasonable effort is made to honor beatmap removal requests when appropriate and to make it easier for uploaders to remove or otherwise hide their works, this advisory will be removed.
+NOTICE: You are advised not to use Rhythia Online for uploading SSPM files as you cannot delete maps (nor do they accept valid GDPR data removal requests to do so).
 
 ----------------------------------
-    -- 2.3.4.2 - 5/2/2026 --
+    -- 2.3.5.0 - 5/21/2026 --
 
 IF UPDATING FROM 2.3.4.0:
   - a bug on this version broke update checks so youll need to update manually, either by running SSQEUpdater.exe or downloading/installing the new version from GitHub
+
+- added an option to use old quantum snapping in the 'OPTIONS' tab
+- added an option to scale metronome speed with beat divisor in the 'TIMING' tab
+- added an option to shift selected notes to pressed grid keys instead of always adding a new note in the 'PATTERNS' tab
+
+- bookmarks can now be right clicked, which jumps to the end of the bookmark (or beginning when holding shift)
+
+- fixed pixel alignment of buttons in message boxes
+- heavily optimized deleting notes
+- slightly optimized text rendering
+- reduced garbage collection aggressiveness
+
+   -- P-2.1.6.2 - 5/21/2026 --
+
+- fixed some compatibility issues on Wayland on Linux
+
+----------------------------------
+    -- 2.3.4.2 - 5/2/2026 --
 
 - dragging a note on the track now keeps the same text focus effect of hovering over that note
 
