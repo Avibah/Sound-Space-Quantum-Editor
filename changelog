@@ -4,13 +4,13 @@ NOTICE: You are advised not to use Rhythia Online for uploading SSPM files as yo
 ----------------------------------
     -- 2.3.5.1 - 5/22/2026 --
 
+IF UPDATING FROM 2.3.4.0:
+  - a bug on this version broke update checks so youll need to update manually, either by running SSQEUpdater.exe or downloading/installing the new version from GitHub
+
 - fixed SSPM/PHXM exporting
 
 ----------------------------------
     -- 2.3.5.0 - 5/21/2026 --
-
-IF UPDATING FROM 2.3.4.0:
-  - a bug on this version broke update checks so youll need to update manually, either by running SSQEUpdater.exe or downloading/installing the new version from GitHub
 
 - added an option to use old quantum snapping in the 'OPTIONS' tab
 - added an option to scale metronome speed with beat divisor in the 'TIMING' tab
