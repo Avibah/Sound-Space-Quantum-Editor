@@ -2,10 +2,15 @@
 NOTICE: You are advised not to use Rhythia Online for uploading SSPM files as you cannot delete maps (nor do they accept valid GDPR data removal requests to do so).
 
 ----------------------------------
-    -- 2.3.5.1 - 5/22/2026 --
+    -- 2.3.5.2 - 5/23/2026 --
 
 IF UPDATING FROM 2.3.4.0:
   - a bug on this version broke update checks so youll need to update manually, either by running SSQEUpdater.exe or downloading/installing the new version from GitHub
+
+- fixed crashes related to the new note deletion functionality
+
+----------------------------------
+    -- 2.3.5.1 - 5/22/2026 --
 
 - fixed SSPM/PHXM exporting
 
