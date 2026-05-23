@@ -276,7 +276,7 @@ namespace New_SSQE.NewGUI.Controls
                         noteHovers = (x, y, 1, 2 * 5 + 1);
                 }
                 
-                if (note.Selected)
+                if (note.Selected && selectIndex < noteSelects.Length)
                     noteSelects[selectIndex++] = (x, y, 1, 2 * 6 + progress);
 
                 if (gridNumbers)

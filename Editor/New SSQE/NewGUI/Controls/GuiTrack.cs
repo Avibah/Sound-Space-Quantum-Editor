@@ -213,7 +213,7 @@ namespace New_SSQE.NewGUI.Controls
 
                     if (isHovering)
                         noteHovers = (x, 0, 1, 2 * 5 + 1);
-                    else if (note.Selected)
+                    else if (note.Selected && selectIndex < noteSelects.Length)
                     {
                         if (dragging)
                             dragLines[selectIndex++] = (cursorPos - currentPos + note.DragStartMs * MS_TO_PX, 0, 1, 2 * 7 + 1);

@@ -152,6 +152,7 @@ namespace New_SSQE.Objects.Other
         {
             if (items.Count == 0)
                 return;
+            Sort();
 
             T[] set = [.. items.OrderBy(n => n.Ms)];
             (int low, int high) = SearchRange(set[0].Ms, set.Last().Ms);
@@ -159,11 +160,11 @@ namespace New_SSQE.Objects.Other
             List<T> start = this[..low];
             List<T> end = this[high..];
 
-            T[] replace = new T[high - low - items.Count];
+            T[] replace = new T[Math.Max(0, high - low - items.Count)];
             int repIndex = 0;
             int curIndex = 0;
 
-            while (low < high)
+            while (low <= high)
             {
                 long cutoff = this[low].Ms;
                 bool found = false;
@@ -186,7 +187,7 @@ namespace New_SSQE.Objects.Other
                     break;
                 }
 
-                if (!found)
+                if (!found && repIndex < replace.Length)
                     replace[repIndex++] = this[low];
                 low++;
             }
@@ -195,6 +196,8 @@ namespace New_SSQE.Objects.Other
             AddRange(start);
             AddRange(replace);
             AddRange(end);
+
+            UpdateSelection();
         }
 
 
@@ -242,7 +245,7 @@ namespace New_SSQE.Objects.Other
             if (toModify.Count == 0)
                 return;
 
-            List<T> completed = [..toModify.Select(n => n.Clone()).Cast<T>()];
+            List<T> completed = [.. toModify.Select(n => n.Clone()).Cast<T>()];
             completed.ForEach(action);
 
             Modify_Replace(label, toModify, completed);

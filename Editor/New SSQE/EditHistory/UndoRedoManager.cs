@@ -14,6 +14,8 @@ namespace New_SSQE.EditHistory
 
         public static void Add(string label, Action undo, Action redo, bool runRedo = true)
         {
+            bool added = false;
+
             try
             {
                 while (_index + 1 < actions.Count)
@@ -21,6 +23,7 @@ namespace New_SSQE.EditHistory
 
                 actions.Add(new URAction(label, undo, redo));
                 _index++;
+                added = true;
 
                 if (runRedo && _index < actions.Count && _index >= 0)
                     actions[_index].Redo?.Invoke();
@@ -40,7 +43,13 @@ namespace New_SSQE.EditHistory
             }
             catch (Exception ex)
             {
-                Logging.Log($"Failed to register action: {label} - {ex.Message}", LogSeverity.WARN);
+                Logging.Log($"Failed to register action: {label}", LogSeverity.WARN, ex);
+
+                if (added)
+                {
+                    actions.RemoveAt(actions.Count - 1);
+                    _index--;
+                }
             }
         }
 
