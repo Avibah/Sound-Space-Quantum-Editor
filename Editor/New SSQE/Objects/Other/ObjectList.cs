@@ -164,7 +164,7 @@ namespace New_SSQE.Objects.Other
             int repIndex = 0;
             int curIndex = 0;
 
-            while (low <= high)
+            while (low < high)
             {
                 long cutoff = this[low].Ms;
                 bool found = false;

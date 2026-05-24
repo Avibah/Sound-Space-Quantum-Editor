@@ -997,6 +997,8 @@ namespace New_SSQE.NewGUI.Controls
                         n.X = x;
                         n.Y = y;
                     });
+
+                    return;
                 }
             }
             else if (Mapping.Current.RenderMode == ObjectRenderMode.Special &&
