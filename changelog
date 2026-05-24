@@ -8,6 +8,7 @@ IF USING 2.3.4.0:
   - a bug on this version broke update checks so youll need to update manually, either by running SSQEUpdater.exe or downloading/installing the new version from GitHub
 
 - fixed crashes related to the new note deletion functionality
+- fixed shifting a note on the grid triggering auto-advance
 
 ----------------------------------
     -- 2.3.5.1 - 5/22/2026 --
