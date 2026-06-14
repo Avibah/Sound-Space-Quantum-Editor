@@ -2,10 +2,15 @@
 NOTICE: You are advised not to use Rhythia Online for uploading SSPM files as you cannot delete maps (nor do they accept valid GDPR data removal requests to do so).
 
 ----------------------------------
-   -- 2.3.5.2/3 - 5/23/2026 --
+   -- 2.3.5.4 - 6/14/2026 --
+
+- fixed clicking in the lyric box when editing extra objects causing a black screen
 
 IF USING 2.3.4.0:
   - a bug on this version broke update checks so youll need to update manually, either by running SSQEUpdater.exe or downloading/installing the new version from GitHub
+
+----------------------------------
+   -- 2.3.5.2/3 - 5/23/2026 --
 
 - fixed crashes related to the new note deletion functionality
 - fixed shifting a note on the grid triggering auto-advance
