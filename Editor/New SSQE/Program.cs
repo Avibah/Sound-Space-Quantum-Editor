@@ -34,8 +34,14 @@ namespace New_SSQE
             BuildAvaloniaApp();
 
             Settings.Load();
-            if (Platforms.IsLinux && Settings._use_x11.Value)
-                GLFW.InitHint(InitHintPlatform.Platform, Platform.X11);
+            if (Platforms.IsLinux)
+            {
+                bool wayland = Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland";
+
+                GLFW.InitHint(InitHintPlatform.Platform, wayland && !Settings._use_x11.Value
+                    ? Platform.Wayland
+                    : Platform.X11);
+            }
 
             MainWindow.DebugVersion |= Settings.debugMode.Value;
             MainWindow window = new(Settings.msaa.Value ? 32 : 0);
@@ -111,7 +117,7 @@ If none of these work or aren't applicable, report the error through {Links.FEED
             File.WriteAllText(Assets.TempAt("crash.dat"), DateTime.Now.ToString());
             Environment.Exit(0);
         }
-        
+
         public static void Main(string[] args)
         {
             try
